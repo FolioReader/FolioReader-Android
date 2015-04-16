@@ -4,25 +4,37 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import br.com.rsa.folioreader.FolioReaderViewPager;
+import br.com.rsa.folioreader.FolioReaderWebView;
 import br.com.rsa.folioreader.R;
 import br.com.rsa.folioreader.adapter.FolioReaderAdapter;
 
 public class FolioReaderActivity extends ActionBarActivity {
 
     private FolioReaderViewPager pager;
+    private FolioReaderWebView webView;
     private FolioReaderAdapter adapter;
+    private List<String> urlList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_folio_reader);
 
-        pager = (FolioReaderViewPager) findViewById(R.id.pager);
-        adapter = new FolioReaderAdapter(getSupportFragmentManager(), 5);
-        pager.setAdapter(adapter);
+        urlList = new ArrayList<String>();
+        urlList.add("http://www.google.com.br/");
+        urlList.add("http://www.facebook.com.br/");
+        urlList.add("http://www.globo.com/");
 
+        pager = (FolioReaderViewPager) findViewById(R.id.pager);
+        adapter = new FolioReaderAdapter(getSupportFragmentManager(), urlList);
+        pager.setAdapter(adapter);
+        pager.startNestedScroll(View.SCROLL_AXIS_VERTICAL);
     }
 
     @Override

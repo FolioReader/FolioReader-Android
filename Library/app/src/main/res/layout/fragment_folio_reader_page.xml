@@ -6,9 +6,10 @@
     android:background="#AAA"
     tools:context="br.com.rsa.folioreader.fragment.FolioReaderPageFragment">
 
-    <TextView
+    <br.com.rsa.folioreader.FolioReaderWebView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:nestedScrollingEnabled="true"
+        android:id="@+id/webView" />
 
 </FrameLayout>
