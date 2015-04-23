@@ -2,21 +2,23 @@ package br.com.rsa.folioreader.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.rsa.folioreader.FolioReaderViewPager;
 import br.com.rsa.folioreader.R;
-import br.com.rsa.folioreader.adapter.FolioReaderAdapter;
+import br.com.rsa.folioreader.adapter.FolioReaderListAdapter;
 
 public class FolioReaderActivity extends ActionBarActivity {
 
-    private FolioReaderViewPager pager;
-    //private FolioReaderListView listView;
-    private FolioReaderAdapter adapter;
+    //private FolioReaderViewPager pager;
+    private RecyclerView listView;
+    private FolioReaderListAdapter listAdapter;
+    //private FolioReaderAdapter adapter;
     private List<String> urlList;
 
     @Override
@@ -28,13 +30,15 @@ public class FolioReaderActivity extends ActionBarActivity {
         urlList.add("http://www.google.com.br/");
         urlList.add("http://www.facebook.com.br/");
         urlList.add("http://www.globo.com/");
+        listAdapter = new FolioReaderListAdapter(getApplicationContext(), urlList);
 
-//        listView = (FolioReaderListView) findViewById(R.id.listView);
-//        listView.setAdapter(new FolioReaderListViewAdapter(getApplicationContext(), urlList));
+        listView = (RecyclerView) findViewById(R.id.list);
+        listView.setAdapter(listAdapter);
+        listView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
-        pager = (FolioReaderViewPager) findViewById(R.id.pager);
-        adapter = new FolioReaderAdapter(getSupportFragmentManager(), urlList);
-        pager.setAdapter(adapter);
+        //pager = (FolioReaderViewPager) findViewById(R.id.pager);
+        //adapter = new FolioReaderAdapter(getSupportFragmentManager(), urlList);
+        //pager.setAdapter(adapter);
     }
 
     @Override
