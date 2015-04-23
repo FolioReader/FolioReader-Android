@@ -7,7 +7,14 @@
     <br.com.rsa.folioreader.FolioReaderViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
+        android:descendantFocusability="blocksDescendants"
         android:layout_height="match_parent"
-        android:nestedScrollingEnabled="true"/>
+        android:nestedScrollingEnabled="true" />
+
+    <!--<br.com.rsa.folioreader.FolioReaderListView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:descendantFocusability="blocksDescendants"-->
+        <!--android:id="@+id/listView" />-->
 
 </RelativeLayout>

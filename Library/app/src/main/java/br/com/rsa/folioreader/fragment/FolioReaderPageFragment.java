@@ -23,17 +23,25 @@ public class FolioReaderPageFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        webView.saveState(outState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_folio_reader_page, container, false);
-
         this.urlToLoad = getArguments().getString("url");
-
         webView = (FolioReaderWebView) view.findViewById(R.id.webView);
-        webView.loadData(urlToLoad, "text/html", "UTF-8");
+
+        if (savedInstanceState != null)
+            webView.restoreState(savedInstanceState);
+        else
+            webView.loadData(urlToLoad, "text/html", "UTF-8");
+
         webView.setCurrentIndex(getArguments().getInt("currentIndex"));
         webView.setTotalIndex(getArguments().getInt("maxIndex"));
-        webView.startNestedScroll(View.SCROLL_AXIS_VERTICAL);
 
         return view;
     }
