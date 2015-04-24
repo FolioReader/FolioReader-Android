@@ -1,6 +1,7 @@
 package br.com.rsa.folioreader.contracts;
 
-import nl.siegmann.epublib.domain.Book;
+import br.com.rsa.folioreader.adapter.FolioReaderAdapter;
+import fr.castorflex.android.verticalviewpager.VerticalViewPager;
 
 /**
  * Created by rodrigo.almeida on 08/04/15.
@@ -15,5 +16,8 @@ public interface IFolioReader {
     public void gotoFirstPage();
     public void setHighlight();
     */
-    public Book getBook();
+
+    public FolioReaderAdapter getAdapter();
+    public VerticalViewPager getPager();
+    public VerticalViewPager setAdapter(FolioReaderAdapter folioReaderAdapter);
 }

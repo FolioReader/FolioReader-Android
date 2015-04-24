@@ -26,8 +26,6 @@ public class FolioReaderAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         Bundle bundle = new Bundle();
         bundle.putString("url", Constants.content);
-        bundle.putInt("maxIndex", pathPage.size());
-        bundle.putInt("currentIndex", position);
 
         FolioReaderPageFragment fragment = new FolioReaderPageFragment();
         fragment.setArguments(bundle);

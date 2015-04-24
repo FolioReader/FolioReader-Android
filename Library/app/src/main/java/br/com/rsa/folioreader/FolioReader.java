@@ -1,36 +1,44 @@
 package br.com.rsa.folioreader;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
 
-import java.io.FileInputStream;
-import java.util.UUID;
-
+import br.com.rsa.folioreader.adapter.FolioReaderAdapter;
 import br.com.rsa.folioreader.contracts.IFolioReader;
-import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.epub.EpubReader;
+import fr.castorflex.android.verticalviewpager.VerticalViewPager;
 
 /**
  * Created by rodrigo.almeida on 09/04/15.
  */
 public class FolioReader implements IFolioReader {
 
-    private Book book;
-    private FileInputStream fileInputStream;
     private Context context;
-    private UUID identity;
-    private String localDecompressed = context.getExternalFilesDir(null) + identity.toString();
+    private VerticalViewPager pager;
+    private FolioReaderAdapter adapter;
 
-    public FolioReader(String pathEPub, Context context) {
-        try {
-            this.fileInputStream = new FileInputStream(pathEPub);
-            this.book = (new EpubReader()).readEpub(fileInputStream);
-        } catch (Exception e) { }
+    public FolioReader(Context context) {
         this.context = context;
-        identity = UUID.randomUUID();
+        View view = LayoutInflater.from(context).inflate(R.layout.folioreader_vertical_view_pager, null);
+        pager = (VerticalViewPager) view.findViewById(R.id.folio_reader_vertical_view_pager);
     }
 
     @Override
-    public Book getBook() {
-        return this.book;
+    public VerticalViewPager getPager() {
+        return this.pager;
+    }
+
+    @Override
+    public VerticalViewPager setAdapter(FolioReaderAdapter folioReaderAdapter) {
+        if (folioReaderAdapter != null)
+            pager.setAdapter(folioReaderAdapter);
+
+        adapter = folioReaderAdapter;
+        return pager;
+    }
+
+    @Override
+    public FolioReaderAdapter getAdapter() {
+        return this.adapter;
     }
 }

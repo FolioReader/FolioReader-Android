@@ -4,33 +4,35 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.rsa.folioreader.FolioReaderViewPager;
+import br.com.rsa.folioreader.FolioReader;
 import br.com.rsa.folioreader.R;
 import br.com.rsa.folioreader.adapter.FolioReaderAdapter;
 
 public class FolioReaderActivity extends ActionBarActivity {
 
-    private FolioReaderViewPager pager;
-    private FolioReaderAdapter adapter;
     private List<String> urlList;
+    private RelativeLayout rootView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_folio_reader);
+        rootView = (RelativeLayout) findViewById(R.id.rootView);
 
         urlList = new ArrayList<String>();
         urlList.add("http://www.google.com.br/");
         urlList.add("http://www.facebook.com.br/");
         urlList.add("http://www.globo.com/");
 
-        pager = (FolioReaderViewPager) findViewById(R.id.pager);
-        adapter = new FolioReaderAdapter(getSupportFragmentManager(), urlList);
-        pager.setAdapter(adapter);
+        FolioReader f = new FolioReader(this);
+        f.setAdapter(new FolioReaderAdapter(getSupportFragmentManager(), urlList));
+
+        rootView.addView(f.getPager());
     }
 
     @Override

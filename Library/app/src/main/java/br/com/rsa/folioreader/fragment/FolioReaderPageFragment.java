@@ -17,7 +17,6 @@ public class FolioReaderPageFragment extends Fragment {
 
     private String urlToLoad;
     private FolioReaderWebView webView;
-
     public FolioReaderPageFragment() {
         // Required empty public constructor
     }
@@ -39,9 +38,6 @@ public class FolioReaderPageFragment extends Fragment {
             webView.restoreState(savedInstanceState);
         else
             webView.loadData(urlToLoad, "text/html", "UTF-8");
-
-        webView.setCurrentIndex(getArguments().getInt("currentIndex"));
-        webView.setTotalIndex(getArguments().getInt("maxIndex"));
 
         return view;
     }

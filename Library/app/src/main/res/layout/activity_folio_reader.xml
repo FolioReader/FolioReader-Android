@@ -2,18 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="br.com.rsa.folioreader.activities.FolioReaderActivity">
-
-    <br.com.rsa.folioreader.FolioReaderViewPager
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:descendantFocusability="blocksDescendants"
-        android:layout_height="match_parent"
-        android:nestedScrollingEnabled="true" />
-
-    <!--<android.support.v7.widget.RecyclerView-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:id="@+id/list" />-->
+    tools:context="br.com.rsa.folioreader.activities.FolioReaderActivity"
+    android:id="@+id/rootView">
 
 </RelativeLayout>
