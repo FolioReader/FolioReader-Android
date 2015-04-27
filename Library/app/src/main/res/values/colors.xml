@@ -1,0 +1,6 @@
+<resources>
+    <color name="separator">#D7D7D7</color>
+    <color name="backgroundIndex">#F5F5F5</color>
+    <color name="textIndex">#575757</color>
+    <color name="menuBarIndex">#FF7900</color>
+</resources>

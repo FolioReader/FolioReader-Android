@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:textColor="@color/textIndex"
+            android:gravity="center"
+            android:paddingLeft="10dp"
+            android:textSize="17sp"
+            android:text="@string/preface" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/separator" />
+
+        <ListView
+            android:id="@+id/folioreader_index_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:choiceMode="singleChoice"
+            android:divider="@color/separator"
+            android:dividerHeight="1dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:background="@color/menuBarIndex"
+        android:layout_alignParentBottom="true">
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/menuBarIndex"
+            android:id="@+id/btnHighlight"
+            android:src="@mipmap/icon_highlight" />
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_gravity="center"
+            android:background="@null"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnSearch"
+            android:src="@mipmap/icon_search" />
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/btnFontSize"
+            android:background="@null"
+            android:src="@mipmap/icon_font" />
+
+    </LinearLayout>
+
+</RelativeLayout>
