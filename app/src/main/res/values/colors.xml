@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="shadowIndexMenuAndSeparator">#D7D7D7</color>
+    <color name="itemIndex">#575757</color>
+</resources>
