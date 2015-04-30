@@ -17,6 +17,10 @@ import br.com.rsa.folioreader.FolioReader;
 import br.com.rsa.folioreader.R;
 import br.com.rsa.folioreader.contracts.IFolioReader;
 
+/**
+ * Author: Rodrigo
+ */
+
 public class MainTestActivity extends ListActivity {
 
     static List<File> epubs;
