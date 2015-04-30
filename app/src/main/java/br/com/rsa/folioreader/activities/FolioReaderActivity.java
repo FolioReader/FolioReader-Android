@@ -5,20 +5,21 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import net.simonvt.menudrawer.MenuDrawer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import br.com.rsa.folioreader.R;
 import br.com.rsa.folioreader.adapters.FolioReaderIndexAdapter;
 import br.com.rsa.folioreader.adapters.FolioReaderPagerAdapter;
 import br.com.rsa.folioreader.configuration.Configuration;
+import br.com.rsa.folioreader.entities.BookDecompressed;
 import fr.castorflex.android.verticalviewpager.VerticalViewPager;
-import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.domain.TableOfContents;
 
@@ -38,7 +39,7 @@ public class FolioReaderActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             activeViewId = savedInstanceState.getInt(STATE_ACTIVE_VIEW_ID);
         }
-        viewPager.setAdapter(new FolioReaderPagerAdapter(getSupportFragmentManager(), list));
+        viewPager.setAdapter(new FolioReaderPagerAdapter(getSupportFragmentManager(), bookDecompressed.getUrlResources()));
     }
 
     @Override
@@ -83,22 +84,19 @@ public class FolioReaderActivity extends AppCompatActivity {
     }
 
     private void init() {
-        book = (Book) Configuration.getData("key-book");
+        bookDecompressed = (BookDecompressed) Configuration.getData("key-book");
         viewPager = (VerticalViewPager) findViewById(R.id.folioreader_vertical_viewpager);
         listViewIndex = (ListView) findViewById(R.id.folioreader_listview_index);
-        new CreateIndex().execute(book.getTableOfContents());
-
-        list = new ArrayList<String>();
+        new CreateIndex().execute(bookDecompressed.getBook().getTableOfContents());
     }
 
     private VerticalViewPager viewPager;
-    private List<String> list = Collections.emptyList();
     private MenuDrawer menuDrawer;
     private static final String STATE_ACTIVE_VIEW_ID = "net.simonvt.menudrawer.samples.WindowSample.activeViewId";
     private static final String STATE_MENUDRAWER = "net.simonvt.menudrawer.samples.WindowSample.menuDrawer";
     private int activeViewId;
     private ListView listViewIndex;
-    private Book book;
+    private BookDecompressed bookDecompressed;
 
     /****** Class AsyncTask ******/
     private class CreateIndex extends AsyncTask<TableOfContents, Void, List<TOCReference>> {
@@ -124,14 +122,21 @@ public class FolioReaderActivity extends AppCompatActivity {
         protected void onPostExecute(List<TOCReference> tocReferences) {
             super.onPostExecute(tocReferences);
             listViewIndex.setAdapter(new FolioReaderIndexAdapter(getApplicationContext(), tocReferences));
+            listViewIndex.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    viewPager.setCurrentItem(position);
+                    menuDrawer.closeMenu();
+                }
+            });
         }
 
         private void getRecursive(TOCReference tocReference){
+            list.add(tocReference);
+
             for (TOCReference t : tocReference.getChildren()) {
                 getRecursive(t);
             }
-
-            list.add(tocReference);
         }
     }
 }

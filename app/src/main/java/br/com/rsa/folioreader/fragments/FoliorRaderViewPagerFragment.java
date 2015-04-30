@@ -35,8 +35,7 @@ public class FoliorRaderViewPagerFragment extends Fragment {
         if (savedInstanceState != null)
             webView.restoreState(savedInstanceState);
         else
-            //TODO: change here to load content with loadUrl;
-            webView.loadData(path, "text/html", "UTF-8");
+            webView.loadUrl(path);
 
         return view;
     }
