@@ -1,5 +1,7 @@
 package br.com.rsa.folioreader.configuration;
 
+import android.graphics.Color;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +19,11 @@ public class Configuration {
         object.put(key, obj);
     }
 
-    public static void resetDatas(){
-        object.clear();
+    public static void setButtonsBarColor(Color color) {
+        object.put("folioreader-buttonsbarcolor", color);
+    }
+
+    public static void initConfiguration(){
+        object.put("folioreader-buttonsbarcolor", Color.parseColor("#FF7900"));
     }
 }

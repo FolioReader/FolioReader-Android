@@ -2,4 +2,5 @@
 <resources>
     <color name="shadowIndexMenuAndSeparator">#D7D7D7</color>
     <color name="itemIndex">#575757</color>
+    <color name="folioreader_panel_buttons">#FF7900</color>
 </resources>
