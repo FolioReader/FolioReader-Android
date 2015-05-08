@@ -77,17 +77,17 @@ public class FolioReaderUtils {
         }
         zipFile.close();
 
-        for (Iterator iter = zipFiles.iterator(); iter.hasNext();) {
+        for (Iterator iter = zipFiles.iterator(); iter.hasNext(); ) {
             String zipName = (String) iter.next();
             unzipEPub(zipName, destinationDirectory + File.separatorChar + zipName.substring(0, zipName.lastIndexOf(".zip")));
         }
     }
 
-    public static String getFilename(File file){
+    public static String getFilename(File file) {
         return file.getName().replace(".epub", "");
     }
 
-    public static String getFilename(String filepath){
+    public static String getFilename(String filepath) {
         File file = new File(filepath);
         return file.getName().replace(".epub", "");
     }
@@ -131,4 +131,23 @@ public class FolioReaderUtils {
         return pathOPF;
     }
 
+    public static String readFile(String fileName) {
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(fileName));
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+
+            while (line != null) {
+                sb.append(line);
+                sb.append("\n");
+                line = br.readLine();
+            }
+            br.close();
+            return sb.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

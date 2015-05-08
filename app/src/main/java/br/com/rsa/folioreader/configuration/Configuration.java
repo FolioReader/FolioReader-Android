@@ -1,14 +1,21 @@
 package br.com.rsa.folioreader.configuration;
 
+import android.content.Context;
 import android.graphics.Color;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import br.com.rsa.folioreader.R;
+
 /**
  * Created by rodrigo.almeida on 28/04/15.
  */
 public class Configuration {
+    public static String COLOR_PANEL_BUTTONS = "folioreader-buttonsbarcolor";
+    public static String COLOR_LIST_INDEX = "folioreader-list-indexcolor";
+    public static String COLOR_LISTITEM_INDEX = "folioreader-listitem-indexcolor";
+
     private static Map<String, Object> object = new HashMap<String, Object>();
 
     public static Object getData(String key){
@@ -20,10 +27,12 @@ public class Configuration {
     }
 
     public static void setButtonsBarColor(Color color) {
-        object.put("folioreader-buttonsbarcolor", color);
+        object.put(COLOR_PANEL_BUTTONS, color);
     }
 
-    public static void initConfiguration(){
-        object.put("folioreader-buttonsbarcolor", Color.parseColor("#FF7900"));
+    public static void initConfiguration(Context context){
+        object.put(COLOR_PANEL_BUTTONS, context.getResources().getColor(R.color.folioreader_panel_buttons));
+        object.put(COLOR_LIST_INDEX, context.getResources().getColor(R.color.folioreader_list_index));
+        object.put(COLOR_LISTITEM_INDEX, context.getResources().getColor(R.color.folioreader_list_item_index));
     }
 }

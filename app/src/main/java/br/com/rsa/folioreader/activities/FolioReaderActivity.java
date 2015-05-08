@@ -7,6 +7,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import net.simonvt.menudrawer.MenuDrawer;
@@ -26,10 +28,24 @@ import nl.siegmann.epublib.domain.TableOfContents;
 
 
 public class FolioReaderActivity extends AppCompatActivity {
+    private VerticalViewPager viewPager;
+    private static final String STATE_ACTIVE_VIEW_ID = "net.simonvt.menudrawer.samples.WindowSample.activeViewId";
+    private static final String STATE_MENUDRAWER = "net.simonvt.menudrawer.samples.WindowSample.menuDrawer";
+    private int activeViewId;
+
+    /**
+     *
+     * Views used in the Folio Reader;
+     */
+    private ListView listViewIndex;
+    private BookDecompressed bookDecompressed;
+    private MenuDrawer menuDrawer;
+    private LinearLayout panelButtons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Configuration.initConfiguration(getApplicationContext());
         menuDrawer = MenuDrawer.attach(this, MenuDrawer.MENU_DRAG_WINDOW);
         menuDrawer.setContentView(R.layout.activity_folio_reader);
         menuDrawer.setMenuView(R.layout.folioreader_menudrawer_items);
@@ -84,23 +100,32 @@ public class FolioReaderActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    /**
+     *
+     * Init all configurations from reader;
+     */
     private void init() {
         bookDecompressed = (BookDecompressed) Configuration.getData("key-book");
         viewPager = (VerticalViewPager) findViewById(R.id.folioreader_vertical_viewpager);
         listViewIndex = (ListView) findViewById(R.id.folioreader_listview_index);
-        Configuration.initConfiguration();
+        panelButtons = (LinearLayout) findViewById(R.id.folioreader_panel_buttons);
+
+        /**
+         *
+         * Set Colors
+         */
+        listViewIndex.setBackgroundColor((int) Configuration.getData(Configuration.COLOR_LIST_INDEX));
+        panelButtons.setBackgroundColor((int) Configuration.getData(Configuration.COLOR_PANEL_BUTTONS));
+        ((ImageButton)findViewById(R.id.folioreader_btn_highligth)).setBackgroundColor((int) Configuration.getData(Configuration.COLOR_PANEL_BUTTONS));
+        ((ImageButton)findViewById(R.id.folioreader_btn_font)).setBackgroundColor((int) Configuration.getData(Configuration.COLOR_PANEL_BUTTONS));
+        ((ImageButton)findViewById(R.id.folioreader_btn_search)).setBackgroundColor((int) Configuration.getData(Configuration.COLOR_PANEL_BUTTONS));
+
         new CreateIndex().execute(bookDecompressed.getBook().getTableOfContents());
     }
 
-    private VerticalViewPager viewPager;
-    private MenuDrawer menuDrawer;
-    private static final String STATE_ACTIVE_VIEW_ID = "net.simonvt.menudrawer.samples.WindowSample.activeViewId";
-    private static final String STATE_MENUDRAWER = "net.simonvt.menudrawer.samples.WindowSample.menuDrawer";
-    private int activeViewId;
-    private ListView listViewIndex;
-    private BookDecompressed bookDecompressed;
-
-    /****** Class AsyncTask ******/
+    /**
+     * *** Class AsyncTask *****
+     */
     private class CreateIndex extends AsyncTask<TableOfContents, Void, List<TOCReference>> {
 
         private int lastPaging = 0;
@@ -123,13 +148,16 @@ public class FolioReaderActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(final List<TOCReference> indexes) {
             super.onPostExecute(indexes);
+
             listViewIndex.setAdapter(new FolioReaderIndexAdapter(getApplicationContext(), indexes));
             listViewIndex.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Resource resource = indexes.get(position).getResource();
+
                     int moveTo = bookDecompressed.getBook().getSpine().findFirstResourceById(resource.getId());
                     viewPager.setCurrentItem(moveTo);
+
                     menuDrawer.closeMenu();
                 }
             });

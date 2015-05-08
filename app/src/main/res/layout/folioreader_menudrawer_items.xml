@@ -11,13 +11,43 @@
         android:layout_weight="1"
         android:divider="@color/shadowIndexMenuAndSeparator"
         android:dividerHeight="1dp"
+        android:minHeight="@dimen/folioreader_height_index_item"
         android:scrollbars="vertical" />
 
     <LinearLayout
+        android:id="@+id/folioreader_panel_buttons"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="60dp"
+        android:gravity="center"
         android:layout_alignParentBottom="true"
-        android:background="@color/folioreader_panel_buttons">
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/folioreader_btn_highligth"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@mipmap/icon_highlight"/>
+
+        <View
+            android:layout_width="20dp"
+            android:layout_height="1dp" />
+
+        <ImageButton
+            android:id="@+id/folioreader_btn_search"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@mipmap/icon_search"/>
+
+        <View
+            android:layout_width="20dp"
+            android:layout_height="1dp" />
+
+        <ImageButton
+            android:id="@+id/folioreader_btn_font"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@mipmap/icon_font"/>
+
 
     </LinearLayout>
 
