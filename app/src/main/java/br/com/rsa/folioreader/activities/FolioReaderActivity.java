@@ -56,7 +56,7 @@ public class FolioReaderActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             activeViewId = savedInstanceState.getInt(STATE_ACTIVE_VIEW_ID);
         }
-        viewPager.setAdapter(new FolioReaderPagerAdapter(getSupportFragmentManager(), bookDecompressed.getUrlResources()));
+        viewPager.setAdapter(new FolioReaderPagerAdapter(getSupportFragmentManager(), bookDecompressed.getUrlResources(), bookDecompressed.getBaseURL()));
     }
 
     @Override

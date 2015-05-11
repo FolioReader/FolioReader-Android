@@ -11,6 +11,7 @@ import nl.siegmann.epublib.domain.Book;
 public class BookDecompressed {
     private List<String> urlResources;
     private Book book;
+    private String baseURL;
 
     public BookDecompressed() {
         urlResources = new ArrayList<>();
@@ -34,5 +35,13 @@ public class BookDecompressed {
 
     public Book getBook() {
         return book;
+    }
+
+    public String getBaseURL() {
+        return baseURL;
+    }
+
+    public void setBaseURL(String baseURL) {
+        this.baseURL = baseURL;
     }
 }

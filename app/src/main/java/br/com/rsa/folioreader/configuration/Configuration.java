@@ -15,6 +15,11 @@ public class Configuration {
     public static String COLOR_PANEL_BUTTONS = "folioreader-buttonsbarcolor";
     public static String COLOR_LIST_INDEX = "folioreader-list-indexcolor";
     public static String COLOR_LISTITEM_INDEX = "folioreader-listitem-indexcolor";
+    /**
+     * Keys to transfer data;
+     */
+    public static String PATH_DECOMPRESSED = "folioreader-pathpages";
+    public static String BASE_URL = "folioreader-baseurl";
 
     private static Map<String, Object> object = new HashMap<String, Object>();
 

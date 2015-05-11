@@ -27,7 +27,10 @@ public class FolioReaderWebView extends WebView {
     private void init() {
         this.getSettings().setJavaScriptEnabled(true);
         this.setWebViewClient(new WebViewClient() {
-
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return super.shouldOverrideUrlLoading(view, url);
+            }
         });
     }
 

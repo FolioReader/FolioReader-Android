@@ -8,7 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import br.com.rsa.folioreader.R;
+import br.com.rsa.folioreader.configuration.Configuration;
 import br.com.rsa.folioreader.customviews.FolioReaderWebView;
+import br.com.rsa.folioreader.utils.FolioReaderUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,24 +24,33 @@ public class FoliorRaderViewPagerFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         webView.saveState(outState);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_folior_rader_view_pager, container, false);
-        path = getArguments().getString("path");
+        path = getArguments().getString(Configuration.PATH_DECOMPRESSED);
+        baseURL = getArguments().getString(Configuration.BASE_URL);
+
+        String pathCSS = "file:///android_asset/style.css";
+
         webView = (FolioReaderWebView) view.findViewById(R.id.folioreader_webview);
 
-        if (savedInstanceState != null)
-            webView.restoreState(savedInstanceState);
-        else
-            webView.loadUrl(path);
+        String data = FolioReaderUtils.getStringFromFile(path);
+
+        String cssTag = "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + pathCSS + "\">";
+        String toInject = "\n" + cssTag + " \n</head>";
+
+        data = data.replace("</head>", toInject);
+
+        webView.loadDataWithBaseURL(baseURL, data, "text/html", "UTF-8", null);
 
         return view;
     }
 
     private String path;
+    private String baseURL;
     private FolioReaderWebView webView;
 }

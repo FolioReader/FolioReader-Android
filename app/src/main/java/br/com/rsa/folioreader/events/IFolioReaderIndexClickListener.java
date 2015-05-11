@@ -1,4 +1,4 @@
-package br.com.rsa.folioreader.contracts;
+package br.com.rsa.folioreader.events;
 
 /**
  * Created by rodrigo.almeida on 08/05/15.

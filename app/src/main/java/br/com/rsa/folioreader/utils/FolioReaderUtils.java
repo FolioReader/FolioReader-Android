@@ -6,9 +6,12 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -131,23 +134,33 @@ public class FolioReaderUtils {
         return pathOPF;
     }
 
-    public static String readFile(String fileName) {
-        BufferedReader br = null;
+    public static String convertStreamToString(InputStream is) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
         try {
-            br = new BufferedReader(new FileReader(fileName));
-            StringBuilder sb = new StringBuilder();
-            String line = br.readLine();
-
-            while (line != null) {
-                sb.append(line);
-                sb.append("\n");
-                line = br.readLine();
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
             }
-            br.close();
-            return sb.toString();
-        } catch (Exception e) {
+            reader.close();
+        } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
+        return sb.toString();
+    }
+
+    public static String getStringFromFile (String filePath) {
+        File fl = new File(filePath);
+        FileInputStream fin = null;
+        String ret= null;
+        try {
+            fin = new FileInputStream(fl);
+            ret = convertStreamToString(fin);
+            //Make sure you close all streams.
+            fin.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ret;
     }
 }
