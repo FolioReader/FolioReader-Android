@@ -5,10 +5,14 @@ import android.util.AttributeSet;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import br.com.rsa.folioreader.events.IFolioReaderWebViewInterceptLinkClickListener;
+
 /**
  * Created by rodrigo.almeida on 28/04/15.
  */
 public class FolioReaderWebView extends WebView {
+    private IFolioReaderWebViewInterceptLinkClickListener interceptLinkListener;
+
     public FolioReaderWebView(Context context) {
         super(context);
         init();
@@ -27,15 +31,28 @@ public class FolioReaderWebView extends WebView {
     private void init() {
         this.getSettings().setJavaScriptEnabled(true);
         this.setWebViewClient(new WebViewClient() {
+            /**
+             * Return false to load content inside webView other wise true;
+             */
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                return super.shouldOverrideUrlLoading(view, url);
+                boolean intercept = false;
+
+                if (interceptLinkListener != null)
+                    intercept = interceptLinkListener.interceptURL(url);
+
+                return intercept;
             }
         });
     }
 
+
     @Override
     public int getContentHeight() {
         return this.computeVerticalScrollRange() - this.getHeight();
+    }
+
+    public void setInterceptLinkListener(IFolioReaderWebViewInterceptLinkClickListener interceptLinkListener) {
+        this.interceptLinkListener = interceptLinkListener;
     }
 }

@@ -12,9 +12,13 @@ import br.com.rsa.folioreader.R;
  * Created by rodrigo.almeida on 28/04/15.
  */
 public class Configuration {
-    public static String COLOR_PANEL_BUTTONS = "folioreader-buttonsbarcolor";
-    public static String COLOR_LIST_INDEX = "folioreader-list-indexcolor";
-    public static String COLOR_LISTITEM_INDEX = "folioreader-listitem-indexcolor";
+    public static final String COLOR_PANEL_BUTTONS = "folioreader-buttonsbarcolor";
+    public static final String COLOR_LIST_INDEX = "folioreader-list-indexcolor";
+    public static final String COLOR_LISTITEM_INDEX = "folioreader-listitem-indexcolor";
+    public static final String HTML_ENCODING 	= "UTF-8";
+    public static final String HTML_MIMETYPE 	= "text/html";
+    public static final String KEY_BOOK 	= "folioreader-key-book";
+
     /**
      * Keys to transfer data;
      */

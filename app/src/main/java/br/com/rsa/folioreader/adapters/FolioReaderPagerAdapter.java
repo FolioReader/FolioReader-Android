@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import java.util.List;
 
 import br.com.rsa.folioreader.configuration.Configuration;
+import br.com.rsa.folioreader.customviews.VerticalViewPager;
 import br.com.rsa.folioreader.fragments.FoliorRaderViewPagerFragment;
 
 /**
@@ -15,10 +16,11 @@ import br.com.rsa.folioreader.fragments.FoliorRaderViewPagerFragment;
  */
 public class FolioReaderPagerAdapter extends FragmentStatePagerAdapter {
 
-    public FolioReaderPagerAdapter(FragmentManager fm, List<String> list, String baseURL) {
+    public FolioReaderPagerAdapter(FragmentManager fm, List<String> list, String baseURL, VerticalViewPager pager) {
         super(fm);
         this.list = list;
         this.baseURL = baseURL;
+        this.pager = pager;
     }
 
     @Override
@@ -29,6 +31,7 @@ public class FolioReaderPagerAdapter extends FragmentStatePagerAdapter {
 
         FoliorRaderViewPagerFragment fragment = new FoliorRaderViewPagerFragment();
         fragment.setArguments(bundle);
+        fragment.setPager(pager);
 
         return fragment;
     }
@@ -40,4 +43,5 @@ public class FolioReaderPagerAdapter extends FragmentStatePagerAdapter {
 
     private List<String> list;
     private String baseURL;
+    private VerticalViewPager pager;
 }

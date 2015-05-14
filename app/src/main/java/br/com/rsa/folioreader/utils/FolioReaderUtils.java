@@ -12,6 +12,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -19,10 +23,14 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import nl.siegmann.epublib.domain.SpineReference;
+
 /**
  * Created by rodrigo.almeida on 29/04/15.
  */
 public class FolioReaderUtils {
+
+    public static final String HTML_ENCODING = "UTF-8";
 
     public static String getPathDownloads(Context context) {
         return context.getExternalFilesDir(null) + "/downloads/";
@@ -149,10 +157,11 @@ public class FolioReaderUtils {
         return sb.toString();
     }
 
-    public static String getStringFromFile (String filePath) {
+    @Deprecated
+    public static String getStringFromFile(String filePath) {
         File fl = new File(filePath);
         FileInputStream fin = null;
-        String ret= null;
+        String ret = null;
         try {
             fin = new FileInputStream(fl);
             ret = convertStreamToString(fin);
@@ -162,5 +171,44 @@ public class FolioReaderUtils {
             e.printStackTrace();
         }
         return ret;
+    }
+
+    public static String getStringFromFile(String pathUrlName, boolean encode) {
+        Writer writer = null;
+        try {
+            InputStream is = new FileInputStream(new File(pathUrlName));
+
+            writer = new StringWriter();
+            char[] buffer = new char[1024];
+            try {
+                Reader reader;
+                if (encode) {
+                    reader = new BufferedReader(new InputStreamReader(is, HTML_ENCODING));
+                } else {
+                    reader = new BufferedReader(new InputStreamReader(is));
+                }
+                int n;
+                while ((n = reader.read(buffer)) != -1) {
+                    writer.write(buffer, 0, n);
+                }
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } finally {
+                is.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return writer.toString();
+    }
+
+    public static int getPositionResource(List<SpineReference> list, String url) {
+        for (int i=0; i<list.size(); i++) {
+            SpineReference item = list.get(i);
+            if (url.endsWith(item.getResource().getHref()))
+                return i;
+        }
+        return -1;
     }
 }

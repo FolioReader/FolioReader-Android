@@ -20,8 +20,8 @@ import br.com.rsa.folioreader.R;
 import br.com.rsa.folioreader.adapters.FolioReaderIndexAdapter;
 import br.com.rsa.folioreader.adapters.FolioReaderPagerAdapter;
 import br.com.rsa.folioreader.configuration.Configuration;
+import br.com.rsa.folioreader.customviews.VerticalViewPager;
 import br.com.rsa.folioreader.entities.BookDecompressed;
-import fr.castorflex.android.verticalviewpager.VerticalViewPager;
 import nl.siegmann.epublib.domain.Resource;
 import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.domain.TableOfContents;
@@ -56,7 +56,7 @@ public class FolioReaderActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             activeViewId = savedInstanceState.getInt(STATE_ACTIVE_VIEW_ID);
         }
-        viewPager.setAdapter(new FolioReaderPagerAdapter(getSupportFragmentManager(), bookDecompressed.getUrlResources(), bookDecompressed.getBaseURL()));
+        viewPager.setAdapter(new FolioReaderPagerAdapter(getSupportFragmentManager(), bookDecompressed.getUrlResources(), bookDecompressed.getBaseURL(), viewPager));
     }
 
     @Override
@@ -105,7 +105,7 @@ public class FolioReaderActivity extends AppCompatActivity {
      * Init all configurations from reader;
      */
     private void init() {
-        bookDecompressed = (BookDecompressed) Configuration.getData("key-book");
+        bookDecompressed = (BookDecompressed) Configuration.getData(Configuration.KEY_BOOK);
         viewPager = (VerticalViewPager) findViewById(R.id.folioreader_vertical_viewpager);
         listViewIndex = (ListView) findViewById(R.id.folioreader_listview_index);
         panelButtons = (LinearLayout) findViewById(R.id.folioreader_panel_buttons);

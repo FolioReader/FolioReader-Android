@@ -38,10 +38,11 @@ public class FolioReader implements IFolioReader {
             this.fileInputStream = new FileInputStream(ePubpath);
 
             String folderDec = FolioReaderUtils.getPathePubDec(context) + FolioReaderUtils.getFilename(ePubpath) + "/";
-            String opfPath = FolioReaderUtils.getPathOPF(folderDec);
 
             if (!FolioReaderUtils.isDecompressed(context, ePubpath))
                 FolioReaderUtils.unzipEPub(ePubpath, folderDec);
+
+            String opfPath = FolioReaderUtils.getPathOPF(folderDec);
 
             this.book = new EpubReader().readEpub(fileInputStream);
 
@@ -62,7 +63,7 @@ public class FolioReader implements IFolioReader {
             e.printStackTrace();
         }
 
-        Configuration.setData("key-book", bookDecompressed);
+        Configuration.setData(Configuration.KEY_BOOK, bookDecompressed);
         Intent intent = new Intent(context, FolioReaderActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
