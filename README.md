@@ -1,1 +1,1 @@
-Java framework that powers Folio Reader for Android.
+Under development.
