@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'checkstyle'
 
 android {
@@ -7,7 +7,6 @@ android {
   buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
 
   defaultConfig {
-    applicationId "br.com.rsa.folioreader"
     versionCode Integer.parseInt(project.VERSION_CODE)
     versionName project.VERSION_NAME
     minSdkVersion Integer.parseInt(project.ANDROID_MIN_SDK)
@@ -52,8 +51,6 @@ android {
 
 dependencies {
   compile 'com.android.support:appcompat-v7:23.1.1'
-  compile files('libs/epublib-core-latest.jar')
-  compile files('libs/slf4j-android-1.5.8.jar')
 }
 
 task checkstyle(type: Checkstyle) {

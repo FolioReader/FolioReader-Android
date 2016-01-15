@@ -1,1 +1,1 @@
-include ':app', ':MenuDrawer'
+include ':app', ':folioreader'

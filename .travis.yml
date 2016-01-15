@@ -1,0 +1,17 @@
+language: android
+
+before_install:
+    - echo yes | android update sdk --filter extra-android-support --no-ui --force > /dev/null
+    - echo yes | android update sdk --filter extra-android-m2repository --no-ui --force > /dev/null
+
+android:
+  components:
+    - build-tools-22.0.1
+    - android-22
+    - extra-android-m2repository
+
+  licenses:
+    - android-sdk-license-.+
+
+script:
+  ./gradlew checkstyle build
