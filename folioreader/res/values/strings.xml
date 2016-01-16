@@ -1,3 +1,11 @@
 <resources>
   <string name="app_name">folioreader</string>
+
+  <string-array name="fonts">
+    <item>Andada</item>
+    <item>Lato</item>
+    <item>Lora</item>
+    <item>Raleway</item>
+  </string-array>
+
 </resources>
