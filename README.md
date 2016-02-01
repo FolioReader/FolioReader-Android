@@ -19,7 +19,7 @@ TODO:
 - Contact me on **LinkedIn**: [**hebertialmeida**](http://linkedin.com/in/hebertialmeida)
 
 [**Pedro Paulo de Amorim**](https://github.com/ppamorim)
-- Contact me on **LinkedIn**: [**hebertialmeida**](http://linkedin.com/in/ppamorim)
+- Contact me on **LinkedIn**: [**ppamorim**](http://linkedin.com/in/ppamorim)
 
 ### Donations
 
