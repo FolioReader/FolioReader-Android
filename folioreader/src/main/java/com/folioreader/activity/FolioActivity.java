@@ -5,6 +5,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.RelativeLayout;
 import com.folioreader.R;
 import com.folioreader.view.ConfigView;
@@ -29,15 +30,17 @@ public class FolioActivity extends AppCompatActivity {
     //forcePositionConfigView();
   }
 
+  @Override public void onBackPressed() {
+    if(configView.isDragViewAboveTheLimit()) {
+      configView.moveToOriginalPosition();
+    } else {
+      super.onBackPressed();
+    }
+  }
+
   private void configRecyclerViews() {
     recyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
     recyclerViewFonts.setLayoutManager(new LinearLayoutManager(this));
-  }
-
-  private void forcePositionConfigView() {
-    configView.measure(RelativeLayout.LayoutParams.MATCH_PARENT,
-        RelativeLayout.LayoutParams.WRAP_CONTENT);
-    ViewCompat.setY(configView, -configView.getMeasuredWidth());
   }
 
 }

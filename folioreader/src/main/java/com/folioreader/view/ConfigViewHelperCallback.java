@@ -53,4 +53,20 @@ public class ConfigViewHelperCallback extends ViewDragHelper.Callback {
     return configView != null ? (int) configView.getVerticalDragRange() : 0;
   }
 
+  /**
+   * This is called only the touch on DraggerView is released.
+   *
+   * @param releasedChild return the view on focus
+   * @param xVel return the speed of X animation
+   * @param yVel return the speed of Y animation
+   */
+  @Override public void onViewReleased(View releasedChild, float xVel, float yVel) {
+    super.onViewReleased(releasedChild, xVel, yVel);
+    if (configView.isDragViewAboveTheLimit()) {
+      configView.moveOffScreen();
+    } else {
+      configView.moveToOriginalPosition();
+    }
+  }
+
 }

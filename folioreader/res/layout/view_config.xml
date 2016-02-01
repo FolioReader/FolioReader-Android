@@ -2,13 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/switch_thumb_disabled_material_light">
 
     <LinearLayout
+        android:id="@+id/top_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_above="@+id/first_separator">
+        android:orientation="horizontal">
 
         <ImageButton
             android:layout_width="0dp"
@@ -28,7 +29,7 @@
         android:id="@+id/first_separator"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:layout_above="@+id/recycler_view_fonts"
+        android:layout_below="@+id/top_buttons"
         android:background="@color/black"/>
 
     <android.support.v7.widget.RecyclerView
@@ -36,13 +37,13 @@
         android:scrollbars="horizontal"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:layout_above="@+id/second_separator"/>
+        android:layout_below="@+id/first_separator"/>
 
     <View
         android:id="@+id/second_separator"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:layout_above="@+id/small_font"
+        android:layout_below="@+id/recycler_view_fonts"
         android:background="@color/black"/>
 
     <ImageView
@@ -50,24 +51,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@mipmap/ic_launcher"
-        android:layout_alignParentBottom="true"
-        android:padding="8dp"/>
+        android:padding="8dp"
+        android:layout_below="@+id/second_separator"/>
 
     <SeekBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/small_font"
         android:layout_toLeftOf="@+id/big_font"
-        android:padding="16dp"/>
+        android:padding="16dp"
+        android:layout_below="@+id/second_separator"/>
 
     <ImageView
         android:id="@+id/big_font"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@mipmap/ic_launcher"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:padding="8dp"/>
+        android:padding="8dp"
+        android:layout_below="@+id/second_separator"/>
 
 </RelativeLayout>

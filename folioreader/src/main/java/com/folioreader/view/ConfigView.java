@@ -88,6 +88,26 @@ public class ConfigView extends FrameLayout {
   }
 
   /**
+   * Configure the width and height of the DraggerView.
+   *
+   * @param widthMeasureSpec Spec value of width, not represent the real width.
+   * @param heightMeasureSpec Spec value of height, not represent the real height.
+   */
+  @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    int measureWidth = MeasureSpec.makeMeasureSpec(
+        getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
+        MeasureSpec.EXACTLY);
+    int measureHeight = MeasureSpec.makeMeasureSpec(
+        getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
+        MeasureSpec.EXACTLY);
+    if (container != null) {
+      container.measure(measureWidth, measureHeight);
+    }
+
+  }
+
+  /**
    * Detect the type of motion event (like touch)
    * at the DragView, this can be a simple
    * detector of the touch, not the listener ifself.
@@ -160,7 +180,7 @@ public class ConfigView extends FrameLayout {
 
   private boolean smoothSlideTo(View view, int x, int y) {
     if (viewDragHelper != null && viewDragHelper.smoothSlideViewTo(view, x, y)) {
-      ViewCompat.postInvalidateOnAnimation(container);
+      ViewCompat.postInvalidateOnAnimation(this);
       return true;
     }
     return false;
@@ -196,6 +216,26 @@ public class ConfigView extends FrameLayout {
         && screenX < viewLocation[0] + view.getWidth()
         && screenY >= viewLocation[1]
         && screenY < viewLocation[1] + view.getHeight();
+  }
+
+  /**
+   * Detect if the container actual position is above the
+   * limit determined with the @param dragLimit.
+   *
+   * @return Use a dimension and compare with the dragged
+   * axis position.
+   */
+  public boolean isDragViewAboveTheLimit() {
+    int parentSize = container.getHeight();
+    return parentSize < ViewCompat.getY(container) + (parentSize * DEFAULT_DRAG_LIMIT);
+  }
+
+  public void moveToOriginalPosition() {
+    boolean success = smoothSlideTo(container, 0, 0);
+  }
+
+  public void moveOffScreen() {
+    smoothSlideTo(container, 0, (int) getVerticalDragRange());
   }
 
 }

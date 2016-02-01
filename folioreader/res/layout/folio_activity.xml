@@ -22,8 +22,9 @@
             <com.folioreader.view.ConfigView
                 android:id="@+id/config_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="bottom"/>
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@color/material_deep_teal_200"/>
 
         </FrameLayout>
 
