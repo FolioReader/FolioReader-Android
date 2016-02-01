@@ -36,4 +36,4 @@ TODO:
  - Of course, you can also [**choose what you want to donate**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=hebertialmeida%40gmail%2ecom&lc=US&item_name=FolioReader%20Libraries&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted), all donations are awesome!
 
 ### License
-FolioReaderKit is available under the BSD license. See the [LICENSE file](https://github.com/FolioReader/FolioReaderKit/blob/master/LICENSE).
+FolioReader is available under the BSD license. See the [LICENSE file](https://github.com/FolioReader/FolioReaderKit/blob/master/LICENSE).
