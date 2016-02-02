@@ -3,7 +3,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/switch_thumb_disabled_material_light">
+    android:background="@color/white">
 
     <LinearLayout
         android:id="@+id/top_buttons"
@@ -12,16 +12,20 @@
         android:orientation="horizontal">
 
         <ImageButton
+            android:id="@+id/day_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:src="@mipmap/ic_launcher"/>
+            android:src="@mipmap/ic_launcher"
+            android:background="@android:color/transparent"/>
 
         <ImageButton
+            android:id="@+id/night_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:src="@mipmap/ic_launcher"/>
+            android:src="@mipmap/ic_launcher"
+            android:background="@android:color/transparent"/>
 
     </LinearLayout>
 

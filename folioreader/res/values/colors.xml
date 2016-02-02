@@ -2,5 +2,7 @@
 <resources>
   <color name="white">#FFFFFF</color>
   <color name="black">#000000</color>
+  <color name="night">#322D32</color>
+  <color name="dark_night">#090609</color>
   <color name="navigation_drawer_green">#71C951</color>
 </resources>

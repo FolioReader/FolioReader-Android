@@ -9,8 +9,9 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import com.folioreader.R;
 import com.folioreader.view.ConfigView;
+import com.folioreader.view.ConfigViewCallback;
 
-public class FolioActivity extends AppCompatActivity {
+public class FolioActivity extends AppCompatActivity implements ConfigViewCallback {
 
   private RecyclerView recyclerViewMenu;
   private RecyclerView recyclerViewFonts;
@@ -27,6 +28,7 @@ public class FolioActivity extends AppCompatActivity {
     recyclerViewFonts = (RecyclerView) findViewById(R.id.recycler_view_fonts);
     configView = (ConfigView) findViewById(R.id.config_view);
     configRecyclerViews();
+    configFolio();
     //forcePositionConfigView();
   }
 
@@ -38,9 +40,18 @@ public class FolioActivity extends AppCompatActivity {
     }
   }
 
+  @Override public void onBackgroundUpdate(int value) {
+    recyclerViewMenu.setBackgroundColor(value);
+    recyclerViewFonts.setBackgroundColor(value);
+  }
+
   private void configRecyclerViews() {
     recyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
     recyclerViewFonts.setLayoutManager(new LinearLayoutManager(this));
+  }
+
+  private void configFolio() {
+    configView.setConfigViewCallback(this);
   }
 
 }

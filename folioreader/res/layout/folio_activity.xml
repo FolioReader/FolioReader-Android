@@ -45,6 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@mipmap/ic_launcher"
+                android:background="@android:color/transparent"
                 android:layout_alignParentBottom="true"/>
 
             <ImageButton
@@ -52,6 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@mipmap/ic_launcher"
+                android:background="@android:color/transparent"
                 android:layout_alignParentBottom="true"
                 android:layout_toRightOf="@+id/close_icon"/>
 
@@ -59,6 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:src="@mipmap/ic_launcher"
+                android:background="@android:color/transparent"
                 android:layout_alignParentBottom="true"
                 android:layout_toRightOf="@+id/config_icon"/>
 

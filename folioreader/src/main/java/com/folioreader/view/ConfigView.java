@@ -1,5 +1,9 @@
 package com.folioreader.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
@@ -10,25 +14,33 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import com.folioreader.Font;
 import com.folioreader.R;
 import com.folioreader.adapter.FontAdapter;
+import com.folioreader.util.Tags;
 import java.util.ArrayList;
 
-public class ConfigView extends FrameLayout {
+public class ConfigView extends FrameLayout implements View.OnClickListener {
 
   private static final float SENSITIVITY = 1.0f;
   private static final float DEFAULT_DRAG_LIMIT = 0.5f;
   private static final int INVALID_POINTER = -1;
+  private static final int FADE_DAY_NIGHT_MODE = 500;
 
   private int activePointerId = INVALID_POINTER;
+
+  private boolean isNightMode = false;
 
   private float verticalDragRange;
 
   private RelativeLayout container;
   private RecyclerView recyclerViewFonts;
+  private ImageButton dayButton;
+  private ImageButton nightButton;
   private ViewDragHelper viewDragHelper;
+  private ConfigViewCallback configViewCallback;
 
   public ConfigView(Context context) {
     this(context, null);
@@ -46,6 +58,12 @@ public class ConfigView extends FrameLayout {
     inflate(getContext(), R.layout.view_config, this);
     container = (RelativeLayout) findViewById(R.id.container);
     recyclerViewFonts = (RecyclerView) findViewById(R.id.recycler_view_fonts);
+    dayButton = (ImageButton) findViewById(R.id.day_button);
+    nightButton = (ImageButton) findViewById(R.id.night_button);
+    dayButton.setTag(Tags.DAY_BUTTON);
+    nightButton.setTag(Tags.NIGHT_BUTTON);
+    dayButton.setOnClickListener(this);
+    nightButton.setOnClickListener(this);
   }
 
   private void configRecyclerViewFonts() {
@@ -61,6 +79,53 @@ public class ConfigView extends FrameLayout {
     recyclerViewFonts.setAdapter(fontAdapter);
   }
 
+  private void toggleBlackTheme() {
+
+    AnimatorSet set = new AnimatorSet();
+
+    int day = getResources().getColor(R.color.white);
+    int night = getResources().getColor(R.color.night);
+    int darkNight = getResources().getColor(R.color.dark_night);
+
+    ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
+        isNightMode ? night : day, isNightMode ? day : night);
+    colorAnimation.setDuration(FADE_DAY_NIGHT_MODE);
+    colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+      @Override public void onAnimationUpdate(ValueAnimator animator) {
+        container.setBackgroundColor((int) animator.getAnimatedValue());
+      }
+    });
+
+    ValueAnimator colorActivityAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
+        isNightMode ? darkNight : day, isNightMode ? day : darkNight);
+    colorAnimation.setDuration(FADE_DAY_NIGHT_MODE);
+    colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+      @Override public void onAnimationUpdate(ValueAnimator animator) {
+        if (configViewCallback != null) {
+          configViewCallback.onBackgroundUpdate((int) animator.getAnimatedValue());
+        }
+      }
+    });
+
+    set.addListener(new Animator.AnimatorListener() {
+      @Override public void onAnimationStart(Animator animation) {
+      }
+
+      @Override public void onAnimationEnd(Animator animation) {
+        isNightMode = !isNightMode;
+      }
+
+      @Override public void onAnimationCancel(Animator animation) {
+      }
+
+      @Override public void onAnimationRepeat(Animator animation) {
+      }
+    });
+    set.setDuration(FADE_DAY_NIGHT_MODE);
+    set.playTogether(colorAnimation, colorActivityAnimation);
+  }
 
   /**
    * Bind the attributes of the view and config
@@ -157,6 +222,25 @@ public class ConfigView extends FrameLayout {
     return isViewHit(container, (int) ev.getX(), (int) ev.getY());
   }
 
+  @Override public void onClick(View v) {
+    switch (((Integer) v.getTag())) {
+      case Tags.DAY_BUTTON:
+        if (isNightMode) {
+          isNightMode = true;
+          toggleBlackTheme();
+        }
+        break;
+      case Tags.NIGHT_BUTTON:
+        if (!isNightMode) {
+          isNightMode = false;
+          toggleBlackTheme();
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
   /**
    * This method is needed to calculate the auto scroll
    * when the user slide the view to the max limit, this
@@ -196,6 +280,10 @@ public class ConfigView extends FrameLayout {
 
   public RelativeLayout getContainer() {
     return container;
+  }
+
+  public void setConfigViewCallback(ConfigViewCallback configViewCallback) {
+    this.configViewCallback = configViewCallback;
   }
 
   /**
