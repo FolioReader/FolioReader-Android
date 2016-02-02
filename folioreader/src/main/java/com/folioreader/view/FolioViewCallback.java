@@ -13,22 +13,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.folioreader;
+package com.folioreader.view;
 
-public class Font {
-
-  private String name;
-
-  public Font(String name) {
-    this.name = name;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
+public interface FolioViewCallback {
+  void onShadowClick();
 }

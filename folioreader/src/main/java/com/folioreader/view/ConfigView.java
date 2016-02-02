@@ -1,3 +1,18 @@
+/*
+* Copyright (C) 2016 Pedro Paulo de Amorim
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.folioreader.view;
 
 import android.animation.Animator;
@@ -20,6 +35,7 @@ import com.folioreader.Font;
 import com.folioreader.R;
 import com.folioreader.adapter.FontAdapter;
 import com.folioreader.util.Tags;
+import com.folioreader.util.ViewHelper;
 import java.util.ArrayList;
 
 public class ConfigView extends FrameLayout implements View.OnClickListener {
@@ -81,11 +97,10 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
 
   private void toggleBlackTheme() {
 
-    AnimatorSet set = new AnimatorSet();
-
     int day = getResources().getColor(R.color.white);
     int night = getResources().getColor(R.color.night);
     int darkNight = getResources().getColor(R.color.dark_night);
+    final int diffNightDark = night - darkNight;
 
     ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
         isNightMode ? night : day, isNightMode ? day : night);
@@ -93,38 +108,24 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
       @Override public void onAnimationUpdate(ValueAnimator animator) {
-        container.setBackgroundColor((int) animator.getAnimatedValue());
-      }
-    });
-
-    ValueAnimator colorActivityAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
-        isNightMode ? darkNight : day, isNightMode ? day : darkNight);
-    colorAnimation.setDuration(FADE_DAY_NIGHT_MODE);
-    colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-
-      @Override public void onAnimationUpdate(ValueAnimator animator) {
+        int value = (int) animator.getAnimatedValue();
+        container.setBackgroundColor(value);
         if (configViewCallback != null) {
-          configViewCallback.onBackgroundUpdate((int) animator.getAnimatedValue());
+          configViewCallback.onBackgroundUpdate(value - diffNightDark);
         }
       }
     });
-
-    set.addListener(new Animator.AnimatorListener() {
-      @Override public void onAnimationStart(Animator animation) {
-      }
-
-      @Override public void onAnimationEnd(Animator animation) {
+    colorAnimation.addListener(new Animator.AnimatorListener() {
+      @Override public void onAnimationStart(Animator animator) { }
+      @Override public void onAnimationEnd(Animator animator) {
         isNightMode = !isNightMode;
       }
-
-      @Override public void onAnimationCancel(Animator animation) {
-      }
-
-      @Override public void onAnimationRepeat(Animator animation) {
-      }
+      @Override public void onAnimationCancel(Animator animator) { }
+      @Override public void onAnimationRepeat(Animator animator) { }
     });
-    set.setDuration(FADE_DAY_NIGHT_MODE);
-    set.playTogether(colorAnimation, colorActivityAnimation);
+
+    colorAnimation.setDuration(FADE_DAY_NIGHT_MODE);
+    colorAnimation.start();
   }
 
   /**
@@ -164,8 +165,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
         getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
         MeasureSpec.EXACTLY);
     int measureHeight = MeasureSpec.makeMeasureSpec(
-        getMeasuredHeight() - getPaddingTop() - getPaddingBottom(),
-        MeasureSpec.EXACTLY);
+        getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY);
     if (container != null) {
       container.measure(measureWidth, measureHeight);
     }
@@ -219,7 +219,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
       return false;
     }
     viewDragHelper.processTouchEvent(ev);
-    return isViewHit(container, (int) ev.getX(), (int) ev.getY());
+    return ViewHelper.isViewHit(container, this, (int) ev.getX(), (int) ev.getY());
   }
 
   @Override public void onClick(View v) {
@@ -287,26 +287,6 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
   }
 
   /**
-   * Detect if the touch on the screen is at the region of the view.
-   * @param view Instance of the view that will be verified.
-   * @param x X position of the touch.
-   * @param y Y position of the touch.
-   * @return Position is at the region of the view.
-   */
-  private boolean isViewHit(View view, int x, int y) {
-    int[] viewLocation = new int[2];
-    view.getLocationOnScreen(viewLocation);
-    int[] parentLocation = new int[2];
-    this.getLocationOnScreen(parentLocation);
-    int screenX = parentLocation[0] + x;
-    int screenY = parentLocation[1] + y;
-    return screenX >= viewLocation[0]
-        && screenX < viewLocation[0] + view.getWidth()
-        && screenY >= viewLocation[1]
-        && screenY < viewLocation[1] + view.getHeight();
-  }
-
-  /**
    * Detect if the container actual position is above the
    * limit determined with the @param dragLimit.
    *
@@ -319,11 +299,21 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
   }
 
   public void moveToOriginalPosition() {
-    boolean success = smoothSlideTo(container, 0, 0);
+    configViewCallback.showShadow();
+    setVisibility(VISIBLE);
+    smoothSlideTo(container, 0, 0);
   }
 
   public void moveOffScreen() {
     smoothSlideTo(container, 0, (int) getVerticalDragRange());
+  }
+
+  public void hideView() {
+    setVisibility(GONE);
+  }
+
+  public void onViewPositionChanged(float alpha) {
+    configViewCallback.onShadowAlpha(alpha);
   }
 
 }
