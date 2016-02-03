@@ -1,4 +1,7 @@
 ![FolioReader logo](https://raw.githubusercontent.com/FolioReader/FolioReaderKit/assets/folioreader.png)
+
+[![Build Status](https://api.travis-ci.org/FolioReader/FolioReader-Android.svg?branch=master)](https://travis-ci.org/FolioReader/FolioReader-Android)
+
 FolioReader-Android is an ePub reader and parser framework written in Java.
 
 THIS LIBRARY IS UNDER CONSTRUCTION! DON'T USE YET!
