@@ -16,7 +16,6 @@
 package com.folioreader.view;
 
 import android.animation.Animator;
-import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -88,7 +87,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     FontAdapter fontAdapter = new FontAdapter();
     String[] fontsText = getResources().getStringArray(R.array.fonts);
     ArrayList<Font> fonts = new ArrayList<>(fontsText.length);
-    for(String font : fontsText) {
+    for (String font : fontsText) {
       fonts.add(new Font(font));
     }
     fontAdapter.setFonts(fonts);

@@ -16,12 +16,9 @@
 package com.folioreader.activity;
 
 import android.os.Bundle;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.RelativeLayout;
 import com.folioreader.R;
 import com.folioreader.view.ConfigView;
 import com.folioreader.view.ConfigViewCallback;
@@ -50,7 +47,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
   }
 
   @Override public void onBackPressed() {
-    if(configView.isDragViewAboveTheLimit()) {
+    if (configView.isDragViewAboveTheLimit()) {
       configView.moveToOriginalPosition();
     } else {
       super.onBackPressed();

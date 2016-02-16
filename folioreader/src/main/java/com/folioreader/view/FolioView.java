@@ -71,7 +71,7 @@ public class FolioView extends FrameLayout implements View.OnClickListener {
   public void updateShadowAlpha(float alpha) {
     float invertedShadow = 1 - alpha;
     shadowView.setAlpha(invertedShadow);
-    if(invertedShadow == 0.0) {
+    if (invertedShadow == 0.0) {
       shadowView.setVisibility(GONE);
     }
   }
