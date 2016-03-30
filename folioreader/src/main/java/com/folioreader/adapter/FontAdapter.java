@@ -30,7 +30,7 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ViewHolder> {
 
   @Override public FontAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int i) {
     return new ViewHolder(LayoutInflater.from(parent.getContext())
-        .inflate(R.layout.adapter_font, parent, false));
+        .inflate(R.layout.row_font, parent, false));
   }
 
   @Override public void onBindViewHolder(ViewHolder viewHolder, int i) {
