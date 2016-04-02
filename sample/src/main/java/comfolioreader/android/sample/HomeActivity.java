@@ -18,6 +18,9 @@ package comfolioreader.android.sample;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -37,5 +40,29 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        /*VerticalViewPager viewPager = (VerticalViewPager) findViewById(R.id.verticalPager);
+        viewPager.setAdapter(new TestFragmentAdapter(getSupportFragmentManager()));*/
+
+    }
+
+    private static class TestFragmentAdapter extends FragmentPagerAdapter {
+
+        protected static final String[] CONTENT = new String[] { "This", "Is Is", "A A A", "Test", };
+
+        public TestFragmentAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return TestFragment.newInstance(CONTENT[position]);
+        }
+
+        @Override
+        public int getCount() {
+            return CONTENT.length;
+        }
+
     }
 }

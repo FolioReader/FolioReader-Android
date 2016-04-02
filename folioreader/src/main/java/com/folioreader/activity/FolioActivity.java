@@ -22,32 +22,41 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.folioreader.R;
-import com.folioreader.adapter.SpineReferenceAdapter;
+import com.folioreader.adapter.FolioPageFragmentAdapter;
 import com.folioreader.adapter.TOCAdapter;
+import com.folioreader.fragments.FolioPageFragment;
 import com.folioreader.view.ConfigView;
 import com.folioreader.view.ConfigViewCallback;
 import com.folioreader.view.FolioView;
 import com.folioreader.view.FolioViewCallback;
+import com.folioreader.view.VerticalViewPager;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
 import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.Spine;
+import nl.siegmann.epublib.domain.SpineReference;
 import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.epub.EpubReader;
 
 public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
-        FolioViewCallback {
+        FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback {
 
     public static final String INTENT_EPUB_ASSET_PATH = "com.folioreader.epub_asset_path";
-    private RecyclerView recyclerViewMenu, recyclerViewContent;
+    private RecyclerView recyclerViewMenu;
+    private VerticalViewPager mFolioPageViewPager;
     private FolioView folioView;
     private ConfigView configView;
+
     private String mEpubAssetPath;
     private Book mBook;
     private ArrayList<TOCReference> mTocReferences = new ArrayList<>();
+    private List<SpineReference> mSpineReferences;
+    private List<String> mSpineReferenceHtmls = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +71,46 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         try {
             InputStream epubInputStream = assetManager.open(mEpubAssetPath);
             mBook = (new EpubReader()).readEpub(epubInputStream);
+            populateTableOfContents(mBook.getTableOfContents().getTocReferences(), 0);
+            Spine spine = new Spine(mBook.getTableOfContents());
+            this.mSpineReferences = spine.getSpineReferences();
+            for (int i=0; i<mSpineReferences.size(); i++) mSpineReferenceHtmls.add(null);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void populateTableOfContents(List<TOCReference> tocReferences, int depth) {
+        if (tocReferences == null) {
+            return;
+        }
+
+        for (TOCReference tocReference : tocReferences) {
+            mTocReferences.add(tocReference);
+            populateTableOfContents(tocReference.getChildren(), depth + 1);
+        }
+    }
+
+    private String reader(int position) {
+        if (mSpineReferenceHtmls.get(position)!=null){
+            return mSpineReferenceHtmls.get(position);
+        } else {
+            try {
+                Reader reader = mSpineReferences.get(position).getResource().getReader();
+
+                StringBuilder builder = new StringBuilder();
+                int numChars;
+                char[] cbuf = new char[2048];
+                while ((numChars = reader.read(cbuf)) >= 0) {
+                    builder.append(cbuf, 0, numChars);
+                }
+                String content = builder.toString();
+                mSpineReferenceHtmls.set(position, content);
+                return content;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return "";
         }
     }
 
@@ -109,33 +156,25 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     private void configRecyclerViews() {
         recyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
-        if (mBook != null) {
-            populateTableOfContents(mBook.getTableOfContents().getTocReferences(), 0);
+        if (mTocReferences != null) {
             TOCAdapter tocAdapter = new TOCAdapter(mTocReferences);
             recyclerViewMenu.setAdapter(tocAdapter);
         }
     }
 
-    private void populateTableOfContents(List<TOCReference> tocReferences, int depth) {
-        if (tocReferences == null) {
-            return;
-        }
-
-        for (TOCReference tocReference : tocReferences) {
-            mTocReferences.add(tocReference);
-            populateTableOfContents(tocReference.getChildren(), depth + 1);
-        }
-    }
-
     private void configFolio() {
-        recyclerViewContent = (RecyclerView) folioView.findViewById(R.id.folio_element);
-        recyclerViewContent.setLayoutManager(new LinearLayoutManager(this));
-        if (mBook != null) {
-            SpineReferenceAdapter spineAdapter = new SpineReferenceAdapter(mBook.getSpine().getSpineReferences());
-            recyclerViewContent.setAdapter(spineAdapter);
+        mFolioPageViewPager = (VerticalViewPager) folioView.findViewById(R.id.folioPageViewPager);
+        if (mSpineReferences != null) {
+            FolioPageFragmentAdapter folioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferences);
+            mFolioPageViewPager.setAdapter(folioPageFragmentAdapter);
         }
+
         folioView.setFolioViewCallback(this);
         configView.setConfigViewCallback(this);
     }
 
+    @Override
+    public String getChapterHtmlContent(int position) {
+        return reader(position);
+    }
 }
