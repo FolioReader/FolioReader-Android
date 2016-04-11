@@ -29,17 +29,17 @@
             android:layout_width="280dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:background="@color/navigation_drawer_green">
+            android:background="@color/app_green">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view_menu"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@+id/close_icon"
+                android:layout_above="@+id/btn_close"
                 android:background="@android:color/white" />
 
             <ImageButton
-                android:id="@+id/close_icon"
+                android:id="@+id/btn_close"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
@@ -48,12 +48,12 @@
                 android:src="@drawable/icon_close" />
 
             <ImageButton
-                android:id="@+id/config_icon"
+                android:id="@+id/btn_config"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_marginLeft="6dp"
-                android:layout_toRightOf="@+id/close_icon"
+                android:layout_toRightOf="@+id/btn_close"
                 android:background="@android:color/transparent"
                 android:padding="8dp"
                 android:src="@drawable/icon_font" />
@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_marginLeft="6dp"
-                android:layout_toRightOf="@+id/config_icon"
+                android:layout_toRightOf="@+id/btn_config"
                 android:background="@android:color/transparent"
                 android:padding="8dp"
                 android:src="@drawable/icon_highlight" />

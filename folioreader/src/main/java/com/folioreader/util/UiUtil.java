@@ -4,50 +4,66 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Typeface;
+import android.text.TextUtils;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.folioreader.R;
+
+import java.lang.ref.SoftReference;
+import java.util.Hashtable;
 
 /**
  * Created by mahavir on 3/30/16.
  */
 public class UiUtil {
-    private static final int[] RES_IDS_ACTION_BAR_SIZE = {R.attr.actionBarSize};
-
-    public static int containerHeight(Activity activity) {
-        DisplayMetrics dm = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-
-        return (int) (dm.heightPixels);
+    public static void setCustomFont(View view, Context ctx, AttributeSet attrs,
+                                     int[] attributeSet, int fontId) {
+        TypedArray a = ctx.obtainStyledAttributes(attrs, attributeSet);
+        String customFont = a.getString(fontId);
+        setCustomFont(view, ctx, customFont);
+        a.recycle();
     }
 
-    public static int getStatusBarHeight(Context context) {
-        int result = 0;
-        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = context.getResources().getDimensionPixelSize(resourceId);
+    private static boolean setCustomFont(View view, Context ctx, String asset) {
+        if (TextUtils.isEmpty(asset))
+            return false;
+        Typeface tf = null;
+        try {
+            tf = getFont(ctx, asset);
+            if (view instanceof TextView) {
+                ((TextView) view).setTypeface(tf);
+            } else {
+                ((Button) view).setTypeface(tf);
+            }
+        } catch (Exception e) {
+            Log.e("AppUtil", "Could not get typface  " + asset);
+            return false;
         }
 
-        return result;
+        return true;
     }
 
-    public static int getActionBarHeight(Context context) {
-        if (context == null) {
-            return 0;
-        }
+    private static final Hashtable<String, SoftReference<Typeface>> fontCache = new Hashtable<String, SoftReference<Typeface>>();
 
-        Resources.Theme curTheme = context.getTheme();
-        if (curTheme == null) {
-            return 0;
-        }
+    public static Typeface getFont(Context c, String name) {
+        synchronized (fontCache) {
+            if (fontCache.get(name) != null) {
+                SoftReference<Typeface> ref = fontCache.get(name);
+                if (ref.get() != null) {
+                    return ref.get();
+                }
+            }
 
-        TypedArray att = curTheme.obtainStyledAttributes(RES_IDS_ACTION_BAR_SIZE);
-        if (att == null) {
-            return 0;
-        }
+            Typeface typeface = Typeface.createFromAsset(c.getAssets(), name);
+            fontCache.put(name, new SoftReference<Typeface>(typeface));
 
-        float size = att.getDimension(0, 0);
-        att.recycle();
-        return (int) size;
+            return typeface;
+        }
     }
 }

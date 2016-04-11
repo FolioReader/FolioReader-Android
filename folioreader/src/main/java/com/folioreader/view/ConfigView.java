@@ -43,6 +43,10 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
   private static final float DEFAULT_DRAG_LIMIT = 0.5f;
   private static final int INVALID_POINTER = -1;
   private static final int FADE_DAY_NIGHT_MODE = 500;
+  private static final int FONT_ANDADA = 1;
+  private static final int FONT_LATO = 2;
+  private static final int FONT_LORA = 3;
+  private static final int FONT_RALEWAY = 4;
 
   private int activePointerId = INVALID_POINTER;
 
@@ -51,7 +55,6 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
   private float verticalDragRange;
 
   private RelativeLayout container;
-  private RecyclerView recyclerViewFonts;
   private ImageButton dayButton;
   private ImageButton nightButton;
   private ViewDragHelper viewDragHelper;
@@ -72,7 +75,6 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
   private void inflateView() {
     inflate(getContext(), R.layout.view_config, this);
     container = (RelativeLayout) findViewById(R.id.container);
-    recyclerViewFonts = (RecyclerView) findViewById(R.id.recycler_view_fonts);
     dayButton = (ImageButton) findViewById(R.id.day_button);
     nightButton = (ImageButton) findViewById(R.id.night_button);
     dayButton.setTag(Tags.DAY_BUTTON);
@@ -81,17 +83,55 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     nightButton.setOnClickListener(this);
   }
 
-  private void configRecyclerViewFonts() {
-    recyclerViewFonts.setLayoutManager(
-        new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-    FontAdapter fontAdapter = new FontAdapter();
-    String[] fontsText = getResources().getStringArray(R.array.fonts);
-    ArrayList<Font> fonts = new ArrayList<>(fontsText.length);
-    for (String font : fontsText) {
-      fonts.add(new Font(font));
+  private void configFonts(){
+    findViewById(R.id.btn_font_andada).setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        selectFont(FONT_ANDADA);
+      }
+    });
+    findViewById(R.id.btn_font_lato).setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        selectFont(FONT_LATO);
+      }
+    });
+    findViewById(R.id.btn_font_lora).setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        selectFont(FONT_LORA);
+      }
+    });
+    findViewById(R.id.btn_font_raleway).setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        selectFont(FONT_RALEWAY);
+      }
+    });
+  }
+
+  private void selectFont(int selectedFont){
+    if (selectedFont == FONT_ANDADA){
+      findViewById(R.id.btn_font_andada).setSelected(true);
+      findViewById(R.id.btn_font_lato).setSelected(false);
+      findViewById(R.id.btn_font_lora).setSelected(false);
+      findViewById(R.id.btn_font_raleway).setSelected(false);
+    } else if (selectedFont == FONT_LATO){
+      findViewById(R.id.btn_font_andada).setSelected(false);
+      findViewById(R.id.btn_font_lato).setSelected(true);
+      findViewById(R.id.btn_font_lora).setSelected(false);
+      findViewById(R.id.btn_font_raleway).setSelected(false);
+    } else if (selectedFont == FONT_LORA){
+      findViewById(R.id.btn_font_andada).setSelected(false);
+      findViewById(R.id.btn_font_lato).setSelected(false);
+      findViewById(R.id.btn_font_lora).setSelected(true);
+      findViewById(R.id.btn_font_raleway).setSelected(false);
+    } else if (selectedFont == FONT_RALEWAY){
+      findViewById(R.id.btn_font_andada).setSelected(false);
+      findViewById(R.id.btn_font_lato).setSelected(false);
+      findViewById(R.id.btn_font_lora).setSelected(false);
+      findViewById(R.id.btn_font_raleway).setSelected(true);
     }
-    fontAdapter.setFonts(fonts);
-    recyclerViewFonts.setAdapter(fontAdapter);
   }
 
   private void toggleBlackTheme() {
@@ -135,8 +175,10 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     super.onFinishInflate();
     if (!isInEditMode()) {
       inflateView();
-      configRecyclerViewFonts();
+      configFonts();
       configDragViewHelper();
+      selectFont(FONT_ANDADA);
+      dayButton.setSelected(true);
     }
   }
 
@@ -227,12 +269,16 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
         if (isNightMode) {
           isNightMode = true;
           toggleBlackTheme();
+          dayButton.setSelected(true);
+          nightButton.setSelected(false);
         }
         break;
       case Tags.NIGHT_BUTTON:
         if (!isNightMode) {
           isNightMode = false;
           toggleBlackTheme();
+          dayButton.setSelected(false);
+          nightButton.setSelected(true);
         }
         break;
       default:

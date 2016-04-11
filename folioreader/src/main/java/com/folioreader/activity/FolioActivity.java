@@ -17,9 +17,11 @@ package com.folioreader.activity;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.folioreader.R;
 import com.folioreader.adapter.FolioPageFragmentAdapter;
@@ -91,29 +93,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         }
     }
 
-    private String reader(int position) {
-        if (mSpineReferenceHtmls.get(position)!=null){
-            return mSpineReferenceHtmls.get(position);
-        } else {
-            try {
-                Reader reader = mSpineReferences.get(position).getResource().getReader();
-
-                StringBuilder builder = new StringBuilder();
-                int numChars;
-                char[] cbuf = new char[2048];
-                while ((numChars = reader.read(cbuf)) >= 0) {
-                    builder.append(cbuf, 0, numChars);
-                }
-                String content = builder.toString();
-                mSpineReferenceHtmls.set(position, content);
-                return content;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return "";
-        }
-    }
-
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -122,6 +101,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         configView = (ConfigView) findViewById(R.id.config_view);
         configRecyclerViews();
         configFolio();
+        configDrawerLayoutButtons();
     }
 
     @Override
@@ -173,8 +153,52 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         configView.setConfigViewCallback(this);
     }
 
+    private void configDrawerLayoutButtons(){
+        findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((DrawerLayout)findViewById(R.id.drawer_left)).closeDrawers();
+                finish();
+            }
+        });
+        findViewById(R.id.btn_config).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((DrawerLayout)findViewById(R.id.drawer_left)).closeDrawers();
+                if (configView.isDragViewAboveTheLimit()) {
+                    configView.moveToOriginalPosition();
+                } else {
+                    configView.moveOffScreen();
+                }
+            }
+        });
+    }
+
     @Override
     public String getChapterHtmlContent(int position) {
         return reader(position);
+    }
+
+    private String reader(int position) {
+        if (mSpineReferenceHtmls.get(position)!=null){
+            return mSpineReferenceHtmls.get(position);
+        } else {
+            try {
+                Reader reader = mSpineReferences.get(position).getResource().getReader();
+
+                StringBuilder builder = new StringBuilder();
+                int numChars;
+                char[] cbuf = new char[2048];
+                while ((numChars = reader.read(cbuf)) >= 0) {
+                    builder.append(cbuf, 0, numChars);
+                }
+                String content = builder.toString();
+                mSpineReferenceHtmls.set(position, content);
+                return content;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return "";
+        }
     }
 }

@@ -1,11 +1,13 @@
 package com.folioreader.fragments;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
@@ -42,9 +44,23 @@ public class FolioPageFragment extends Fragment {
             htmlContent = ((FolioPageFragmentCallback)getActivity()).getChapterHtmlContent(mPosition);
         }
 
+        String cssPath = String.format("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">", "Style.css");
+        String jsPath = String.format("<script type=\"text/javascript\" src=\"%s\"></script>", "Bridge.js");
+        String toInject = "\n"+cssPath+"\n"+jsPath+"\n</head>";
+        htmlContent = htmlContent.replace("</head>", toInject);
+
         View rootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         WebView webView = (WebView) rootView.findViewById(R.id.contentWebView);
-        webView.loadData(htmlContent, "text/html; charset=UTF-8", "UTF-8");
+        if (Build.VERSION.SDK_INT >= 19) {
+            // chromium, enable hardware acceleration
+            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        } else {
+            // older android version, disable hardware acceleration
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
+        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.loadDataWithBaseURL("file:///android_asset/", htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
 
         return rootView;
     }
