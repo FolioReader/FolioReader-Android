@@ -30,6 +30,9 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+
+import com.folioreader.Config;
 import com.folioreader.Font;
 import com.folioreader.R;
 import com.folioreader.adapter.FontAdapter;
@@ -57,6 +60,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
   private RelativeLayout container;
   private ImageButton dayButton;
   private ImageButton nightButton;
+  private SeekBar fontSizeSeekBar;
   private ViewDragHelper viewDragHelper;
   private ConfigViewCallback configViewCallback;
 
@@ -75,6 +79,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
   private void inflateView() {
     inflate(getContext(), R.layout.view_config, this);
     container = (RelativeLayout) findViewById(R.id.container);
+    fontSizeSeekBar = (SeekBar) findViewById(R.id.seekbar_font_size);
     dayButton = (ImageButton) findViewById(R.id.day_button);
     nightButton = (ImageButton) findViewById(R.id.night_button);
     dayButton.setTag(Tags.DAY_BUTTON);
@@ -132,6 +137,9 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
       findViewById(R.id.btn_font_lora).setSelected(false);
       findViewById(R.id.btn_font_raleway).setSelected(true);
     }
+
+    Config.getConfig().setFont(selectedFont-1);
+    if (configViewCallback!=null) configViewCallback.onConfigChange();
   }
 
   private void toggleBlackTheme() {
@@ -158,6 +166,8 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
       @Override public void onAnimationStart(Animator animator) { }
       @Override public void onAnimationEnd(Animator animator) {
         isNightMode = !isNightMode;
+        Config.getConfig().setNightMode(isNightMode);
+        configViewCallback.onConfigChange();
       }
       @Override public void onAnimationCancel(Animator animator) { }
       @Override public void onAnimationRepeat(Animator animator) { }
@@ -167,6 +177,24 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     colorAnimation.start();
   }
 
+  private void configSeekbar(){
+    fontSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+      @Override
+      public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        Config.getConfig().setFontSize(progress);
+        if (configViewCallback!=null) configViewCallback.onConfigChange();
+      }
+
+      @Override
+      public void onStartTrackingTouch(SeekBar seekBar) {
+      }
+
+      @Override
+      public void onStopTrackingTouch(SeekBar seekBar) {
+      }
+    });
+    fontSizeSeekBar.setProgress(Config.getConfig().getFontSize());
+  }
   /**
    * Bind the attributes of the view and config
    * the DragView with these params.
@@ -176,9 +204,17 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     if (!isInEditMode()) {
       inflateView();
       configFonts();
+      configSeekbar();
       configDragViewHelper();
-      selectFont(FONT_ANDADA);
-      dayButton.setSelected(true);
+      selectFont(Config.getConfig().getFont());
+      isNightMode = Config.getConfig().isNightMode();
+      if (isNightMode){
+        dayButton.setSelected(false);
+        nightButton.setSelected(true);
+      } else {
+        dayButton.setSelected(true);
+        nightButton.setSelected(false);
+      }
     }
   }
 

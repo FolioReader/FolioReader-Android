@@ -110,7 +110,7 @@
             android:src="@drawable/icon_font_small"
             android:padding="8dp"/>
 
-        <SeekBar android:id="@+id/seekbar_font"
+        <SeekBar android:id="@+id/seekbar_font_size"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/small_font"

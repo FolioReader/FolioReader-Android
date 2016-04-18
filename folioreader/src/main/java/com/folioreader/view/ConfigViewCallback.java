@@ -19,4 +19,5 @@ public interface ConfigViewCallback {
   void onBackgroundUpdate(int color);
   void onShadowAlpha(float alpha);
   void showShadow();
+  void onConfigChange();
 }

@@ -17,6 +17,7 @@ package com.folioreader.activity;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -127,6 +128,14 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     @Override
     public void showShadow() {
         folioView.resetView();
+    }
+
+    @Override
+    public void onConfigChange() {
+        Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.folioPageViewPager + ":" + mFolioPageViewPager.getCurrentItem());
+        if (page!=null){
+            ((FolioPageFragment)page).reload();
+        }
     }
 
     @Override
