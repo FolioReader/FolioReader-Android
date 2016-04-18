@@ -226,21 +226,37 @@ html.nightMode .highlight-underline {border-bottom: 2px solid rgba(240, 40, 20, 
  *
  */
 
+@font-face {
+    font-family: 'andada';
+    src: url('fonts/andada/Andada-Regular.otf');
+}
+
+@font-face {
+    font-family: 'lato';
+    src: url('fonts/lato/Lato-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'lora';
+    src: url('fonts/lora/Lora-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'raleway';
+    src: url('fonts/raleway/Raleway-Regular.ttf');
+}
+
 .andada, .andada p, .andada span, .andada div {
-     font-family: "Andada", sans-serif !important;
-     src: url('fonts/andada/Andada-Regular.otf');
+     font-family: "andada", sans-serif !important;
  }
 .lato, .lato p, .lato span, .lato div {
-     font-family: "Lato", serif !important;
-     src: url('fonts/lato/Lato-Regular.ttf');
+     font-family: "lato", serif !important;
  }
 .lora, .lora p, .lora span, .lora div {
-     font-family: "Lora", serif !important;
-     src: url('fonts/lora/Lora-Regular.ttf');
+     font-family: "lora", serif !important;
  }
 .raleway, .raleway p, .raleway span, .raleway div {
-     font-family: "Raleway", sans-serif !important;
-     src: url('fonts/raleway/Raleway-Regular.ttf');
+     font-family: "raleway", sans-serif !important;
  }
 
 html.textSizeOne { font-size: 13px !important; }
