@@ -3,6 +3,7 @@ package com.folioreader.fragments;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -124,6 +125,7 @@ public class FolioPageFragment extends Fragment {
     public void reload(){
         WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
         String htmlContent = getHtmlContent();
+        Log.d("html/content",htmlContent);
         webView.loadDataWithBaseURL("file:///android_asset/", htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
     }
 
