@@ -228,22 +228,22 @@ html.nightMode .highlight-underline {border-bottom: 2px solid rgba(240, 40, 20, 
 
 @font-face {
     font-family: 'andada';
-    src: url('fonts/andada/Andada-Regular.otf');
+    src: url('file:///android_asset/fonts/andada/Andada-Regular.otf');
 }
 
 @font-face {
     font-family: 'lato';
-    src: url('fonts/lato/Lato-Regular.ttf');
+    src: url('file:///android_asset/fonts/lato/Lato-Regular.ttf');
 }
 
 @font-face {
     font-family: 'lora';
-    src: url('fonts/lora/Lora-Regular.ttf');
+    src: url('file:///android_asset/fonts/lora/Lora-Regular.ttf');
 }
 
 @font-face {
     font-family: 'raleway';
-    src: url('fonts/raleway/Raleway-Regular.ttf');
+    src: url('file:///android_asset/fonts/raleway/Raleway-Regular.ttf');
 }
 
 .andada, .andada p, .andada span, .andada div {

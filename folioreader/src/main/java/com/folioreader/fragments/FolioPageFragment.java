@@ -50,60 +50,7 @@ public class FolioPageFragment extends Fragment  {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
         }
 
-        String htmlContent = "???";
-        if (getActivity() instanceof FolioPageFragmentCallback && mPosition != -1){
-            htmlContent = ((FolioPageFragmentCallback)getActivity()).getChapterHtmlContent(mPosition);
-        }
-
-        String cssPath = String.format("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">", "Style.css");
-        String jsPath = String.format("<script type=\"text/javascript\" src=\"%s\"></script>", "Bridge.js");
-        String toInject = "\n"+cssPath+"\n"+jsPath+"\n</head>";
-        htmlContent = htmlContent.replace("</head>", toInject);
-
-        String classes = "";
-        Config config = Config.getConfig();
-        switch (config.getFont()) {
-            case 0:
-                classes="andada";
-                break;
-            case 1:
-                classes="lato";
-                break;
-            case 2:
-                classes="lora";
-                break;
-            case 3:
-                classes="raleway";
-                break;
-            default:
-                break;
-        }
-
-        if (config.isNightMode()){
-            classes += " nightMode";
-        }
-
-        switch (config.getFontSize()){
-            case 0:
-                classes += " textSizeOne";
-                break;
-            case 1:
-                classes += " textSizeTwo";
-                break;
-            case 2:
-                classes += " textSizeThree";
-                break;
-            case 3:
-                classes += " textSizeFour";
-                break;
-            case 4:
-                classes += " textSizeFive";
-                break;
-            default:
-                break;
-        }
-
-        htmlContent = htmlContent.replace("<html ", "<html class=\""+classes+"\" ");
+        String htmlContent = getHtmlContent();
 
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
@@ -149,7 +96,7 @@ public class FolioPageFragment extends Fragment  {
         }
         webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
-        webView.loadDataWithBaseURL("file:///android_asset/", htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
+        webView.loadDataWithBaseURL(null, htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
 
         return mRootView;
     }
@@ -165,6 +112,7 @@ public class FolioPageFragment extends Fragment  {
         WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
         String htmlContent = getHtmlContent();
         webView.loadDataWithBaseURL("file:///android_asset/", htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
+        webView.loadDataWithBaseURL(null, htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
     }
 
     private String getHtmlContent(){
@@ -173,8 +121,8 @@ public class FolioPageFragment extends Fragment  {
             htmlContent = ((FolioPageFragmentCallback)getActivity()).getChapterHtmlContent(mPosition);
         }
 
-        String cssPath = String.format("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">", "Style.css");
-        String jsPath = String.format("<script type=\"text/javascript\" src=\"%s\"></script>", "Bridge.js");
+        String cssPath = String.format("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">", "file:///android_asset/Style.css");
+        String jsPath = String.format("<script type=\"text/javascript\" src=\"%s\"></script>", "file:///android_asset/Bridge.js");
         String toInject = "\n"+cssPath+"\n"+jsPath+"\n</head>";
         htmlContent = htmlContent.replace("</head>", toInject);
 

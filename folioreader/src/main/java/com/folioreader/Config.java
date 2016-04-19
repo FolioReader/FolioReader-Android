@@ -7,11 +7,6 @@ import android.os.Parcelable;
  * Created by mahavir on 4/12/16.
  */
 public class Config implements Parcelable {
-    public static final int FONT_ANDADA = 0;
-    public static final int FONT_LATO = 0;
-    public static final int FONT_LORA = 0;
-    public static final int FONT_RALEWAY = 0;
-
     private static Config mConfig;
 
     private int font;
@@ -25,9 +20,9 @@ public class Config implements Parcelable {
     }
 
     public Config() {
-        fontSize = 4;
+        fontSize = 2;
         font = 3;
-        nightMode = true;
+        nightMode = false;
     }
 
     protected Config(Parcel in) {
