@@ -36,6 +36,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, FolioActivity.class);
+                //intent.putExtra(FolioActivity.INTENT_EPUB_ASSET_PATH, "The Silver Chair.epub");
                 intent.putExtra(FolioActivity.INTENT_EPUB_ASSET_PATH, "The Silver Chair.epub");
                 startActivity(intent);
             }

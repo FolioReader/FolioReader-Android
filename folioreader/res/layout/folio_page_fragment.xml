@@ -3,7 +3,6 @@
     android:id="@+id/rlContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="4dp" android:paddingBottom="4dp"
     android:orientation="vertical">
 
     <WebView android:id="@+id/contentWebView"
