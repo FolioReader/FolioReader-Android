@@ -6,15 +6,14 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 /**
  * Created by mahavir on 3/31/16.
  */
 public class ObservableWebView extends WebView {
     public static interface ScrollListener {
-        public void onScrollBottom();
-        public void onScrollTop();
-        public void onScrolling();
+        public void onScrollChange(float percent);
     }
     private ScrollListener mScrollListener;
 
@@ -41,16 +40,11 @@ public class ObservableWebView extends WebView {
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        Log.d("ObservableScrollView", "Left => "+l+", Top => "+t+", Old-Left => "+oldl+", Old-Top => "+oldt);
         int height = (int) Math.floor(this.getContentHeight() * this.getScale());
         int webViewHeight = this.getMeasuredHeight();
-        if(this.getScrollY() + webViewHeight >= height){
-            if (mScrollListener!=null) mScrollListener.onScrollBottom();
-        } else if (t == 0){
-            if (mScrollListener!=null) mScrollListener.onScrollTop();
-        } else {
-            if (mScrollListener!=null) mScrollListener.onScrolling();
-        }
+
+        float scrollPercent = ((float)t/(height - webViewHeight))*100.0f;
+        if (mScrollListener!=null) mScrollListener.onScrollChange(scrollPercent);
         super.onScrollChanged(l, t, oldl, oldt);
     }
 }

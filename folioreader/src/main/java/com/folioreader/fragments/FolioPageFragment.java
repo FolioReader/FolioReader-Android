@@ -1,5 +1,6 @@
 package com.folioreader.fragments;
 
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,9 +12,11 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 
 import com.folioreader.Config;
 import com.folioreader.R;
+import com.folioreader.view.ObservableWebView;
 
 /**
  * Created by mahavir on 4/2/16.
@@ -22,6 +25,7 @@ public class FolioPageFragment extends Fragment {
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.fragments.FolioPageFragment.POSITION";
 
     private View mRootView;
+    private SeekBar mScrollSeekbar;
 
     public static FolioPageFragment newInstance(int position) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -47,16 +51,17 @@ public class FolioPageFragment extends Fragment {
         String htmlContent = getHtmlContent();
 
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
-        WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
-        if (Build.VERSION.SDK_INT >= 19) {
-            // chromium, enable hardware acceleration
-            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        } else {
-            // older android version, disable hardware acceleration
-            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        }
-        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        ObservableWebView webView = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
+        mScrollSeekbar = (SeekBar)mRootView.findViewById(R.id.scrollSeekbar);
+        mScrollSeekbar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.app_green), PorterDuff.Mode.SRC_IN);
+
+        webView.setVerticalScrollBarEnabled(false);
+        webView.setScrollListener(new ObservableWebView.ScrollListener() {
+            @Override
+            public void onScrollChange(float percent) {
+                mScrollSeekbar.setProgress((int)percent);
+            }
+        });
         webView.loadDataWithBaseURL(null, htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
 
         return mRootView;

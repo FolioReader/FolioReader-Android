@@ -5,8 +5,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <WebView android:id="@+id/contentWebView"
+    <com.folioreader.view.ObservableWebView android:id="@+id/contentWebView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <com.folioreader.view.VerticalSeekbar
+        android:id="@+id/scrollSeekbar"
+        android:layout_width="3dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="4dp"/>
 
 </RelativeLayout>
