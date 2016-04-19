@@ -6,19 +6,24 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.folioreader.Config;
 import com.folioreader.R;
 
+import org.w3c.dom.Text;
+
 /**
  * Created by mahavir on 4/2/16.
  */
-public class FolioPageFragment extends Fragment {
+public class FolioPageFragment extends Fragment  {
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.fragments.FolioPageFragment.POSITION";
 
     private View mRootView;
@@ -33,6 +38,7 @@ public class FolioPageFragment extends Fragment {
 
     public static interface FolioPageFragmentCallback {
         public String getChapterHtmlContent(int position);
+        public void hideOrshowToolBar();
     }
 
     private int mPosition = -1;
@@ -101,6 +107,39 @@ public class FolioPageFragment extends Fragment {
 
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
+        final Boolean[] mMoveOccured = new Boolean[1];
+        final float[] mDownPosX = new float[1];
+        final float[] mDownPosY = new float[1];
+
+        webView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                final float MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
+
+                        final int action = event.getAction();
+                        switch (action) {
+                            case MotionEvent.ACTION_DOWN:
+                                mMoveOccured[0] = false;
+                                mDownPosX[0] = event.getX();
+                                mDownPosY[0] = event.getY();
+                                break;
+                            case MotionEvent.ACTION_UP:
+                                if (!mMoveOccured[0]) {
+                                    //Toast.makeText(v.getContext(), "Webview pressed", Toast.LENGTH_SHORT).show();
+                                    Log.d("**********", "In page fragment");
+                                    ((FolioPageFragmentCallback)getActivity()).hideOrshowToolBar();
+                                }
+                                break;
+                            case MotionEvent.ACTION_MOVE:
+                                if (Math.abs(event.getX() - mDownPosX[0]) > MOVE_THRESHOLD_DP || Math.abs(event.getY() - mDownPosY[0]) > MOVE_THRESHOLD_DP) {
+                                    mMoveOccured[0] = true;
+                                }
+                                break;
+                        }
+                        return false;
+                    }
+                });
+
         if (Build.VERSION.SDK_INT >= 19) {
             // chromium, enable hardware acceleration
             webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
@@ -125,7 +164,6 @@ public class FolioPageFragment extends Fragment {
     public void reload(){
         WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
         String htmlContent = getHtmlContent();
-        Log.d("html/content",htmlContent);
         webView.loadDataWithBaseURL("file:///android_asset/", htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
     }
 
