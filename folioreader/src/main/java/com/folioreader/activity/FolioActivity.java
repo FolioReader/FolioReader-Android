@@ -15,15 +15,28 @@
 */
 package com.folioreader.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.res.AssetManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
+import android.widget.Toast;
 
 import com.folioreader.R;
 import com.folioreader.adapter.FolioPageFragmentAdapter;
@@ -56,20 +69,23 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private VerticalViewPager mFolioPageViewPager;
     private FolioView folioView;
     private ConfigView configView;
+    private Toolbar mToolbar;
 
     private String mEpubAssetPath;
     private Book mBook;
     private ArrayList<TOCReference> mTocReferences = new ArrayList<>();
     private List<SpineReference> mSpineReferences;
     private List<String> mSpineReferenceHtmls = new ArrayList<>();
+    private boolean mIsActionBarVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
+
         mEpubAssetPath = getIntent().getStringExtra(INTENT_EPUB_ASSET_PATH);
         loadBook();
-
+        mToolbar= (Toolbar) findViewById(R.id.toolbar);
     }
 
     private void loadBook() {
@@ -170,6 +186,24 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     private void configFolio() {
         mFolioPageViewPager = (VerticalViewPager) folioView.findViewById(R.id.folioPageViewPager);
+        mFolioPageViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                if(mIsActionBarVisible){
+                    toolbarAnimateHide();
+                }
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         if (mSpineReferences != null) {
             FolioPageFragmentAdapter folioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferences);
             mFolioPageViewPager.setAdapter(folioPageFragmentAdapter);
@@ -205,6 +239,16 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         return reader(position);
     }
 
+    @Override
+    public void hideOrshowToolBar() {
+        if (mIsActionBarVisible)
+            toolbarAnimateHide();
+        else {
+            toolbarAnimateShow(1);
+        }
+
+    }
+
     private String reader(int position) {
         if (mSpineReferenceHtmls.get(position)!=null){
             return mSpineReferenceHtmls.get(position);
@@ -226,5 +270,49 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             }
             return "";
         }
+    }
+
+//    @Override
+//    public boolean dispatchTouchEvent(MotionEvent ev) {
+//        Log.d("****** click","In dispatchTouchEvent");
+//        if (mIsActionBarVisible)
+//            toolbarAnimateHide();
+//        else {
+//            toolbarAnimateShow(1);
+//        }
+//        return super.dispatchTouchEvent(ev);
+//    }
+
+    private void toolbarAnimateShow(final int verticalOffset) {
+        mToolbar.animate()
+                .translationY(0)
+                .setInterpolator(new LinearInterpolator())
+                .setDuration(180)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        toolbarSetElevation(verticalOffset == 0 ? 0 : 1);
+                    }
+                });
+        mIsActionBarVisible = true;
+    }
+
+    private void toolbarAnimateHide() {
+        mToolbar.animate()
+                .translationY(-mToolbar.getHeight())
+                .setInterpolator(new LinearInterpolator())
+                .setDuration(180)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        toolbarSetElevation(0);
+                    }
+                });
+        mIsActionBarVisible = false;
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void toolbarSetElevation(float elevation) {
+            mToolbar.setElevation(elevation);
     }
 }
