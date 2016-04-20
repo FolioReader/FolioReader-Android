@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.view.ObservableWebView;
+import com.folioreader.view.VerticalSeekbar;
 
 import org.w3c.dom.Text;
 
@@ -30,7 +31,7 @@ public class FolioPageFragment extends Fragment  {
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.fragments.FolioPageFragment.POSITION";
 
     private View mRootView;
-    private SeekBar mScrollSeekbar;
+    private VerticalSeekbar mScrollSeekbar;
 
     public static FolioPageFragment newInstance(int position) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -58,7 +59,7 @@ public class FolioPageFragment extends Fragment  {
         String htmlContent = getHtmlContent();
 
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
-        mScrollSeekbar = (SeekBar)mRootView.findViewById(R.id.scrollSeekbar);
+        mScrollSeekbar = (VerticalSeekbar)mRootView.findViewById(R.id.scrollSeekbar);
         mScrollSeekbar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.app_green), PorterDuff.Mode.SRC_IN);
 
         ObservableWebView webView = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
@@ -99,7 +100,7 @@ public class FolioPageFragment extends Fragment  {
         webView.setScrollListener(new ObservableWebView.ScrollListener() {
             @Override
             public void onScrollChange(float percent) {
-                mScrollSeekbar.setProgress((int)percent);
+                mScrollSeekbar.setProgressAndThumb((int)percent);
             }
         });
         webView.loadDataWithBaseURL(null, htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
