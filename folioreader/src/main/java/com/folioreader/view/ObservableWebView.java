@@ -13,7 +13,7 @@ import android.webkit.WebViewClient;
  */
 public class ObservableWebView extends WebView {
     public static interface ScrollListener {
-        public void onScrollChange(float percent);
+        public void onScrollChange(float percent,int t);
     }
     private ScrollListener mScrollListener;
 
@@ -44,7 +44,8 @@ public class ObservableWebView extends WebView {
         int webViewHeight = this.getMeasuredHeight();
 
         float scrollPercent = ((float)t/(height - webViewHeight))*100.0f;
-        if (mScrollListener!=null) mScrollListener.onScrollChange(scrollPercent);
+        if (mScrollListener!=null) mScrollListener.onScrollChange(scrollPercent,t);
         super.onScrollChanged(l, t, oldl, oldt);
     }
+
 }

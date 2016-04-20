@@ -219,6 +219,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             @Override
             public void onPageSelected(int position) {
                 mChapterPosition=position;
+                mTocAdapter.setNightMode(Config.getConfig().isNightMode());
+                mTocAdapter.setSelectedChapterPosition(mChapterPosition);
+                mTocAdapter.notifyDataSetChanged();
             }
 
             @Override
