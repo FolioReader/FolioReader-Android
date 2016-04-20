@@ -1,5 +1,6 @@
 package com.folioreader.adapter;
 
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,8 @@ import nl.siegmann.epublib.domain.TOCReference;
  */
 public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
     private List<TOCReference> mTOCReferences;
+    private boolean isNightMode;
+    private int selectedChapterPosition;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView tocTitleView;
@@ -27,8 +30,9 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
         }
     }
 
-    public TOCAdapter(List<TOCReference> tocReferences) {
+    public TOCAdapter(List<TOCReference> tocReferences,boolean isNightMode) {
         mTOCReferences = tocReferences;
+        this.isNightMode=isNightMode;
     }
 
     @Override
@@ -41,11 +45,28 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.tocTitleView.setText(mTOCReferences.get(position).getTitle());
+        if(!(selectedChapterPosition==position)) {
+            if (isNightMode) {
+                holder.tocTitleView.setTextColor(Color.WHITE);
+            } else {
+                holder.tocTitleView.setTextColor(Color.BLACK);
+            }
+        } else {
+            holder.tocTitleView.setTextColor(Color.GREEN);
+        }
     }
 
     @Override
     public int getItemCount() {
         return mTOCReferences.size();
+    }
+
+    public void setNightMode(boolean nightMode){
+        isNightMode=nightMode;
+    }
+
+    public  void setSelectedChapterPosition(int position){
+        selectedChapterPosition=position;
     }
 
 }

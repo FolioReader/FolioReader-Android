@@ -18,6 +18,7 @@ package com.folioreader.view;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
@@ -31,6 +32,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.folioreader.Config;
 import com.folioreader.Font;
@@ -38,6 +40,9 @@ import com.folioreader.R;
 import com.folioreader.adapter.FontAdapter;
 import com.folioreader.util.Tags;
 import com.folioreader.util.ViewHelper;
+
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 public class ConfigView extends FrameLayout implements View.OnClickListener {
@@ -307,6 +312,9 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
           toggleBlackTheme();
           dayButton.setSelected(true);
           nightButton.setSelected(false);
+          ((Activity)getContext()).findViewById(R.id.toolbar).setBackgroundColor(getContext().getResources().getColor(R.color.white));
+          ((TextView)((Activity)getContext()).findViewById(R.id.lbl_center)).setTextColor(getResources().getColor(R.color.black));
+          configViewCallback.changeMenuTextColor();
         }
         break;
       case Tags.NIGHT_BUTTON:
@@ -315,6 +323,9 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
           toggleBlackTheme();
           dayButton.setSelected(false);
           nightButton.setSelected(true);
+          ((Activity)getContext()).findViewById(R.id.toolbar).setBackgroundColor(getContext().getResources().getColor(R.color.black));
+          ((TextView)((Activity)getContext()).findViewById(R.id.lbl_center)).setTextColor(getResources().getColor(R.color.white));
+          configViewCallback.changeMenuTextColor();
         }
         break;
       default:

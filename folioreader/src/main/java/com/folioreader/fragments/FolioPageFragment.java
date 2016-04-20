@@ -43,6 +43,7 @@ public class FolioPageFragment extends Fragment  {
     public static interface FolioPageFragmentCallback {
         public String getChapterHtmlContent(int position);
         public void hideOrshowToolBar();
+        public  void hideToolBarIfVisible();
     }
 
     private int mPosition = -1;
@@ -79,12 +80,14 @@ public class FolioPageFragment extends Fragment  {
                     case MotionEvent.ACTION_UP:
                         if (!mMoveOccured[0]) {
                             //Toast.makeText(v.getContext(), "Webview pressed", Toast.LENGTH_SHORT).show();
-                            Log.d("**********", "In page fragment");
+
                             ((FolioPageFragmentCallback)getActivity()).hideOrshowToolBar();
                         }
                         break;
                     case MotionEvent.ACTION_MOVE:
                         if (Math.abs(event.getX() - mDownPosX[0]) > MOVE_THRESHOLD_DP || Math.abs(event.getY() - mDownPosY[0]) > MOVE_THRESHOLD_DP) {
+                            Log.d("**********", "Webview Scroll");
+                            ((FolioPageFragmentCallback)getActivity()).hideToolBarIfVisible();
                             mMoveOccured[0] = true;
                         }
                         break;

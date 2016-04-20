@@ -17,6 +17,7 @@ package com.folioreader.view;
 
 public interface ConfigViewCallback {
   void onBackgroundUpdate(int color);
+  void changeMenuTextColor();
   void onShadowAlpha(float alpha);
   void showShadow();
   void onConfigChange();

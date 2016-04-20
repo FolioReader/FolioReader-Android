@@ -36,8 +36,11 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.adapter.FolioPageFragmentAdapter;
 import com.folioreader.adapter.TOCAdapter;
@@ -77,6 +80,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private List<SpineReference> mSpineReferences;
     private List<String> mSpineReferenceHtmls = new ArrayList<>();
     private boolean mIsActionBarVisible = false;
+    private TOCAdapter mTocAdapter;
+    private int mChapterPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +91,17 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         mEpubAssetPath = getIntent().getStringExtra(INTENT_EPUB_ASSET_PATH);
         loadBook();
         mToolbar= (Toolbar) findViewById(R.id.toolbar);
+        findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RelativeLayout relativeLayout= (RelativeLayout) findViewById(R.id.drawer_menu);
+                if(!((DrawerLayout)findViewById(R.id.drawer_left)).isDrawerOpen(relativeLayout)){
+                    ((DrawerLayout)findViewById(R.id.drawer_left)).openDrawer(relativeLayout);
+                }else {
+                    ((DrawerLayout)findViewById(R.id.drawer_left)).closeDrawer(relativeLayout);
+                }
+            }
+        });
     }
 
     private void loadBook() {
@@ -137,6 +153,14 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     public void onBackgroundUpdate(int value) {
         recyclerViewMenu.setBackgroundColor(value);
         folioView.setBackgroundColor(value);
+
+    }
+
+    @Override
+    public void changeMenuTextColor() {
+            mTocAdapter.setNightMode(!Config.getConfig().isNightMode());
+            mTocAdapter.setSelectedChapterPosition(mChapterPosition);
+            mTocAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -179,8 +203,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private void configRecyclerViews() {
         recyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
         if (mTocReferences != null) {
-            TOCAdapter tocAdapter = new TOCAdapter(mTocReferences);
-            recyclerViewMenu.setAdapter(tocAdapter);
+            mTocAdapter = new TOCAdapter(mTocReferences,false);
+            recyclerViewMenu.setAdapter(mTocAdapter);
         }
     }
 
@@ -189,19 +213,19 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         mFolioPageViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if(mIsActionBarVisible){
-                    toolbarAnimateHide();
-                }
+
             }
 
             @Override
             public void onPageSelected(int position) {
-
+                mChapterPosition=position;
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-
+                if(mIsActionBarVisible){
+                    toolbarAnimateHide();
+                }
             }
         });
         if (mSpineReferences != null) {
@@ -246,7 +270,13 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         else {
             toolbarAnimateShow(1);
         }
+    }
 
+    @Override
+    public void hideToolBarIfVisible() {
+        if (mIsActionBarVisible) {
+            toolbarAnimateHide();
+        }
     }
 
     private String reader(int position) {
@@ -272,16 +302,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         }
     }
 
-//    @Override
-//    public boolean dispatchTouchEvent(MotionEvent ev) {
-//        Log.d("****** click","In dispatchTouchEvent");
-//        if (mIsActionBarVisible)
-//            toolbarAnimateHide();
-//        else {
-//            toolbarAnimateShow(1);
-//        }
-//        return super.dispatchTouchEvent(ev);
-//    }
 
     private void toolbarAnimateShow(final int verticalOffset) {
         mToolbar.animate()
@@ -315,4 +335,5 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private void toolbarSetElevation(float elevation) {
             mToolbar.setElevation(elevation);
     }
+
 }

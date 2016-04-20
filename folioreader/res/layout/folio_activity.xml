@@ -8,25 +8,43 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="?attr/actionBarSize"
+        android:alpha="0.8"
+        app:contentInsetEnd="0dp"
+        android:layout_margin="0dp"
+        android:background="@color/white"
+        android:contentInsetLeft="0dp"
+        android:contentInsetRight="0dp"
+        android:contentInsetStart="0dp"
+        android:padding="0dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetRight="0dp"
         app:contentInsetStart="0dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/white">
+            android:layout_height="match_parent">
+            <ImageView android:id="@+id/btn_drawer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_drawer"
+                android:scaleType="centerCrop"
+                android:padding="20dp"/>
             <TextView
                 android:id="@+id/lbl_center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text="Folio Reader"
+                android:textSize="18sp"
                 android:textColor="@android:color/black"
-                android:textSize="22sp"
                 android:textStyle="bold" />
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
+                android:layout_alignParentBottom="true"
                 android:background="@android:color/black"/>
         </RelativeLayout>
     </android.support.v7.widget.Toolbar>
@@ -52,7 +70,7 @@
                 android:layout_gravity="bottom" />
         </FrameLayout>
 
-        <RelativeLayout
+        <RelativeLayout android:id="@+id/drawer_menu"
             android:layout_width="280dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"
