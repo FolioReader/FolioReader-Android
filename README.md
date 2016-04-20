@@ -8,11 +8,11 @@ FolioReader-Android is an ePub reader and parser framework written in Java.
 
 - [x] Custom Fonts
 - [x] Custom Text Size
+- [x] Themes / Day mode / Night mode
 - [ ] Text Highlighting
 - [ ] List / Edit / Delete Highlights
-- [x] Themes / Day mode / Night mode
 - [ ] Handle Internal and External Links
-- [x] Portrait / Landscape
+- [ ] Portrait / Landscape
 - [ ] Reading Time Left / Pages left
 - [ ] In-App Dictionary
 - [ ] Media Overlays (Sync text rendering with audio playback)
