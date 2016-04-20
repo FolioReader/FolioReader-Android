@@ -38,9 +38,7 @@ public class FolioPageFragment extends Fragment {
 
     public static interface FolioPageFragmentCallback {
         public String getChapterHtmlContent(int position);
-
         public void hideOrshowToolBar();
-
         public void hideToolBarIfVisible();
     }
 

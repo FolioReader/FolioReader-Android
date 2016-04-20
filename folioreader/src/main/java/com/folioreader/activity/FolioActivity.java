@@ -65,7 +65,7 @@ import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.epub.EpubReader;
 
 public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
-        FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback {
+        FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback,TOCAdapter.ChapterSelectionCallBack {
 
     public static final String INTENT_EPUB_ASSET_PATH = "com.folioreader.epub_asset_path";
     private RecyclerView recyclerViewMenu;
@@ -203,7 +203,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private void configRecyclerViews() {
         recyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
         if (mTocReferences != null) {
-            mTocAdapter = new TOCAdapter(mTocReferences,false);
+            mTocAdapter = new TOCAdapter(mTocReferences,FolioActivity.this);
             recyclerViewMenu.setAdapter(mTocAdapter);
         }
     }
@@ -226,9 +226,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                if(mIsActionBarVisible){
-                    toolbarAnimateHide();
-                }
+
             }
         });
         if (mSpineReferences != null) {
@@ -339,4 +337,10 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             mToolbar.setElevation(elevation);
     }
 
+    @Override
+    public void onChapterSelect(int position) {
+        mFolioPageViewPager.setCurrentItem(position);
+        RelativeLayout relativeLayout= (RelativeLayout) findViewById(R.id.drawer_menu);
+        ((DrawerLayout)findViewById(R.id.drawer_left)).closeDrawer(relativeLayout);
+    }
 }
