@@ -2,17 +2,17 @@ package com.folioreader.fragments;
 
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebChromeClient;
+import android.view.ViewTreeObserver;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.SeekBar;
-
+import android.webkit.WebChromeClient;
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.view.ObservableWebView;
@@ -27,6 +27,9 @@ public class FolioPageFragment extends Fragment {
     private View mRootView;
     private int mScrollY;
     private VerticalSeekbar mScrollSeekbar;
+
+    private Handler mHandler = new Handler();
+    private Animation mFadeInAnimation, mFadeOutAnimation;
 
     public static FolioPageFragment newInstance(int position) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -53,10 +56,10 @@ public class FolioPageFragment extends Fragment {
         }
 
         String htmlContent = getHtmlContent();
-
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         mScrollSeekbar = (VerticalSeekbar)mRootView.findViewById(R.id.scrollSeekbar);
         mScrollSeekbar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.app_green), PorterDuff.Mode.SRC_IN);
+        initAnimations();
 
         final ObservableWebView webView = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
         final Boolean[] mMoveOccured = new Boolean[1];
@@ -73,21 +76,32 @@ public class FolioPageFragment extends Fragment {
                         mMoveOccured[0] = false;
                         mDownPosX[0] = event.getX();
                         mDownPosY[0] = event.getY();
+                        mHandler.removeCallbacks(mHideSeekbarRunnable);
                         break;
                     case MotionEvent.ACTION_UP:
                         if (!mMoveOccured[0]) {
-                            ((FolioPageFragmentCallback) getActivity()).hideOrshowToolBar();
+                            ((FolioPageFragmentCallback)getActivity()).hideOrshowToolBar();
                         }
+                        mHandler.postDelayed(mHideSeekbarRunnable, 3000);
                         break;
                     case MotionEvent.ACTION_MOVE:
                         if (Math.abs(event.getX() - mDownPosX[0]) > MOVE_THRESHOLD_DP || Math.abs(event.getY() - mDownPosY[0]) > MOVE_THRESHOLD_DP) {
                             mScrollY = webView.getScrollY();
                             ((FolioPageFragmentCallback) getActivity()).hideToolBarIfVisible();
                             mMoveOccured[0] = true;
+                            fadeInSeekbarIfInvisible();
                         }
                         break;
                 }
                 return false;
+            }
+        });
+        webView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int height = (int) Math.floor(webView.getContentHeight() * webView.getScale());
+                int webViewHeight = webView.getMeasuredHeight();
+                mScrollSeekbar.setMaximum(height-webViewHeight);
             }
         });
         webView.setVerticalScrollBarEnabled(false);
@@ -102,6 +116,70 @@ public class FolioPageFragment extends Fragment {
 
         return mRootView;
     }
+
+
+    private void fadeInSeekbarIfInvisible(){
+        if (mScrollSeekbar.getVisibility() == View.INVISIBLE || mScrollSeekbar.getVisibility() == View.GONE) {
+            mScrollSeekbar.startAnimation(mFadeInAnimation);
+        }
+    }
+
+    private void fadeoutSeekbarIfVisible(){
+        if (mScrollSeekbar.getVisibility() == View.VISIBLE) {
+            mScrollSeekbar.startAnimation(mFadeOutAnimation);
+        }
+    }
+
+    private Runnable mHideSeekbarRunnable = new Runnable() {
+        @Override
+        public void run() {
+            fadeoutSeekbarIfVisible();
+        }
+    };
+
+    private void initAnimations(){
+        mFadeInAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fadein);
+        mFadeInAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                mScrollSeekbar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        mFadeOutAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fadeout);
+        mFadeOutAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mScrollSeekbar.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onDestroyView() {
+        mFadeInAnimation.setAnimationListener(null);
+        mFadeOutAnimation.setAnimationListener(null);
+        super.onDestroyView();
+    }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

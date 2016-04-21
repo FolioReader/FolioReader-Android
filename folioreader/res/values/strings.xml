@@ -4,9 +4,13 @@
   <string name="lato">Lato</string>
   <string name="lora">Lora</string>
   <string name="raleway">Raleway</string>
+
   <string name="andada_font">fonts/andada/Andada-Regular.otf</string>
   <string name="lato_font">fonts/lato/Lato-Regular.ttf</string>
   <string name="lora_font">fonts/lora/Lora-Regular.ttf</string>
   <string name="raleway_font">fonts/raleway/Raleway-Regular.ttf</string>
 
+  <string name="copy">Copy1</string>
+  <string name="highlight">Highlight1</string>
+  <string name="share">Share1</string>
 </resources>
