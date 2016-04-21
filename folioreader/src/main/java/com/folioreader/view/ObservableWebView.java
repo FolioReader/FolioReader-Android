@@ -43,8 +43,9 @@ public class ObservableWebView extends WebView {
         int height = (int) Math.floor(this.getContentHeight() * this.getScale());
         int webViewHeight = this.getMeasuredHeight();
 
-        float scrollPercent = ((float)t/(height - webViewHeight))*100.0f;
-        if (mScrollListener!=null) mScrollListener.onScrollChange(scrollPercent);
+        //float scrollPercent = ((float)t/(height - webViewHeight))*100.0f;
+        //Log.d("ObservableWebview", "Height: "+height+", WebviewHeight: "+webViewHeight+", scrollY:"+t);
+        if (mScrollListener!=null) mScrollListener.onScrollChange(t);
         super.onScrollChanged(l, t, oldl, oldt);
     }
 }
