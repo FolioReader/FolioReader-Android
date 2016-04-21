@@ -349,7 +349,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void toolbarSetElevation(float elevation) {
-            mToolbar.setElevation(elevation);
+            //mToolbar.setElevation(elevation);
     }
 
     @Override
@@ -358,4 +358,5 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         RelativeLayout relativeLayout= (RelativeLayout) findViewById(R.id.drawer_menu);
         ((DrawerLayout)findViewById(R.id.drawer_left)).closeDrawer(relativeLayout);
     }
+
 }

@@ -103,7 +103,6 @@ public class FolioPageFragment extends Fragment {
         return mRootView;
     }
 
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -187,4 +186,5 @@ public class FolioPageFragment extends Fragment {
         htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
         return htmlContent;
     }
+
 }
