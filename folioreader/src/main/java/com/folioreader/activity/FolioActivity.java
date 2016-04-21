@@ -315,6 +315,21 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                         toolbarSetElevation(verticalOffset == 0 ? 0 : 1);
                     }
                 });
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mIsActionBarVisible) {
+                            toolbarAnimateHide();
+                        }
+                    }
+                });
+            }
+        }, 2000);
+
         mIsActionBarVisible = true;
     }
 
