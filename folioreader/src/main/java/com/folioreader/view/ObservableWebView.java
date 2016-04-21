@@ -48,4 +48,5 @@ public class ObservableWebView extends WebView {
         if (mScrollListener!=null) mScrollListener.onScrollChange(t);
         super.onScrollChanged(l, t, oldl, oldt);
     }
+
 }

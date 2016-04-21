@@ -1,5 +1,6 @@
 package com.folioreader.adapter;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.folioreader.R;
+import com.folioreader.view.ConfigViewCallback;
 
 import java.util.List;
 
@@ -20,6 +22,11 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
     private List<TOCReference> mTOCReferences;
     private boolean isNightMode;
     private int selectedChapterPosition;
+    private ChapterSelectionCallBack chapterSelectionCallBack;
+    private Context context;
+    public interface  ChapterSelectionCallBack {
+        public void onChapterSelect(int position);
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView tocTitleView;
@@ -30,9 +37,9 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
         }
     }
 
-    public TOCAdapter(List<TOCReference> tocReferences,boolean isNightMode) {
+    public TOCAdapter(List<TOCReference> tocReferences,Context context) {
         mTOCReferences = tocReferences;
-        this.isNightMode=isNightMode;
+        this.context=context;
     }
 
     @Override
@@ -43,7 +50,7 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.tocTitleView.setText(mTOCReferences.get(position).getTitle());
         if(!(selectedChapterPosition==position)) {
             if (isNightMode) {
@@ -54,6 +61,14 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
         } else {
             holder.tocTitleView.setTextColor(Color.GREEN);
         }
+
+        holder.tocTitleView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                chapterSelectionCallBack=((ChapterSelectionCallBack) context);
+                chapterSelectionCallBack.onChapterSelect(position);
+            }
+        });
     }
 
     @Override

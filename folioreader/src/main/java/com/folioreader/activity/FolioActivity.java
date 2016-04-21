@@ -21,6 +21,7 @@ import android.annotation.TargetApi;
 import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -56,7 +57,7 @@ import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.epub.EpubReader;
 
 public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
-        FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback {
+        FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback,TOCAdapter.ChapterSelectionCallBack {
 
     public static final String INTENT_EPUB_ASSET_PATH = "com.folioreader.epub_asset_path";
     private RecyclerView recyclerViewMenu;
@@ -194,7 +195,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private void configRecyclerViews() {
         recyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
         if (mTocReferences != null) {
-            mTocAdapter = new TOCAdapter(mTocReferences,false);
+            mTocAdapter = new TOCAdapter(mTocReferences,FolioActivity.this);
             recyclerViewMenu.setAdapter(mTocAdapter);
         }
     }
@@ -210,13 +211,14 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             @Override
             public void onPageSelected(int position) {
                 mChapterPosition=position;
+                mTocAdapter.setNightMode(Config.getConfig().isNightMode());
+                mTocAdapter.setSelectedChapterPosition(mChapterPosition);
+                mTocAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                if(mIsActionBarVisible){
-                    toolbarAnimateHide();
-                }
+
             }
         });
         if (mSpineReferences != null) {
@@ -305,6 +307,21 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                         toolbarSetElevation(verticalOffset == 0 ? 0 : 1);
                     }
                 });
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mIsActionBarVisible) {
+                            toolbarAnimateHide();
+                        }
+                    }
+                });
+            }
+        }, 2000);
+
         mIsActionBarVisible = true;
     }
 
@@ -325,5 +342,12 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void toolbarSetElevation(float elevation) {
             mToolbar.setElevation(elevation);
+    }
+
+    @Override
+    public void onChapterSelect(int position) {
+        mFolioPageViewPager.setCurrentItem(position);
+        RelativeLayout relativeLayout= (RelativeLayout) findViewById(R.id.drawer_menu);
+        ((DrawerLayout)findViewById(R.id.drawer_left)).closeDrawer(relativeLayout);
     }
 }
