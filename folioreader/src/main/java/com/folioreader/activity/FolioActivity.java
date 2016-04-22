@@ -341,7 +341,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void toolbarSetElevation(float elevation) {
-            //mToolbar.setElevation(elevation);
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP) {
+            mToolbar.setElevation(elevation);
+        }
     }
 
     @Override

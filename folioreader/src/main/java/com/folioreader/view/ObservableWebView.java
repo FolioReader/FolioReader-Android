@@ -65,59 +65,60 @@ public class ObservableWebView extends WebView {
     }
 
 
-//    private class CustomActionModeCallback implements ActionMode.Callback {
-//
-//        // Called when the action mode is created; startActionMode() was called
-//        @Override
-//        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-//            // Inflate a menu resource providing context menu items
-//            MenuInflater inflater = mode.getMenuInflater();
-//            inflater.inflate(R.menu.context_menu, menu);
-//            return true;
-//        }
-//
-//        // Called each time the action mode is shown.
-//        // Always called after onCreateActionMode, but
-//        // may be called multiple times if the mode is invalidated.
-//        @Override
-//        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-//            // Note: This is called every time the selection handlebars move.
-//            return false; // Return false if nothing is done
-//        }
-//
-//        // Called when the user selects a contextual menu item
-//        @Override
-//        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-//            if (R.id.copy == item.getItemId()) {
-//                Log.d("***copy","in copy");
-//                // Do some stuff for this button
-//                mode.finish();
-//                /// / Action picked, so close the CAB
-//                return true;
-//            } else if (R.id.button2 == item.getItemId()) {
-//                // Do some stuff for this button
-//                Log.d("***button2","in Button 2");
-//                mode.finish();
-//                return true;
-//            } else {
-//                mode.finish();
-//                return false;
-//            }
-//        }
-//
-//        @Override
-//        public void onDestroyActionMode(ActionMode mode) {
-//            clearFocus();
-//        }
-//    }
-//
-//     @Override
-//        public ActionMode startActionMode(ActionMode.Callback callback) {
-//            ViewParent parent = getParent();
-//            if (parent == null) {
-//                return null;
-//            }
-//            mActionModeCallback = new CustomActionModeCallback();
-//            return parent.startActionModeForChild(this, mActionModeCallback);
-//        }
+    private class CustomActionModeCallback implements ActionMode.Callback {
+
+        // Called when the action mode is created; startActionMode() was called
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            // Inflate a menu resource providing context menu items
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.context_menu, menu);
+            return true;
+        }
+
+        // Called each time the action mode is shown.
+        // Always called after onCreateActionMode, but
+        // may be called multiple times if the mode is invalidated.
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            // Note: This is called every time the selection handlebars move.
+            return false; // Return false if nothing is done
+        }
+
+        // Called when the user selects a contextual menu item
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            if (R.id.copy == item.getItemId()) {
+                Log.d("***copy","in copy");
+                // Do some stuff for this button
+                mode.finish();
+                /// / Action picked, so close the CAB
+                return true;
+            } else if (R.id.button2 == item.getItemId()) {
+                // Do some stuff for this button
+                Log.d("***button2","in Button 2");
+                mode.finish();
+                return true;
+            } else {
+                mode.finish();
+                return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            clearFocus();
+        }
+    }
+
+     @Override
+        public ActionMode startActionMode(ActionMode.Callback callback) {
+            ViewParent parent = getParent();
+            if (parent == null) {
+                return null;
+            }
+            mActionModeCallback = new CustomActionModeCallback();
+            return parent.startActionModeForChild(this, mActionModeCallback);
+        }
+
 }
