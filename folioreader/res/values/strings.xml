@@ -10,7 +10,10 @@
   <string name="lora_font">fonts/lora/Lora-Regular.ttf</string>
   <string name="raleway_font">fonts/raleway/Raleway-Regular.ttf</string>
 
-  <string name="copy">Copy1</string>
-  <string name="highlight">Highlight1</string>
-  <string name="share">Share1</string>
+  <string name="minutes_left">%1$d minutes ·&#160;</string>
+  <string name="minute_left">%1$d minute ·&#160;</string>
+  <string name="less_than_minute">Less than a minute ·&#160;</string>
+
+  <string name="pages_left">%1$d pages left</string>
+  <string name="page_left">%1$d page left</string>
 </resources>

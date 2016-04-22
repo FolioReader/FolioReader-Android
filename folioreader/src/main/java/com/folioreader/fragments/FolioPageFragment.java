@@ -1,9 +1,12 @@
 package com.folioreader.fragments;
 
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -11,12 +14,20 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.JsResult;
 import android.webkit.WebView;
 import android.webkit.WebChromeClient;
+import android.webkit.WebViewClient;
+import android.widget.TextView;
+
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
+
+import java.util.Locale;
+
+import nl.siegmann.epublib.util.StringUtil;
 
 /**
  * Created by mahavir on 4/2/16.
@@ -25,8 +36,13 @@ public class FolioPageFragment extends Fragment {
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.fragments.FolioPageFragment.POSITION";
 
     private View mRootView;
-    private int mScrollY;
+
     private VerticalSeekbar mScrollSeekbar;
+    private ObservableWebView mWebview;
+    private TextView mPagesLeftTextView, mMinutesLeftTextView;
+
+    private int mScrollY;
+    private int mTotalMinutes;
 
     private Handler mHandler = new Handler();
     private Animation mFadeInAnimation, mFadeOutAnimation;
@@ -55,17 +71,26 @@ public class FolioPageFragment extends Fragment {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
         }
 
-        String htmlContent = getHtmlContent();
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
-        mScrollSeekbar = (VerticalSeekbar)mRootView.findViewById(R.id.scrollSeekbar);
-        mScrollSeekbar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.app_green), PorterDuff.Mode.SRC_IN);
-        initAnimations();
+        mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
+        mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
 
-        final ObservableWebView webView = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
+        initSeekbar();
+        initAnimations();
+        initWebView();
+        updatePagesLeftTextBg();
+
+        return mRootView;
+    }
+
+    private void initWebView(){
+        String htmlContent = getHtmlContent();
+
+        mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
         final Boolean[] mMoveOccured = new Boolean[1];
         final float[] mDownPosX = new float[1];
         final float[] mDownPosY = new float[1];
-        webView.setOnTouchListener(new View.OnTouchListener() {
+        mWebview.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 final float MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
@@ -86,7 +111,7 @@ public class FolioPageFragment extends Fragment {
                         break;
                     case MotionEvent.ACTION_MOVE:
                         if (Math.abs(event.getX() - mDownPosX[0]) > MOVE_THRESHOLD_DP || Math.abs(event.getY() - mDownPosY[0]) > MOVE_THRESHOLD_DP) {
-                            mScrollY = webView.getScrollY();
+                            mScrollY = mWebview.getScrollY();
                             ((FolioPageFragmentCallback) getActivity()).hideToolBarIfVisible();
                             mMoveOccured[0] = true;
                             fadeInSeekbarIfInvisible();
@@ -96,46 +121,91 @@ public class FolioPageFragment extends Fragment {
                 return false;
             }
         });
-        webView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        mWebview.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                int height = (int) Math.floor(webView.getContentHeight() * webView.getScale());
-                int webViewHeight = webView.getMeasuredHeight();
+                int height = (int) Math.floor(mWebview.getContentHeight() * mWebview.getScale());
+                int webViewHeight = mWebview.getMeasuredHeight();
                 mScrollSeekbar.setMaximum(height-webViewHeight);
+                //updatePagesLeftText(0);
             }
         });
-        webView.setVerticalScrollBarEnabled(false);
-        webView.setScrollListener(new ObservableWebView.ScrollListener() {
+        mWebview.getSettings().setJavaScriptEnabled(true);
+        mWebview.setVerticalScrollBarEnabled(false);
+        mWebview.setScrollListener(new ObservableWebView.ScrollListener() {
             @Override
-            public void onScrollChange(float percent) {
+            public void onScrollChange(int percent) {
                 mScrollSeekbar.setProgressAndThumb((int)percent);
+                updatePagesLeftText(percent);
 
             }
         });
-        webView.loadDataWithBaseURL(null, htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
+        mWebview.setWebViewClient(new WebViewClient(){
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                view.loadUrl("javascript:alert(getReadingTime())");
+            }
+        });
+        mWebview.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int progress) {
 
-        return mRootView;
+                if (view.getProgress() == 100) {
+                    mWebview.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mWebview.scrollTo(0, mScrollY);
+                        }
+                    }, 100);
+                }
+            }
+
+            @Override
+            public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+                if (TextUtils.isDigitsOnly(message)) mTotalMinutes=Integer.parseInt(message);
+                result.confirm();
+                return true;
+            }
+        });
+
+        mWebview.loadDataWithBaseURL(null, htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
+
     }
 
+    private void initSeekbar(){
+        mScrollSeekbar = (VerticalSeekbar)mRootView.findViewById(R.id.scrollSeekbar);
+        mScrollSeekbar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.app_green), PorterDuff.Mode.SRC_IN);
 
-    private void fadeInSeekbarIfInvisible(){
-        if (mScrollSeekbar.getVisibility() == View.INVISIBLE || mScrollSeekbar.getVisibility() == View.GONE) {
-            mScrollSeekbar.startAnimation(mFadeInAnimation);
+    }
+
+    private void updatePagesLeftTextBg(){
+        if (Config.getConfig().isNightMode()){
+            mRootView.findViewById(R.id.indicatorLayout).setBackgroundColor(Color.parseColor("#131313"));
+        } else {
+            mRootView.findViewById(R.id.indicatorLayout).setBackgroundColor(Color.WHITE);
         }
     }
 
-    private void fadeoutSeekbarIfVisible(){
-        if (mScrollSeekbar.getVisibility() == View.VISIBLE) {
-            mScrollSeekbar.startAnimation(mFadeOutAnimation);
-        }
-    }
+    private void updatePagesLeftText(int scrollY){
+        int currentPage = (int)Math.ceil(scrollY/mWebview.getWebviewHeight()) + 1;
+        int totalPages = (int)Math.ceil(mWebview.getContentHeightVal()/mWebview.getWebviewHeight());
+        int pagesRemaining = totalPages-currentPage;
+        String pagesRemainingStrFormat = pagesRemaining>1?getString(R.string.pages_left):getString(R.string.page_left);
+        String pagesRemainingStr = String.format(Locale.US, pagesRemainingStrFormat, pagesRemaining);
 
-    private Runnable mHideSeekbarRunnable = new Runnable() {
-        @Override
-        public void run() {
-            fadeoutSeekbarIfVisible();
+        int minutesRemaining = (int) Math.ceil((double)(pagesRemaining*mTotalMinutes)/totalPages);
+        String minutesRemainingStr;
+        if (minutesRemaining>1){
+            minutesRemainingStr = String.format(Locale.US, getString(R.string.minutes_left), minutesRemaining);
+        } else if (minutesRemaining == 1){
+            minutesRemainingStr = String.format(Locale.US, getString(R.string.minute_left), minutesRemaining);
+        } else {
+            minutesRemainingStr = getString(R.string.less_than_minute);
         }
-    };
+
+        mMinutesLeftTextView.setText(minutesRemainingStr);
+        mPagesLeftTextView.setText(pagesRemainingStr);
+    }
 
     private void initAnimations(){
         mFadeInAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fadein);
@@ -173,6 +243,26 @@ public class FolioPageFragment extends Fragment {
         });
     }
 
+    private Runnable mHideSeekbarRunnable = new Runnable() {
+        @Override
+        public void run() {
+            fadeoutSeekbarIfVisible();
+        }
+    };
+
+    private void fadeInSeekbarIfInvisible(){
+        if (mScrollSeekbar.getVisibility() == View.INVISIBLE || mScrollSeekbar.getVisibility() == View.GONE) {
+            mScrollSeekbar.startAnimation(mFadeInAnimation);
+        }
+    }
+
+    private void fadeoutSeekbarIfVisible(){
+        if (mScrollSeekbar.getVisibility() == View.VISIBLE) {
+            mScrollSeekbar.startAnimation(mFadeOutAnimation);
+        }
+    }
+
+
     @Override
     public void onDestroyView() {
         mFadeInAnimation.setAnimationListener(null);
@@ -192,19 +282,7 @@ public class FolioPageFragment extends Fragment {
         String htmlContent = getHtmlContent();
         webView.loadDataWithBaseURL(null, htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
 
-        webView.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onProgressChanged(WebView view, int progress) {
-
-                if (view.getProgress() == 100) {
-                    webView.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            webView.scrollTo(0, mScrollY);
-                        }
-                    }, 100);
-                }
-            }});
+        updatePagesLeftTextBg();
     }
 
     private String getHtmlContent() {
