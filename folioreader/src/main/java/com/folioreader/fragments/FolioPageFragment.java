@@ -1,12 +1,14 @@
 package com.folioreader.fragments;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -31,6 +33,7 @@ import com.folioreader.util.AppUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,7 +84,9 @@ public class FolioPageFragment extends Fragment {
 
     public static interface FolioPageFragmentCallback {
         public String getChapterHtmlContent(int position);
+
         public void hideOrshowToolBar();
+
         public void hideToolBarIfVisible();
         public void invalidateActionMode();
     }
@@ -110,7 +115,19 @@ public class FolioPageFragment extends Fragment {
         return mRootView;
     }
 
-    private void initWebView(){
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        float positionTopView = mWebview.getTop();
+        float contentHeight = mWebview.getContentHeight();
+        float currentScrollPosition = mScrollY;
+        float percentWebview = (currentScrollPosition - positionTopView) / contentHeight;
+        float webviewsize = mWebview.getContentHeight() - mWebview.getTop();
+        float positionInWV = webviewsize * percentWebview;
+        int positionY = Math.round(mWebview.getTop() + positionInWV);
+        mScrollY = positionY;
+    }
+
+    private void initWebView() {
         String htmlContent = getHtmlContent();
 
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
@@ -154,7 +171,7 @@ public class FolioPageFragment extends Fragment {
             public void onGlobalLayout() {
                 int height = (int) Math.floor(mWebview.getContentHeight() * mWebview.getScale());
                 int webViewHeight = mWebview.getMeasuredHeight();
-                mScrollSeekbar.setMaximum(height-webViewHeight);
+                mScrollSeekbar.setMaximum(height - webViewHeight);
                 //updatePagesLeftText(0);
             }
         });
@@ -163,12 +180,12 @@ public class FolioPageFragment extends Fragment {
         mWebview.setScrollListener(new ObservableWebView.ScrollListener() {
             @Override
             public void onScrollChange(int percent) {
-                mScrollSeekbar.setProgressAndThumb((int)percent);
+                mScrollSeekbar.setProgressAndThumb((int) percent);
                 updatePagesLeftText(percent);
 
             }
         });
-        mWebview.setWebViewClient(new WebViewClient(){
+        mWebview.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 view.loadUrl("javascript:alert(getReadingTime())");
@@ -177,7 +194,7 @@ public class FolioPageFragment extends Fragment {
         mWebview.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int progress) {
-
+                Log.d("scroll y", "Scrolly" + mScrollY);
                 if (view.getProgress() == 100) {
                     mWebview.postDelayed(new Runnable() {
                         @Override
@@ -232,7 +249,9 @@ public class FolioPageFragment extends Fragment {
             }
         });
 
-        mWebview.loadDataWithBaseURL(null, htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
+        //mWebview.loadDataWithBaseURL(null, htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
+        mWebview.getSettings().setDefaultTextEncodingName("utf-8");
+        mWebview.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null);
     }
 
 
@@ -241,26 +260,26 @@ public class FolioPageFragment extends Fragment {
         mScrollSeekbar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.app_green), PorterDuff.Mode.SRC_IN);
     }
 
-    private void updatePagesLeftTextBg(){
-        if (Config.getConfig().isNightMode()){
+    private void updatePagesLeftTextBg() {
+        if (Config.getConfig().isNightMode()) {
             mRootView.findViewById(R.id.indicatorLayout).setBackgroundColor(Color.parseColor("#131313"));
         } else {
             mRootView.findViewById(R.id.indicatorLayout).setBackgroundColor(Color.WHITE);
         }
     }
 
-    private void updatePagesLeftText(int scrollY){
-        int currentPage = (int)Math.ceil(scrollY/mWebview.getWebviewHeight()) + 1;
-        int totalPages = (int)Math.ceil(mWebview.getContentHeightVal()/mWebview.getWebviewHeight());
-        int pagesRemaining = totalPages-currentPage;
-        String pagesRemainingStrFormat = pagesRemaining>1?getString(R.string.pages_left):getString(R.string.page_left);
+    private void updatePagesLeftText(int scrollY) {
+        int currentPage = (int) Math.ceil(scrollY / mWebview.getWebviewHeight()) + 1;
+        int totalPages = (int) Math.ceil(mWebview.getContentHeightVal() / mWebview.getWebviewHeight());
+        int pagesRemaining = totalPages - currentPage;
+        String pagesRemainingStrFormat = pagesRemaining > 1 ? getString(R.string.pages_left) : getString(R.string.page_left);
         String pagesRemainingStr = String.format(Locale.US, pagesRemainingStrFormat, pagesRemaining);
 
-        int minutesRemaining = (int) Math.ceil((double)(pagesRemaining*mTotalMinutes)/totalPages);
+        int minutesRemaining = (int) Math.ceil((double) (pagesRemaining * mTotalMinutes) / totalPages);
         String minutesRemainingStr;
-        if (minutesRemaining>1){
+        if (minutesRemaining > 1) {
             minutesRemainingStr = String.format(Locale.US, getString(R.string.minutes_left), minutesRemaining);
-        } else if (minutesRemaining == 1){
+        } else if (minutesRemaining == 1) {
             minutesRemainingStr = String.format(Locale.US, getString(R.string.minute_left), minutesRemaining);
         } else {
             minutesRemainingStr = getString(R.string.less_than_minute);
@@ -270,7 +289,7 @@ public class FolioPageFragment extends Fragment {
         mPagesLeftTextView.setText(pagesRemainingStr);
     }
 
-    private void initAnimations(){
+    private void initAnimations() {
         mFadeInAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fadein);
         mFadeInAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -306,6 +325,7 @@ public class FolioPageFragment extends Fragment {
         });
     }
 
+
     private Runnable mHideSeekbarRunnable = new Runnable() {
         @Override
         public void run() {
@@ -313,13 +333,13 @@ public class FolioPageFragment extends Fragment {
         }
     };
 
-    private void fadeInSeekbarIfInvisible(){
+    private void fadeInSeekbarIfInvisible() {
         if (mScrollSeekbar.getVisibility() == View.INVISIBLE || mScrollSeekbar.getVisibility() == View.GONE) {
             mScrollSeekbar.startAnimation(mFadeInAnimation);
         }
     }
 
-    private void fadeoutSeekbarIfVisible(){
+    private void fadeoutSeekbarIfVisible() {
         if (mScrollSeekbar.getVisibility() == View.VISIBLE) {
             mScrollSeekbar.startAnimation(mFadeOutAnimation);
         }
@@ -332,6 +352,7 @@ public class FolioPageFragment extends Fragment {
         super.onDestroyView();
     }
 
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -341,8 +362,7 @@ public class FolioPageFragment extends Fragment {
     public void reload() {
         final WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
         String htmlContent = getHtmlContent();
-        webView.loadDataWithBaseURL(null, htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
-
+        webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null);
         updatePagesLeftTextBg();
     }
 

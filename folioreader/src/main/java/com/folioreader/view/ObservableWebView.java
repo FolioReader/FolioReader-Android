@@ -4,21 +4,24 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 /**
  * Created by mahavir on 3/31/16.
  */
 public class ObservableWebView extends WebView {
+
+    private ActionMode.Callback mActionModeCallback;
+
+
     public static interface ScrollListener {
         public void onScrollChange(int percent);
     }
+
     private ScrollListener mScrollListener;
 
     public ObservableWebView(Context context) {
@@ -38,7 +41,7 @@ public class ObservableWebView extends WebView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public void setScrollListener(ScrollListener listener){
+    public void setScrollListener(ScrollListener listener) {
         mScrollListener = listener;
     }
 
@@ -46,6 +49,7 @@ public class ObservableWebView extends WebView {
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         /*int height = (int) Math.floor(this.getContentHeight() * this.getScale());
         int webViewHeight = this.getMeasuredHeight();
+
 
         //float scrollPercent = ((float)t/(height - webViewHeight))*100.0f;
         Log.d("ObservableWebview", "Height: "+height+", WebviewHeight: "+webViewHeight+", scrollY:"+t);*/
