@@ -41,10 +41,6 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        /*VerticalViewPager viewPager = (VerticalViewPager) findViewById(R.id.verticalPager);
-        viewPager.setAdapter(new TestFragmentAdapter(getSupportFragmentManager()));*/
-
     }
 
     private static class TestFragmentAdapter extends FragmentPagerAdapter {

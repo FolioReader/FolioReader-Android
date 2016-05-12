@@ -6,6 +6,9 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -50,11 +53,6 @@ public class ObservableWebView extends WebView {
         super.onScrollChanged(l, t, oldl, oldt);
     }
 
-    @Override
-    public ActionMode startActionMode(ActionMode.Callback callback) {
-        return super.startActionMode(callback);
-    }
-
     public int getContentHeightVal(){
         int height = (int) Math.floor(this.getContentHeight() * this.getScale());
         return height;
@@ -62,5 +60,32 @@ public class ObservableWebView extends WebView {
 
     public int getWebviewHeight(){
         return this.getMeasuredHeight();
+    }
+
+    @Override
+    public ActionMode startActionMode(ActionMode.Callback callback, int type) {
+        return this.dummyActionMode();
+    }
+
+    @Override
+    public ActionMode startActionMode(ActionMode.Callback callback) {
+        return this.dummyActionMode();
+    }
+
+    public ActionMode dummyActionMode() {
+        return new ActionMode() {
+            @Override public void setTitle(CharSequence title) {}
+            @Override public void setTitle(int resId) {}
+            @Override public void setSubtitle(CharSequence subtitle) {}
+            @Override public void setSubtitle(int resId) {}
+            @Override public void setCustomView(View view) {}
+            @Override public void invalidate() {}
+            @Override public void finish() {}
+            @Override public Menu getMenu() { return null; }
+            @Override public CharSequence getTitle() { return null; }
+            @Override public CharSequence getSubtitle() { return null; }
+            @Override public View getCustomView() { return null; }
+            @Override public MenuInflater getMenuInflater() { return null; }
+        };
     }
 }

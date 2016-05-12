@@ -22,22 +22,32 @@ import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.adapter.FolioPageFragmentAdapter;
 import com.folioreader.adapter.TOCAdapter;
 import com.folioreader.fragments.FolioPageFragment;
+import com.folioreader.util.AppUtil;
 import com.folioreader.view.ConfigView;
 import com.folioreader.view.ConfigViewCallback;
 import com.folioreader.view.FolioView;
@@ -74,6 +84,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private boolean mIsActionBarVisible = false;
     private TOCAdapter mTocAdapter;
     private int mChapterPosition;
+    private ActionMode mActionMode = null;
+
+    private boolean mHighLight = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,15 +95,15 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
         mEpubAssetPath = getIntent().getStringExtra(INTENT_EPUB_ASSET_PATH);
         loadBook();
-        mToolbar= (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                RelativeLayout relativeLayout= (RelativeLayout) findViewById(R.id.drawer_menu);
-                if(!((DrawerLayout)findViewById(R.id.drawer_left)).isDrawerOpen(relativeLayout)){
-                    ((DrawerLayout)findViewById(R.id.drawer_left)).openDrawer(relativeLayout);
-                }else {
-                    ((DrawerLayout)findViewById(R.id.drawer_left)).closeDrawer(relativeLayout);
+                RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.drawer_menu);
+                if (!((DrawerLayout) findViewById(R.id.drawer_left)).isDrawerOpen(relativeLayout)) {
+                    ((DrawerLayout) findViewById(R.id.drawer_left)).openDrawer(relativeLayout);
+                } else {
+                    ((DrawerLayout) findViewById(R.id.drawer_left)).closeDrawer(relativeLayout);
                 }
             }
         });
@@ -104,7 +117,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             populateTableOfContents(mBook.getTableOfContents().getTocReferences(), 0);
             Spine spine = new Spine(mBook.getTableOfContents());
             this.mSpineReferences = spine.getSpineReferences();
-            for (int i=0; i<mSpineReferences.size(); i++) mSpineReferenceHtmls.add(null);
+            for (int i = 0; i < mSpineReferences.size(); i++) mSpineReferenceHtmls.add(null);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -150,9 +163,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     public void changeMenuTextColor() {
-            mTocAdapter.setNightMode(!Config.getConfig().isNightMode());
-            mTocAdapter.setSelectedChapterPosition(mChapterPosition);
-            mTocAdapter.notifyDataSetChanged();
+        mTocAdapter.setNightMode(!Config.getConfig().isNightMode());
+        mTocAdapter.setSelectedChapterPosition(mChapterPosition);
+        mTocAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -183,8 +196,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         }
     }
 
-    private Fragment getFragment(int pos){
-        return getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.folioPageViewPager + ":" +(pos));
+    private Fragment getFragment(int pos) {
+        return getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.folioPageViewPager + ":" + (pos));
     }
 
     @Override
@@ -195,7 +208,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private void configRecyclerViews() {
         recyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
         if (mTocReferences != null) {
-            mTocAdapter = new TOCAdapter(mTocReferences,FolioActivity.this);
+            mTocAdapter = new TOCAdapter(mTocReferences, FolioActivity.this);
             recyclerViewMenu.setAdapter(mTocAdapter);
         }
     }
@@ -210,7 +223,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
             @Override
             public void onPageSelected(int position) {
-                mChapterPosition=position;
+                mChapterPosition = position;
                 mTocAdapter.setNightMode(Config.getConfig().isNightMode());
                 mTocAdapter.setSelectedChapterPosition(mChapterPosition);
                 mTocAdapter.notifyDataSetChanged();
@@ -230,18 +243,18 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         configView.setConfigViewCallback(this);
     }
 
-    private void configDrawerLayoutButtons(){
+    private void configDrawerLayoutButtons() {
         findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((DrawerLayout)findViewById(R.id.drawer_left)).closeDrawers();
+                ((DrawerLayout) findViewById(R.id.drawer_left)).closeDrawers();
                 finish();
             }
         });
         findViewById(R.id.btn_config).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((DrawerLayout)findViewById(R.id.drawer_left)).closeDrawers();
+                ((DrawerLayout) findViewById(R.id.drawer_left)).closeDrawers();
                 if (configView.isDragViewAboveTheLimit()) {
                     configView.moveToOriginalPosition();
                 } else {
@@ -272,8 +285,12 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         }
     }
 
+    @Override
+    public void invalidateActionMode() {
+    }
+
     private String reader(int position) {
-        if (mSpineReferenceHtmls.get(position)!=null){
+        if (mSpineReferenceHtmls.get(position) != null) {
             return mSpineReferenceHtmls.get(position);
         } else {
             try {
@@ -341,13 +358,95 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void toolbarSetElevation(float elevation) {
-            mToolbar.setElevation(elevation);
+        mToolbar.setElevation(elevation);
     }
 
     @Override
     public void onChapterSelect(int position) {
         mFolioPageViewPager.setCurrentItem(position);
-        RelativeLayout relativeLayout= (RelativeLayout) findViewById(R.id.drawer_menu);
-        ((DrawerLayout)findViewById(R.id.drawer_left)).closeDrawer(relativeLayout);
+        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.drawer_menu);
+        ((DrawerLayout) findViewById(R.id.drawer_left)).closeDrawer(relativeLayout);
     }
+
+    private String getSelectedTextFromPage() {
+        int currentPosition = mFolioPageViewPager.getCurrentItem();
+        FolioPageFragment folioPageFragment = (FolioPageFragment) getFragment(currentPosition);
+        String selectedText = folioPageFragment.getSelectedText();
+        return selectedText;
+    }
+
+    /*@Override
+    public void onActionModeStarted(ActionMode mode) {
+        String selectedText = getSelectedTextFromPage();
+        if (!TextUtils.isEmpty(selectedText)) {
+            if (mActionMode == null) {
+                mActionMode = mode;
+                Menu menu = mode.getMenu();
+                menu.clear();
+
+                // Inflate your own menu items
+                mode.getMenuInflater().inflate(R.menu.menu_text_selection, menu);
+            }
+        }
+
+
+        super.onActionModeStarted(mode);
+    }
+
+    public void onContextualMenuItemClicked(MenuItem item) {
+        if (item.getItemId() == R.id.menu_copy) {
+            AppUtil.copyToClipboard(this, getSelectedTextFromPage());
+            Toast.makeText(this, getString(R.string.copied), Toast.LENGTH_SHORT).show();
+        } else if (item.getItemId() == R.id.menu_define) {
+            Toast.makeText(this, "Define " + getSelectedTextFromPage(), Toast.LENGTH_SHORT).show();
+        } else if (item.getItemId() == R.id.menu_highlight) {
+            mHighLight = true;
+            int currentPosition = mFolioPageViewPager.getCurrentItem();
+            FolioPageFragment folioPageFragment = (FolioPageFragment) getFragment(currentPosition);
+            folioPageFragment.highlight();
+            startSupportActionMode(mActionModeCallback);
+        } else if (item.getItemId() == R.id.menu_share) {
+            AppUtil.share(this, getSelectedTextFromPage());
+        }
+
+        // This will likely always be true, but check it anyway, just in case
+        if (mActionMode != null) {
+            mActionMode.finish();
+        }
+    }
+
+    @Override
+    public void onActionModeFinished(ActionMode mode) {
+        mActionMode = null;
+        super.onActionModeFinished(mode);
+    }
+
+    private android.support.v7.view.ActionMode.Callback mActionModeCallback = new android.support.v7.view.ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(android.support.v7.view.ActionMode mode, Menu menu) {
+            Log.d("FolioActivity", "onCreateActionMode() ========>");
+            // Inflate your own menu items
+            menu.clear();
+            mode.getMenuInflater().inflate(R.menu.menu_on_highlight, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(android.support.v7.view.ActionMode mode, Menu menu) {
+            Log.d("FolioActivity", "onPrepareActionMode() ========>");
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(android.support.v7.view.ActionMode mode, MenuItem item) {
+            Log.d("FolioActivity", "onActionItemClicked() ========>");
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(android.support.v7.view.ActionMode mode) {
+            Log.d("FolioActivity", "onDestroyActionMode() ========>");
+        }
+    };*/
+
 }

@@ -50,8 +50,8 @@ android {
 }
 
 dependencies {
-  compile 'com.android.support:appcompat-v7:23.1.1'
   compile project(':folioreader')
+  compile 'com.android.support:appcompat-v7:23.1.1'
 }
 
 task checkstyle(type: Checkstyle) {
