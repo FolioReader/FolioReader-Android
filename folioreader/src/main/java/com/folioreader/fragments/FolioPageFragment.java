@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -17,9 +16,10 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
-import android.webkit.WebView;
 import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,22 +27,31 @@ import android.widget.Toast;
 import com.bossturban.webviewmarker.TextSelectionSupport;
 import com.folioreader.Config;
 import com.folioreader.R;
+import com.folioreader.database.HighlightTable;
+import com.folioreader.model.Highlight;
 import com.folioreader.quickaction.ActionItem;
 import com.folioreader.quickaction.QuickAction;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.HighlightUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import nl.siegmann.epublib.domain.Book;
+
+import static com.folioreader.database.HighlightTable.getAllRecords;
 
 /**
  * Created by mahavir on 4/2/16.
  */
 public class FolioPageFragment extends Fragment {
+
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.fragments.FolioPageFragment.POSITION";
+    public static final String KEY_FRAGMENT_FOLIO_BOOK = "com.folioreader.fragments.FolioPageFragment.BOOK";
     private static final int ACTION_ID_COPY = 1001;
     private static final int ACTION_ID_SHARE = 1002;
     private static final int ACTION_ID_HIGHLIGHT = 1003;
@@ -70,14 +79,16 @@ public class FolioPageFragment extends Fragment {
     private int mTotalMinutes;
     private String mSelectedText;
     //private Rect mSelectedRect;
+    private Map<String, String> mHighlightMap;
 
     private Handler mHandler = new Handler();
     private Animation mFadeInAnimation, mFadeOutAnimation;
 
-    public static FolioPageFragment newInstance(int position) {
+    public static FolioPageFragment newInstance(int position, Book book) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
+        args.putSerializable(KEY_FRAGMENT_FOLIO_BOOK, book);
         fragment.setArguments(args);
         return fragment;
     }
@@ -88,24 +99,29 @@ public class FolioPageFragment extends Fragment {
         public void hideOrshowToolBar();
 
         public void hideToolBarIfVisible();
+
         public void invalidateActionMode();
     }
 
     private int mPosition = -1;
+    private Book mBook = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if ((savedInstanceState != null) && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_POSITION)) {
+        if ((savedInstanceState != null) && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_POSITION) && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK) ) {
             mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
+            mBook = (Book) savedInstanceState.getSerializable(KEY_FRAGMENT_FOLIO_BOOK);
         } else {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
+            mBook = (Book) getArguments().getSerializable(KEY_FRAGMENT_FOLIO_BOOK);
         }
 
         mContext = getActivity();
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
-        if (getActivity() instanceof FolioPageFragmentCallback) mActivityCallback = (FolioPageFragmentCallback) getActivity();
+        if (getActivity() instanceof FolioPageFragmentCallback)
+            mActivityCallback = (FolioPageFragmentCallback) getActivity();
 
         initSeekbar();
         initAnimations();
@@ -177,6 +193,7 @@ public class FolioPageFragment extends Fragment {
         });
         mWebview.getSettings().setJavaScriptEnabled(true);
         mWebview.setVerticalScrollBarEnabled(false);
+        mWebview.addJavascriptInterface(this, "Highlight");
         mWebview.setScrollListener(new ObservableWebView.ScrollListener() {
             @Override
             public void onScrollChange(int percent) {
@@ -207,18 +224,18 @@ public class FolioPageFragment extends Fragment {
 
             @Override
             public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-                Log.d("FolioPageFragment", "Message: "+message);
-                if (TextUtils.isDigitsOnly(message)) mTotalMinutes=Integer.parseInt(message);
+                Log.d("FolioPageFragment", "Message: " + message);
+                if (TextUtils.isDigitsOnly(message)) mTotalMinutes = Integer.parseInt(message);
                 else {
                     final Pattern pattern = Pattern.compile("\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}");
                     Matcher matcher = pattern.matcher(message);
-                    if (matcher.matches()){
+                    if (matcher.matches()) {
                         double left = Double.parseDouble(matcher.group(1));
                         double top = Double.parseDouble(matcher.group(2));
                         double width = Double.parseDouble(matcher.group(3));
                         double height = Double.parseDouble(matcher.group(4));
-                        showTextSelectionMenu((int)(AppUtil.convertDpToPixel((float) left, getActivity())), (int)(AppUtil.convertDpToPixel((float) top, getActivity())),
-                                        (int) (AppUtil.convertDpToPixel((float) width, getActivity())), (int) (AppUtil.convertDpToPixel((float) height, getActivity())));
+                        showTextSelectionMenu((int) (AppUtil.convertDpToPixel((float) left, getActivity())), (int) (AppUtil.convertDpToPixel((float) top, getActivity())),
+                                (int) (AppUtil.convertDpToPixel((float) width, getActivity())), (int) (AppUtil.convertDpToPixel((float) height, getActivity())));
                     }
                 }
                 result.confirm();
@@ -255,8 +272,8 @@ public class FolioPageFragment extends Fragment {
     }
 
 
-    private void initSeekbar(){
-        mScrollSeekbar = (VerticalSeekbar)mRootView.findViewById(R.id.scrollSeekbar);
+    private void initSeekbar() {
+        mScrollSeekbar = (VerticalSeekbar) mRootView.findViewById(R.id.scrollSeekbar);
         mScrollSeekbar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.app_green), PorterDuff.Mode.SRC_IN);
     }
 
@@ -357,6 +374,7 @@ public class FolioPageFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_FRAGMENT_FOLIO_POSITION, mPosition);
+        outState.putSerializable(KEY_FRAGMENT_FOLIO_BOOK, mBook);
     }
 
     public void reload() {
@@ -433,8 +451,9 @@ public class FolioPageFragment extends Fragment {
         return mSelectedText;
     }
 
-    public void highlight(){
-        mWebview.loadUrl("javascript:alert(highlightString('highlight-yellow'))");
+    public void highlight(Highlight.HighlightStyle style) {
+
+        mWebview.loadUrl("javascript:alert(getHighlightString('" + Highlight.HighlightStyle.classForStyle(style) + "'))");
     }
 
     public void showTextSelectionMenu(int x, int y, int width, int height) {
@@ -463,20 +482,20 @@ public class FolioPageFragment extends Fragment {
         quickAction.show(view, width, height);
     }
 
-    private void onTextSelectionActionItemClicked(int actionId, View view){
-        if (actionId == ACTION_ID_COPY){
+    private void onTextSelectionActionItemClicked(int actionId, View view) {
+        if (actionId == ACTION_ID_COPY) {
             AppUtil.copyToClipboard(mContext, mSelectedText);
             Toast.makeText(mContext, getString(R.string.copied), Toast.LENGTH_SHORT).show();
         } else if (actionId == ACTION_ID_SHARE) {
             AppUtil.share(mContext, mSelectedText);
         } else if (actionId == ACTION_ID_DEFINE) {
             //TODO: Check how to use define
-        } else if (actionId == ACTION_ID_HIGHLIGHT){
+        } else if (actionId == ACTION_ID_HIGHLIGHT) {
             onHighlight(view);
         }
     }
 
-    private void onHighlight(final View view){
+    private void onHighlight(final View view) {
         final ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
         root.addView(view);
         final QuickAction quickAction = new QuickAction(getActivity(), QuickAction.HORIZONTAL);
@@ -494,8 +513,8 @@ public class FolioPageFragment extends Fragment {
         quickAction.show(view);
     }
 
-    private void onHighlightActionItemClicked(int actionId, View view){
-        if (actionId == ACTION_ID_HIGHLIGHT_COLOR){
+    private void onHighlightActionItemClicked(int actionId, View view) {
+        if (actionId == ACTION_ID_HIGHLIGHT_COLOR) {
             onHighlightColors(view);
         } else if (actionId == ACTION_ID_SHARE) {
             AppUtil.share(mContext, mSelectedText);
@@ -504,7 +523,7 @@ public class FolioPageFragment extends Fragment {
         }
     }
 
-    private void onHighlightColors(final View view){
+    private void onHighlightColors(final View view) {
         final ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
         root.addView(view);
         final QuickAction quickAction = new QuickAction(getActivity(), QuickAction.HORIZONTAL);
@@ -524,17 +543,39 @@ public class FolioPageFragment extends Fragment {
         quickAction.show(view);
     }
 
-    private void onHighlightColorsActionItemClicked(int actionId, View view){
-        if (actionId == ACTION_ID_HIGHLIGHT_YELLOW){
-
+    private void onHighlightColorsActionItemClicked(int actionId, View view) {
+        if (actionId == ACTION_ID_HIGHLIGHT_YELLOW) {
+            highlight(Highlight.HighlightStyle.Yellow);
         } else if (actionId == ACTION_ID_HIGHLIGHT_GREEN) {
-
+            highlight(Highlight.HighlightStyle.Green);
         } else if (actionId == ACTION_ID_HIGHLIGHT_BLUE) {
-
+            highlight(Highlight.HighlightStyle.Blue);
         } else if (actionId == ACTION_ID_HIGHLIGHT_PINK) {
-
+            highlight(Highlight.HighlightStyle.Pink);
         } else if (actionId == ACTION_ID_HIGHLIGHT_UNDERLINE) {
+            highlight(Highlight.HighlightStyle.Underline);
+        }
+    }
 
+    @JavascriptInterface
+    public void getHighlightJson(String mJsonResponse) {
+        if (mJsonResponse != null) {
+            mHighlightMap = AppUtil.stringToJsonMap(mJsonResponse);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mWebview.loadUrl("javascript:alert(getHTML())");
+                }
+            });
+        }
+    }
+
+    @JavascriptInterface
+    public void getHtml(String html) {
+        if (html != null) {
+            Highlight highlight = HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBook);
+            HighlightTable.save(getActivity().getApplication(), highlight);
+            Log.d("Highlight from db ==>", getAllRecords(getActivity().getApplication()).toString());
         }
     }
 }

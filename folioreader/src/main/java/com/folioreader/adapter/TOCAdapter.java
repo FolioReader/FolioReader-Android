@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.folioreader.R;
-import com.folioreader.view.ConfigViewCallback;
 
 import java.util.List;
 
@@ -26,6 +25,7 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
     private Context context;
     public interface  ChapterSelectionCallBack {
         public void onChapterSelect(int position);
+
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

@@ -28,7 +28,8 @@ function guid() {
 
 // Get All HTML
 function getHTML() {
-    return document.documentElement.outerHTML;
+    Highlight.getHtml(document.documentElement.outerHTML);
+    //return document.documentElement.outerHTML;
 }
 
 // Class manipulation
@@ -97,8 +98,27 @@ function highlightString(style) {
     
     var params = [];
     params.push({id: id, rect: getRectForSelectedText(elm)});
-    
+
     return JSON.stringify(params);
+}
+
+function getHighlightString(style) {
+    var range = window.getSelection().getRangeAt(0);
+    var selectionContents = range.extractContents();
+    var elm = document.createElement("highlight");
+    var id = guid();
+
+    elm.appendChild(selectionContents);
+    elm.setAttribute("id", id);
+    elm.setAttribute("onclick","callHighlightURL(this);");
+    elm.setAttribute("class", style);
+
+    range.insertNode(elm);
+    thisHighlight = elm;
+
+    var params = [];
+    params.push({id: id, rect: getRectForSelectedText(elm)});
+    Highlight.getHighlightJson(JSON.stringify(params));
 }
 
 // Menu colors

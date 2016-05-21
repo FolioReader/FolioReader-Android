@@ -3,13 +3,19 @@ package com.folioreader.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
 import java.util.Date;
 
 /**
  * Created by mahavir on 5/12/16.
  */
+@DatabaseTable(tableName = "Highlight")
 public class Highlight implements Parcelable {
-    public static enum HighlighStyle {
+
+    public static final String LOCAL_DB_HIGHLIGHT_ID = "highlightId";
+    public static enum HighlightStyle {
         Yellow,
         Green,
         Blue,
@@ -17,9 +23,9 @@ public class Highlight implements Parcelable {
         Underline;
 
         /**
-         Return HighlightStyle for CSS class.
+         * Return HighlightStyle for CSS class.
          */
-        public static HighlighStyle styleForClass(String className) {
+        public static HighlightStyle styleForClass(String className) {
             switch (className) {
                 case "highlight-yellow":
                     return Yellow;
@@ -37,10 +43,10 @@ public class Highlight implements Parcelable {
         }
 
         /**
-         Return CSS class for HighlightStyle.
+         * Return CSS class for HighlightStyle.
          */
-        public static String classForStyle(HighlighStyle style) {
-            switch (style){
+        public static String classForStyle(HighlightStyle style) {
+            switch (style) {
                 case Yellow:
                     return "highlight-yellow";
                 case Green:
@@ -57,8 +63,8 @@ public class Highlight implements Parcelable {
             }
         }
 
-        static String colorForStyle(HighlighStyle style, boolean nightMode) {
-            switch (style){
+        static String colorForStyle(HighlightStyle style, boolean nightMode) {
+            switch (style) {
                 case Yellow:
                     return "#FFEB6B";
                 case Green:
@@ -75,19 +81,30 @@ public class Highlight implements Parcelable {
         }
     }
 
+    @DatabaseField(generatedId = true)
+    private int id;
+    @DatabaseField
     private String bookId;
+    @DatabaseField
     private String content;
+    @DatabaseField
     private String contentPost;
+    @DatabaseField
     private String contentPre;
+    @DatabaseField
     private Date date;
+    @DatabaseField
     private String highlightId;
+    @DatabaseField
     private int page;
-    private int type;
+    @DatabaseField
+    private String type;
 
     public Highlight() {
     }
 
-    public Highlight(String bookId, String content, String contentPost, String contentPre, Date date, String highlightId, int page, int type) {
+    public Highlight(int id, String bookId, String content, String contentPost, String contentPre, Date date, String highlightId, int page, String type) {
+        this.id = id;
         this.bookId = bookId;
         this.content = content;
         this.contentPost = contentPost;
@@ -100,6 +117,14 @@ public class Highlight implements Parcelable {
 
     protected Highlight(Parcel in) {
         readFromParcel(in);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getBookId() {
@@ -158,23 +183,23 @@ public class Highlight implements Parcelable {
         this.page = page;
     }
 
-    public int getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(String type) {
         this.type = type;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Highlight)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Highlight highlight = (Highlight) o;
 
+        if (id != highlight.id) return false;
         if (page != highlight.page) return false;
-        if (type != highlight.type) return false;
         if (bookId != null ? !bookId.equals(highlight.bookId) : highlight.bookId != null)
             return false;
         if (content != null ? !content.equals(highlight.content) : highlight.content != null)
@@ -184,34 +209,38 @@ public class Highlight implements Parcelable {
         if (contentPre != null ? !contentPre.equals(highlight.contentPre) : highlight.contentPre != null)
             return false;
         if (date != null ? !date.equals(highlight.date) : highlight.date != null) return false;
-        return highlightId != null ? highlightId.equals(highlight.highlightId) : highlight.highlightId == null;
+        if (highlightId != null ? !highlightId.equals(highlight.highlightId) : highlight.highlightId != null)
+            return false;
+        return type != null ? type.equals(highlight.type) : highlight.type == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = bookId != null ? bookId.hashCode() : 0;
+        int result = id;
+        result = 31 * result + (bookId != null ? bookId.hashCode() : 0);
         result = 31 * result + (content != null ? content.hashCode() : 0);
         result = 31 * result + (contentPost != null ? contentPost.hashCode() : 0);
         result = 31 * result + (contentPre != null ? contentPre.hashCode() : 0);
         result = 31 * result + (date != null ? date.hashCode() : 0);
         result = 31 * result + (highlightId != null ? highlightId.hashCode() : 0);
         result = 31 * result + page;
-        result = 31 * result + type;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
         return "Highlight{" +
-                "bookId='" + bookId + '\'' +
+                "id=" + id +
+                ", bookId='" + bookId + '\'' +
                 ", content='" + content + '\'' +
                 ", contentPost='" + contentPost + '\'' +
                 ", contentPre='" + contentPre + '\'' +
                 ", date=" + date +
                 ", highlightId='" + highlightId + '\'' +
                 ", page=" + page +
-                ", type=" + type +
+                ", type='" + type + '\'' +
                 '}';
     }
 
@@ -222,6 +251,7 @@ public class Highlight implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
         dest.writeString(bookId);
         dest.writeString(content);
         dest.writeString(contentPost);
@@ -229,10 +259,11 @@ public class Highlight implements Parcelable {
         dest.writeSerializable(date);
         dest.writeString(highlightId);
         dest.writeInt(page);
-        dest.writeInt(type);
+        dest.writeString(type);
     }
 
-    private void readFromParcel(Parcel in){
+    private void readFromParcel(Parcel in) {
+        id = in.readInt();
         bookId = in.readString();
         content = in.readString();
         contentPost = in.readString();
@@ -240,7 +271,7 @@ public class Highlight implements Parcelable {
         date = (Date) in.readSerializable();
         highlightId = in.readString();
         page = in.readInt();
-        type = in.readInt();
+        type = in.readString();
     }
 
     public static final Creator<Highlight> CREATOR = new Creator<Highlight>() {

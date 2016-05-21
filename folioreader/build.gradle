@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'checkstyle'
 
 android {
-
+  useLibrary 'org.apache.http.legacy'
   compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
   buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
 
@@ -30,6 +30,7 @@ android {
   }
 
   packagingOptions {
+    exclude 'META-INF/ASL2.0'
     exclude 'META-INF/DEPENDENCIES.txt'
     exclude 'META-INF/LICENSE.txt'
     exclude 'META-INF/NOTICE.txt'
@@ -54,6 +55,10 @@ dependencies {
   compile project(':webViewMarker-release')
   compile 'com.android.support:appcompat-v7:23.1.1'
   compile 'com.android.support:recyclerview-v7:23.1.1'
+  compile 'org.codehaus.jackson:jackson-core-asl:1.9.13'
+  compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
+  compile 'com.j256.ormlite:ormlite-core:4.48'
+  compile 'com.j256.ormlite:ormlite-android:4.48'
 }
 
 task checkstyle(type: Checkstyle) {
