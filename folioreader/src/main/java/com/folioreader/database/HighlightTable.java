@@ -30,7 +30,6 @@ public class HighlightTable {
 
     public static int createEntryInTableIfNotExist(Context context, Highlight highlight) {
         int status = -1;
-
         try {
             if (!isHighlightExistInDB(context, highlight))
                 status = FolioReaderDB.getInstance(context).getHighlightDao().create(highlight);
@@ -41,24 +40,9 @@ public class HighlightTable {
         return status;
     }
 
-    public static boolean isHighlightExistInDB(Context context, Highlight highlight) {
+    public static int updateHighlight(Context context, Highlight highlight) {
         try {
-            if (highlight != null) {
-                Dao<Highlight, Integer> dao = FolioReaderDB.getInstance(context).getHighlightDao();
-                long count = dao.queryBuilder().setCountOf(true).where()
-                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_ID, highlight.getHighlightId()).countOf();
-                return count > 0;
-            } else
-                return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return true;
-        }
-    }
-
-    public static int updateHighlight(Context context, Highlight Highlight) {
-        try {
-            int count = FolioReaderDB.getInstance(context).getHighlightDao().update(Highlight);
+            int count = FolioReaderDB.getInstance(context).getHighlightDao().update(highlight);
             Log.d("HighlightTable", "Updated " + count + " Highlight");
             return count;
         } catch (SQLException e) {
@@ -95,10 +79,45 @@ public class HighlightTable {
         return count;
     }
 
+    public static boolean isHighlightExistInDB(Context context, Highlight highlight) {
+        try {
+            if (highlight != null) {
+                Dao<Highlight, Integer> dao = FolioReaderDB.getInstance(context).getHighlightDao();
+                long count = dao.queryBuilder().setCountOf(true).where()
+                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_PRE, highlight.getContentPre()).and()
+                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT, highlight.getContent()).and()
+                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_POST, highlight.getContentPost()).countOf();
+                return count > 0;
+            } else
+                return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
+        }
+    }
+
+    private static Highlight getHighlightIfExistInDB(Context context, Highlight highlight) {
+        Highlight record = null;
+        try {
+            if (highlight != null) {
+                Dao<Highlight, Integer> dao = FolioReaderDB.getInstance(context).getHighlightDao();
+                record = dao.queryBuilder().where()
+                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_PRE, highlight.getContentPre()).and()
+                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT, highlight.getContent()).and()
+                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_POST, highlight.getContentPost()).queryForFirst();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return record;
+        }
+        return record;
+    }
+
     public static void save(Context context, Highlight highlight) {
-        if (isHighlightExistInDB(context, highlight))
+        if (isHighlightExistInDB(context, highlight)) {
+            highlight.setId(getHighlightIfExistInDB(context, highlight).getId());
             updateHighlight(context, highlight);
-        else
+        } else
             createEntryInTable(context, highlight);
     }
 }

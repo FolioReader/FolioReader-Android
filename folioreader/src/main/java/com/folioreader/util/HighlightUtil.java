@@ -12,7 +12,7 @@ import nl.siegmann.epublib.domain.Book;
  * Created by priyank on 5/12/16.
  */
 public class HighlightUtil {
-    public static final int mHighlightRange = 123;
+    public static final int mHighlightRange = 30;
 
     public static Highlight matchHighlight(String html, String highlightId, Book book) {
         String contentPre = "";

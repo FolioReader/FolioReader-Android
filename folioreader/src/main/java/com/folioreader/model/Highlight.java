@@ -14,7 +14,9 @@ import java.util.Date;
 @DatabaseTable(tableName = "Highlight")
 public class Highlight implements Parcelable {
 
-    public static final String LOCAL_DB_HIGHLIGHT_ID = "highlightId";
+    public static final String LOCAL_DB_HIGHLIGHT_CONTENT = "content";
+    public static final String LOCAL_DB_HIGHLIGHT_CONTENT_PRE = "contentPre";
+    public static final String LOCAL_DB_HIGHLIGHT_CONTENT_POST = "contentPost";
     public static enum HighlightStyle {
         Yellow,
         Green,
