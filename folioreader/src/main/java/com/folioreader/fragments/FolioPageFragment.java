@@ -36,14 +36,13 @@ import com.folioreader.util.HighlightUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import nl.siegmann.epublib.domain.Book;
-
-import static com.folioreader.database.HighlightTable.getAllRecords;
 
 /**
  * Created by mahavir on 4/2/16.
@@ -108,7 +107,7 @@ public class FolioPageFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if ((savedInstanceState != null) && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_POSITION) && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK) ) {
+        if ((savedInstanceState != null) && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_POSITION) && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK)) {
             mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBook = (Book) savedInstanceState.getSerializable(KEY_FRAGMENT_FOLIO_BOOK);
         } else {
@@ -444,6 +443,12 @@ public class FolioPageFragment extends Fragment {
         }
 
         htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
+        ArrayList<Highlight> highlights = (ArrayList<Highlight>) HighlightTable.getAllHighlight(getActivity().getApplication(), mBook.getTitle(), mPosition);
+        for (Highlight highlight : highlights) {
+            String highlightStr = "<highlight id=\"" + highlight.getHighlightId() + "\" onclick=\"callHighlightURL(this);\" class=\"" + highlight.getType() + "\">" + highlight.getContent() + "</highlight>";
+            String searchStr = highlight.getContentPre() + "" + highlight.getContent() + "" + highlight.getContentPost();
+            htmlContent = htmlContent.replace(searchStr, highlightStr);
+        }
         return htmlContent;
     }
 
@@ -573,9 +578,9 @@ public class FolioPageFragment extends Fragment {
     @JavascriptInterface
     public void getHtml(String html) {
         if (html != null) {
-            Highlight highlight = HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBook);
+            Highlight highlight = HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBook, mPosition);
             HighlightTable.save(getActivity().getApplication(), highlight);
-            Log.d("Highlight from db ==>", getAllRecords(getActivity().getApplication()).toString());
+            //Log.d("Highlight from db ==>", getAllRecords(getActivity().getApplication()).toString());
         }
     }
 }

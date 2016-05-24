@@ -23,7 +23,8 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
     private int selectedChapterPosition;
     private ChapterSelectionCallBack chapterSelectionCallBack;
     private Context context;
-    public interface  ChapterSelectionCallBack {
+
+    public interface ChapterSelectionCallBack {
         public void onChapterSelect(int position);
 
     }
@@ -37,9 +38,9 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
         }
     }
 
-    public TOCAdapter(List<TOCReference> tocReferences,Context context) {
+    public TOCAdapter(List<TOCReference> tocReferences, Context context) {
         mTOCReferences = tocReferences;
-        this.context=context;
+        this.context = context;
     }
 
     @Override
@@ -52,7 +53,7 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.tocTitleView.setText(mTOCReferences.get(position).getTitle());
-        if(!(selectedChapterPosition==position)) {
+        if (!(selectedChapterPosition == position)) {
             if (isNightMode) {
                 holder.tocTitleView.setTextColor(Color.WHITE);
             } else {
@@ -65,7 +66,7 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
         holder.tocTitleView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chapterSelectionCallBack=((ChapterSelectionCallBack) context);
+                chapterSelectionCallBack = ((ChapterSelectionCallBack) context);
                 chapterSelectionCallBack.onChapterSelect(position);
             }
         });
@@ -76,12 +77,12 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
         return mTOCReferences.size();
     }
 
-    public void setNightMode(boolean nightMode){
-        isNightMode=nightMode;
+    public void setNightMode(boolean nightMode) {
+        isNightMode = nightMode;
     }
 
-    public  void setSelectedChapterPosition(int position){
-        selectedChapterPosition=position;
+    public void setSelectedChapterPosition(int position) {
+        selectedChapterPosition = position;
     }
 
 }

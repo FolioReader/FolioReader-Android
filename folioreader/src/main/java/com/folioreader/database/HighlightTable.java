@@ -21,6 +21,7 @@ public class HighlightTable {
 
         try {
             status = FolioReaderDB.getInstance(context).getHighlightDao().create(highlight);
+            Log.d(Tag + "CREAT", status + " Highlight");
         } catch (SQLException e) {
             Log.d(Tag + "CREAT", e.getMessage());
         }
@@ -43,7 +44,7 @@ public class HighlightTable {
     public static int updateHighlight(Context context, Highlight highlight) {
         try {
             int count = FolioReaderDB.getInstance(context).getHighlightDao().update(highlight);
-            Log.d("HighlightTable", "Updated " + count + " Highlight");
+            Log.d(Tag + "UPDATE", count + " Highlight");
             return count;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -89,10 +90,10 @@ public class HighlightTable {
                         .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_POST, highlight.getContentPost()).countOf();
                 return count > 0;
             } else
-                return true;
+                return false;
         } catch (SQLException e) {
             e.printStackTrace();
-            return true;
+            return false;
         }
     }
 
@@ -114,10 +115,28 @@ public class HighlightTable {
     }
 
     public static void save(Context context, Highlight highlight) {
-        if (isHighlightExistInDB(context, highlight)) {
-            highlight.setId(getHighlightIfExistInDB(context, highlight).getId());
-            updateHighlight(context, highlight);
+        if (highlight != null) {
+            if (isHighlightExistInDB(context, highlight)) {
+                highlight.setId(getHighlightIfExistInDB(context, highlight).getId());
+                updateHighlight(context, highlight);
+            } else
+                createEntryInTable(context, highlight);
         } else
-            createEntryInTable(context, highlight);
+            Log.d(Tag + "SAVE:", "can't save null object");
     }
+
+    public static List<Highlight> getAllHighlight(Context context, String bookId, int pageNo) {
+        List<Highlight> highlights = null;
+        try {
+            Dao<Highlight, Integer> dao = FolioReaderDB.getInstance(context).getHighlightDao();
+            highlights = dao.queryBuilder().where()
+                    .eq(Highlight.LOCAL_DB_HIGHLIGHT_BOOK_ID, bookId).and()
+                    .eq(Highlight.LOCAL_DB_HIGHLIGHT_PAGE, pageNo).query();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return highlights;
+    }
+
 }
+
