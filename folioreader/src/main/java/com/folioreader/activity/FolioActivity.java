@@ -15,26 +15,44 @@
 */
 package com.folioreader.activity;
 
+import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+
 import com.folioreader.R;
+import com.folioreader.adapter.TOCAdapter;
 import com.folioreader.view.ConfigView;
 import com.folioreader.view.ConfigViewCallback;
 import com.folioreader.view.FolioView;
 import com.folioreader.view.FolioViewCallback;
 
-public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
-    FolioViewCallback {
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.TOCReference;
+import nl.siegmann.epublib.epub.EpubReader;
+
+public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
+        FolioViewCallback {
+
+  public static final String INTENT_EPUB_ASSET_PATH = "com.folioreader.epub_asset_path";
   private RecyclerView recyclerViewMenu;
   private FolioView folioView;
   private ConfigView configView;
+  private String mEpubAssetPath;
+  private ArrayList<TOCReference> mTocReferences = new ArrayList<>();
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.folio_activity);
+    mEpubAssetPath = getIntent().getStringExtra(INTENT_EPUB_ASSET_PATH);
   }
 
   @Override protected void onPostCreate(Bundle savedInstanceState) {
@@ -73,6 +91,27 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
   private void configRecyclerViews() {
     recyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
+    AssetManager assetManager = getAssets();
+    try {
+      InputStream epubInputStream = assetManager.open(mEpubAssetPath);
+      Book book = (new EpubReader()).readEpub(epubInputStream);
+      populateTableOfContents(book.getTableOfContents().getTocReferences(), 0);
+      TOCAdapter tocAdapter = new TOCAdapter(mTocReferences);
+      recyclerViewMenu.setAdapter(tocAdapter);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void populateTableOfContents(List<TOCReference> tocReferences, int depth) {
+    if (tocReferences == null) {
+      return;
+    }
+
+    for (TOCReference tocReference : tocReferences) {
+      mTocReferences.add(tocReference);
+      populateTableOfContents(tocReference.getChildren(), depth + 1);
+    }
   }
 
   private void configFolio() {

@@ -36,32 +36,38 @@
                 android:id="@+id/recycler_view_menu"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@+id/close_icon"/>
+                android:layout_above="@+id/close_icon"
+                android:background="@android:color/white"/>
 
             <ImageButton
                 android:id="@+id/close_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/ic_launcher"
-                android:background="@android:color/transparent"
-                android:layout_alignParentBottom="true"/>
+                android:layout_alignParentBottom="true"
+                android:padding="8dp"
+                android:src="@drawable/icon_close"
+                android:background="@android:color/transparent"/>
 
             <ImageButton
                 android:id="@+id/config_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/ic_launcher"
-                android:background="@android:color/transparent"
+                android:layout_marginLeft="6dp"
                 android:layout_alignParentBottom="true"
-                android:layout_toRightOf="@+id/close_icon"/>
+                android:layout_toRightOf="@+id/close_icon"
+                android:padding="8dp"
+                android:src="@drawable/icon_font"
+                android:background="@android:color/transparent"/>
 
             <ImageButton
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/ic_launcher"
-                android:background="@android:color/transparent"
                 android:layout_alignParentBottom="true"
-                android:layout_toRightOf="@+id/config_icon"/>
+                android:layout_toRightOf="@+id/config_icon"
+                android:layout_marginLeft="6dp"
+                android:padding="8dp"
+                android:src="@drawable/icon_highlight"
+                android:background="@android:color/transparent"/>
 
         </RelativeLayout>
 
