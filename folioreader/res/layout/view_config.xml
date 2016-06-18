@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -8,23 +9,23 @@
     <LinearLayout
         android:id="@+id/top_buttons"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/day_button"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="0.5"
-            android:src="@mipmap/ic_launcher"
+            android:src="@drawable/btn_sun_selector"
             android:background="@android:color/transparent"/>
 
         <ImageButton
             android:id="@+id/night_button"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="0.5"
-            android:src="@mipmap/ic_launcher"
+            android:src="@drawable/btn_moon_selector"
             android:background="@android:color/transparent"/>
 
     </LinearLayout>
@@ -36,43 +37,95 @@
         android:layout_below="@+id/top_buttons"
         android:background="@color/borders"/>
 
-    <android.support.v7.widget.RecyclerView
+    <!--<android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_fonts"
         android:scrollbars="horizontal"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:layout_below="@+id/first_separator"/>
+        android:layout_below="@+id/first_separator"/>-->
+    <LinearLayout android:id="@+id/fontLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/first_separator"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="4.0">
+        <com.folioreader.view.StyleableTextView
+            android:id="@+id/btn_font_andada"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:gravity="center"
+            android:text="@string/andada"
+            android:textSize="17sp"
+            android:textColor="@drawable/font_text_selector"
+            app:font="@string/andada_font"/>
+        <com.folioreader.view.StyleableTextView
+            android:id="@+id/btn_font_lato"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:gravity="center"
+            android:text="@string/lato"
+            android:textSize="17sp"
+            android:textColor="@drawable/font_text_selector"
+            app:font="@string/lato_font"/>
+        <com.folioreader.view.StyleableTextView
+            android:id="@+id/btn_font_lora"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:gravity="center"
+            android:text="@string/lora"
+            android:textSize="17sp"
+            android:textColor="@drawable/font_text_selector"
+            app:font="@string/lora_font"/>
+        <com.folioreader.view.StyleableTextView
+            android:id="@+id/btn_font_raleway"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:gravity="center"
+            android:text="@string/raleway"
+            android:textSize="17sp"
+            android:textColor="@drawable/font_text_selector"
+            app:font="@string/raleway_font"/>
+    </LinearLayout>
 
     <View
         android:id="@+id/second_separator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_below="@+id/recycler_view_fonts"
+        android:layout_below="@+id/fontLayout"
         android:background="@color/borders"/>
 
-    <ImageView
-        android:id="@+id/small_font"
-        android:layout_width="wrap_content"
+    <RelativeLayout android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@mipmap/ic_launcher"
-        android:padding="8dp"
-        android:layout_below="@+id/second_separator"/>
+        android:layout_below="@+id/second_separator"
+        android:orientation="horizontal">
+        <ImageView android:id="@+id/small_font"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/icon_font_small"
+            android:padding="8dp"/>
 
-    <SeekBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/small_font"
-        android:layout_toLeftOf="@+id/big_font"
-        android:padding="16dp"
-        android:layout_below="@+id/second_separator"/>
+        <SeekBar android:id="@+id/seekbar_font_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/small_font"
+            android:layout_toLeftOf="@+id/big_font"
+            android:padding="16dp"
+            android:max="4"/>
 
-    <ImageView
-        android:id="@+id/big_font"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@mipmap/ic_launcher"
-        android:layout_alignParentRight="true"
-        android:padding="8dp"
-        android:layout_below="@+id/second_separator"/>
+        <ImageView
+            android:id="@+id/big_font"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/icon_font_big"
+            android:padding="8dp"/>
+    </RelativeLayout>
 
 </RelativeLayout>

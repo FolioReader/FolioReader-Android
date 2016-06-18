@@ -18,6 +18,7 @@ package com.folioreader.view;
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
@@ -30,11 +31,18 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
+import com.folioreader.Config;
 import com.folioreader.Font;
 import com.folioreader.R;
 import com.folioreader.adapter.FontAdapter;
 import com.folioreader.util.Tags;
 import com.folioreader.util.ViewHelper;
+
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 public class ConfigView extends FrameLayout implements View.OnClickListener {
@@ -43,6 +51,10 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
   private static final float DEFAULT_DRAG_LIMIT = 0.5f;
   private static final int INVALID_POINTER = -1;
   private static final int FADE_DAY_NIGHT_MODE = 500;
+  private static final int FONT_ANDADA = 1;
+  private static final int FONT_LATO = 2;
+  private static final int FONT_LORA = 3;
+  private static final int FONT_RALEWAY = 4;
 
   private int activePointerId = INVALID_POINTER;
 
@@ -51,9 +63,9 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
   private float verticalDragRange;
 
   private RelativeLayout container;
-  private RecyclerView recyclerViewFonts;
   private ImageButton dayButton;
   private ImageButton nightButton;
+  private SeekBar fontSizeSeekBar;
   private ViewDragHelper viewDragHelper;
   private ConfigViewCallback configViewCallback;
 
@@ -72,7 +84,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
   private void inflateView() {
     inflate(getContext(), R.layout.view_config, this);
     container = (RelativeLayout) findViewById(R.id.container);
-    recyclerViewFonts = (RecyclerView) findViewById(R.id.recycler_view_fonts);
+    fontSizeSeekBar = (SeekBar) findViewById(R.id.seekbar_font_size);
     dayButton = (ImageButton) findViewById(R.id.day_button);
     nightButton = (ImageButton) findViewById(R.id.night_button);
     dayButton.setTag(Tags.DAY_BUTTON);
@@ -81,17 +93,58 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     nightButton.setOnClickListener(this);
   }
 
-  private void configRecyclerViewFonts() {
-    recyclerViewFonts.setLayoutManager(
-        new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-    FontAdapter fontAdapter = new FontAdapter();
-    String[] fontsText = getResources().getStringArray(R.array.fonts);
-    ArrayList<Font> fonts = new ArrayList<>(fontsText.length);
-    for (String font : fontsText) {
-      fonts.add(new Font(font));
+  private void configFonts(){
+    findViewById(R.id.btn_font_andada).setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        selectFont(FONT_ANDADA);
+      }
+    });
+    findViewById(R.id.btn_font_lato).setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        selectFont(FONT_LATO);
+      }
+    });
+    findViewById(R.id.btn_font_lora).setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        selectFont(FONT_LORA);
+      }
+    });
+    findViewById(R.id.btn_font_raleway).setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        selectFont(FONT_RALEWAY);
+      }
+    });
+  }
+
+  private void selectFont(int selectedFont){
+    if (selectedFont == FONT_ANDADA){
+      findViewById(R.id.btn_font_andada).setSelected(true);
+      findViewById(R.id.btn_font_lato).setSelected(false);
+      findViewById(R.id.btn_font_lora).setSelected(false);
+      findViewById(R.id.btn_font_raleway).setSelected(false);
+    } else if (selectedFont == FONT_LATO){
+      findViewById(R.id.btn_font_andada).setSelected(false);
+      findViewById(R.id.btn_font_lato).setSelected(true);
+      findViewById(R.id.btn_font_lora).setSelected(false);
+      findViewById(R.id.btn_font_raleway).setSelected(false);
+    } else if (selectedFont == FONT_LORA){
+      findViewById(R.id.btn_font_andada).setSelected(false);
+      findViewById(R.id.btn_font_lato).setSelected(false);
+      findViewById(R.id.btn_font_lora).setSelected(true);
+      findViewById(R.id.btn_font_raleway).setSelected(false);
+    } else if (selectedFont == FONT_RALEWAY){
+      findViewById(R.id.btn_font_andada).setSelected(false);
+      findViewById(R.id.btn_font_lato).setSelected(false);
+      findViewById(R.id.btn_font_lora).setSelected(false);
+      findViewById(R.id.btn_font_raleway).setSelected(true);
     }
-    fontAdapter.setFonts(fonts);
-    recyclerViewFonts.setAdapter(fontAdapter);
+
+    Config.getConfig().setFont(selectedFont-1);
+    if (configViewCallback!=null) configViewCallback.onConfigChange();
   }
 
   private void toggleBlackTheme() {
@@ -118,6 +171,8 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
       @Override public void onAnimationStart(Animator animator) { }
       @Override public void onAnimationEnd(Animator animator) {
         isNightMode = !isNightMode;
+        Config.getConfig().setNightMode(isNightMode);
+        configViewCallback.onConfigChange();
       }
       @Override public void onAnimationCancel(Animator animator) { }
       @Override public void onAnimationRepeat(Animator animator) { }
@@ -127,6 +182,24 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     colorAnimation.start();
   }
 
+  private void configSeekbar(){
+    fontSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+      @Override
+      public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        Config.getConfig().setFontSize(progress);
+        if (configViewCallback!=null) configViewCallback.onConfigChange();
+      }
+
+      @Override
+      public void onStartTrackingTouch(SeekBar seekBar) {
+      }
+
+      @Override
+      public void onStopTrackingTouch(SeekBar seekBar) {
+      }
+    });
+    fontSizeSeekBar.setProgress(Config.getConfig().getFontSize());
+  }
   /**
    * Bind the attributes of the view and config
    * the DragView with these params.
@@ -135,8 +208,18 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     super.onFinishInflate();
     if (!isInEditMode()) {
       inflateView();
-      configRecyclerViewFonts();
+      configFonts();
+      configSeekbar();
       configDragViewHelper();
+      selectFont(Config.getConfig().getFont());
+      isNightMode = Config.getConfig().isNightMode();
+      if (isNightMode){
+        dayButton.setSelected(false);
+        nightButton.setSelected(true);
+      } else {
+        dayButton.setSelected(true);
+        nightButton.setSelected(false);
+      }
     }
   }
 
@@ -227,12 +310,22 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
         if (isNightMode) {
           isNightMode = true;
           toggleBlackTheme();
+          dayButton.setSelected(true);
+          nightButton.setSelected(false);
+          ((Activity)getContext()).findViewById(R.id.toolbar).setBackgroundColor(getContext().getResources().getColor(R.color.white));
+          ((TextView)((Activity)getContext()).findViewById(R.id.lbl_center)).setTextColor(getResources().getColor(R.color.black));
+          configViewCallback.changeMenuTextColor();
         }
         break;
       case Tags.NIGHT_BUTTON:
         if (!isNightMode) {
           isNightMode = false;
           toggleBlackTheme();
+          dayButton.setSelected(false);
+          nightButton.setSelected(true);
+          ((Activity)getContext()).findViewById(R.id.toolbar).setBackgroundColor(getContext().getResources().getColor(R.color.black));
+          ((TextView)((Activity)getContext()).findViewById(R.id.lbl_center)).setTextColor(getResources().getColor(R.color.white));
+          configViewCallback.changeMenuTextColor();
         }
         break;
       default:
