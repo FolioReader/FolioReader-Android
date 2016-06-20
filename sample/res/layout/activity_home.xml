@@ -9,5 +9,11 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="20dp"
         android:text="Open epub"/>
+    <!--<fr.castorflex.android.verticalviewpager.VerticalViewPager
+        android:id="@+id/verticalPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </fr.castorflex.android.verticalviewpager.VerticalViewPager>-->
 
 </FrameLayout>

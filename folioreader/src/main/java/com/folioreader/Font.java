@@ -15,6 +15,8 @@
 */
 package com.folioreader;
 
+import android.widget.AutoCompleteTextView;
+
 public class Font {
 
   private String name;
