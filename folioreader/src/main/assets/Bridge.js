@@ -129,7 +129,7 @@ function setHighlightStyle(style) {
 
 function removeThisHighlight() {
     thisHighlight.outerHTML = thisHighlight.innerHTML;
-    return thisHighlight.id;
+    Highlight.getRemovedHighlightId(thisHighlight.id);
 }
 
 function removeHighlightById(elmId) {

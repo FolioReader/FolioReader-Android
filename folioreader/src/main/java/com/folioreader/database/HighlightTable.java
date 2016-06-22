@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.folioreader.model.Highlight;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
@@ -138,5 +139,20 @@ public class HighlightTable {
         return highlights;
     }
 
+    public static void remove(String highlightId, Context context) {
+        int status = -1;
+        try {
+            Dao<Highlight, Integer> dao = FolioReaderDB.getInstance(context).getHighlightDao();
+            DeleteBuilder<Highlight, Integer> deleteBuilder = dao.deleteBuilder();
+            deleteBuilder.where().eq(Highlight.LOCAL_DB_HIGHLIGHT_ID, highlightId);
+            status = deleteBuilder.delete();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (status > 0)
+            Log.d(Tag + "Remove:", "no of records removed" + status);
+        else
+            Log.d(Tag + "Remove:", "can't remove");
+    }
 }
 

@@ -1,9 +1,11 @@
 package com.folioreader.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -205,6 +207,20 @@ public class FolioPageFragment extends Fragment {
             @Override
             public void onPageFinished(WebView view, String url) {
                 view.loadUrl("javascript:alert(getReadingTime())");
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if(!url.isEmpty() && url.length()>0){
+                    if (Uri.parse(url).getScheme().startsWith("highlight")) {
+                        onHighlight(view);
+                    } else {
+                        // Otherwise, give the default behavior (open in browser)
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        startActivity(intent);
+                    }
+                }
+                return true;
             }
         });
         mWebview.setWebChromeClient(new WebChromeClient() {
@@ -461,6 +477,12 @@ public class FolioPageFragment extends Fragment {
         mWebview.loadUrl("javascript:alert(getHighlightString('" + Highlight.HighlightStyle.classForStyle(style) + "'))");
     }
 
+    public void highlightRemove() {
+
+        mWebview.loadUrl("javascript:alert(removeThisHighlight())");
+    }
+
+
     public void showTextSelectionMenu(int x, int y, int width, int height) {
         final ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
         final View view = new View(getActivity());
@@ -501,17 +523,26 @@ public class FolioPageFragment extends Fragment {
     }
 
     private void onHighlight(final View view) {
-        final ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
-        root.addView(view);
+        ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
+        ViewGroup parent = (ViewGroup) view.getParent();
+        if (parent == null) {
+            root.addView(view);
+        } else {
+            final int index = parent.indexOfChild(view);
+            parent.removeView(view);
+            parent.addView(view, index);
+        }
+
         final QuickAction quickAction = new QuickAction(getActivity(), QuickAction.HORIZONTAL);
         quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT_COLOR, getResources().getDrawable(R.drawable.colors_marker)));
         quickAction.addActionItem(new ActionItem(ACTION_ID_DELETE, getResources().getDrawable(R.drawable.ic_action_discard)));
         quickAction.addActionItem(new ActionItem(ACTION_ID_SHARE, getResources().getDrawable(R.drawable.ic_action_share)));
+        final ViewGroup finalRoot = root;
         quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
             public void onItemClick(QuickAction source, int pos, int actionId) {
                 quickAction.dismiss();
-                root.removeView(view);
+                finalRoot.removeView(view);
                 onHighlightActionItemClicked(actionId, view);
             }
         });
@@ -524,24 +555,33 @@ public class FolioPageFragment extends Fragment {
         } else if (actionId == ACTION_ID_SHARE) {
             AppUtil.share(mContext, mSelectedText);
         } else if (actionId == ACTION_ID_DELETE) {
-            //TODO:
+            highlightRemove();
         }
     }
 
     private void onHighlightColors(final View view) {
-        final ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
-        root.addView(view);
+        ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
+        ViewGroup parent = (ViewGroup) view.getParent();
+        if (parent == null) {
+            root.addView(view);
+        } else {
+            final int index = parent.indexOfChild(view);
+            parent.removeView(view);
+            parent.addView(view, index);
+        }
+
         final QuickAction quickAction = new QuickAction(getActivity(), QuickAction.HORIZONTAL);
         quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT_YELLOW, getResources().getDrawable(R.drawable.ic_yellow_marker)));
         quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT_GREEN, getResources().getDrawable(R.drawable.ic_green_marker)));
         quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT_BLUE, getResources().getDrawable(R.drawable.ic_blue_marker)));
         quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT_PINK, getResources().getDrawable(R.drawable.ic_pink_marker)));
         quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT_UNDERLINE, getResources().getDrawable(R.drawable.ic_underline_marker)));
+        final ViewGroup finalRoot = root;
         quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
             public void onItemClick(QuickAction source, int pos, int actionId) {
                 quickAction.dismiss();
-                root.removeView(view);
+                finalRoot.removeView(view);
                 onHighlightColorsActionItemClicked(actionId, view);
             }
         });
@@ -579,8 +619,15 @@ public class FolioPageFragment extends Fragment {
     public void getHtml(String html) {
         if (html != null) {
             Highlight highlight = HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBook, mPosition);
-            HighlightTable.save(getActivity().getApplication(), highlight);
+            HighlightTable.save(getActivity(), highlight);
             //Log.d("Highlight from db ==>", getAllRecords(getActivity().getApplication()).toString());
+        }
+    }
+
+    @JavascriptInterface
+    public void getRemovedHighlightId(String id) {
+        if (id != null) {
+            HighlightTable.remove(id, getActivity());
         }
     }
 }
