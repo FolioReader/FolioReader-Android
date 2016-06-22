@@ -29,7 +29,7 @@ public class Config implements Parcelable {
         readFromParcel(in);
     }
 
-    public static Config getConfig(){
+    public static Config getConfig() {
         if (mConfig == null) mConfig = new Config();
 
         return mConfig;
@@ -98,10 +98,10 @@ public class Config implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(font);
         dest.writeInt(fontSize);
-        dest.writeInt(nightMode?1:0);
+        dest.writeInt(nightMode ? 1 : 0);
     }
 
-    public void readFromParcel(Parcel in){
+    public void readFromParcel(Parcel in) {
         font = in.readInt();
         fontSize = in.readInt();
         nightMode = in.readInt() == 1;
