@@ -20,6 +20,7 @@ public class Highlight implements Parcelable {
     public static final String LOCAL_DB_HIGHLIGHT_BOOK_ID = "bookId";
     public static final String LOCAL_DB_HIGHLIGHT_PAGE = "page";
     public static final String LOCAL_DB_HIGHLIGHT_ID = "highlightId";
+    public static final String LOCAL_DB_HIGHLIGHT_TYPE = "type";
 
     public static enum HighlightStyle {
         Yellow,

@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +39,8 @@ import com.folioreader.util.HighlightUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
@@ -213,7 +216,22 @@ public class FolioPageFragment extends Fragment {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if(!url.isEmpty() && url.length()>0){
                     if (Uri.parse(url).getScheme().startsWith("highlight")) {
-                        onHighlight(view);
+                        final Pattern pattern = Pattern.compile("\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}");
+                        try {
+                            String htmlDecode = URLDecoder.decode(url, "UTF-8");
+                            Matcher matcher = pattern.matcher(htmlDecode.substring(12));
+                            if (matcher.matches()) {
+                                double left = Double.parseDouble(matcher.group(1));
+                                double top = Double.parseDouble(matcher.group(2));
+                                double width = Double.parseDouble(matcher.group(3));
+                                double height = Double.parseDouble(matcher.group(4));
+                                onHighlight((int) (AppUtil.convertDpToPixel((float) left, getActivity())), (int) (AppUtil.convertDpToPixel((float) top, getActivity())),
+                                        (int) (AppUtil.convertDpToPixel((float) width, getActivity())), (int) (AppUtil.convertDpToPixel((float) height, getActivity())));
+                            }
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        //onHighlight(view);
                     } else {
                         // Otherwise, give the default behavior (open in browser)
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -472,9 +490,10 @@ public class FolioPageFragment extends Fragment {
         return mSelectedText;
     }
 
-    public void highlight(Highlight.HighlightStyle style) {
+    public void highlight(Highlight.HighlightStyle style, boolean isCreated) {
 
-        mWebview.loadUrl("javascript:alert(getHighlightString('" + Highlight.HighlightStyle.classForStyle(style) + "'))");
+        if (isCreated) mWebview.loadUrl("javascript:alert(getHighlightString('" + Highlight.HighlightStyle.classForStyle(style) + "'))");
+        else mWebview.loadUrl("javascript:alert(setHighlightStyle('" + Highlight.HighlightStyle.classForStyle(style) + "'))");
     }
 
     public void highlightRemove() {
@@ -483,7 +502,7 @@ public class FolioPageFragment extends Fragment {
     }
 
 
-    public void showTextSelectionMenu(int x, int y, int width, int height) {
+    public void showTextSelectionMenu(int x, int y, final int width, final int height) {
         final ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
         final View view = new View(getActivity());
         view.setLayoutParams(new ViewGroup.LayoutParams(width, height));
@@ -503,13 +522,13 @@ public class FolioPageFragment extends Fragment {
             public void onItemClick(QuickAction source, int pos, int actionId) {
                 quickAction.dismiss();
                 root.removeView(view);
-                onTextSelectionActionItemClicked(actionId, view);
+                onTextSelectionActionItemClicked(actionId, view, width, height);
             }
         });
         quickAction.show(view, width, height);
     }
 
-    private void onTextSelectionActionItemClicked(int actionId, View view) {
+    private void onTextSelectionActionItemClicked(int actionId, View view, int width, int height) {
         if (actionId == ACTION_ID_COPY) {
             AppUtil.copyToClipboard(mContext, mSelectedText);
             Toast.makeText(mContext, getString(R.string.copied), Toast.LENGTH_SHORT).show();
@@ -518,11 +537,24 @@ public class FolioPageFragment extends Fragment {
         } else if (actionId == ACTION_ID_DEFINE) {
             //TODO: Check how to use define
         } else if (actionId == ACTION_ID_HIGHLIGHT) {
-            onHighlight(view);
+            onHighlight(view, width, height, true);
         }
     }
 
-    private void onHighlight(final View view) {
+    private void onHighlight(int x, int y, int width, int height){
+        //final ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
+        final View view = new View(getActivity());
+        view.setLayoutParams(new ViewGroup.LayoutParams(width, height));
+        view.setBackgroundColor(Color.TRANSPARENT);
+
+        //root.addView(view);
+
+        view.setX(x);
+        view.setY(y);
+        onHighlight(view, width, height, false);
+    }
+
+    private void onHighlight(final View view, int width, int height, final boolean isCreated) {
         ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
         ViewGroup parent = (ViewGroup) view.getParent();
         if (parent == null) {
@@ -543,15 +575,15 @@ public class FolioPageFragment extends Fragment {
             public void onItemClick(QuickAction source, int pos, int actionId) {
                 quickAction.dismiss();
                 finalRoot.removeView(view);
-                onHighlightActionItemClicked(actionId, view);
+                onHighlightActionItemClicked(actionId, view, isCreated);
             }
         });
-        quickAction.show(view);
+        quickAction.show(view, width, height);
     }
 
-    private void onHighlightActionItemClicked(int actionId, View view) {
+    private void onHighlightActionItemClicked(int actionId, View view, boolean isCreated) {
         if (actionId == ACTION_ID_HIGHLIGHT_COLOR) {
-            onHighlightColors(view);
+            onHighlightColors(view, isCreated);
         } else if (actionId == ACTION_ID_SHARE) {
             AppUtil.share(mContext, mSelectedText);
         } else if (actionId == ACTION_ID_DELETE) {
@@ -559,7 +591,7 @@ public class FolioPageFragment extends Fragment {
         }
     }
 
-    private void onHighlightColors(final View view) {
+    private void onHighlightColors(final View view, final boolean isCreated) {
         ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
         ViewGroup parent = (ViewGroup) view.getParent();
         if (parent == null) {
@@ -582,23 +614,23 @@ public class FolioPageFragment extends Fragment {
             public void onItemClick(QuickAction source, int pos, int actionId) {
                 quickAction.dismiss();
                 finalRoot.removeView(view);
-                onHighlightColorsActionItemClicked(actionId, view);
+                onHighlightColorsActionItemClicked(actionId, view, isCreated);
             }
         });
         quickAction.show(view);
     }
 
-    private void onHighlightColorsActionItemClicked(int actionId, View view) {
+    private void onHighlightColorsActionItemClicked(int actionId, View view, boolean isCreated) {
         if (actionId == ACTION_ID_HIGHLIGHT_YELLOW) {
-            highlight(Highlight.HighlightStyle.Yellow);
+            highlight(Highlight.HighlightStyle.Yellow, isCreated);
         } else if (actionId == ACTION_ID_HIGHLIGHT_GREEN) {
-            highlight(Highlight.HighlightStyle.Green);
+            highlight(Highlight.HighlightStyle.Green, isCreated);
         } else if (actionId == ACTION_ID_HIGHLIGHT_BLUE) {
-            highlight(Highlight.HighlightStyle.Blue);
+            highlight(Highlight.HighlightStyle.Blue, isCreated);
         } else if (actionId == ACTION_ID_HIGHLIGHT_PINK) {
-            highlight(Highlight.HighlightStyle.Pink);
+            highlight(Highlight.HighlightStyle.Pink, isCreated);
         } else if (actionId == ACTION_ID_HIGHLIGHT_UNDERLINE) {
-            highlight(Highlight.HighlightStyle.Underline);
+            highlight(Highlight.HighlightStyle.Underline, isCreated);
         }
     }
 
@@ -616,7 +648,7 @@ public class FolioPageFragment extends Fragment {
     }
 
     @JavascriptInterface
-    public void getHtml(String html) {
+    public void getHtmlAndSaveHighlight(String html) {
         if (html != null) {
             Highlight highlight = HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBook, mPosition);
             HighlightTable.save(getActivity(), highlight);
@@ -628,6 +660,13 @@ public class FolioPageFragment extends Fragment {
     public void getRemovedHighlightId(String id) {
         if (id != null) {
             HighlightTable.remove(id, getActivity());
+        }
+    }
+
+    @JavascriptInterface
+    public void getUpdatedHighlightId(String id, String style) {
+        if (id != null) {
+            HighlightTable.updateHighlightStyle(getActivity(), id, style);
         }
     }
 }
