@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.folioreader.model.Highlight;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.UpdateBuilder;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
@@ -45,6 +47,19 @@ public class HighlightTable {
         try {
             int count = FolioReaderDB.getInstance(context).getHighlightDao().update(highlight);
             Log.d(Tag + "UPDATE", count + " Highlight");
+            return count;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public static int updateHighlightStyle(Context context, String id, String type) {
+        try {
+            UpdateBuilder<Highlight, Integer> updateBuilder = FolioReaderDB.getInstance(context).getHighlightDao().updateBuilder();
+            updateBuilder.where().eq(Highlight.LOCAL_DB_HIGHLIGHT_ID, id);
+            updateBuilder.updateColumnValue(Highlight.LOCAL_DB_HIGHLIGHT_TYPE, type);
+            int count = updateBuilder.update();
             return count;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -138,5 +153,20 @@ public class HighlightTable {
         return highlights;
     }
 
+    public static void remove(String highlightId, Context context) {
+        int status = -1;
+        try {
+            Dao<Highlight, Integer> dao = FolioReaderDB.getInstance(context).getHighlightDao();
+            DeleteBuilder<Highlight, Integer> deleteBuilder = dao.deleteBuilder();
+            deleteBuilder.where().eq(Highlight.LOCAL_DB_HIGHLIGHT_ID, highlightId);
+            status = deleteBuilder.delete();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (status > 0)
+            Log.d(Tag + "Remove:", "no of records removed" + status);
+        else
+            Log.d(Tag + "Remove:", "can't remove");
+    }
 }
 

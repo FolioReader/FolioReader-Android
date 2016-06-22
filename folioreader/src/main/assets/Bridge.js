@@ -28,7 +28,7 @@ function guid() {
 
 // Get All HTML
 function getHTML() {
-    Highlight.getHtml(document.documentElement.outerHTML);
+    Highlight.getHtmlAndSaveHighlight(document.documentElement.outerHTML);
     //return document.documentElement.outerHTML;
 }
 
@@ -124,12 +124,12 @@ function getHighlightString(style) {
 // Menu colors
 function setHighlightStyle(style) {
     thisHighlight.className = style;
-    return thisHighlight.id;
+    Highlight.getUpdatedHighlightId(thisHighlight.id, style);
 }
 
 function removeThisHighlight() {
     thisHighlight.outerHTML = thisHighlight.innerHTML;
-    return thisHighlight.id;
+    Highlight.getRemovedHighlightId(thisHighlight.id);
 }
 
 function removeHighlightById(elmId) {
