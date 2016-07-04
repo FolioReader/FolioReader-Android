@@ -53,4 +53,9 @@
         <item name="@android:windowEnterAnimation">@anim/pump_bottom</item>
         <item name="@android:windowExitAnimation">@anim/disappear</item>
     </style>
+
+    <declare-styleable name="UnderlinedTextView" >
+        <attr name="underlineWidth" format="dimension" />
+        <attr name="underlineColor" format="color" />
+    </declare-styleable>
 </resources>

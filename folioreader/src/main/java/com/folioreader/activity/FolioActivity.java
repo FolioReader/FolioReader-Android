@@ -18,6 +18,7 @@ package com.folioreader.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,7 +59,7 @@ import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.epub.EpubReader;
 
 public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
-        FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback,TOCAdapter.ChapterSelectionCallBack {
+        FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback, TOCAdapter.ChapterSelectionCallBack {
 
     public static final String INTENT_EPUB_ASSET_PATH = "com.folioreader.epub_asset_path";
     private RecyclerView recyclerViewMenu;
@@ -253,6 +254,14 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 }
             }
         });
+
+        findViewById(R.id.btn_highlight_list).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(FolioActivity.this, HighlightListActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -349,7 +358,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void toolbarSetElevation(float elevation) {
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mToolbar.setElevation(elevation);
         }
     }
