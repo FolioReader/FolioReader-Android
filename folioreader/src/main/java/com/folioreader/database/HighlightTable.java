@@ -134,8 +134,9 @@ public class HighlightTable {
             if (isHighlightExistInDB(context, highlight)) {
                 highlight.setId(getHighlightIfExistInDB(context, highlight).getId());
                 updateHighlight(context, highlight);
-            } else
+            } else {
                 createEntryInTable(context, highlight);
+            }
         } else
             Log.d(Tag + "SAVE:", "can't save null object");
     }

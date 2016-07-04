@@ -40,6 +40,7 @@ import com.folioreader.R;
 import com.folioreader.adapter.FolioPageFragmentAdapter;
 import com.folioreader.adapter.TOCAdapter;
 import com.folioreader.fragments.FolioPageFragment;
+import com.folioreader.model.Highlight;
 import com.folioreader.view.ConfigView;
 import com.folioreader.view.ConfigViewCallback;
 import com.folioreader.view.FolioView;
@@ -52,6 +53,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Spine;
 import nl.siegmann.epublib.domain.SpineReference;
@@ -62,6 +64,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback, TOCAdapter.ChapterSelectionCallBack {
 
     public static final String INTENT_EPUB_ASSET_PATH = "com.folioreader.epub_asset_path";
+    public static final int ACTION_HIGHLIGHT_lIST = 77;
+    private static final String HIGHLIGHT_ITEM ="highlight_item" ;
+
     private RecyclerView recyclerViewMenu;
     private VerticalViewPager mFolioPageViewPager;
     private FolioView folioView;
@@ -258,8 +263,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         findViewById(R.id.btn_highlight_list).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ((DrawerLayout) findViewById(R.id.drawer_left)).closeDrawer((RelativeLayout) findViewById(R.id.drawer_menu));
                 Intent intent = new Intent(FolioActivity.this, HighlightListActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent,ACTION_HIGHLIGHT_lIST);
             }
         });
     }
@@ -375,6 +381,26 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         FolioPageFragment folioPageFragment = (FolioPageFragment) getFragment(currentPosition);
         String selectedText = folioPageFragment.getSelectedText();
         return selectedText;
+    }
+
+    public Highlight setCurrentPagerPostion(Highlight highlight){
+        highlight.setCurrentPagerPostion(mFolioPageViewPager.getCurrentItem());
+        return  highlight;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode==ACTION_HIGHLIGHT_lIST && resultCode==RESULT_OK){
+            if(data.hasExtra(HIGHLIGHT_ITEM)) {
+                Highlight highlight= data.getParcelableExtra(HIGHLIGHT_ITEM);
+                int position=highlight.getCurrentPagerPostion();
+                mFolioPageViewPager.setCurrentItem(position);
+                Fragment fragment=getFragment(position);
+                ((FolioPageFragment) fragment).setWebViewPosition(highlight.getCurrentWebviewScrollPos());
+
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /*@Override

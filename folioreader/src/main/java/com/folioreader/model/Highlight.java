@@ -106,6 +106,10 @@ public class Highlight implements Parcelable {
     private int page;
     @DatabaseField
     private String type;
+    @DatabaseField
+    private int currentPagerPostion;
+    @DatabaseField
+    private int currentWebviewScrollPos;
 
     public Highlight() {
     }
@@ -198,6 +202,22 @@ public class Highlight implements Parcelable {
         this.type = type;
     }
 
+    public int getCurrentPagerPostion() {
+        return currentPagerPostion;
+    }
+
+    public void setCurrentPagerPostion(int currentPagerPostion) {
+        this.currentPagerPostion = currentPagerPostion;
+    }
+
+    public int getCurrentWebviewScrollPos() {
+        return currentWebviewScrollPos;
+    }
+
+    public void setCurrentWebviewScrollPos(int currentWebviewScrollPos) {
+        this.currentWebviewScrollPos = currentWebviewScrollPos;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -267,6 +287,8 @@ public class Highlight implements Parcelable {
         dest.writeString(highlightId);
         dest.writeInt(page);
         dest.writeString(type);
+        dest.writeInt(currentPagerPostion);
+        dest.writeInt(currentWebviewScrollPos);
     }
 
     private void readFromParcel(Parcel in) {
@@ -279,6 +301,8 @@ public class Highlight implements Parcelable {
         highlightId = in.readString();
         page = in.readInt();
         type = in.readString();
+        currentPagerPostion=in.readInt();
+        currentWebviewScrollPos=in.readInt();
     }
 
     public static final Creator<Highlight> CREATOR = new Creator<Highlight>() {

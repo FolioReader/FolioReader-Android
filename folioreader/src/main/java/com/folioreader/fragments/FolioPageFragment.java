@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.bossturban.webviewmarker.TextSelectionSupport;
 import com.folioreader.Config;
 import com.folioreader.R;
+import com.folioreader.activity.FolioActivity;
 import com.folioreader.database.HighlightTable;
 import com.folioreader.model.Highlight;
 import com.folioreader.quickaction.ActionItem;
@@ -105,6 +106,7 @@ public class FolioPageFragment extends Fragment {
         public void hideToolBarIfVisible();
 
         public void invalidateActionMode();
+
     }
 
     private int mPosition = -1;
@@ -319,24 +321,28 @@ public class FolioPageFragment extends Fragment {
     }
 
     private void updatePagesLeftText(int scrollY) {
-        int currentPage = (int) Math.ceil(scrollY / mWebview.getWebviewHeight()) + 1;
-        int totalPages = (int) Math.ceil(mWebview.getContentHeightVal() / mWebview.getWebviewHeight());
-        int pagesRemaining = totalPages - currentPage;
-        String pagesRemainingStrFormat = pagesRemaining > 1 ? getString(R.string.pages_left) : getString(R.string.page_left);
-        String pagesRemainingStr = String.format(Locale.US, pagesRemainingStrFormat, pagesRemaining);
+        try {
+            int currentPage = (int) Math.ceil(scrollY / mWebview.getWebviewHeight()) + 1;
+            int totalPages = (int) Math.ceil(mWebview.getContentHeightVal() / mWebview.getWebviewHeight());
+            int pagesRemaining = totalPages - currentPage;
+            String pagesRemainingStrFormat = pagesRemaining > 1 ? getString(R.string.pages_left) : getString(R.string.page_left);
+            String pagesRemainingStr = String.format(Locale.US, pagesRemainingStrFormat, pagesRemaining);
 
-        int minutesRemaining = (int) Math.ceil((double) (pagesRemaining * mTotalMinutes) / totalPages);
-        String minutesRemainingStr;
-        if (minutesRemaining > 1) {
-            minutesRemainingStr = String.format(Locale.US, getString(R.string.minutes_left), minutesRemaining);
-        } else if (minutesRemaining == 1) {
-            minutesRemainingStr = String.format(Locale.US, getString(R.string.minute_left), minutesRemaining);
-        } else {
-            minutesRemainingStr = getString(R.string.less_than_minute);
+            int minutesRemaining = (int) Math.ceil((double) (pagesRemaining * mTotalMinutes) / totalPages);
+            String minutesRemainingStr;
+            if (minutesRemaining > 1) {
+                minutesRemainingStr = String.format(Locale.US, getString(R.string.minutes_left), minutesRemaining);
+            } else if (minutesRemaining == 1) {
+                minutesRemainingStr = String.format(Locale.US, getString(R.string.minute_left), minutesRemaining);
+            } else {
+                minutesRemainingStr = getString(R.string.less_than_minute);
+            }
+
+            mMinutesLeftTextView.setText(minutesRemainingStr);
+            mPagesLeftTextView.setText(pagesRemainingStr);
+        } catch (java.lang.ArithmeticException exp) {
+             Log.d("divide error",exp.toString());
         }
-
-        mMinutesLeftTextView.setText(minutesRemainingStr);
-        mPagesLeftTextView.setText(pagesRemainingStr);
     }
 
     private void initAnimations() {
@@ -651,9 +657,21 @@ public class FolioPageFragment extends Fragment {
     public void getHtmlAndSaveHighlight(String html) {
         if (html != null) {
             Highlight highlight = HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBook, mPosition);
+            highlight.setCurrentWebviewScrollPos(mWebview.getScrollY());
+            highlight=((FolioActivity)getActivity()).setCurrentPagerPostion(highlight);
             HighlightTable.save(getActivity(), highlight);
             //Log.d("Highlight from db ==>", getAllRecords(getActivity().getApplication()).toString());
         }
+    }
+
+    public void setWebViewPosition(final int position){
+        mWebview.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mWebview.scrollTo(0, position);
+            }
+        }, 50);
+
     }
 
     @JavascriptInterface

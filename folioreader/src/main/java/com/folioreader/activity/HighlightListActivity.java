@@ -1,6 +1,7 @@
 package com.folioreader.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 
 public class HighlightListActivity extends AppCompatActivity {
+    private static final String HIGHLIGHT_ITEM ="highlight_item" ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,11 +84,19 @@ public class HighlightListActivity extends AppCompatActivity {
             else{
                 holder = (ViewHolder)row.getTag();
             }
-
             final Highlight rowItem = getItem(position);
             holder.txtHightlightText.setText(rowItem.getContent().trim());
             holder.txtHightLightTime.setText(AppUtil.formatDate(rowItem.getDate()));
             AppUtil.setBackColorToTextView(holder.txtHightlightText,rowItem.getType());
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent=new Intent();
+                    intent.putExtra(HIGHLIGHT_ITEM,rowItem);
+                    setResult(RESULT_OK,intent);
+                    finish();
+                }
+            });
             return row;
         }
     }
