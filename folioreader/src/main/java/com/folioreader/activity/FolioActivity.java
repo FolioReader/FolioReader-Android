@@ -67,6 +67,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     public static final String INTENT_EPUB_ASSET_PATH = "com.folioreader.epub_asset_path";
     public static final int ACTION_HIGHLIGHT_lIST = 77;
     private static final String HIGHLIGHT_ITEM ="highlight_item" ;
+    private static final String ITEM_DELETED = "item_deleted";
 
     private RecyclerView recyclerViewMenu;
     private VerticalViewPager mFolioPageViewPager;
@@ -345,7 +346,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                     }
                 });
             }
-        }, 5000);
+        }, 10000);
 
         mIsActionBarVisible = true;
     }
@@ -399,6 +400,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 mFolioPageViewPager.setCurrentItem(position);
                 Fragment fragment=getFragment(position);
                 ((FolioPageFragment) fragment).setWebViewPosition(highlight.getCurrentWebviewScrollPos());
+            } else if(data.hasExtra(ITEM_DELETED)){
+                ((FolioPageFragment)getFragment(mChapterPosition)).reload();
 
             }
         }
