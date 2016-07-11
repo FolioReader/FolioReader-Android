@@ -30,6 +30,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -277,6 +278,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     public void hideOrshowToolBar() {
+        Log.d("in hideOrshowToolBar","main");
         if (mIsActionBarVisible)
             toolbarAnimateHide();
         else {
@@ -343,7 +345,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                     }
                 });
             }
-        }, 2000);
+        }, 5000);
 
         mIsActionBarVisible = true;
     }
@@ -477,4 +479,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             Log.d("FolioActivity", "onDestroyActionMode() ========>");
         }
     };*/
+
+
 }

@@ -2,6 +2,7 @@ package com.folioreader.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -37,6 +38,7 @@ import com.folioreader.quickaction.ActionItem;
 import com.folioreader.quickaction.QuickAction;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.HighlightUtil;
+import com.folioreader.util.SharedPreferenceUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 
@@ -48,6 +50,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 
 /**
@@ -70,6 +73,7 @@ public class FolioPageFragment extends Fragment {
     private static final int ACTION_ID_HIGHLIGHT_BLUE = 1009;
     private static final int ACTION_ID_HIGHLIGHT_PINK = 1010;
     private static final int ACTION_ID_HIGHLIGHT_UNDERLINE = 1011;
+    private static final String SCROLL_Y = "Scroll_y";
 
     private View mRootView;
     private Context mContext;
@@ -153,12 +157,14 @@ public class FolioPageFragment extends Fragment {
         String htmlContent = getHtmlContent();
 
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
+        mWebview.setFragment(FolioPageFragment.this);
         final Boolean[] mMoveOccured = new Boolean[1];
         final float[] mDownPosX = new float[1];
         final float[] mDownPosY = new float[1];
-        mWebview.setOnTouchListener(new View.OnTouchListener() {
+       /* mWebview.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                Log.d("in OnTouchListener","fragment");
                 final float MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
 
                 final int action = event.getAction();
@@ -187,7 +193,9 @@ public class FolioPageFragment extends Fragment {
                 }
                 return false;
             }
-        });
+        });*/
+
+
         mWebview.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -203,6 +211,9 @@ public class FolioPageFragment extends Fragment {
         mWebview.setScrollListener(new ObservableWebView.ScrollListener() {
             @Override
             public void onScrollChange(int percent) {
+                if(mWebview.getScrollY()!=0) {
+                    mScrollY = mWebview.getScrollY();
+                }
                 mScrollSeekbar.setProgressAndThumb((int) percent);
                 updatePagesLeftText(percent);
 
@@ -246,11 +257,13 @@ public class FolioPageFragment extends Fragment {
         mWebview.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int progress) {
-                Log.d("scroll y", "Scrolly" + mScrollY);
+
                 if (view.getProgress() == 100) {
                     mWebview.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            //mScrollY=SharedPreferenceUtil.getSharedPreferencesInt(mContext,SCROLL_Y,0);
+                            Log.d("scroll y", "Scrolly" + mScrollY);
                             mWebview.scrollTo(0, mScrollY);
                         }
                     }, 100);
@@ -381,7 +394,6 @@ public class FolioPageFragment extends Fragment {
         });
     }
 
-
     private Runnable mHideSeekbarRunnable = new Runnable() {
         @Override
         public void run() {
@@ -389,7 +401,7 @@ public class FolioPageFragment extends Fragment {
         }
     };
 
-    private void fadeInSeekbarIfInvisible() {
+    public void fadeInSeekbarIfInvisible() {
         if (mScrollSeekbar.getVisibility() == View.INVISIBLE || mScrollSeekbar.getVisibility() == View.GONE) {
             mScrollSeekbar.startAnimation(mFadeInAnimation);
         }
@@ -687,4 +699,15 @@ public class FolioPageFragment extends Fragment {
             HighlightTable.updateHighlightStyle(getActivity(), id, style);
         }
     }
+
+    public void removeCallback(){
+        mHandler.removeCallbacks(mHideSeekbarRunnable);
+    }
+
+    public  void startCallback(){
+        mHandler.postDelayed(mHideSeekbarRunnable, 3000);
+    }
+
 }
+
+
