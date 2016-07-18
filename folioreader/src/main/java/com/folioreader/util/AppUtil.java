@@ -26,11 +26,20 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.codehaus.jackson.type.TypeReference;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.sql.Time;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by mahavir on 5/7/16.
@@ -103,4 +112,77 @@ public class AppUtil {
             textView.setUnderlineWidth(2.0f);
         }
     }
-}
+
+
+    public static String readerSmil(Reader reader) {
+       /* if (mSpineReferenceHtmls.get(position) != null) {
+            return mSpineReferenceHtmls.get(position);
+        } else {*/
+            try {
+               /* Reader reader = mSpineReferences.get(position).getResource().getReader();*/
+
+                StringBuilder builder = new StringBuilder();
+                int numChars;
+                char[] cbuf = new char[2048];
+                while ((numChars = reader.read(cbuf)) >= 0) {
+                    builder.append(cbuf, 0, numChars);
+                }
+                String content = builder.toString();
+              /*  mSpineReferenceHtmls.set(position, content);*/
+                return content;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return "";
+        }
+
+    public static int parseTimeToLong(String time){
+
+        double temp=0.0;
+
+        Map<String,String> timeFormats=new HashMap<>();
+        timeFormats.put("HH:mm:ss.SSS","^\\d{1,2}:\\d{2}:\\d{2}\\.\\d{1,3}$");
+        timeFormats.put("HH:mm:ss","^\\d{1,2}:\\d{2}:\\d{2}$");
+        timeFormats.put("mm:ss.SSS","^\\d{1,2}:\\d{2}\\.\\d{1,3}$");
+        timeFormats.put("mm:ss","^\\d{1,2}:\\d{2}$");
+        timeFormats.put("ss.SSS","^\\d{1,2}\\.\\d{1,3}$");
+
+        Set keys = timeFormats.keySet();
+        /*Collection c = timeFormats.values();
+        Iterator<Map.Entry<String,String>> itr = c.iterator();*/
+        for (Iterator i = keys.iterator(); i.hasNext(); ) {
+            String key = (String) i.next();
+            String value = (String) timeFormats.get(key);
+            String p=value;
+            Pattern pattern = Pattern.compile(p);
+            Matcher matcher=pattern.matcher(time);
+            if(matcher.matches()){
+               SimpleDateFormat simpleDateFormat=new SimpleDateFormat(key);
+                try {
+                    Date date=simpleDateFormat.parse(time);
+                    simpleDateFormat =new SimpleDateFormat("ss.SSS");
+                    double sec=Double.valueOf(simpleDateFormat.format(date));
+
+                    simpleDateFormat =new SimpleDateFormat("mm");
+                    double mm=Double.valueOf(simpleDateFormat.format(date));
+
+                    simpleDateFormat =new SimpleDateFormat("HH");
+                    double HH=Double.valueOf(simpleDateFormat.format(date));
+                    temp=sec +(mm*60)+ (HH*60*60);
+                    return (int) temp;
+
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+
+
+        return (int) temp;
+    }
+
+
+    }
+

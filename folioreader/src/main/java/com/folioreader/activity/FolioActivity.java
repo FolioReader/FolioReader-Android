@@ -42,27 +42,45 @@ import com.folioreader.adapter.FolioPageFragmentAdapter;
 import com.folioreader.adapter.TOCAdapter;
 import com.folioreader.fragments.FolioPageFragment;
 import com.folioreader.model.Highlight;
+import com.folioreader.smil.AudioElement;
+import com.folioreader.smil.SequenceElement;
+import com.folioreader.smil.SmilElement;
+import com.folioreader.smil.SmilFile;
+import com.folioreader.smil.SmilParser;
+import com.folioreader.smil.TextElement;
+import com.folioreader.util.AppUtil;
+import com.folioreader.view.AudioView;
+import com.folioreader.view.AudioViewCallback;
 import com.folioreader.view.ConfigView;
 import com.folioreader.view.ConfigViewCallback;
 import com.folioreader.view.FolioView;
 import com.folioreader.view.FolioViewCallback;
 import com.folioreader.view.VerticalViewPager;
 
+import org.xml.sax.SAXException;
+
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
 
 import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.Resource;
 import nl.siegmann.epublib.domain.Spine;
 import nl.siegmann.epublib.domain.SpineReference;
 import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.epub.EpubReader;
 
 public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
-        FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback, TOCAdapter.ChapterSelectionCallBack {
+        FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback, TOCAdapter.ChapterSelectionCallBack{
 
     public static final String INTENT_EPUB_ASSET_PATH = "com.folioreader.epub_asset_path";
     public static final int ACTION_HIGHLIGHT_lIST = 77;
@@ -73,6 +91,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private VerticalViewPager mFolioPageViewPager;
     private FolioView folioView;
     private ConfigView configView;
+    private AudioView audioView;
     private Toolbar mToolbar;
 
     private String mEpubAssetPath;
@@ -106,6 +125,22 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 }
             }
         });
+
+
+
+        findViewById(R.id.btn_speaker).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (audioView.isDragViewAboveTheLimit()) {
+                    audioView.moveToOriginalPosition();
+                } else {
+                    audioView.moveOffScreen();
+                }
+            }
+        });
+
+
+
     }
 
     private void loadBook() {
@@ -113,6 +148,42 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         try {
             InputStream epubInputStream = assetManager.open(mEpubAssetPath);
             mBook = (new EpubReader()).readEpub(epubInputStream);
+
+            URL url = epubInputStream.getClass().getResource("config.xml");
+
+            Collection<Resource> resourceArrayList= mBook.getResources().getAll();
+             Iterator<Resource> iterator=resourceArrayList.iterator();
+             while(iterator.hasNext()){
+                 Resource resource=iterator.next();
+                 String href=resource.getHref();
+                 if(href.contains("smil")){
+                     String content= AppUtil.readerSmil(resource.getReader());
+                     SmilFile smilFile=new SmilFile();
+                     try {
+                         SmilParser smilParser=new SmilParser();
+                         SequenceElement sequenceElement=smilParser.parse(content);
+                         List<AudioElement> audioElementArrayList=sequenceElement.getAllAudioElementDepthFirst();
+                         String str=audioElementArrayList.get(0).getSrc();
+                         List<TextElement> textElementList=sequenceElement.getAllTextElementDepthFirst();
+
+                         Log.e("smilfile","smilfile");
+                     } catch (SAXException e) {
+                         e.printStackTrace();
+                     } catch (ParserConfigurationException e) {
+                         e.printStackTrace();
+                     }
+
+                     Log.e("smilfile","smilfile");
+                 }
+
+
+                 if(href.contains(".mp3")){
+
+                 }
+             }
+
+
+
             populateTableOfContents(mBook.getTableOfContents().getTocReferences(), 0);
             Spine spine = new Spine(mBook.getTableOfContents());
             this.mSpineReferences = spine.getSpineReferences();
@@ -139,6 +210,16 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         recyclerViewMenu = (RecyclerView) findViewById(R.id.recycler_view_menu);
         folioView = (FolioView) findViewById(R.id.folio_view);
         configView = (ConfigView) findViewById(R.id.config_view);
+        audioView=(AudioView) findViewById(R.id.audio_view);
+
+        audioView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                audioView.moveOffScreen();
+                configView.moveOffScreen();
+            }
+        },10);
+
         configRecyclerViews();
         configFolio();
         configDrawerLayoutButtons();
@@ -202,6 +283,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     @Override
     public void onShadowClick() {
         configView.moveOffScreen();
+        audioView.moveOffScreen();
     }
 
     private void configRecyclerViews() {
@@ -240,6 +322,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
         folioView.setFolioViewCallback(this);
         configView.setConfigViewCallback(this);
+        audioView.setAudioViewCallback(this);
     }
 
     private void configDrawerLayoutButtons() {
