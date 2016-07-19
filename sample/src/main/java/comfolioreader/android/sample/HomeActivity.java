@@ -18,9 +18,6 @@ package comfolioreader.android.sample;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -43,7 +40,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private static class TestFragmentAdapter extends FragmentPagerAdapter {
+    /*private static class TestFragmentAdapter extends FragmentPagerAdapter {
 
         protected static final String[] CONTENT = new String[] { "This", "Is Is", "A A A", "Test", };
 
@@ -61,5 +58,5 @@ public class HomeActivity extends AppCompatActivity {
             return CONTENT.length;
         }
 
-    }
+    }*/
 }

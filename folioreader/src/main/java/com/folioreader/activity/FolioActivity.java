@@ -15,18 +15,6 @@
 */
 package com.folioreader.activity;
 
-import com.folioreader.Config;
-import com.folioreader.R;
-import com.folioreader.adapter.FolioPageFragmentAdapter;
-import com.folioreader.adapter.TOCAdapter;
-import com.folioreader.fragments.FolioPageFragment;
-import com.folioreader.model.Highlight;
-import com.folioreader.view.ConfigView;
-import com.folioreader.view.ConfigViewCallback;
-import com.folioreader.view.FolioView;
-import com.folioreader.view.FolioViewCallback;
-import com.folioreader.view.VerticalViewPager;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -47,18 +35,24 @@ import android.view.ActionMode;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.RelativeLayout;
+import com.folioreader.Config;
+import com.folioreader.R;
+import com.folioreader.adapter.FolioPageFragmentAdapter;
+import com.folioreader.adapter.TOCAdapter;
+import com.folioreader.fragments.FolioPageFragment;
+import com.folioreader.model.Highlight;
+import com.folioreader.view.*;
+import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.Spine;
+import nl.siegmann.epublib.domain.SpineReference;
+import nl.siegmann.epublib.domain.TOCReference;
+import nl.siegmann.epublib.epub.EpubReader;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-
-import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.Spine;
-import nl.siegmann.epublib.domain.SpineReference;
-import nl.siegmann.epublib.domain.TOCReference;
-import nl.siegmann.epublib.epub.EpubReader;
 
 public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
         FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback, TOCAdapter.ChapterSelectionCallBack {
