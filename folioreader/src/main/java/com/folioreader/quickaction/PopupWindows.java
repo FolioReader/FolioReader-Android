@@ -115,8 +115,6 @@ public class PopupWindows {
 
     /**
      * Set listener on window dismissed.
-     *
-     * @param listener
      */
     public void setOnDismissListener(PopupWindow.OnDismissListener listener) {
         mWindow.setOnDismissListener(listener);

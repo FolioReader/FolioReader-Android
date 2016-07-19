@@ -16,5 +16,5 @@
 package com.folioreader.view;
 
 public interface FolioViewCallback {
-  void onShadowClick();
+    void onShadowClick();
 }

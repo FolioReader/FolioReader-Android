@@ -1,10 +1,10 @@
 package com.folioreader.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.Date;
 
@@ -301,8 +301,8 @@ public class Highlight implements Parcelable {
         highlightId = in.readString();
         page = in.readInt();
         type = in.readString();
-        currentPagerPostion=in.readInt();
-        currentWebviewScrollPos=in.readInt();
+        currentPagerPostion = in.readInt();
+        currentWebviewScrollPos = in.readInt();
     }
 
     public static final Creator<Highlight> CREATOR = new Creator<Highlight>() {

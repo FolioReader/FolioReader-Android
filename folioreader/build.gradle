@@ -48,6 +48,9 @@ android {
     abortOnError false
   }
 
+  checkstyle {
+    ignoreFailures = true
+  }
 }
 
 dependencies {

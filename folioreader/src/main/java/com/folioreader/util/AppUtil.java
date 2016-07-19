@@ -1,30 +1,18 @@
 package com.folioreader.util;
 
+import com.folioreader.R;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.PropertyNamingStrategy;
+import org.codehaus.jackson.type.TypeReference;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.v4.content.ContextCompat;
-import android.text.Html;
-import android.text.SpannableStringBuilder;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.util.DisplayMetrics;
-import android.view.View;
-import android.widget.TextView;
-
-import com.folioreader.R;
-import com.folioreader.view.StyleableTextView;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.PropertyNamingStrategy;
-import org.codehaus.jackson.type.TypeReference;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,21 +59,22 @@ public class AppUtil {
     public static Map<String, String> stringToJsonMap(String string) {
         ArrayList<HashMap<String, String>> map = new ArrayList<HashMap<String, String>>();
         try {
-            map = jsonMapper.readValue(string, new TypeReference<ArrayList<HashMap<String, String>>>() {});
+            map = jsonMapper.readValue(string, new TypeReference<ArrayList<HashMap<String, String>>>() {
+            });
         } catch (Exception e) {
             map = null;
         }
         return map.get(0);
     }
 
-    public static String formatDate(Date hightlightDate){
-        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("MMM dd, yyyy | HH:mm");
-        String date=simpleDateFormat.format(hightlightDate);
+    public static String formatDate(Date hightlightDate) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy | HH:mm");
+        String date = simpleDateFormat.format(hightlightDate);
         return date;
     }
 
-    public static void setBackColorToTextView(UnderlinedTextView textView,String type){
-        Context context=textView.getContext();
+    public static void setBackColorToTextView(UnderlinedTextView textView, String type) {
+        Context context = textView.getContext();
         if (type.equals("highlight-yellow")) {
             textView.setBackgroundColor(ContextCompat.getColor(context, R.color.yellow));
             textView.setUnderlineWidth(0.0f);
@@ -99,7 +88,7 @@ public class AppUtil {
             textView.setBackgroundColor(ContextCompat.getColor(context, R.color.pink));
             textView.setUnderlineWidth(0.0f);
         } else if (type.equals("highlight-underline")) {
-            textView.setUnderLineColor(ContextCompat.getColor(context,android.R.color.holo_red_dark));
+            textView.setUnderLineColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
             textView.setUnderlineWidth(2.0f);
         }
     }

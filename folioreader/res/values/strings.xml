@@ -25,5 +25,7 @@
     <string name="pages_left">%1$d pages left</string>
     <string name="page_left">%1$d page left</string>
     <string name="highlights">Highlights</string>
-    <string name="underline_highlights"><span style="border-bottom: 1px solid #ff0000;">%s</span></string>
+    <string name="underline_highlights">
+        <span style="border-bottom: 1px solid #ff0000;">%s</span>
+    </string>
 </resources>

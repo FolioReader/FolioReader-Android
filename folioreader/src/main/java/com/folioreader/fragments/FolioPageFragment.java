@@ -1,8 +1,20 @@
 package com.folioreader.fragments;
 
+import com.bossturban.webviewmarker.TextSelectionSupport;
+import com.folioreader.Config;
+import com.folioreader.R;
+import com.folioreader.activity.FolioActivity;
+import com.folioreader.database.HighlightTable;
+import com.folioreader.model.Highlight;
+import com.folioreader.quickaction.ActionItem;
+import com.folioreader.quickaction.QuickAction;
+import com.folioreader.util.AppUtil;
+import com.folioreader.util.HighlightUtil;
+import com.folioreader.view.ObservableWebView;
+import com.folioreader.view.VerticalSeekbar;
+
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -10,11 +22,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -28,20 +38,6 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bossturban.webviewmarker.TextSelectionSupport;
-import com.folioreader.Config;
-import com.folioreader.R;
-import com.folioreader.activity.FolioActivity;
-import com.folioreader.database.HighlightTable;
-import com.folioreader.model.Highlight;
-import com.folioreader.quickaction.ActionItem;
-import com.folioreader.quickaction.QuickAction;
-import com.folioreader.util.AppUtil;
-import com.folioreader.util.HighlightUtil;
-import com.folioreader.util.SharedPreferenceUtil;
-import com.folioreader.view.ObservableWebView;
-import com.folioreader.view.VerticalSeekbar;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -50,7 +46,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 
 /**
@@ -211,7 +206,7 @@ public class FolioPageFragment extends Fragment {
         mWebview.setScrollListener(new ObservableWebView.ScrollListener() {
             @Override
             public void onScrollChange(int percent) {
-                if(mWebview.getScrollY()!=0) {
+                if (mWebview.getScrollY() != 0) {
                     mScrollY = mWebview.getScrollY();
                 }
                 mScrollSeekbar.setProgressAndThumb((int) percent);
@@ -227,7 +222,7 @@ public class FolioPageFragment extends Fragment {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if(!url.isEmpty() && url.length()>0){
+                if (!url.isEmpty() && url.length() > 0) {
                     if (Uri.parse(url).getScheme().startsWith("highlight")) {
                         final Pattern pattern = Pattern.compile("\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}");
                         try {
@@ -354,7 +349,7 @@ public class FolioPageFragment extends Fragment {
             mMinutesLeftTextView.setText(minutesRemainingStr);
             mPagesLeftTextView.setText(pagesRemainingStr);
         } catch (java.lang.ArithmeticException exp) {
-             Log.d("divide error",exp.toString());
+            Log.d("divide error", exp.toString());
         }
     }
 
@@ -510,8 +505,10 @@ public class FolioPageFragment extends Fragment {
 
     public void highlight(Highlight.HighlightStyle style, boolean isCreated) {
 
-        if (isCreated) mWebview.loadUrl("javascript:alert(getHighlightString('" + Highlight.HighlightStyle.classForStyle(style) + "'))");
-        else mWebview.loadUrl("javascript:alert(setHighlightStyle('" + Highlight.HighlightStyle.classForStyle(style) + "'))");
+        if (isCreated)
+            mWebview.loadUrl("javascript:alert(getHighlightString('" + Highlight.HighlightStyle.classForStyle(style) + "'))");
+        else
+            mWebview.loadUrl("javascript:alert(setHighlightStyle('" + Highlight.HighlightStyle.classForStyle(style) + "'))");
     }
 
     public void highlightRemove() {
@@ -559,7 +556,7 @@ public class FolioPageFragment extends Fragment {
         }
     }
 
-    private void onHighlight(int x, int y, int width, int height){
+    private void onHighlight(int x, int y, int width, int height) {
         //final ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
         final View view = new View(getActivity());
         view.setLayoutParams(new ViewGroup.LayoutParams(width, height));
@@ -670,13 +667,13 @@ public class FolioPageFragment extends Fragment {
         if (html != null) {
             Highlight highlight = HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBook, mPosition);
             highlight.setCurrentWebviewScrollPos(mWebview.getScrollY());
-            highlight=((FolioActivity)getActivity()).setCurrentPagerPostion(highlight);
+            highlight = ((FolioActivity) getActivity()).setCurrentPagerPostion(highlight);
             HighlightTable.save(getActivity(), highlight);
             //Log.d("Highlight from db ==>", getAllRecords(getActivity().getApplication()).toString());
         }
     }
 
-    public void setWebViewPosition(final int position){
+    public void setWebViewPosition(final int position) {
         mWebview.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -700,11 +697,11 @@ public class FolioPageFragment extends Fragment {
         }
     }
 
-    public void removeCallback(){
+    public void removeCallback() {
         mHandler.removeCallbacks(mHideSeekbarRunnable);
     }
 
-    public  void startCallback(){
+    public void startCallback() {
         mHandler.postDelayed(mHideSeekbarRunnable, 3000);
     }
 

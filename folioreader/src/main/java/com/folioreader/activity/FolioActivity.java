@@ -15,6 +15,18 @@
 */
 package com.folioreader.activity;
 
+import com.folioreader.Config;
+import com.folioreader.R;
+import com.folioreader.adapter.FolioPageFragmentAdapter;
+import com.folioreader.adapter.TOCAdapter;
+import com.folioreader.fragments.FolioPageFragment;
+import com.folioreader.model.Highlight;
+import com.folioreader.view.ConfigView;
+import com.folioreader.view.ConfigViewCallback;
+import com.folioreader.view.FolioView;
+import com.folioreader.view.FolioViewCallback;
+import com.folioreader.view.VerticalViewPager;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -36,25 +48,12 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.RelativeLayout;
 
-import com.folioreader.Config;
-import com.folioreader.R;
-import com.folioreader.adapter.FolioPageFragmentAdapter;
-import com.folioreader.adapter.TOCAdapter;
-import com.folioreader.fragments.FolioPageFragment;
-import com.folioreader.model.Highlight;
-import com.folioreader.view.ConfigView;
-import com.folioreader.view.ConfigViewCallback;
-import com.folioreader.view.FolioView;
-import com.folioreader.view.FolioViewCallback;
-import com.folioreader.view.VerticalViewPager;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.Spine;
 import nl.siegmann.epublib.domain.SpineReference;
@@ -66,7 +65,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     public static final String INTENT_EPUB_ASSET_PATH = "com.folioreader.epub_asset_path";
     public static final int ACTION_HIGHLIGHT_lIST = 77;
-    private static final String HIGHLIGHT_ITEM ="highlight_item" ;
+    private static final String HIGHLIGHT_ITEM = "highlight_item";
     private static final String ITEM_DELETED = "item_deleted";
 
     private RecyclerView recyclerViewMenu;
@@ -267,7 +266,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             public void onClick(View v) {
                 ((DrawerLayout) findViewById(R.id.drawer_left)).closeDrawer((RelativeLayout) findViewById(R.id.drawer_menu));
                 Intent intent = new Intent(FolioActivity.this, HighlightListActivity.class);
-                startActivityForResult(intent,ACTION_HIGHLIGHT_lIST);
+                startActivityForResult(intent, ACTION_HIGHLIGHT_lIST);
             }
         });
     }
@@ -279,7 +278,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     public void hideOrshowToolBar() {
-        Log.d("in hideOrshowToolBar","main");
+        Log.d("in hideOrshowToolBar", "main");
         if (mIsActionBarVisible)
             toolbarAnimateHide();
         else {
@@ -386,22 +385,22 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         return selectedText;
     }
 
-    public Highlight setCurrentPagerPostion(Highlight highlight){
+    public Highlight setCurrentPagerPostion(Highlight highlight) {
         highlight.setCurrentPagerPostion(mFolioPageViewPager.getCurrentItem());
-        return  highlight;
+        return highlight;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode==ACTION_HIGHLIGHT_lIST && resultCode==RESULT_OK){
-            if(data.hasExtra(HIGHLIGHT_ITEM)) {
-                Highlight highlight= data.getParcelableExtra(HIGHLIGHT_ITEM);
-                int position=highlight.getCurrentPagerPostion();
+        if (requestCode == ACTION_HIGHLIGHT_lIST && resultCode == RESULT_OK) {
+            if (data.hasExtra(HIGHLIGHT_ITEM)) {
+                Highlight highlight = data.getParcelableExtra(HIGHLIGHT_ITEM);
+                int position = highlight.getCurrentPagerPostion();
                 mFolioPageViewPager.setCurrentItem(position);
-                Fragment fragment=getFragment(position);
+                Fragment fragment = getFragment(position);
                 ((FolioPageFragment) fragment).setWebViewPosition(highlight.getCurrentWebviewScrollPos());
-            } else if(data.hasExtra(ITEM_DELETED)){
-                ((FolioPageFragment)getFragment(mChapterPosition)).reload();
+            } else if (data.hasExtra(ITEM_DELETED)) {
+                ((FolioPageFragment) getFragment(mChapterPosition)).reload();
 
             }
         }
