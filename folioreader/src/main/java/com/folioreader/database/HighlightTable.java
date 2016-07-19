@@ -1,13 +1,13 @@
 package com.folioreader.database;
 
-import android.content.Context;
-import android.util.Log;
-
 import com.folioreader.model.Highlight;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
 import com.j256.ormlite.table.TableUtils;
+
+import android.content.Context;
+import android.util.Log;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -134,8 +134,9 @@ public class HighlightTable {
             if (isHighlightExistInDB(context, highlight)) {
                 highlight.setId(getHighlightIfExistInDB(context, highlight).getId());
                 updateHighlight(context, highlight);
-            } else
+            } else {
                 createEntryInTable(context, highlight);
+            }
         } else
             Log.d(Tag + "SAVE:", "can't save null object");
     }

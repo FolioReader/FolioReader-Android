@@ -1,117 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout android:id="@+id/main"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             android:id="@+id/main"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:orientation="vertical">
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:alpha="0.8"
-        app:contentInsetEnd="0dp"
-        android:layout_margin="0dp"
-        android:background="@color/white"
-        android:contentInsetLeft="0dp"
-        android:contentInsetRight="0dp"
-        android:contentInsetStart="0dp"
-        android:padding="0dp"
-        app:contentInsetLeft="0dp"
-        app:contentInsetRight="0dp"
-        app:contentInsetStart="0dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-        <RelativeLayout
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <ImageView android:id="@+id/btn_drawer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerInParent="true"
-                android:src="@drawable/ic_drawer"
-                android:scaleType="centerCrop"
-                android:padding="20dp"/>
-            <TextView
-                android:id="@+id/lbl_center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="Folio Reader"
-                android:textSize="18sp"
-                android:textColor="@android:color/black"
-                android:textStyle="bold" />
-            <View
+            android:layout_height="?attr/actionBarSize"
+            android:alpha="0.8"
+            app:contentInsetEnd="0dp"
+            android:layout_margin="0dp"
+            android:background="@color/white"
+            android:contentInsetLeft="0dp"
+            android:contentInsetRight="0dp"
+            android:contentInsetStart="0dp"
+            android:padding="0dp"
+            app:contentInsetLeft="0dp"
+            app:contentInsetRight="0dp"
+            app:contentInsetStart="0dp"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="0.5dp"
-                android:layout_alignParentBottom="true"
-                android:background="@android:color/black"/>
+                android:layout_height="match_parent">
+            <ImageView android:id="@+id/btn_drawer"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_alignParentLeft="true"
+                       android:layout_centerInParent="true"
+                       android:src="@drawable/ic_drawer"
+                       android:scaleType="centerCrop"
+                       android:padding="20dp"/>
+            <TextView
+                    android:id="@+id/lbl_center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="Folio Reader"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold"/>
+            <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="@android:color/black"/>
         </RelativeLayout>
     </android.support.v7.widget.Toolbar>
 
     <android.support.v4.widget.DrawerLayout
-        android:id="@+id/drawer_left"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <FrameLayout
+            android:id="@+id/drawer_left"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.folioreader.view.FolioView
-                android:id="@+id/folio_view"
+        <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent">
+
+            <com.folioreader.view.FolioView
+                    android:id="@+id/folio_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
 
             <com.folioreader.view.ConfigView
-                android:id="@+id/config_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom" />
+                    android:id="@+id/config_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"/>
         </FrameLayout>
 
         <RelativeLayout android:id="@+id/drawer_menu"
-            android:layout_width="280dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:background="@color/app_green">
+                        android:layout_width="280dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="start"
+                        android:background="@color/app_green">
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/recycler_view_menu"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_above="@+id/btn_close"
-                android:background="@android:color/white" />
+                    android:id="@+id/recycler_view_menu"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_above="@+id/btn_close"
+                    android:background="@android:color/white"/>
 
             <ImageButton
-                android:id="@+id/btn_close"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:background="@android:color/transparent"
-                android:padding="8dp"
-                android:src="@drawable/icon_close" />
+                    android:id="@+id/btn_close"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:background="@android:color/transparent"
+                    android:padding="8dp"
+                    android:src="@drawable/icon_close"/>
 
             <ImageButton
-                android:id="@+id/btn_config"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_marginLeft="6dp"
-                android:layout_toRightOf="@+id/btn_close"
-                android:background="@android:color/transparent"
-                android:padding="8dp"
-                android:src="@drawable/icon_font" />
+                    android:id="@+id/btn_config"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginLeft="6dp"
+                    android:layout_toRightOf="@+id/btn_close"
+                    android:background="@android:color/transparent"
+                    android:padding="8dp"
+                    android:src="@drawable/icon_font"/>
 
-            <ImageButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_marginLeft="6dp"
-                android:layout_toRightOf="@+id/btn_config"
-                android:background="@android:color/transparent"
-                android:padding="8dp"
-                android:src="@drawable/icon_highlight" />
+            <ImageButton android:id="@+id/btn_highlight_list"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:layout_alignParentBottom="true"
+                         android:layout_marginLeft="6dp"
+                         android:layout_toRightOf="@+id/btn_config"
+                         android:background="@android:color/transparent"
+                         android:padding="8dp"
+                         android:src="@drawable/icon_highlight"/>
         </RelativeLayout>
     </android.support.v4.widget.DrawerLayout>
 </FrameLayout>
