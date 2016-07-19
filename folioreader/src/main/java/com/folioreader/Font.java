@@ -15,22 +15,20 @@
 */
 package com.folioreader;
 
-import android.widget.AutoCompleteTextView;
-
 public class Font {
 
-  private String name;
+    private String name;
 
-  public Font(String name) {
-    this.name = name;
-  }
+    public Font(String name) {
+        this.name = name;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public void setName(String name) {
-    this.name = name;
-  }
+    public void setName(String name) {
+        this.name = name;
+    }
 
 }
