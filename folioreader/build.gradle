@@ -65,12 +65,3 @@ dependencies {
   compile 'com.j256.ormlite:ormlite-core:4.48'
   compile 'com.j256.ormlite:ormlite-android:4.48'
 }
-
-task checkstyle(type: Checkstyle) {
-  configFile file('../config/checkstyle/checkstyle.xml')
-  source 'src/main/java'
-  source 'src/test/java'
-  include '**/*.java'
-  exclude '**/gen/**'
-  classpath = files()
-}
