@@ -126,12 +126,13 @@
         <com.folioreader.view.StyleableTextView
             android:id="@+id/btn_backcolor_style"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/style"
             android:textSize="17sp"
-            android:textColor="@drawable/font_text_selector"
+            android:textColor="@drawable/style_text_color_selector"
+            android:background="@drawable/style_back_color_selector"
             app:font="@string/lato_font"/>
         <View
             android:id="@+id/third_separator"
@@ -141,11 +142,13 @@
         <com.folioreader.view.StyleableTextView
             android:id="@+id/btn_text_undeline_style"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:gravity="center"
-            android:text="@string/style"
+            android:text="@string/style_underline"
             android:textSize="17sp"
+            android:drawableBottom="@drawable/dottet_line"
+            android:layerType="software"
             android:textColor="@drawable/font_text_selector"
             app:font="@string/lora_font"/>
         <View

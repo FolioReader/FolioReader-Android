@@ -16,111 +16,259 @@
 package com.folioreader.view;
 
 import android.content.Context;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.media.MediaPlayer;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.text.Html;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 
 import com.folioreader.R;
+import com.folioreader.activity.FolioActivity;
+import com.folioreader.model.Highlight;
+import com.folioreader.smil.AudioElement;
 import com.folioreader.util.ViewHelper;
 
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class AudioView extends FrameLayout implements View.OnClickListener {
 
-  private static final float SENSITIVITY = 1.0f;
-  private static final float DEFAULT_DRAG_LIMIT = 0.5f;
-  private static final int INVALID_POINTER = -1;
+    private static final float SENSITIVITY = 1.0f;
+    private static final float DEFAULT_DRAG_LIMIT = 0.5f;
+    private static final int INVALID_POINTER = -1;
     private MediaPlayer player;
-    private Button rew;
     private ImageButton playpause;
-    private String actuallyPlaying = null;
-    private SeekBar progressBar;
-    private Runnable update;
-    private Handler progressHandler;
-    private String mDataSource;
+    private AudioElement mAudioElement;
+    private int mStart, mEnd;
+    private  int mPosition=0;
+    private FolioActivity mFolioActivity;
+    private Runnable mEndTask;
+    private String mHighlightStyle;
+    private long beforeSeekstart,afterSeek;
+    private int mSeek;
 
-  private int activePointerId = INVALID_POINTER;
+    private int activePointerId = INVALID_POINTER;
 
-  private boolean isNightMode = false;
+    private boolean isNightMode = false;
 
-  private float verticalDragRange;
+    private float verticalDragRange;
 
-  private RelativeLayout container;
- private StyleableTextView mHalfSpeed,mOneSpeed,mTwoSpeed,mOneAndHalfSpeed;
-  private ViewDragHelper viewDragHelper;
-  private ConfigViewCallback audioViewCallback;
+    private RelativeLayout container;
+    private StyleableTextView mHalfSpeed, mOneSpeed, mTwoSpeed, mOneAndHalfSpeed;
+    private StyleableTextView mBackgroundColorStyle, mUnderlineStyle, mTextColorStyle;
+    private ViewDragHelper viewDragHelper;
+    private ConfigViewCallback configViewCallback;
+    private Handler mHandler;
 
-  public AudioView(Context context) {
-    this(context, null);
-  }
+    public AudioView(Context context) {
+        this(context, null);
+    }
 
-  public AudioView(Context context, AttributeSet attrs) {
-    this(context, attrs, 0);
-  }
+    public AudioView(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
 
-  public AudioView(Context context, AttributeSet attrs, int defStyleAttr) {
-    super(context, attrs, defStyleAttr);
-  }
+    public AudioView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
 
-  private void inflateView() {
-    inflate(getContext(), R.layout.view_audio_player, this);
-    container = (RelativeLayout) findViewById(R.id.container);
+    private void inflateView() {
+        inflate(getContext(), R.layout.view_audio_player, this);
+        container = (RelativeLayout) findViewById(R.id.container);
+        initViews();
 
-      mHalfSpeed=(StyleableTextView)findViewById(R.id.btn_half_speed);
-      mHalfSpeed.setText(Html.fromHtml("<sup>1</sup>/<sub>2</sub>x"));
+    }
 
-      mOneAndHalfSpeed=(StyleableTextView)findViewById(R.id.btn_one_and_half_speed);
-      mOneAndHalfSpeed.setText(Html.fromHtml("1<sup>1</sup>/<sub>2</sub>x"));
+    private void initViews() {
+        mHalfSpeed = (StyleableTextView) findViewById(R.id.btn_half_speed);
+        mOneSpeed = (StyleableTextView) findViewById(R.id.btn_one_x_speed);
+        mTwoSpeed = (StyleableTextView) findViewById(R.id.btn_twox_speed);
+        mOneAndHalfSpeed = (StyleableTextView) findViewById(R.id.btn_one_and_half_speed);
+        playpause = (ImageButton) findViewById(R.id.play_button);
+        mBackgroundColorStyle = (StyleableTextView) findViewById(R.id.btn_backcolor_style);
+        mUnderlineStyle = (StyleableTextView) findViewById(R.id.btn_text_undeline_style);
+        mTextColorStyle = (StyleableTextView) findViewById(R.id.btn_text_color_style);
 
-      playpause = (ImageButton) findViewById(R.id.play_button);
+        mOneAndHalfSpeed.setText(Html.fromHtml("1<sup>1</sup>/<sub>2</sub>x"));
+        mHalfSpeed.setText(Html.fromHtml("<sup>1</sup>/<sub>2</sub>x"));
+        mFolioActivity= (FolioActivity) mHalfSpeed.getContext();
 
-      playpause.setOnClickListener(new OnClickListener() {
-          @Override
-          public void onClick(View v) {
-              if (player.isPlaying()) {
-                  player.pause();
-                  playpause.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
-              } else {
-                  player.start();
-                  playpause.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
-                  update.run();
-              }
-          }
-      });
+        mUnderlineStyle.setText(Html.fromHtml(mHalfSpeed.getContext().getResources().getString(R.string.style_underline)));
 
-     /* setUpPlayer();*/
+        mEndTask=new Runnable() {
+            @Override
+            public void run() {
+
+              /*  player.pause();*/
+                int currentPosition=player.getCurrentPosition();
+                if(player.getDuration()!=currentPosition) {
+                    if (currentPosition > mEnd) {
+                        mPosition++;
+                        mAudioElement = mFolioActivity.getElement(mPosition);
+                        mStart = (int) mAudioElement.getClipBegin();
+                        mEnd = (int) mAudioElement.getClipEnd();
+                        long cuurenMillies = System.currentTimeMillis();
+                        Log.d("mposition", mPosition + "");
+                        Log.d("current milles", "" + cuurenMillies);
+                        mFolioActivity.setHighLight(mPosition, mHighlightStyle);
+                    }
+                    mHandler.postDelayed(mEndTask, 10);
+                } else {
+                    mHandler.removeCallbacks(mEndTask);
+                }
+            }
+        };
+
+        setUpPlayer();
 
 
 
-    /*fontSizeSeekBar = (SeekBar) findViewById(R.id.seekbar_font_size);
-    dayButton = (ImageButton) findViewById(R.id.day_button);
-    nightButton = (ImageButton) findViewById(R.id.night_button);
-    dayButton.setTag(Tags.DAY_BUTTON);
-    nightButton.setTag(Tags.NIGHT_BUTTON);
-    dayButton.setOnClickListener(this);
-    nightButton.setOnClickListener(this);*/
-  }
+        playpause.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mPosition==0){
+                    mAudioElement = mFolioActivity.getElement(mPosition);
+                    mStart = (int) mAudioElement.getClipBegin();
+                    mEnd = (int) mAudioElement.getClipEnd();
+                    configViewCallback.onAudioPlayed();
+                }
+
+                if (player.isPlaying()) {
+                   player.pause();
+                    playpause.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
+                    mSeek=player.getDuration();
+                    mHandler.removeCallbacks(mEndTask);
+
+                } else {
+                    if(mHandler==null) {
+                        mHandler = new Handler();
+                    }
+                    if(mPosition>0) {
+                        player.seekTo(mSeek);
+                        player.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                            @Override
+                            public void onSeekComplete(MediaPlayer mp) {
+                                player.start();
+                                mFolioActivity.setHighLight(mPosition, mHighlightStyle);
+                            }
+                        });
+                    } else {
+                        player.start();
+                        mFolioActivity.setHighLight(mPosition, mHighlightStyle);
+                        mHandler.postDelayed(mEndTask, 10);
+                        playpause.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
+                    }
+                }
+               // playMp3();
+            }
+        });
+
+        mHalfSpeed.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHalfSpeed.setSelected(true);
+                mOneSpeed.setSelected(false);
+                mOneAndHalfSpeed.setSelected(false);
+                mTwoSpeed.setSelected(false);
+            }
+        });
+
+        mOneSpeed.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHalfSpeed.setSelected(false);
+                mOneSpeed.setSelected(true);
+                mOneAndHalfSpeed.setSelected(false);
+                mTwoSpeed.setSelected(false);
+
+            }
+        });
+        mOneAndHalfSpeed.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHalfSpeed.setSelected(false);
+                mOneSpeed.setSelected(false);
+                mOneAndHalfSpeed.setSelected(true);
+                mTwoSpeed.setSelected(false);
+
+            }
+        });
+        mTwoSpeed.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHalfSpeed.setSelected(false);
+                mOneSpeed.setSelected(false);
+                mOneAndHalfSpeed.setSelected(false);
+                mTwoSpeed.setSelected(true);
+            }
+        });
+
+
+        mBackgroundColorStyle.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBackgroundColorStyle.setSelected(true);
+                mUnderlineStyle.setSelected(false);
+                mTextColorStyle.setSelected(false);
+                mHighlightStyle= Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Green);
+
+            }
+        });
+
+
+        mUnderlineStyle.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBackgroundColorStyle.setSelected(false);
+                mUnderlineStyle.setSelected(true);
+                mTextColorStyle.setSelected(false);
+                mHighlightStyle= Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
+
+            }
+        });
+
+
+        mTextColorStyle.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBackgroundColorStyle.setSelected(false);
+                mUnderlineStyle.setSelected(false);
+                mTextColorStyle.setSelected(true);
+                mHighlightStyle= Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
+
+            }
+        });
+
+
+    }
 
     private void setUpPlayer() {
-        player=new MediaPlayer();
+        player = new MediaPlayer();
         try {
-            player.setDataSource(mDataSource);
+            player.setDataSource(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/audio" + ".mp3");
             player.prepare();
-            player.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
+      /*  mFolioActivity= (FolioActivity) mUnderlineStyle.getContext();
+        mAudioElement = mFolioActivity.getElement(mPosition);
+        mStart = (int) mAudioElement.getClipBegin();
+        mEnd = (int) mAudioElement.getClipEnd();
+*/
     }
 
  /* private void configFonts(){
@@ -230,17 +378,19 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
     });
     fontSizeSeekBar.setProgress(Config.getConfig().getFontSize());
   }*/
-  /**
-   * Bind the attributes of the view and config
-   * the DragView with these params.
-   */
-  @Override protected void onFinishInflate() {
-    super.onFinishInflate();
-    if (!isInEditMode()) {
-      inflateView();
+
+    /**
+     * Bind the attributes of the view and config
+     * the DragView with these params.
+     */
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        if (!isInEditMode()) {
+            inflateView();
       /*configFonts();
       configSeekbar();*/
-      configDragViewHelper();
+            configDragViewHelper();
      /* selectFont(Config.getConfig().getFont());
       isNightMode = Config.getConfig().isNightMode();
       if (isNightMode){
@@ -250,91 +400,97 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         dayButton.setSelected(true);
         nightButton.setSelected(false);
       }*/
-    }
-  }
-
-  /**
-   * Updates the view size if needed.
-   * @param width The new width size.
-   * @param height The new height size.
-   * @param oldWidth The old width size, useful the calculate the diff.
-   * @param oldHeight The old height size, useful the calculate the diff.
-   */
-  @Override protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
-    super.onSizeChanged(width, height, oldWidth, oldHeight);
-    setVerticalDragRange(height);
-  }
-
-  /**
-   * Configure the width and height of the DraggerView.
-   *
-   * @param widthMeasureSpec Spec value of width, not represent the real width.
-   * @param heightMeasureSpec Spec value of height, not represent the real height.
-   */
-  @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    int measureWidth = MeasureSpec.makeMeasureSpec(
-        getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
-        MeasureSpec.EXACTLY);
-    int measureHeight = MeasureSpec.makeMeasureSpec(
-        getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY);
-    if (container != null) {
-      container.measure(measureWidth, measureHeight);
-    }
-
-  }
-
-  /**
-   * Detect the type of motion event (like touch)
-   * at the DragView, this can be a simple
-   * detector of the touch, not the listener ifself.
-   *
-   * @param ev Event of MotionEvent
-   * @return View is touched
-   */
-  @Override public boolean onInterceptTouchEvent(MotionEvent ev) {
-    if (!isEnabled()) {
-      return false;
-    }
-    final int action = MotionEventCompat.getActionMasked(ev);
-    switch (action) {
-      case MotionEvent.ACTION_CANCEL:
-      case MotionEvent.ACTION_UP:
-        viewDragHelper.cancel();
-        return false;
-      case MotionEvent.ACTION_DOWN:
-        int index = MotionEventCompat.getActionIndex(ev);
-        activePointerId = MotionEventCompat.getPointerId(ev, index);
-        if (activePointerId == INVALID_POINTER) {
-          return false;
         }
-      default:
-        return viewDragHelper.shouldInterceptTouchEvent(ev);
     }
-  }
 
-  /**
-   * Handle the touch event intercepted from onInterceptTouchEvent
-   * method, this method valid if the touch listener
-   * is a valid pointer(like fingers) or the touch
-   * is inside of the DragView.
-   *
-   * @param ev MotionEvent instance, can be used to detect the type of touch.
-   * @return Touched area is a valid position.
-   */
-  @Override public boolean onTouchEvent(MotionEvent ev) {
-    int actionMasked = MotionEventCompat.getActionMasked(ev);
-    if ((actionMasked & MotionEventCompat.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
-      activePointerId = MotionEventCompat.getPointerId(ev, actionMasked);
+    /**
+     * Updates the view size if needed.
+     *
+     * @param width     The new width size.
+     * @param height    The new height size.
+     * @param oldWidth  The old width size, useful the calculate the diff.
+     * @param oldHeight The old height size, useful the calculate the diff.
+     */
+    @Override
+    protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
+        super.onSizeChanged(width, height, oldWidth, oldHeight);
+        setVerticalDragRange(height);
     }
-    if (activePointerId == INVALID_POINTER) {
-      return false;
-    }
-    viewDragHelper.processTouchEvent(ev);
-    return ViewHelper.isViewHit(container, this, (int) ev.getX(), (int) ev.getY());
-  }
 
-  @Override public void onClick(View v) {
+    /**
+     * Configure the width and height of the DraggerView.
+     *
+     * @param widthMeasureSpec  Spec value of width, not represent the real width.
+     * @param heightMeasureSpec Spec value of height, not represent the real height.
+     */
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int measureWidth = MeasureSpec.makeMeasureSpec(
+                getMeasuredWidth() - getPaddingLeft() - getPaddingRight(),
+                MeasureSpec.EXACTLY);
+        int measureHeight = MeasureSpec.makeMeasureSpec(
+                getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY);
+        if (container != null) {
+            container.measure(measureWidth, measureHeight);
+        }
+
+    }
+
+    /**
+     * Detect the type of motion event (like touch)
+     * at the DragView, this can be a simple
+     * detector of the touch, not the listener ifself.
+     *
+     * @param ev Event of MotionEvent
+     * @return View is touched
+     */
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (!isEnabled()) {
+            return false;
+        }
+        final int action = MotionEventCompat.getActionMasked(ev);
+        switch (action) {
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                viewDragHelper.cancel();
+                return false;
+            case MotionEvent.ACTION_DOWN:
+                int index = MotionEventCompat.getActionIndex(ev);
+                activePointerId = MotionEventCompat.getPointerId(ev, index);
+                if (activePointerId == INVALID_POINTER) {
+                    return false;
+                }
+            default:
+                return viewDragHelper.shouldInterceptTouchEvent(ev);
+        }
+    }
+
+    /**
+     * Handle the touch event intercepted from onInterceptTouchEvent
+     * method, this method valid if the touch listener
+     * is a valid pointer(like fingers) or the touch
+     * is inside of the DragView.
+     *
+     * @param ev MotionEvent instance, can be used to detect the type of touch.
+     * @return Touched area is a valid position.
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        int actionMasked = MotionEventCompat.getActionMasked(ev);
+        if ((actionMasked & MotionEventCompat.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
+            activePointerId = MotionEventCompat.getPointerId(ev, actionMasked);
+        }
+        if (activePointerId == INVALID_POINTER) {
+            return false;
+        }
+        viewDragHelper.processTouchEvent(ev);
+        return ViewHelper.isViewHit(container, this, (int) ev.getX(), (int) ev.getY());
+    }
+
+    @Override
+    public void onClick(View v) {
    /* switch (((Integer) v.getTag())) {
       case Tags.DAY_BUTTON:
         if (isNightMode) {
@@ -361,82 +517,83 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
       default:
         break;
     }*/
-  }
-
-  /**
-   * This method is needed to calculate the auto scroll
-   * when the user slide the view to the max limit, this
-   * starts a animation to finish the view.
-   */
-  @Override public void computeScroll() {
-    if (!isInEditMode() && viewDragHelper.continueSettling(true)) {
-      ViewCompat.postInvalidateOnAnimation(this);
     }
-  }
 
-  /**
-   * Configure the DragViewHelper instance adding a
-   * instance of ViewDragHelperCallback, useful to
-   * detect the touch callbacks from dragView.
-   */
-  private void configDragViewHelper() {
-    viewDragHelper = ViewDragHelper.create(this, SENSITIVITY,
-        new AudioViewHelperCallback(this));
-  }
-
-  private boolean smoothSlideTo(View view, int x, int y) {
-    if (viewDragHelper != null && viewDragHelper.smoothSlideViewTo(view, x, y)) {
-      ViewCompat.postInvalidateOnAnimation(this);
-      return true;
+    /**
+     * This method is needed to calculate the auto scroll
+     * when the user slide the view to the max limit, this
+     * starts a animation to finish the view.
+     */
+    @Override
+    public void computeScroll() {
+        if (!isInEditMode() && viewDragHelper.continueSettling(true)) {
+            ViewCompat.postInvalidateOnAnimation(this);
+        }
     }
-    return false;
-  }
 
-  public float getVerticalDragRange() {
-    return verticalDragRange;
-  }
+    /**
+     * Configure the DragViewHelper instance adding a
+     * instance of ViewDragHelperCallback, useful to
+     * detect the touch callbacks from dragView.
+     */
+    private void configDragViewHelper() {
+        viewDragHelper = ViewDragHelper.create(this, SENSITIVITY, new AudioViewHelperCallback(this));
+    }
 
-  public void setVerticalDragRange(float verticalDragRange) {
-    this.verticalDragRange = verticalDragRange;
-  }
+    private boolean smoothSlideTo(View view, int x, int y) {
+        if (viewDragHelper != null && viewDragHelper.smoothSlideViewTo(view, x, y)) {
+            ViewCompat.postInvalidateOnAnimation(this);
+            return true;
+        }
+        return false;
+    }
 
-  public RelativeLayout getContainer() {
-    return container;
-  }
+    public float getVerticalDragRange() {
+        return verticalDragRange;
+    }
 
-  public void setAudioViewCallback(ConfigViewCallback audioViewCallback) {
-    this.audioViewCallback = audioViewCallback;
-  }
+    public void setVerticalDragRange(float verticalDragRange) {
+        this.verticalDragRange = verticalDragRange;
+    }
 
-  /**
-   * Detect if the container actual position is above the
-   * limit determined with the @param dragLimit.
-   *
-   * @return Use a dimension and compare with the dragged
-   * axis position.
-   */
-  public boolean isDragViewAboveTheLimit() {
-    int parentSize = container.getHeight();
-    return parentSize < ViewCompat.getY(container) + (parentSize * DEFAULT_DRAG_LIMIT);
-  }
+    public RelativeLayout getContainer() {
+        return container;
+    }
 
-  public void moveToOriginalPosition() {
-    audioViewCallback.showShadow();
-    setVisibility(VISIBLE);
-    smoothSlideTo(container, 0, 0);
-  }
+    public void setAudioViewCallback(ConfigViewCallback audioViewCallback) {
+        this.configViewCallback = audioViewCallback;
+    }
 
-  public void moveOffScreen() {
-    smoothSlideTo(container, 0, (int) getVerticalDragRange());
-  }
+    /**
+     * Detect if the container actual position is above the
+     * limit determined with the @param dragLimit.
+     *
+     * @return Use a dimension and compare with the dragged
+     * axis position.
+     */
+    public boolean isDragViewAboveTheLimit() {
+        int parentSize = container.getHeight();
+        return parentSize < ViewCompat.getY(container) + (parentSize * DEFAULT_DRAG_LIMIT);
+    }
 
-  public void hideView() {
-    setVisibility(GONE);
-  }
+    public void moveToOriginalPosition() {
+        Log.d("dddd","this is executed");
+        configViewCallback.showShadow();
+        setVisibility(VISIBLE);
+        smoothSlideTo(container, 0, 0);
+    }
 
-  public void onViewPositionChanged(float alpha) {
-    audioViewCallback.onShadowAlpha(alpha);
-  }
+    public void moveOffScreen() {
+        smoothSlideTo(container, 0, (int) getVerticalDragRange());
+    }
+
+    public void hideView() {
+        setVisibility(GONE);
+    }
+
+    public void onViewPositionChanged(float alpha) {
+        configViewCallback.onShadowAlpha(alpha);
+    }
 
 
    /* private void adjustAudioLinks() {
@@ -455,5 +612,39 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
                 }
             }
     }*/
+
+
+    public void playMp3(){
+        int minBufferSize = AudioTrack.getMinBufferSize(8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        int bufferSize = 512;
+        AudioTrack at = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+                AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,
+                minBufferSize, AudioTrack.MODE_STREAM);
+        String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/audio" + ".mp3";
+
+        int i = 0;
+        byte[] s = new byte[bufferSize];
+        try {
+            FileInputStream fin = new FileInputStream(filepath);
+            DataInputStream dis = new DataInputStream(fin);
+
+            at.play();
+            while((i = dis.read(s, 0, bufferSize)) > -1){
+                at.write(s, 0, i);
+
+            }
+            at.stop();
+            at.release();
+            dis.close();
+            fin.close();
+
+        } catch (FileNotFoundException e) {
+            // TODO
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO
+            e.printStackTrace();
+        }
+    }
 
 }

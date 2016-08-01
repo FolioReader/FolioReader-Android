@@ -21,4 +21,5 @@ public interface ConfigViewCallback {
   void onShadowAlpha(float alpha);
   void showShadow();
   void onConfigChange();
+  void onAudioPlayed();
 }

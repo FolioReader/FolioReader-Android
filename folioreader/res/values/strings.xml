@@ -31,5 +31,6 @@
   <string name="one_and_half">1&#160;1/2x</string>
   <string name="two_x">2x</string>
   <string name="style">Style</string>
+  <string name="style_underline"><![CDATA[<u style=\" border-bottom: 1px dashed #bcbcbc;   text-decoration: none;\">Style</u>]]></string>
 
 </resources>

@@ -27,7 +27,10 @@ public class Highlight implements Parcelable {
         Green,
         Blue,
         Pink,
-        Underline;
+        Underline,
+        TextColor,
+        DottetUnderline;
+
 
         /**
          * Return HighlightStyle for CSS class.
@@ -64,6 +67,10 @@ public class Highlight implements Parcelable {
                     return "highlight-pink";
                 case Underline:
                     return "highlight-underline";
+                case DottetUnderline:
+                    return "mediaOverlayStyle1";
+                case TextColor:
+                    return "mediaOverlayStyle0";
                 default:
                     return "highlight-yellow";
 

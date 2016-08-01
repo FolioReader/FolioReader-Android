@@ -87,6 +87,7 @@ public class FolioPageFragment extends Fragment {
     private int mScrollY;
     private int mTotalMinutes;
     private String mSelectedText;
+    int startFrom,endAt;
     //private Rect mSelectedRect;
     private Map<String, String> mHighlightMap;
 
@@ -433,6 +434,28 @@ public class FolioPageFragment extends Fragment {
         String htmlContent = getHtmlContent();
         webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null);
         updatePagesLeftTextBg();
+    }
+
+
+    public void highLightString(String id,String style) {
+        style="epub-media-overlay-playing";
+
+        String url="javascript:alert(audioMarkID('"+ Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Green)+"','"+id+"'))";
+        mWebview.loadUrl(url);
+
+        String url1="javascript:alert(setMediaOverlayStyle('"+Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline)+"'))";
+        mWebview.loadUrl(url1);
+
+
+
+
+
+
+
+
+
+
+        /*mWebview.loadUrl("javascript:alert(setHighlightStyle('" + Highlight.HighlightStyle.classForStyle(style) + "'))");*/
     }
 
     private String getHtmlContent() {

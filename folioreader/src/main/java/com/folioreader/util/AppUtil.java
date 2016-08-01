@@ -10,12 +10,14 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -26,7 +28,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.codehaus.jackson.type.TypeReference;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.sql.Time;
 import java.text.ParseException;
@@ -38,6 +44,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -139,7 +146,7 @@ public class AppUtil {
     public static int parseTimeToLong(String time){
 
         double temp=0.0;
-
+        Log.d("time","time to parse"+time);
         Map<String,String> timeFormats=new HashMap<>();
         timeFormats.put("HH:mm:ss.SSS","^\\d{1,2}:\\d{2}:\\d{2}\\.\\d{1,3}$");
         timeFormats.put("HH:mm:ss","^\\d{1,2}:\\d{2}:\\d{2}$");
@@ -168,8 +175,9 @@ public class AppUtil {
 
                     simpleDateFormat =new SimpleDateFormat("HH");
                     double HH=Double.valueOf(simpleDateFormat.format(date));
-                    temp=sec +(mm*60)+ (HH*60*60);
-                    return (int) temp;
+                    temp=(sec*1000) +((mm*60)*1000)+ ((HH*60*60)*1000);
+                    Log.d("time as outpu","time as output"+temp);
+                    return (int)temp;
 
 
                 } catch (ParseException e) {
@@ -180,9 +188,68 @@ public class AppUtil {
         }
 
 
-        return (int) temp;
+        return (int)temp;
     }
 
 
+    public static void saveFile(InputStream inputStream ) {
+        {
+
+            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/audio"+".mp3");
+            Log.d("file exixts", file.exists()+"");
+            Log.d("file isfile", file.isFile()+"");
+
+
+
+            if (!file.canRead()) {
+                File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader");
+                folder.mkdirs();
+                OutputStream outputStream = null;
+                Log.d("not exixts", "mp3 file not avalable");
+
+                try {
+                    // read this file into InputStream
+                    //inputStream = new FileInputStream("/Users/mkyong/Downloads/holder.js");
+
+                    // write the inputStream to a FileOutputStream
+                    outputStream = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/audio"+ ".mp3"));
+
+                    int read = 0;
+                    byte[] bytes = new byte[inputStream.available()];
+
+                    while ((read = inputStream.read(bytes)) != -1) {
+                        outputStream.write(bytes, 0, read);
+                    }
+
+                    System.out.println("Done!");
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (inputStream != null) {
+                        try {
+                            inputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (outputStream != null) {
+                        try {
+                            // outputStream.flush();
+                            outputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                }
+            }
+        }
     }
+}
+
+
+
+
 

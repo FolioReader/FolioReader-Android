@@ -3,6 +3,7 @@ package com.folioreader.adapter;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +54,8 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.tocTitleView.setText(mTOCReferences.get(position).getTitle());
+        Log.d("Href**** TOC",mTOCReferences.get(position).getCompleteHref());
+        Log.d("FRagId**** TOC",mTOCReferences.get(position).getFragmentId());
         if (!(selectedChapterPosition == position)) {
             if (isNightMode) {
                 holder.tocTitleView.setTextColor(Color.WHITE);

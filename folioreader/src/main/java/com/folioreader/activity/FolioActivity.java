@@ -93,8 +93,10 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private ConfigView configView;
     private AudioView audioView;
     private Toolbar mToolbar;
+    List<AudioElement> mAudioElementArrayList;
 
     private String mEpubAssetPath;
+    private int mAudioPagePosition;
     private Book mBook;
     private ArrayList<TOCReference> mTocReferences = new ArrayList<>();
     private List<SpineReference> mSpineReferences;
@@ -105,12 +107,12 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private ActionMode mActionMode = null;
 
     private boolean mHighLight = false;
+    List<TextElement> mTextElementList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
-
         mEpubAssetPath = getIntent().getStringExtra(INTENT_EPUB_ASSET_PATH);
         loadBook();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -126,11 +128,12 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             }
         });
 
-
-
         findViewById(R.id.btn_speaker).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*if(audioView.getVisibility()==View.GONE){
+                    audioView.setVisibility(View.VISIBLE);
+                }*/
                 if (audioView.isDragViewAboveTheLimit()) {
                     audioView.moveToOriginalPosition();
                 } else {
@@ -138,9 +141,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 }
             }
         });
-
-
-
     }
 
     private void loadBook() {
@@ -149,45 +149,22 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             InputStream epubInputStream = assetManager.open(mEpubAssetPath);
             mBook = (new EpubReader()).readEpub(epubInputStream);
 
-            URL url = epubInputStream.getClass().getResource("config.xml");
-
-            Collection<Resource> resourceArrayList= mBook.getResources().getAll();
-             Iterator<Resource> iterator=resourceArrayList.iterator();
-             while(iterator.hasNext()){
-                 Resource resource=iterator.next();
-                 String href=resource.getHref();
-                 if(href.contains("smil")){
-                     String content= AppUtil.readerSmil(resource.getReader());
-                     SmilFile smilFile=new SmilFile();
-                     try {
-                         SmilParser smilParser=new SmilParser();
-                         SequenceElement sequenceElement=smilParser.parse(content);
-                         List<AudioElement> audioElementArrayList=sequenceElement.getAllAudioElementDepthFirst();
-                         String str=audioElementArrayList.get(0).getSrc();
-                         List<TextElement> textElementList=sequenceElement.getAllTextElementDepthFirst();
-
-                         Log.e("smilfile","smilfile");
-                     } catch (SAXException e) {
-                         e.printStackTrace();
-                     } catch (ParserConfigurationException e) {
-                         e.printStackTrace();
-                     }
-
-                     Log.e("smilfile","smilfile");
-                 }
-
-
-                 if(href.contains(".mp3")){
-
-                 }
-             }
-
-
 
             populateTableOfContents(mBook.getTableOfContents().getTocReferences(), 0);
             Spine spine = new Spine(mBook.getTableOfContents());
             this.mSpineReferences = spine.getSpineReferences();
             for (int i = 0; i < mSpineReferences.size(); i++) mSpineReferenceHtmls.add(null);
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // DO your work here
+                    parseSmil();
+                    Log.e("smilfile","smilfile parsed");
+                }
+
+            }).start();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -218,7 +195,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 audioView.moveOffScreen();
                 configView.moveOffScreen();
             }
-        },10);
+        },0);
 
         configRecyclerViews();
         configFolio();
@@ -274,6 +251,11 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             page = getFragment(position + 1);
             ((FolioPageFragment) page).reload();
         }
+    }
+
+    @Override
+    public void onAudioPlayed() {
+        mFolioPageViewPager.setCurrentItem(mAudioPagePosition);
     }
 
     private Fragment getFragment(int pos) {
@@ -567,4 +549,70 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     };*/
 
 
+    private void parseSmil(){
+        Collection<Resource> resourceArrayList= mBook.getResources().getAll();
+        Iterator<Resource> iterator=resourceArrayList.iterator();
+        while(iterator.hasNext()){
+            Resource resource=iterator.next();
+            String href=resource.getHref();
+            if(href.contains("smil")){
+                String content= null;
+                try {
+                    content = AppUtil.readerSmil(resource.getReader());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                SmilFile smilFile=new SmilFile();
+                try {
+                    SmilParser smilParser=new SmilParser();
+                    SequenceElement sequenceElement=smilParser.parse(content);
+                    mAudioElementArrayList=sequenceElement.getAllAudioElementDepthFirst();
+                  /*  String str=mAudioElementArrayList.get(0).getSrc();*/
+                    mTextElementList=sequenceElement.getAllTextElementDepthFirst();
+
+                    Log.e("smilfile","smilfile");
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Log.e("smilfile","smilfile");
+            }
+
+
+            if(href.contains(".mp3")){
+                try {
+                    AppUtil.saveFile(resource.getInputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        Spine spine = new Spine(mBook.getTableOfContents());
+        List<SpineReference> spineReferences = spine.getSpineReferences();
+        for(int i=0;i<spineReferences.size();i++){
+            String temp=mTextElementList.get(0).getSrc();
+            String arr[]=temp.split("#");
+            Log.d("spine href 1*****",spineReferences.get(i).getResource().getHref());
+            String[] arr2=spineReferences.get(i).getResource().getHref().split("/");
+                if(arr2[1].equals(arr[1])){
+                    mAudioPagePosition=i;
+                }
+        }
+    }
+
+    public  void setHighLight(int position,String style){
+        String src=mTextElementList.get(position).getSrc();
+        String temp[]=src.split("#");
+        String textid=temp[1];
+        ((FolioPageFragment)getFragment(mChapterPosition)).highLightString(textid,style);
+    }
+
+    public AudioElement getElement(int position){
+        return  mAudioElementArrayList.get(position);
+    }
 }
