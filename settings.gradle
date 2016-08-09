@@ -1,1 +1,1 @@
-include ':folioreader', ':sample', ':webViewMarker-release',":swipe_library"
+include ':folioreader', ':sample', ':webViewMarker-release'

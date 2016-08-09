@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -22,6 +23,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.folioreader.R;
+import com.folioreader.activity.FolioActivity;
 import com.folioreader.view.StyleableTextView;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -29,6 +31,8 @@ import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.codehaus.jackson.type.TypeReference;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,6 +51,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.SpineReference;
+import nl.siegmann.epublib.domain.TOCReference;
+import nl.siegmann.epublib.epub.EpubReader;
 
 /**
  * Created by mahavir on 5/7/16.
@@ -247,7 +256,156 @@ public class AppUtil {
             }
         }
     }
+
+
+
+    public static void saveEpubFile(InputStream inputStream ,final Context context) {
+        {
+            String fileName=Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/epubfile"+ ".epub";
+
+            File file = new File(fileName);
+            Log.d("file exixts", file.exists()+"");
+            Log.d("file isfile", file.isFile()+"");
+
+
+
+            if (!file.exists()) {
+                File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader");
+                folder.mkdirs();
+                OutputStream outputStream = null;
+                Log.d("not exixts", "mp3 file not avalable");
+
+                try {
+                    // read this file into InputStream
+                    //inputStream = new FileInputStream("/Users/mkyong/Downloads/holder.js");
+
+                    // write the inputStream to a FileOutputStream
+                    outputStream = new FileOutputStream(new File(fileName));
+
+                    int read = 0;
+                    byte[] bytes = new byte[inputStream.available()];
+
+                    while ((read = inputStream.read(bytes)) != -1) {
+                        outputStream.write(bytes, 0, read);
+                    }
+
+                    System.out.println("Done!");
+                    new EpubManipulator(fileName,"temp",context);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (inputStream != null) {
+                        try {
+                            inputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (outputStream != null) {
+                        try {
+                            // outputStream.flush();
+                            outputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                }
+            } else {
+                FileInputStream fs = null;
+                try {
+                    fs = new FileInputStream(fileName);
+                    final Book book = (new EpubReader()).readEpub(fs);
+                    ((FolioActivity) context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ArrayList<TOCReference> tocReferenceArrayList=(ArrayList<TOCReference>) book.getTableOfContents().getTocReferences();
+                            ((FolioActivity) context).configRecyclerViews(tocReferenceArrayList,book, (ArrayList<SpineReference>) book.getSpine().getSpineReferences());
+                        }
+                    });
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+
+    public static void copyAssets(Context context) {
+        AssetManager assetManager = context.getAssets();
+        String[] files = null;
+        String[] fontFile=null;
+        try {
+            files = assetManager.list("");
+            fontFile=assetManager.list(files[6]);
+        } catch (IOException e) {
+            Log.e("tag", "Failed to get asset file list.", e);
+        }
+        if (files != null) for (String filename : files) {
+            InputStream in = null;
+            OutputStream out = null;
+            File folder;
+            try {
+                in = assetManager.open(filename);
+                //File outFile = new File(context.getExternalFilesDir(null), filename);
+                File outFile =null;
+                if(filename.contains(".js")) {
+                    folder=new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/javascript");
+                    folder.mkdir();
+                    outFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/javascript", filename);
+                   // outFile.mkdir();
+                } else if(filename.contains(".css")){
+                    folder=new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/CSS");
+                    folder.mkdir();
+                    outFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/CSS", filename);
+                } else if(filename.contains(".ttf") || filename.contains(".otf")){
+                    folder=new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/FONTS");
+                    folder.mkdir();
+                    outFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/FONTS", filename);
+                }
+                if(outFile!=null) {
+                    out = new FileOutputStream(outFile);
+                    copyFile(in, out);
+                }
+            } catch(IOException e) {
+                Log.e("tag", "Failed to copy asset file: " + filename, e);
+            }
+            finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        // NOOP
+                    }
+                }
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        // NOOP
+                    }
+                }
+            }
+        }
+    }
+    public static void copyFile(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while((read = in.read(buffer)) != -1){
+            out.write(buffer, 0, read);
+        }
+    }
+
 }
+
+
 
 
 

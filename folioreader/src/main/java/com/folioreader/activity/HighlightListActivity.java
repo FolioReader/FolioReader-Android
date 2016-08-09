@@ -1,5 +1,6 @@
 package com.folioreader.activity;
 
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -7,6 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 public class HighlightListActivity extends AppCompatActivity {
     private static final String HIGHLIGHT_ITEM ="highlight_item" ;
     private static final String ITEM_DELETED = "item_deleted";
+    private boolean isItemDeleted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +51,11 @@ public class HighlightListActivity extends AppCompatActivity {
         findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(isItemDeleted) {
+                    Intent intent = new Intent();
+                    intent.putExtra(ITEM_DELETED, true);
+                    setResult(RESULT_OK,intent);
+                }
                 finish();
             }
         });
@@ -72,10 +80,12 @@ public class HighlightListActivity extends AppCompatActivity {
 
     private class HightlightAdpater extends ArrayAdapter<Highlight> {
         private LayoutInflater mInflater;
+
         private class ViewHolder {
-           public UnderlinedTextView txtHightlightText;
+            public UnderlinedTextView txtHightlightText;
             public TextView txtHightLightTime;
             public ImageView delete;
+
 
             public ViewHolder(View row){
                 txtHightlightText = (UnderlinedTextView) row.findViewById(R.id.txt_hightlight_text);
@@ -90,7 +100,7 @@ public class HighlightListActivity extends AppCompatActivity {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             View row = convertView;
             ViewHolder holder = null;
             if(row == null){
@@ -108,9 +118,11 @@ public class HighlightListActivity extends AppCompatActivity {
             row.findViewById(R.id.main_data).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent=new Intent();
-                    intent.putExtra(HIGHLIGHT_ITEM,rowItem);
-                    setResult(RESULT_OK,intent);
+                    Log.d("*****","crash");
+                    //Intent intent=new Intent();
+                   /* Log.d("rowitem size",instrumentation.getObjectSize(rowItem));*/
+                    /*intent.putExtra(HIGHLIGHT_ITEM,rowItem);
+                    setResult(RESULT_OK,intent);*/
                     finish();
                 }
             });
@@ -124,10 +136,11 @@ public class HighlightListActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     HighlightTable.remove(rowItem.getHighlightId(),HighlightListActivity.this);
-                    Intent intent=new Intent();
+                    /*Intent intent=new Intent();
                     intent.putExtra(ITEM_DELETED,true);
-                    setResult(RESULT_OK,intent);
-                    finish();
+                    setResult(RESULT_OK,intent);*/
+                    remove(rowItem);
+                    isItemDeleted=true;
                 }
             });
             return row;

@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.Html;
@@ -155,7 +156,10 @@ public class FolioPageFragment extends Fragment {
     }
 
     private void initWebView() {
-        String htmlContent = getHtmlContent();
+        String htmlContent=null;
+        //String htmlContent="<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:epub=\"http://www.idpf.org/2007/ops\" lang=\"en\" xml:lang=\"en\"><head></head><body><section epub:type=\"cover\"><img src=\""+ "../Images/cover.png" + "\"></section></body></html>";
+        htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
+
 
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
         mWebview.setFragment(FolioPageFragment.this);
@@ -208,6 +212,7 @@ public class FolioPageFragment extends Fragment {
         });
         mWebview.getSettings().setJavaScriptEnabled(true);
         mWebview.setVerticalScrollBarEnabled(false);
+        mWebview.getSettings().setAllowFileAccess(true);
         mWebview.addJavascriptInterface(this, "Highlight");
         mWebview.setScrollListener(new ObservableWebView.ScrollListener() {
             @Override
@@ -317,7 +322,9 @@ public class FolioPageFragment extends Fragment {
 
         //mWebview.loadDataWithBaseURL(null, htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
-        mWebview.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null);
+        String baseUrl= "file://"+Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS//";
+        mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
+        //mWebview.loadUrl(htmlContent);
     }
 
 
@@ -431,7 +438,7 @@ public class FolioPageFragment extends Fragment {
 
     public void reload() {
         final WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
-        String htmlContent = getHtmlContent();
+        String htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
         webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null);
         updatePagesLeftTextBg();
     }
@@ -446,23 +453,14 @@ public class FolioPageFragment extends Fragment {
         String url1="javascript:alert(setMediaOverlayStyle('"+Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline)+"'))";
         mWebview.loadUrl(url1);
 
-
-
-
-
-
-
-
-
-
         /*mWebview.loadUrl("javascript:alert(setHighlightStyle('" + Highlight.HighlightStyle.classForStyle(style) + "'))");*/
     }
 
-    private String getHtmlContent() {
-        String htmlContent = "???";
+    private String getHtmlContent(String htmlContent) {
+        /*String htmlContent = "???";
         if (mPosition != -1) {
             htmlContent = mActivityCallback.getChapterHtmlContent(mPosition);
-        }
+        }*/
 
         String cssPath = String.format("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">", "file:///android_asset/Style.css");
         String jsPath = String.format("<script type=\"text/javascript\" src=\"%s\"></script>", "file:///android_asset/Bridge.js");

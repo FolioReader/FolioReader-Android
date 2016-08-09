@@ -105,17 +105,17 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
 
         mOneAndHalfSpeed.setText(Html.fromHtml("1<sup>1</sup>/<sub>2</sub>x"));
         mHalfSpeed.setText(Html.fromHtml("<sup>1</sup>/<sub>2</sub>x"));
-        mFolioActivity= (FolioActivity) mHalfSpeed.getContext();
+        mFolioActivity = (FolioActivity) mHalfSpeed.getContext();
 
         mUnderlineStyle.setText(Html.fromHtml(mHalfSpeed.getContext().getResources().getString(R.string.style_underline)));
 
-        mEndTask=new Runnable() {
+        mEndTask = new Runnable() {
             @Override
             public void run() {
 
               /*  player.pause();*/
-                int currentPosition=player.getCurrentPosition();
-                if(player.getDuration()!=currentPosition) {
+                int currentPosition = player.getCurrentPosition();
+                if (player.getDuration() != currentPosition) {
                     if (currentPosition > mEnd) {
                         mPosition++;
                         mAudioElement = mFolioActivity.getElement(mPosition);
@@ -134,6 +134,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         };
 
         setUpPlayer();
+
 
 
 
@@ -255,6 +256,19 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
 
 
     }
+
+    public  void  playerStop() {
+        if (player != null && player.isPlaying()) {
+            player.pause();
+        }
+    }
+    public void playerResume() {
+        if (player != null && player.isPlaying()) {
+            player.seekTo(mSeek);
+            player.start();
+        }
+    }
+
 
     private void setUpPlayer() {
         player = new MediaPlayer();

@@ -32,5 +32,33 @@
   <string name="two_x">2x</string>
   <string name="style">Style</string>
   <string name="style_underline"><![CDATA[<u style=\" border-bottom: 1px dashed #bcbcbc;   text-decoration: none;\">Style</u>]]></string>
+  <string name="full_path">full-path</string>
+  <string name="error_goToPage">goToPage error:</string>
+  <string name="zip">.zip</string>
+  <string name="htmlBodyTableOpen">&lt;html&gt;&lt;body&gt;&lt;table&gt;</string>
+  <string name="titlesMeta">&lt;tr&gt;&lt;td&gt;Titles:&lt;/td&gt;</string>
+  <string name="authorsMeta">&lt;tr&gt;&lt;td&gt;Authors:&lt;/td&gt;</string>
+  <string name="contributorsMeta">&lt;tr&gt;&lt;td&gt;Contributors:&lt;/td&gt;</string>
+  <string name="languageMeta">&lt;tr&gt;&lt;td&gt;Language:&lt;/td&gt;&lt;td&gt;</string>
+  <string name="publishersMeta">&lt;tr&gt;&lt;td&gt;Publishers:&lt;/td&gt;</string>
+  <string name="typesMeta">&lt;tr&gt;&lt;td&gt;Types:&lt;/td&gt;</string>
+  <string name="descriptionsMeta">&lt;tr&gt;&lt;td&gt;Descriptions:&lt;/td&gt;</string>
+  <string name="rightsMeta">&lt;tr&gt;&lt;td&gt;Rights:&lt;/td&gt;</string>
+  <string name="tablebodyhtmlClose">&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+  <string name="tocReference">&lt;tr&gt;&lt;td&gt;Table of Contents:&lt;/td&gt;</string>
+  <string name="change_Font">Change Font</string>
+  <string name="change_Font_Color">Font Color:</string>
+  <string name="changeStyle">Change Style</string>
+  <string name="blue_rgb">#0000ff</string>
+  <string name="red_rgb">#ff0000</string>
+  <string name="green_rgb">#00ff00</string>
+  <string name="black_rgb">#000000</string>
+  <string name="white_rgb">#ffffff</string>
+  <string name="error_CannotChangeStyle">Cannot Change Style!</string>
+  <string name="OK">OK</string>
+  <string name="Cancel">Cancel</string>
+  <string name="SetSizeTitle">Upper Panel Size:</string>
+  <string name="LanguageChooserTitle">Choose two languages:</string>
+  <string name="parallelTextBool">parallelTextBool</string>
 
 </resources>

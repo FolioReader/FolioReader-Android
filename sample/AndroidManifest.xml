@@ -3,6 +3,7 @@
     package="comfolioreader.android.sample" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:hardwareAccelerated="false"
