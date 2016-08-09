@@ -1,5 +1,7 @@
 package com.folioreader.util;
 
+import com.folioreader.R;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -8,8 +10,6 @@ import android.graphics.Rect;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.widget.TextView;
-
-import com.folioreader.R;
 
 /**
  * Created by mobisys on 7/4/2016.
@@ -40,7 +40,7 @@ public class UnderlinedTextView extends TextView {
         density = context.getResources().getDisplayMetrics().density;
 
         TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.UnderlinedTextView, defStyle, 0);
-       // mColor = typedArray.getColor(R.styleable.UnderlinedTextView_underlineColor, 0xFFFF0000);
+        // mColor = typedArray.getColor(R.styleable.UnderlinedTextView_underlineColor, 0xFFFF0000);
         mStrokeWidth = typedArray.getDimension(R.styleable.UnderlinedTextView_underlineWidth, density * 2);
         typedArray.recycle();
 

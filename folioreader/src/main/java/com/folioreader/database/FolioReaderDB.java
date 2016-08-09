@@ -1,15 +1,15 @@
 package com.folioreader.database;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-
 import com.folioreader.model.Highlight;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.sql.SQLException;
 
@@ -33,7 +33,7 @@ public class FolioReaderDB extends OrmLiteSqliteOpenHelper {
     public static FolioReaderDB getInstance(Context context) {
         if (mInstance == null) {
             mInstance = OpenHelperManager.getHelper(context, FolioReaderDB.class);
-          }
+        }
         return mInstance;
     }
 

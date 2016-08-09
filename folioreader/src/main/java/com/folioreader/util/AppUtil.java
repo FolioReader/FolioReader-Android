@@ -6,30 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
-import android.text.Html;
-import android.text.SpannableStringBuilder;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
-
 import com.folioreader.R;
 import com.folioreader.activity.FolioActivity;
-import com.folioreader.view.StyleableTextView;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.codehaus.jackson.type.TypeReference;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,24 +23,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.SpineReference;
 import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.epub.EpubReader;
+
 
 /**
  * Created by mahavir on 5/7/16.
@@ -96,21 +78,22 @@ public class AppUtil {
     public static Map<String, String> stringToJsonMap(String string) {
         ArrayList<HashMap<String, String>> map = new ArrayList<HashMap<String, String>>();
         try {
-            map = jsonMapper.readValue(string, new TypeReference<ArrayList<HashMap<String, String>>>() {});
+            map = jsonMapper.readValue(string, new TypeReference<ArrayList<HashMap<String, String>>>() {
+            });
         } catch (Exception e) {
             map = null;
         }
         return map.get(0);
     }
 
-    public static String formatDate(Date hightlightDate){
-        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("MMM dd, yyyy | HH:mm");
-        String date=simpleDateFormat.format(hightlightDate);
+    public static String formatDate(Date hightlightDate) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy | HH:mm");
+        String date = simpleDateFormat.format(hightlightDate);
         return date;
     }
 
-    public static void setBackColorToTextView(UnderlinedTextView textView,String type){
-        Context context=textView.getContext();
+    public static void setBackColorToTextView(UnderlinedTextView textView, String type) {
+        Context context = textView.getContext();
         if (type.equals("highlight-yellow")) {
             textView.setBackgroundColor(ContextCompat.getColor(context, R.color.yellow));
             textView.setUnderlineWidth(0.0f);
@@ -124,7 +107,7 @@ public class AppUtil {
             textView.setBackgroundColor(ContextCompat.getColor(context, R.color.pink));
             textView.setUnderlineWidth(0.0f);
         } else if (type.equals("highlight-underline")) {
-            textView.setUnderLineColor(ContextCompat.getColor(context,android.R.color.holo_red_dark));
+            textView.setUnderLineColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
             textView.setUnderlineWidth(2.0f);
         }
     }

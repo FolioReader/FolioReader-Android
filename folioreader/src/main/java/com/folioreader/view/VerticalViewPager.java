@@ -495,7 +495,8 @@ public class VerticalViewPager extends ViewGroup {
      * transformations to each page, overriding the default sliding look and feel.
      * <p/>
      * <p><em>Note:</em> Prior to Android 3.0 the property animation APIs did not exist.
-     * As a result, setting a PageTransformer prior to Android 3.0 (API 11) will have no effect.</p>
+     * As a result, setting a PageTransformer prior to Android 3.0 (API 11) will have no
+     * effect.</p>
      *
      * @param reverseDrawingOrder true if the supplied PageTransformer requires page views
      *                            to be drawn from last to first instead of first to last.

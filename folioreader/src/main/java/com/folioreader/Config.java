@@ -75,18 +75,21 @@ public class Config implements Parcelable {
     @Override
     public int hashCode() {
         int result = font;
-        result = 31 * result + fontSize;
-        result = 31 * result + (nightMode ? 1 : 0);
+        result = 31 * result
+                + fontSize;
+        result = 31 * result
+                + (nightMode ? 1 : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "Config{" +
-                "font=" + font +
-                ", fontSize=" + fontSize +
-                ", nightMode=" + nightMode +
-                '}';
+        return "Config{"
+                + "font="
+                + font
+                + ", fontSize=" + fontSize
+                + ", nightMode=" + nightMode
+                + '}';
     }
 
     @Override

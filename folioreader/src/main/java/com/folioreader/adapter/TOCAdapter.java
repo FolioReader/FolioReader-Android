@@ -1,5 +1,7 @@
 package com.folioreader.adapter;
 
+import com.folioreader.R;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
@@ -8,8 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import com.folioreader.R;
 
 import java.util.List;
 
