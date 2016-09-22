@@ -275,12 +275,8 @@ public class AppUtil {
                         if(bookModel!=null){
                             book= bookModel.getBook();
                             sendBookDataToActivity(book,context);
-                           /* ArrayList<TOCReference> tocReferenceArrayList = (ArrayList<TOCReference>) book.getTableOfContents().getTocReferences();
-                            ((FolioActivity) context).configRecyclerViews(tocReferenceArrayList, book, (ArrayList<SpineReference>) book.getSpine().getSpineReferences());*/
                         } else {
-                            saveBookToDb(FILE_NAME,context);
-                            bookModel=BookModelTable.getAllRecords(context);
-                            book = bookModel.getBook();
+                            book =  saveBookToDb(FILE_NAME,context);;
                             sendBookDataToActivity(book,context);
                         }
                     }
