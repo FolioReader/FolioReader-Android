@@ -60,4 +60,6 @@
   <string name="SetSizeTitle">Upper Panel Size:</string>
   <string name="LanguageChooserTitle">Choose two languages:</string>
   <string name="parallelTextBool">parallelTextBool</string>
+  <string name="loading">Loading</string>
+  <string name="please_wait">please wait...</string>
 </resources>

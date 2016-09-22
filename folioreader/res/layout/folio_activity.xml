@@ -39,6 +39,11 @@
                 android:layout_centerInParent="true"
                 android:text="Folio Reader"
                 android:textSize="18sp"
+                android:layout_toRightOf="@+id/btn_drawer"
+                android:layout_toLeftOf="@+id/btn_speaker"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:gravity="center"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
             <ImageView android:id="@+id/btn_speaker"
@@ -87,17 +92,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
 
+            <com.folioreader.view.AudioView
+                android:id="@+id/audio_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom" />
+
             <com.folioreader.view.ConfigView
                 android:id="@+id/config_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom" />
 
-            <com.folioreader.view.AudioView
-                android:id="@+id/audio_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom" />
+
         </FrameLayout>
 
         <RelativeLayout android:id="@+id/drawer_menu"

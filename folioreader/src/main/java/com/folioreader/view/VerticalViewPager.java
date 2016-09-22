@@ -1,5 +1,6 @@
 package com.folioreader.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -42,6 +43,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -218,6 +220,8 @@ public class VerticalViewPager extends ViewGroup {
 
     private int mScrollState = SCROLL_STATE_IDLE;
 
+   // private ScrollerCustomDuration mScrollerCustomDuration = null;
+
     /**
      * Used internally to monitor when adapters are switched.
      */
@@ -235,11 +239,13 @@ public class VerticalViewPager extends ViewGroup {
     public VerticalViewPager(Context context) {
         super(context);
         initViewPager();
+        //postInitViewPager();
     }
 
     public VerticalViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
         initViewPager();
+       // postInitViewPager();
     }
 
     void initViewPager() {
@@ -268,7 +274,27 @@ public class VerticalViewPager extends ViewGroup {
             ViewCompat.setImportantForAccessibility(this,
                     ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
         }
+        //postInitViewPager();
     }
+
+
+   /* private void postInitViewPager() {
+        try {
+            Field scroller = ViewPager.class.getDeclaredField("mScroller");
+            scroller.setAccessible(true);
+            Field interpolator = ViewPager.class.getDeclaredField("sInterpolator");
+            interpolator.setAccessible(true);
+
+            mScrollerCustomDuration = new ScrollerCustomDuration(getContext(),
+                    (Interpolator) interpolator.get(null));
+            scroller.set(this, mScrollerCustomDuration);
+        } catch (Exception e) {
+        }
+    }
+
+    public void setScrollDurationFactor(double scrollFactor) {
+        mScrollerCustomDuration.setScrollDurationFactor(scrollFactor);
+    }*/
 
     @Override
     protected void onDetachedFromWindow() {
@@ -2786,5 +2812,36 @@ public class VerticalViewPager extends ViewGroup {
             }
             return llp.position - rlp.position;
         }
+    }
+
+    public class ScrollerCustomDuration extends Scroller {
+
+        private double mScrollFactor = 1;
+
+        public ScrollerCustomDuration(Context context) {
+            super(context);
+        }
+
+        public ScrollerCustomDuration(Context context, Interpolator interpolator) {
+            super(context, interpolator);
+        }
+
+        @SuppressLint("NewApi")
+        public ScrollerCustomDuration(Context context, Interpolator interpolator, boolean flywheel) {
+            super(context, interpolator, flywheel);
+        }
+
+        /**
+         * Set the factor by which the duration will change
+         */
+        public void setScrollDurationFactor(double scrollFactor) {
+            mScrollFactor = scrollFactor;
+        }
+
+        @Override
+        public void startScroll(int startX, int startY, int dx, int dy, int duration) {
+            super.startScroll(startX, startY, dx, dy, (int) (duration * mScrollFactor));
+        }
+
     }
 }

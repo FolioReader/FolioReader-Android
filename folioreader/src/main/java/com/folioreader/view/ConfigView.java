@@ -416,6 +416,10 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
         setVisibility(GONE);
     }
 
+    public void showView() {
+        setVisibility(GONE);
+    }
+
     public void onViewPositionChanged(float alpha) {
         configViewCallback.onShadowAlpha(alpha);
     }

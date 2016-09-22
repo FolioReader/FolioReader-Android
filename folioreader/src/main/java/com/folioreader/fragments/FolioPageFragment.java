@@ -9,10 +9,12 @@ import com.folioreader.model.Highlight;
 import com.folioreader.quickaction.ActionItem;
 import com.folioreader.quickaction.QuickAction;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.EpubManipulator;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -80,6 +82,7 @@ public class FolioPageFragment extends Fragment {
     private TextView mPagesLeftTextView, mMinutesLeftTextView;
     private FolioPageFragmentCallback mActivityCallback;
 
+
     private int mScrollY;
     private int mTotalMinutes;
     private String mSelectedText;
@@ -107,6 +110,7 @@ public class FolioPageFragment extends Fragment {
         public void hideToolBarIfVisible();
 
         public void invalidateActionMode();
+        public  void setPagerToPosition(String href);
 
     }
 
@@ -248,8 +252,13 @@ public class FolioPageFragment extends Fragment {
                         //onHighlight(view);
                     } else {
                         // Otherwise, give the default behavior (open in browser)
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        startActivity(intent);
+                        if(url.contains("storage")){
+                            mActivityCallback.setPagerToPosition(url);
+                           // mWebview.loadUrl(url);
+                        } else {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            startActivity(intent);
+                        }
                     }
                 }
                 return true;
@@ -320,6 +329,8 @@ public class FolioPageFragment extends Fragment {
         String baseUrl= "file://"+Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS//";
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
         //mWebview.loadUrl(htmlContent);
+
+
     }
 
 
@@ -441,14 +452,23 @@ public class FolioPageFragment extends Fragment {
 
     public void highLightString(String id,String style) {
         style="epub-media-overlay-playing";
+        //String url1="javascript:alert(setMediaOverlayStyle('"+Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline)+"'))";
 
-        String url="javascript:alert(audioMarkID('"+ Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Green)+"','"+id+"'))";
+
+       // mWebview.loadUrl(url1);
+
+        String url="javascript:alert(audioMarkID('"+ Highlight.MEDIA_OVERLAY_STYLE+"','"+id+"'))";
         mWebview.loadUrl(url);
 
-        String url1="javascript:alert(setMediaOverlayStyle('"+Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline)+"'))";
-        mWebview.loadUrl(url1);
+
+
+
 
         /*mWebview.loadUrl("javascript:alert(setHighlightStyle('" + Highlight.HighlightStyle.classForStyle(style) + "'))");*/
+    }
+
+    public void setStyle(String style){
+        mWebview.loadUrl("javascript:alert(setMediaOverlayStyle('" + style+ "'))");
     }
 
     private String getHtmlContent(String htmlContent) {
@@ -464,6 +484,7 @@ public class FolioPageFragment extends Fragment {
         jsPath = jsPath + String.format("<script type=\"text/javascript\" src=\"%s\"></script>", "file:///android_asset/rangy-core.js");
         jsPath = jsPath + String.format("<script type=\"text/javascript\" src=\"%s\"></script>", "file:///android_asset/rangy-serializer.js");
         jsPath = jsPath + String.format("<script type=\"text/javascript\" src=\"%s\"></script>", "file:///android_asset/android.selection.js");
+        jsPath = jsPath + String.format("<script type=\"text/javascript\">%s</script>", "setMediaOverlayStyleColors('#C0ED72','#C0ED72')");
         String toInject = "\n" + cssPath + "\n" + jsPath + "\n</head>";
         htmlContent = htmlContent.replace("</head>", toInject);
 

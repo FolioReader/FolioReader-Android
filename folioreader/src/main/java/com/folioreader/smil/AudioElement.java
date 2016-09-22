@@ -1,15 +1,20 @@
 package com.folioreader.smil;
 
+import java.io.Serializable;
+
 /**
  * Encapsulates the <audio> tag.
  */
-public class AudioElement implements MediaElement {
+public class AudioElement implements Serializable,MediaElement {
     
     private String src;
     private int clipBegin;
     private int clipEnd;
     private String id;
     private SmilElement parent;
+
+
+    public  AudioElement(){}
 
     public AudioElement(SmilElement parent, String src, int clipBegin, int clipEnd, String id) {
         super();

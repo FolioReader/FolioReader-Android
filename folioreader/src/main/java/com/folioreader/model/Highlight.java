@@ -21,6 +21,7 @@ public class Highlight implements Parcelable {
     public static final String LOCAL_DB_HIGHLIGHT_PAGE = "page";
     public static final String LOCAL_DB_HIGHLIGHT_ID = "highlightId";
     public static final String LOCAL_DB_HIGHLIGHT_TYPE = "type";
+    public static final String MEDIA_OVERLAY_STYLE = "epub-media-overlay-playing";
 
     public static enum HighlightStyle {
         Yellow,
@@ -29,7 +30,8 @@ public class Highlight implements Parcelable {
         Pink,
         Underline,
         TextColor,
-        DottetUnderline;
+        DottetUnderline,
+        Normal;
 
 
         /**
@@ -70,9 +72,9 @@ public class Highlight implements Parcelable {
                 case DottetUnderline:
                     return "mediaOverlayStyle1";
                 case TextColor:
-                    return "mediaOverlayStyle0";
+                    return "mediaOverlayStyle2";
                 default:
-                    return "highlight-yellow";
+                    return "mediaOverlayStyle0";
 
             }
         }

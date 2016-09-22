@@ -5,7 +5,7 @@ android {
 
 
   dexOptions {
-    javaMaxHeapSize "2000m"
+    javaMaxHeapSize "4G"
   }
 
   compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)

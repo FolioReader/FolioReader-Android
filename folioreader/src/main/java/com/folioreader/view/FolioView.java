@@ -83,4 +83,8 @@ public class FolioView extends FrameLayout implements View.OnClickListener {
         shadowView.setVisibility(VISIBLE);
     }
 
+    public void hideShadow() {
+        shadowView.setVisibility(GONE);
+    }
+
 }

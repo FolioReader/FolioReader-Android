@@ -1,12 +1,5 @@
 package com.folioreader.activity;
 
-import android.app.Instrumentation;
-import com.folioreader.Config;
-import com.folioreader.R;
-import com.folioreader.database.HighlightTable;
-import com.folioreader.model.Highlight;
-import com.folioreader.util.AppUtil;
-import com.folioreader.util.UnderlinedTextView;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -14,7 +7,6 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +15,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.folioreader.Config;
+import com.folioreader.R;
+import com.folioreader.database.HighlightTable;
+import com.folioreader.model.Highlight;
+import com.folioreader.util.AppUtil;
+import com.folioreader.util.UnderlinedTextView;
 
 import java.util.ArrayList;
 
@@ -45,10 +44,10 @@ public class HighlightListActivity extends AppCompatActivity {
         findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isItemDeleted) {
+                if (isItemDeleted) {
                     Intent intent = new Intent();
                     intent.putExtra(ITEM_DELETED, true);
-                    setResult(RESULT_OK,intent);
+                    setResult(RESULT_OK, intent);
                 }
                 finish();
             }
@@ -65,8 +64,8 @@ public class HighlightListActivity extends AppCompatActivity {
             ((ListView) findViewById(R.id.list_highligts)).setDivider(new ColorDrawable(ContextCompat.getColor(HighlightListActivity.this, R.color.white)));
             ((ListView) findViewById(R.id.list_highligts)).setDividerHeight(1);
         }
-        ArrayList<Highlight> highlightArrayList = (ArrayList<Highlight>) HighlightTable.getAllRecords(HighlightListActivity.this);
-        HightlightAdpater hightlightAdpater = new HightlightAdpater(HighlightListActivity.this, 0, highlightArrayList);
+
+        HightlightAdpater hightlightAdpater = new HightlightAdpater(HighlightListActivity.this, 0, (ArrayList<Highlight>) HighlightTable.getAllRecords(HighlightListActivity.this));
         ListView highlightListview = (ListView) findViewById(R.id.list_highligts);
         highlightListview.setAdapter(hightlightAdpater);
     }
@@ -79,13 +78,7 @@ public class HighlightListActivity extends AppCompatActivity {
             public UnderlinedTextView txtHightlightText;
             public TextView txtHightLightTime;
             public ImageView delete;
-
-/*<<<<<<< HEAD
-
-            public ViewHolder(View row){
-=======*/
             public ViewHolder(View row) {
-//>>>>>>> 1478cdaff0cb94b1e4415ed3755295cb84202072
                 txtHightlightText = (UnderlinedTextView) row.findViewById(R.id.txt_hightlight_text);
                 txtHightLightTime = (TextView) row.findViewById(R.id.txt_hightlight_time);
                 delete = (ImageView) row.findViewById(R.id.delete);
@@ -115,17 +108,9 @@ public class HighlightListActivity extends AppCompatActivity {
             row.findViewById(R.id.main_data).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-/*<<<<<<< HEAD
-                    Log.d("*****","crash");
-                    //Intent intent=new Intent();
-                   *//* Log.d("rowitem size",instrumentation.getObjectSize(rowItem));*//*
-                    *//*intent.putExtra(HIGHLIGHT_ITEM,rowItem);
-                    setResult(RESULT_OK,intent);*//*
-=======*/
                     Intent intent = new Intent();
                     intent.putExtra(HIGHLIGHT_ITEM, rowItem);
                     setResult(RESULT_OK, intent);
-//>>>>>>> 1478cdaff0cb94b1e4415ed3755295cb84202072
                     finish();
                 }
             });
@@ -138,20 +123,11 @@ public class HighlightListActivity extends AppCompatActivity {
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-/*<<<<<<< HEAD
-                    HighlightTable.remove(rowItem.getHighlightId(),HighlightListActivity.this);
-                    *//*Intent intent=new Intent();
-                    intent.putExtra(ITEM_DELETED,true);
-                    setResult(RESULT_OK,intent);*//*
-                    remove(rowItem);
-                    isItemDeleted=true;
-=======*/
                     HighlightTable.remove(rowItem.getHighlightId(), HighlightListActivity.this);
                     Intent intent = new Intent();
                     intent.putExtra(ITEM_DELETED, true);
                     setResult(RESULT_OK, intent);
                     finish();
-//>>>>>>> 1478cdaff0cb94b1e4415ed3755295cb84202072
                 }
             });
             return row;

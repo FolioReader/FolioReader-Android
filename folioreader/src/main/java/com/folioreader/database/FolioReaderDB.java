@@ -1,6 +1,8 @@
 package com.folioreader.database;
 
+import com.folioreader.model.BookModel;
 import com.folioreader.model.Highlight;
+import com.folioreader.model.SmilElements;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
@@ -12,6 +14,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import java.sql.SQLException;
+
+
 
 /**
  * Created by mobisys2 on 5/21/2016.
@@ -25,6 +29,7 @@ public class FolioReaderDB extends OrmLiteSqliteOpenHelper {
     private static FolioReaderDB mInstance = null;
 
     private Dao<Highlight, Integer> mHighlightTableDao;
+    private Dao<BookModel, Integer> mBookModelTableDao;
 
     public FolioReaderDB(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -35,6 +40,13 @@ public class FolioReaderDB extends OrmLiteSqliteOpenHelper {
             mInstance = OpenHelperManager.getHelper(context, FolioReaderDB.class);
         }
         return mInstance;
+    }
+
+    public Dao<BookModel, Integer> getBookModelDao() throws SQLException {
+        if (mBookModelTableDao == null) {
+            mBookModelTableDao = getDao(BookModel.class);
+        }
+        return mBookModelTableDao;
     }
 
     public Dao<Highlight, Integer> getHighlightDao() throws SQLException {
@@ -48,6 +60,7 @@ public class FolioReaderDB extends OrmLiteSqliteOpenHelper {
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try {
             TableUtils.createTableIfNotExists(connectionSource, Highlight.class);
+            TableUtils.createTableIfNotExists(connectionSource, BookModel.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }

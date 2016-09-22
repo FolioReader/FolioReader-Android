@@ -1,11 +1,15 @@
 package com.folioreader.smil;
 
+import java.io.Serializable;
+
 /**
  * Encapsulates the <text> tag.
  */
-public class TextElement implements MediaElement {
+public class TextElement implements Serializable,MediaElement {
     private String src;
     private String id;
+
+    public  TextElement(){}
     
     public TextElement(SmilElement parent, String src, String id) {
         this.src = src;

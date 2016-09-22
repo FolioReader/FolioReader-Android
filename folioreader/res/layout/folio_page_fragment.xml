@@ -7,7 +7,7 @@
 
     <com.folioreader.view.ObservableWebView android:id="@+id/contentWebView"
                                             android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
+                                            android:layout_height="match_parent"
                                             android:paddingBottom="2dp"
                                             android:layout_above="@+id/indicatorLayout"/>
 
