@@ -51,6 +51,7 @@ import nl.siegmann.epublib.epub.EpubReader;
 public class AppUtil {
 
     private static final ObjectMapper jsonMapper;
+    private static final String FILE_NAME = Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/epubfile" + ".epub";
 
     static {
         jsonMapper = new ObjectMapper();
@@ -212,8 +213,8 @@ public class AppUtil {
     }
 
     public static void saveEpubFile(InputStream inputStream, final Context context) {
-            String fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/epubfile" + ".epub";
-            File file = new File(fileName);
+            //String fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/epubfile" + ".epub";
+            File file = new File(FILE_NAME);
             if (!file.exists()) {
                 file = null;
                 File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader");
@@ -223,7 +224,7 @@ public class AppUtil {
                 Log.d("not exixts", "mp3 file not avalable");
 
                 try {
-                    outputStream = new FileOutputStream(new File(fileName));
+                    outputStream = new FileOutputStream(new File(FILE_NAME));
                     int read = 0;
                     byte[] bytes = new byte[inputStream.available()];
 
@@ -232,7 +233,7 @@ public class AppUtil {
                     }
 
                     System.out.println("Done!");
-                    new EpubManipulator(fileName, "temp", context);
+                    new EpubManipulator(FILE_NAME, "temp", context);
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -254,25 +255,7 @@ public class AppUtil {
                         }
                     }
 
-                    FileInputStream fs = null;
-                    Book book = null;
-                    try {
-                        fs = new FileInputStream(fileName);
-                        book = (new EpubReader()).readEpub(fs);
-                        fs = null;
-
-                        BookModel bookModel = new BookModel();
-                        book.setCoverImage(null);
-                        book.setResources(null);
-                        bookModel.setBook(book);
-                        BookModelTable.createEntryInTableIfNotExist(context, bookModel);
-
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    final Book book1 = book;
+                    final Book book1 = saveBookToDb(FILE_NAME,context);
                     ((FolioActivity) context).runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -287,10 +270,18 @@ public class AppUtil {
                 ((FolioActivity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Book book = BookModelTable.getAllRecords(context).getBook();
-                        if (book != null) {
-                            ArrayList<TOCReference> tocReferenceArrayList = (ArrayList<TOCReference>) book.getTableOfContents().getTocReferences();
-                            ((FolioActivity) context).configRecyclerViews(tocReferenceArrayList, book, (ArrayList<SpineReference>) book.getSpine().getSpineReferences());
+                        BookModel bookModel=BookModelTable.getAllRecords(context);
+                        Book book=null;
+                        if(bookModel!=null){
+                            book= bookModel.getBook();
+                            sendBookDataToActivity(book,context);
+                           /* ArrayList<TOCReference> tocReferenceArrayList = (ArrayList<TOCReference>) book.getTableOfContents().getTocReferences();
+                            ((FolioActivity) context).configRecyclerViews(tocReferenceArrayList, book, (ArrayList<SpineReference>) book.getSpine().getSpineReferences());*/
+                        } else {
+                            saveBookToDb(FILE_NAME,context);
+                            bookModel=BookModelTable.getAllRecords(context);
+                            book = bookModel.getBook();
+                            sendBookDataToActivity(book,context);
                         }
                     }
                 });
@@ -368,6 +359,33 @@ public class AppUtil {
         ur1 = s[s.length - 1];
         ur2 = s1[s1.length - 1];
         return ur1.equalsIgnoreCase(ur2);
+    }
+
+    public static Book saveBookToDb(String fileName,Context context){
+        FileInputStream fs = null;
+        Book book = null;
+        try {
+            fs = new FileInputStream(fileName);
+            book = (new EpubReader()).readEpub(fs);
+            fs = null;
+
+            BookModel bookModel = new BookModel();
+            book.setCoverImage(null);
+            book.setResources(null);
+            bookModel.setBook(book);
+            BookModelTable.createEntryInTableIfNotExist(context, bookModel);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return  book;
+    }
+
+    private static void sendBookDataToActivity(Book book,Context context){
+        ArrayList<TOCReference> tocReferenceArrayList = (ArrayList<TOCReference>) book.getTableOfContents().getTocReferences();
+        ((FolioActivity) context).configRecyclerViews(tocReferenceArrayList, book, (ArrayList<SpineReference>) book.getSpine().getSpineReferences());
     }
 }
 

@@ -33,7 +33,7 @@ public class BookModelTable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        if (BookModels != null) {
+        if (BookModels != null && BookModels.size()>0) {
             return BookModels.get(0);
         } else return null;
     }
