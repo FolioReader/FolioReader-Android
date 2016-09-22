@@ -62,4 +62,6 @@
   <string name="parallelTextBool">parallelTextBool</string>
   <string name="loading">Loading</string>
   <string name="please_wait">please wait...</string>
+  <string name="one_and_half_speed"><![CDATA[1<sup>1</sup>/<sub>2</sub>x]]></string>
+  <string name="half_speed_text"><![CDATA[<sup>1</sup>/<sub>2</sub>x]]></string>
 </resources>

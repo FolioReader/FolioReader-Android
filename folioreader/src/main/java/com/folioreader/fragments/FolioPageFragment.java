@@ -82,14 +82,10 @@ public class FolioPageFragment extends Fragment {
     private TextView mPagesLeftTextView, mMinutesLeftTextView;
     private FolioPageFragmentCallback mActivityCallback;
 
-
     private int mScrollY;
     private int mTotalMinutes;
     private String mSelectedText;
-    int startFrom,endAt;
-    //private Rect mSelectedRect;
     private Map<String, String> mHighlightMap;
-
     private Handler mHandler = new Handler();
     private Animation mFadeInAnimation, mFadeOutAnimation;
 
@@ -104,14 +100,10 @@ public class FolioPageFragment extends Fragment {
 
     public static interface FolioPageFragmentCallback {
         public String getChapterHtmlContent(int position);
-
         public void hideOrshowToolBar();
-
         public void hideToolBarIfVisible();
-
         public void invalidateActionMode();
         public  void setPagerToPosition(String href);
-
     }
 
     private int mPosition = -1;
@@ -131,9 +123,7 @@ public class FolioPageFragment extends Fragment {
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
-        if (getActivity() instanceof FolioPageFragmentCallback)
-            mActivityCallback = (FolioPageFragmentCallback) getActivity();
-
+        if (getActivity() instanceof FolioPageFragmentCallback) mActivityCallback = (FolioPageFragmentCallback) getActivity();
         initSeekbar();
         initAnimations();
         initWebView();
@@ -156,49 +146,13 @@ public class FolioPageFragment extends Fragment {
 
     private void initWebView() {
         String htmlContent=null;
-        //String htmlContent="<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:epub=\"http://www.idpf.org/2007/ops\" lang=\"en\" xml:lang=\"en\"><head></head><body><section epub:type=\"cover\"><img src=\""+ "../Images/cover.png" + "\"></section></body></html>";
         htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
-
 
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
         mWebview.setFragment(FolioPageFragment.this);
         final Boolean[] mMoveOccured = new Boolean[1];
         final float[] mDownPosX = new float[1];
         final float[] mDownPosY = new float[1];
-       /* mWebview.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Log.d("in OnTouchListener","fragment");
-                final float MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
-
-                final int action = event.getAction();
-                switch (action) {
-                    case MotionEvent.ACTION_DOWN:
-                        mMoveOccured[0] = false;
-                        mDownPosX[0] = event.getX();
-                        mDownPosY[0] = event.getY();
-                        mHandler.removeCallbacks(mHideSeekbarRunnable);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        if (!mMoveOccured[0]) {
-                            mActivityCallback.hideOrshowToolBar();
-                        }
-
-                        mHandler.postDelayed(mHideSeekbarRunnable, 3000);
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        if (Math.abs(event.getX() - mDownPosX[0]) > MOVE_THRESHOLD_DP || Math.abs(event.getY() - mDownPosY[0]) > MOVE_THRESHOLD_DP) {
-                            mScrollY = mWebview.getScrollY();
-                            mActivityCallback.hideToolBarIfVisible();
-                            mMoveOccured[0] = true;
-                            fadeInSeekbarIfInvisible();
-                        }
-                        break;
-                }
-                return false;
-            }
-        });*/
-
 
         mWebview.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -206,9 +160,9 @@ public class FolioPageFragment extends Fragment {
                 int height = (int) Math.floor(mWebview.getContentHeight() * mWebview.getScale());
                 int webViewHeight = mWebview.getMeasuredHeight();
                 mScrollSeekbar.setMaximum(height - webViewHeight);
-                //updatePagesLeftText(0);
             }
         });
+
         mWebview.getSettings().setJavaScriptEnabled(true);
         mWebview.setVerticalScrollBarEnabled(false);
         mWebview.getSettings().setAllowFileAccess(true);
@@ -224,6 +178,7 @@ public class FolioPageFragment extends Fragment {
 
             }
         });
+
         mWebview.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -249,12 +204,10 @@ public class FolioPageFragment extends Fragment {
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
-                        //onHighlight(view);
                     } else {
                         // Otherwise, give the default behavior (open in browser)
                         if(url.contains("storage")){
                             mActivityCallback.setPagerToPosition(url);
-                           // mWebview.loadUrl(url);
                         } else {
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                             startActivity(intent);
@@ -264,6 +217,7 @@ public class FolioPageFragment extends Fragment {
                 return true;
             }
         });
+
         mWebview.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int progress) {
@@ -272,7 +226,6 @@ public class FolioPageFragment extends Fragment {
                     mWebview.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            //mScrollY=SharedPreferenceUtil.getSharedPreferencesInt(mContext,SCROLL_Y,0);
                             Log.d("scroll y", "Scrolly" + mScrollY);
                             mWebview.scrollTo(0, mScrollY);
                         }
@@ -324,13 +277,9 @@ public class FolioPageFragment extends Fragment {
             }
         });
 
-        //mWebview.loadDataWithBaseURL(null, htmlContent, "text/html; charset=UTF-8", "UTF-8", null);
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
         String baseUrl= "file://"+Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS//";
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
-        //mWebview.loadUrl(htmlContent);
-
-
     }
 
 
@@ -451,20 +400,8 @@ public class FolioPageFragment extends Fragment {
 
 
     public void highLightString(String id,String style) {
-        style="epub-media-overlay-playing";
-        //String url1="javascript:alert(setMediaOverlayStyle('"+Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline)+"'))";
-
-
-       // mWebview.loadUrl(url1);
-
         String url="javascript:alert(audioMarkID('"+ Highlight.MEDIA_OVERLAY_STYLE+"','"+id+"'))";
         mWebview.loadUrl(url);
-
-
-
-
-
-        /*mWebview.loadUrl("javascript:alert(setHighlightStyle('" + Highlight.HighlightStyle.classForStyle(style) + "'))");*/
     }
 
     public void setStyle(String style){
@@ -472,11 +409,6 @@ public class FolioPageFragment extends Fragment {
     }
 
     private String getHtmlContent(String htmlContent) {
-        /*String htmlContent = "???";
-        if (mPosition != -1) {
-            htmlContent = mActivityCallback.getChapterHtmlContent(mPosition);
-        }*/
-
         String cssPath = String.format("<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">", "file:///android_asset/Style.css");
         String jsPath = String.format("<script type=\"text/javascript\" src=\"%s\"></script>", "file:///android_asset/Bridge.js");
         jsPath = jsPath + String.format("<script type=\"text/javascript\" src=\"%s\"></script>", "file:///android_asset/jquery-1.8.3.js");
@@ -554,10 +486,8 @@ public class FolioPageFragment extends Fragment {
     }
 
     public void highlightRemove() {
-
         mWebview.loadUrl("javascript:alert(removeThisHighlight())");
     }
-
 
     public void showTextSelectionMenu(int x, int y, final int width, final int height) {
         final ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
@@ -599,13 +529,9 @@ public class FolioPageFragment extends Fragment {
     }
 
     private void onHighlight(int x, int y, int width, int height) {
-        //final ViewGroup root = (ViewGroup) getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
         final View view = new View(getActivity());
         view.setLayoutParams(new ViewGroup.LayoutParams(width, height));
         view.setBackgroundColor(Color.TRANSPARENT);
-
-        //root.addView(view);
-
         view.setX(x);
         view.setY(y);
         onHighlight(view, width, height, false);
@@ -711,7 +637,6 @@ public class FolioPageFragment extends Fragment {
             highlight.setCurrentWebviewScrollPos(mWebview.getScrollY());
             highlight = ((FolioActivity) getActivity()).setCurrentPagerPostion(highlight);
             HighlightTable.save(getActivity(), highlight);
-            //Log.d("Highlight from db ==>", getAllRecords(getActivity().getApplication()).toString());
         }
     }
 

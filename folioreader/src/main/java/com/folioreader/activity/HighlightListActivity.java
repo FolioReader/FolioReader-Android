@@ -28,7 +28,6 @@ import java.util.ArrayList;
 public class HighlightListActivity extends AppCompatActivity {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private static final String ITEM_DELETED = "item_deleted";
-    private boolean isItemDeleted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,12 +43,10 @@ public class HighlightListActivity extends AppCompatActivity {
         findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isItemDeleted) {
                     Intent intent = new Intent();
                     intent.putExtra(ITEM_DELETED, true);
                     setResult(RESULT_OK, intent);
-                }
-                finish();
+                    finish();
             }
         });
         initList();

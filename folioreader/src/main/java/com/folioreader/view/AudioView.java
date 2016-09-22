@@ -16,9 +16,6 @@
 package com.folioreader.view;
 
 import android.content.Context;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.os.Environment;
 import android.os.Handler;
@@ -40,9 +37,6 @@ import com.folioreader.model.Highlight;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.util.ViewHelper;
 
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class AudioView extends FrameLayout implements View.OnClickListener {
@@ -53,13 +47,11 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
     private MediaPlayer player;
     private ImageButton playpause;
     private AudioElement mAudioElement;
-    private int mStart, mEnd;
+    private int mStart, mEnd,mSeek;
     private  int mPosition=0;
     private FolioActivity mFolioActivity;
     private Runnable mEndTask;
     private String mHighlightStyle;
-    private long beforeSeekstart,afterSeek;
-    private int mSeek;
 
     private int activePointerId = INVALID_POINTER;
 
@@ -73,6 +65,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
     private ViewDragHelper viewDragHelper;
     private ConfigViewCallback configViewCallback;
     private Handler mHandler;
+    private  Context mContext;
 
     public AudioView(Context context) {
         this(context, null);
@@ -103,9 +96,10 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         mBackgroundColorStyle.setSelected(true);
         mUnderlineStyle = (StyleableTextView) findViewById(R.id.btn_text_undeline_style);
         mTextColorStyle = (StyleableTextView) findViewById(R.id.btn_text_color_style);
+        mContext=mHalfSpeed.getContext();
 
-        mOneAndHalfSpeed.setText(Html.fromHtml("1<sup>1</sup>/<sub>2</sub>x"));
-        mHalfSpeed.setText(Html.fromHtml("<sup>1</sup>/<sub>2</sub>x"));
+        mOneAndHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.one_and_half_speed)));
+        mHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.half_speed_text)));
         mFolioActivity = (FolioActivity) mHalfSpeed.getContext();
 
         Context context=mHalfSpeed.getContext();
@@ -147,7 +141,6 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
                     mEnd = (int) mAudioElement.getClipEnd();
                     mHighlightStyle= Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
                     mFolioActivity.setHighLightStyle(mHighlightStyle);
-                    //configViewCallback.onAudioPlayed();
                 }
 
                 if (player.isPlaying()) {
@@ -161,17 +154,9 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
                         mHandler = new Handler();
                     }
                     if(mPosition>0) {
-                      /*  player.seekTo(mSeek);
-                        player.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
-                            @Override
-                            public void onSeekComplete(MediaPlayer mp) {*/
-                                //mHandler=new Handler();
                                 player.start();
-                                //mFolioActivity.setHighLight(mPosition, mHighlightStyle);
                                 mHandler.postDelayed(mEndTask, 10);
                                 playpause.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
-                         /*   }
-                        });*/
                     } else {
                         player.start();
                         mFolioActivity.setPagerToPosition(mAudioElement.getSrc());
@@ -180,7 +165,6 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
                         playpause.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
                     }
                 }
-               // playMp3();
             }
         });
 
@@ -275,7 +259,6 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         }
     }
 
-
     private void setUpPlayer() {
         player = new MediaPlayer();
         try {
@@ -299,18 +282,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         super.onFinishInflate();
         if (!isInEditMode()) {
             inflateView();
-      /*configFonts();
-      configSeekbar();*/
             configDragViewHelper();
-     /* selectFont(Config.getConfig().getFont());
-      isNightMode = Config.getConfig().isNightMode();
-      if (isNightMode){
-        dayButton.setSelected(false);
-        nightButton.setSelected(true);
-      } else {
-        dayButton.setSelected(true);
-        nightButton.setSelected(false);
-      }*/
         }
     }
 
@@ -402,32 +374,6 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-   /* switch (((Integer) v.getTag())) {
-      case Tags.DAY_BUTTON:
-        if (isNightMode) {
-          isNightMode = true;
-          toggleBlackTheme();
-          dayButton.setSelected(true);
-          nightButton.setSelected(false);
-          ((Activity)getContext()).findViewById(R.id.toolbar).setBackgroundColor(getContext().getResources().getColor(R.color.white));
-          ((TextView)((Activity)getContext()).findViewById(R.id.lbl_center)).setTextColor(getResources().getColor(R.color.black));
-          configViewCallback.changeMenuTextColor();
-        }
-        break;
-      case Tags.NIGHT_BUTTON:
-        if (!isNightMode) {
-          isNightMode = false;
-          toggleBlackTheme();
-          dayButton.setSelected(false);
-          nightButton.setSelected(true);
-          ((Activity)getContext()).findViewById(R.id.toolbar).setBackgroundColor(getContext().getResources().getColor(R.color.black));
-          ((TextView)((Activity)getContext()).findViewById(R.id.lbl_center)).setTextColor(getResources().getColor(R.color.white));
-          configViewCallback.changeMenuTextColor();
-        }
-        break;
-      default:
-        break;
-    }*/
     }
 
     /**
@@ -504,58 +450,6 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
 
     public void onViewPositionChanged(float alpha) {
         configViewCallback.onShadowAlpha(alpha);
-    }
-
-
-   /* private void adjustAudioLinks() {
-        for (int i = 0; i < audio.length; i++)
-            for (int j = 0; j < audio[i].length; j++) {
-                if (audio[i][j].startsWith("./"))
-                    audio[i][j] = currentPage.substring(0,
-                            currentPage.lastIndexOf("/"))
-                            + audio[i][j].substring(1);
-
-                if (audio[i][j].startsWith("../")) {
-                    String temp = currentPage.substring(0,
-                            currentPage.lastIndexOf("/"));
-                    audio[i][j] = temp.substring(0, temp.lastIndexOf("/"))
-                            + audio[i][j].substring(2);
-                }
-            }
-    }*/
-
-
-    public void playMp3(){
-        int minBufferSize = AudioTrack.getMinBufferSize(8000, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        int bufferSize = 512;
-        AudioTrack at = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
-                AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,
-                minBufferSize, AudioTrack.MODE_STREAM);
-        String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/audio" + ".mp3";
-
-        int i = 0;
-        byte[] s = new byte[bufferSize];
-        try {
-            FileInputStream fin = new FileInputStream(filepath);
-            DataInputStream dis = new DataInputStream(fin);
-
-            at.play();
-            while((i = dis.read(s, 0, bufferSize)) > -1){
-                at.write(s, 0, i);
-
-            }
-            at.stop();
-            at.release();
-            dis.close();
-            fin.close();
-
-        } catch (FileNotFoundException e) {
-            // TODO
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO
-            e.printStackTrace();
-        }
     }
 
 }

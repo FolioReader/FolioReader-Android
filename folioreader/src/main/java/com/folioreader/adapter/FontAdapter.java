@@ -59,5 +59,4 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ViewHolder> {
             name = (TextView) v.findViewById(R.id.name);
         }
     }
-
 }
