@@ -4,7 +4,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
@@ -12,36 +11,41 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.folioreader.R;
-import com.folioreader.activity.FolioActivity;
 import com.folioreader.database.BookModelTable;
 import com.folioreader.model.BookModel;
+import com.folioreader.model.SmilElements;
+import com.folioreader.smil.AudioElement;
+import com.folioreader.smil.SmilFile;
+import com.folioreader.smil.TextElement;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.codehaus.jackson.type.TypeReference;
+import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.SpineReference;
-import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.epub.EpubReader;
 
 
@@ -52,6 +56,7 @@ public class AppUtil {
 
     private static final ObjectMapper jsonMapper;
     private static final String FILE_NAME = Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/epubfile" + ".epub";
+    private static final String SMIL_ELEMENTS = "smil_elements";
 
     static {
         jsonMapper = new ObjectMapper();
@@ -117,23 +122,6 @@ public class AppUtil {
         }
     }
 
-
-    public static String readerSmil(Reader reader) {
-        try {
-            StringBuilder builder = new StringBuilder();
-            int numChars;
-            char[] cbuf = new char[2048];
-            while ((numChars = reader.read(cbuf)) >= 0) {
-                builder.append(cbuf, 0, numChars);
-            }
-            String content = builder.toString();
-            return content;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
     public static int parseTimeToLong(String time) {
         double temp = 0.0;
         Log.d("time", "time to parse" + time);
@@ -164,7 +152,6 @@ public class AppUtil {
                     simpleDateFormat = new SimpleDateFormat("HH");
                     double HH = Double.valueOf(simpleDateFormat.format(date));
                     temp = (sec * 1000) + ((mm * 60) * 1000) + ((HH * 60 * 60) * 1000);
-                    Log.d("time as outpu", "time as output" + temp);
                     return (int) temp;
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -174,179 +161,45 @@ public class AppUtil {
         return (int) temp;
     }
 
-    public static void saveFile(InputStream inputStream) {
-        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/audio" + ".mp3");
-        if (!file.canRead()) {
+
+    public static Book saveEpubFile(InputStream inputStream, final Context context) {
+        File file = new File(FILE_NAME);
+        Book book = null;
+        if (!file.exists()) {
             File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader");
             folder.mkdirs();
             OutputStream outputStream = null;
-            Log.d("not exixts", "mp3 file not avalable");
-
             try {
-                outputStream = new FileOutputStream(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/audio" + ".mp3"));
-
+                outputStream = new FileOutputStream(new File(FILE_NAME));
                 int read = 0;
                 byte[] bytes = new byte[inputStream.available()];
 
                 while ((read = inputStream.read(bytes)) != -1) {
                     outputStream.write(bytes, 0, read);
                 }
+
+                new EpubManipulator(FILE_NAME, "temp", context);
+                if (inputStream != null) inputStream.close();
+                if (outputStream != null) outputStream.close();
+
+                book = saveBookToDb(FILE_NAME, context);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                if (inputStream != null) {
-                    try {
-                        inputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (outputStream != null) {
-                    try {
-                        outputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }
-    }
-
-    public static void saveEpubFile(InputStream inputStream, final Context context) {
-            //String fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/epubfile" + ".epub";
-            File file = new File(FILE_NAME);
-            if (!file.exists()) {
-                file = null;
-                File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader");
-                folder.mkdirs();
-                folder = null;
-                OutputStream outputStream = null;
-                Log.d("not exixts", "mp3 file not avalable");
-
-                try {
-                    outputStream = new FileOutputStream(new File(FILE_NAME));
-                    int read = 0;
-                    byte[] bytes = new byte[inputStream.available()];
-
-                    while ((read = inputStream.read(bytes)) != -1) {
-                        outputStream.write(bytes, 0, read);
-                    }
-
-                    System.out.println("Done!");
-                    new EpubManipulator(FILE_NAME, "temp", context);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if (inputStream != null) {
-                        try {
-                            inputStream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    if (outputStream != null) {
-                        try {
-                            outputStream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    final Book book1 = saveBookToDb(FILE_NAME,context);
-                    ((FolioActivity) context).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (book1 != null) {
-                                ArrayList<TOCReference> tocReferenceArrayList = (ArrayList<TOCReference>) book1.getTableOfContents().getTocReferences();
-                                ((FolioActivity) context).configRecyclerViews(tocReferenceArrayList, book1, (ArrayList<SpineReference>) book1.getSpine().getSpineReferences());
-                            }
-                        }
-                    });
-                }
+        } else {
+            BookModel bookModel = BookModelTable.getAllRecords(context);
+            if (bookModel != null) {
+                book = bookModel.getBook();
             } else {
-                ((FolioActivity) context).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        BookModel bookModel=BookModelTable.getAllRecords(context);
-                        Book book=null;
-                        if(bookModel!=null){
-                            book= bookModel.getBook();
-                            sendBookDataToActivity(book,context);
-                        } else {
-                            book =  saveBookToDb(FILE_NAME,context);;
-                            sendBookDataToActivity(book,context);
-                        }
-                    }
-                });
+                book = saveBookToDb(FILE_NAME, context);
             }
         }
-
-    public static void copyAssets(Context context) {
-        AssetManager assetManager = context.getAssets();
-        String[] files = null;
-        String[] fontFile = null;
-        try {
-            files = assetManager.list("");
-            fontFile = assetManager.list(files[6]);
-        } catch (IOException e) {
-            Log.e("tag", "Failed to get asset file list.", e);
-        }
-        if (files != null) for (String filename : files) {
-            InputStream in = null;
-            OutputStream out = null;
-            File folder;
-            try {
-                in = assetManager.open(filename);
-                //File outFile = new File(context.getExternalFilesDir(null), filename);
-                File outFile = null;
-                if (filename.contains(".js")) {
-                    folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/javascript");
-                    folder.mkdir();
-                    outFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/javascript", filename);
-                    // outFile.mkdir();
-                } else if (filename.contains(".css")) {
-                    folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/CSS");
-                    folder.mkdir();
-                    outFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/CSS", filename);
-                } else if (filename.contains(".ttf") || filename.contains(".otf")) {
-                    folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/FONTS");
-                    folder.mkdir();
-                    outFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/FONTS", filename);
-                }
-                if (outFile != null) {
-                    out = new FileOutputStream(outFile);
-                    copyFile(in, out);
-                }
-            } catch (IOException e) {
-                Log.e("tag", "Failed to copy asset file: " + filename, e);
-            } finally {
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        // NOOP
-                    }
-                }
-                if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                        // NOOP
-                    }
-                }
-            }
-        }
-    }
-
-    public static void copyFile(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[1024];
-        int read;
-        while ((read = in.read(buffer)) != -1) {
-            out.write(buffer, 0, read);
-        }
+        return book;
     }
 
     public static boolean compareUrl(String ur1, String ur2) {
@@ -357,7 +210,7 @@ public class AppUtil {
         return ur1.equalsIgnoreCase(ur2);
     }
 
-    public static Book saveBookToDb(String fileName,Context context){
+    public static Book saveBookToDb(String fileName, Context context) {
         FileInputStream fs = null;
         Book book = null;
         try {
@@ -376,12 +229,67 @@ public class AppUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return  book;
+        return book;
     }
 
-    private static void sendBookDataToActivity(Book book,Context context){
-        ArrayList<TOCReference> tocReferenceArrayList = (ArrayList<TOCReference>) book.getTableOfContents().getTocReferences();
-        ((FolioActivity) context).configRecyclerViews(tocReferenceArrayList, book, (ArrayList<SpineReference>) book.getSpine().getSpineReferences());
+    public static SmilFile createSmilJson(Context context) {
+        SmilFile smilFile = new SmilFile();
+        List<AudioElement> audioElementArrayList;
+        List<TextElement> textElementList;
+
+        try {
+            File f = null;
+            File[] paths;
+            // create new file
+            f = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/text");
+            // create new filename filter
+            FilenameFilter fileNameFilter = new FilenameFilter() {
+
+                @Override
+                public boolean accept(File dir, String name) {
+                    if (name.lastIndexOf('.') > 0) {
+                        // get last index for '.' char
+                        int lastIndex = name.lastIndexOf('.');
+                        // get extension
+                        String str = name.substring(lastIndex);
+                        // match path name extension
+                        if (str.equals(".smil")) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            };
+            // returns pathnames for files and directory
+            paths = f.listFiles(fileNameFilter);
+            smilFile.load(paths[0].getPath());
+            audioElementArrayList = smilFile.getAudioSegments();
+            textElementList = smilFile.getTextSegments();
+            SmilElements smilElement = new SmilElements(audioElementArrayList, textElementList);
+            String smilElemets = jsonMapper.writeValueAsString(smilElement);
+            SharedPreferenceUtil.putSharedPreferencesString(context, SMIL_ELEMENTS, smilElemets);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+        return smilFile;
+
+    }
+
+    public static SmilElements retrieveAndParseSmilJSON(Context context) {
+        String smilElmentsJson = SharedPreferenceUtil.getSharedPreferencesString(context, SMIL_ELEMENTS, null);
+        SmilElements smilElements = null;
+        if (smilElmentsJson != null) {
+            try {
+                smilElements = jsonMapper.readValue(smilElmentsJson, SmilElements.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return smilElements;
     }
 }
 

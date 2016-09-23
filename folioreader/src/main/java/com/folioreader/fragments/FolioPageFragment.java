@@ -100,10 +100,14 @@ public class FolioPageFragment extends Fragment {
 
     public static interface FolioPageFragmentCallback {
         public String getChapterHtmlContent(int position);
+
         public void hideOrshowToolBar();
+
         public void hideToolBarIfVisible();
+
         public void invalidateActionMode();
-        public  void setPagerToPosition(String href);
+
+        public void setPagerToPosition(String href);
     }
 
     private int mPosition = -1;
@@ -123,7 +127,8 @@ public class FolioPageFragment extends Fragment {
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
-        if (getActivity() instanceof FolioPageFragmentCallback) mActivityCallback = (FolioPageFragmentCallback) getActivity();
+        if (getActivity() instanceof FolioPageFragmentCallback)
+            mActivityCallback = (FolioPageFragmentCallback) getActivity();
         initSeekbar();
         initAnimations();
         initWebView();
@@ -145,7 +150,7 @@ public class FolioPageFragment extends Fragment {
     }
 
     private void initWebView() {
-        String htmlContent=null;
+        String htmlContent = null;
         htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
 
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
@@ -206,7 +211,7 @@ public class FolioPageFragment extends Fragment {
                         }
                     } else {
                         // Otherwise, give the default behavior (open in browser)
-                        if(url.contains("storage")){
+                        if (url.contains("storage")) {
                             mActivityCallback.setPagerToPosition(url);
                         } else {
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -278,7 +283,7 @@ public class FolioPageFragment extends Fragment {
         });
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
-        String baseUrl= "file://"+Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS//";
+        String baseUrl = "file://" + Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS//";
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
     }
 
@@ -399,13 +404,13 @@ public class FolioPageFragment extends Fragment {
     }
 
 
-    public void highLightString(String id,String style) {
-        String url="javascript:alert(audioMarkID('"+ Highlight.MEDIA_OVERLAY_STYLE+"','"+id+"'))";
+    public void highLightString(String id, String style) {
+        String url = "javascript:alert(audioMarkID('" + Highlight.MEDIA_OVERLAY_STYLE + "','" + id + "'))";
         mWebview.loadUrl(url);
     }
 
-    public void setStyle(String style){
-        mWebview.loadUrl("javascript:alert(setMediaOverlayStyle('" + style+ "'))");
+    public void setStyle(String style) {
+        mWebview.loadUrl("javascript:alert(setMediaOverlayStyle('" + style + "'))");
     }
 
     private String getHtmlContent(String htmlContent) {

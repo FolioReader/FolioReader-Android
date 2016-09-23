@@ -44,28 +44,26 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
     private static final float SENSITIVITY = 1.0f;
     private static final float DEFAULT_DRAG_LIMIT = 0.5f;
     private static final int INVALID_POINTER = -1;
-    private MediaPlayer player;
-    private ImageButton playpause;
-    private AudioElement mAudioElement;
-    private int mStart, mEnd,mSeek;
-    private  int mPosition=0;
-    private FolioActivity mFolioActivity;
-    private Runnable mEndTask;
-    private String mHighlightStyle;
-
     private int activePointerId = INVALID_POINTER;
 
-    private boolean isNightMode = false;
-
-    private float verticalDragRange;
-
+    private ImageButton playpause;
     private RelativeLayout container;
     private StyleableTextView mHalfSpeed, mOneSpeed, mTwoSpeed, mOneAndHalfSpeed;
     private StyleableTextView mBackgroundColorStyle, mUnderlineStyle, mTextColorStyle;
     private ViewDragHelper viewDragHelper;
+
+    private MediaPlayer player;
+    private AudioElement mAudioElement;
+    private FolioActivity mFolioActivity;
+    private Runnable mEndTask;
     private ConfigViewCallback configViewCallback;
     private Handler mHandler;
-    private  Context mContext;
+    private Context mContext;
+
+    private int mStart, mEnd, mSeek;
+    private int mPosition = 0;
+    private String mHighlightStyle;
+    private float verticalDragRange;
 
     public AudioView(Context context) {
         this(context, null);
@@ -96,13 +94,13 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         mBackgroundColorStyle.setSelected(true);
         mUnderlineStyle = (StyleableTextView) findViewById(R.id.btn_text_undeline_style);
         mTextColorStyle = (StyleableTextView) findViewById(R.id.btn_text_color_style);
-        mContext=mHalfSpeed.getContext();
+        mContext = mHalfSpeed.getContext();
 
         mOneAndHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.one_and_half_speed)));
         mHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.half_speed_text)));
         mFolioActivity = (FolioActivity) mHalfSpeed.getContext();
 
-        Context context=mHalfSpeed.getContext();
+        Context context = mHalfSpeed.getContext();
         mUnderlineStyle.setText(Html.fromHtml(mHalfSpeed.getContext().getResources().getString(R.string.style_underline)));
 
         mEndTask = new Runnable() {
@@ -111,7 +109,6 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
 
               /*  player.pause();*/
                 int currentPosition = player.getCurrentPosition();
-                Log.d("*1In postDelayed", "In postDelayed");
                 if (player.getDuration() != currentPosition) {
                     if (currentPosition > mEnd) {
                         mPosition++;
@@ -119,8 +116,6 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
                         mStart = (int) mAudioElement.getClipBegin();
                         mEnd = (int) mAudioElement.getClipEnd();
                         long cuurenMillies = System.currentTimeMillis();
-                        Log.d("mposition", mPosition + "");
-                        Log.d("current milles", "" + cuurenMillies);
                         mFolioActivity.setHighLight(mPosition, mHighlightStyle);
                     }
                     mHandler.postDelayed(mEndTask, 10);
@@ -134,37 +129,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         playpause.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mPosition==0){
-                    setUpPlayer();
-                    mAudioElement = mFolioActivity.getElement(mPosition);
-                    mStart = (int) mAudioElement.getClipBegin();
-                    mEnd = (int) mAudioElement.getClipEnd();
-                    mHighlightStyle= Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
-                    mFolioActivity.setHighLightStyle(mHighlightStyle);
-                }
-
-                if (player.isPlaying()) {
-                    player.pause();
-                    playpause.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
-                    mSeek=player.getCurrentPosition();
-                    mHandler.removeCallbacks(mEndTask);
-
-                } else {
-                    if(mHandler==null) {
-                        mHandler = new Handler();
-                    }
-                    if(mPosition>0) {
-                                player.start();
-                                mHandler.postDelayed(mEndTask, 10);
-                                playpause.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
-                    } else {
-                        player.start();
-                        mFolioActivity.setPagerToPosition(mAudioElement.getSrc());
-                        mFolioActivity.setHighLight(mPosition, mHighlightStyle);
-                        mHandler.postDelayed(mEndTask, 10);
-                        playpause.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
-                    }
-                }
+                playAudio();
             }
         });
 
@@ -215,7 +180,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
                 mBackgroundColorStyle.setSelected(true);
                 mUnderlineStyle.setSelected(false);
                 mTextColorStyle.setSelected(false);
-                mHighlightStyle= Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
+                mHighlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
                 mFolioActivity.setHighLightStyle(mHighlightStyle);
 
             }
@@ -228,7 +193,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
                 mBackgroundColorStyle.setSelected(false);
                 mUnderlineStyle.setSelected(true);
                 mTextColorStyle.setSelected(false);
-                mHighlightStyle= Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
+                mHighlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
                 mFolioActivity.setHighLightStyle(mHighlightStyle);
             }
         });
@@ -240,18 +205,19 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
                 mBackgroundColorStyle.setSelected(false);
                 mUnderlineStyle.setSelected(false);
                 mTextColorStyle.setSelected(true);
-                mHighlightStyle= Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
+                mHighlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
                 mFolioActivity.setHighLightStyle(mHighlightStyle);
             }
         });
     }
 
-    public  void  playerStop() {
+    public void playerStop() {
         if (player != null && player.isPlaying()) {
             player.pause();
             mHandler.removeCallbacks(mEndTask);
         }
     }
+
     public void playerResume() {
         if (player != null) {
             player.start();
@@ -263,15 +229,50 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         player = new MediaPlayer();
         try {
             mAudioElement = mFolioActivity.getElement(0);
-            String filePath=mAudioElement.getSrc();
-            filePath=filePath.substring(2,filePath.length());
-            filePath="/folioreader/temp/OEBPS"+filePath;
-            player.setDataSource(Environment.getExternalStorageDirectory().getAbsolutePath() +filePath);
+            String filePath = mAudioElement.getSrc();
+            filePath = filePath.substring(2, filePath.length());
+            filePath = "/folioreader/temp/OEBPS" + filePath;
+            player.setDataSource(Environment.getExternalStorageDirectory().getAbsolutePath() + filePath);
             player.prepare();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    public void playAudio() {
+        if (mPosition == 0) {
+            setUpPlayer();
+            mAudioElement = mFolioActivity.getElement(mPosition);
+            mStart = (int) mAudioElement.getClipBegin();
+            mEnd = (int) mAudioElement.getClipEnd();
+            mHighlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
+            mFolioActivity.setHighLightStyle(mHighlightStyle);
+        }
+
+        if (player.isPlaying()) {
+            player.pause();
+            playpause.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
+            mSeek = player.getCurrentPosition();
+            mHandler.removeCallbacks(mEndTask);
+
+        } else {
+            if (mHandler == null) {
+                mHandler = new Handler();
+            }
+            if (mPosition > 0) {
+                player.start();
+                mHandler.postDelayed(mEndTask, 10);
+                playpause.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
+            } else {
+                player.start();
+                mFolioActivity.setPagerToPosition(mAudioElement.getSrc());
+                mFolioActivity.setHighLight(mPosition, mHighlightStyle);
+                mHandler.postDelayed(mEndTask, 10);
+                playpause.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
+            }
+        }
+    }
+
 
     /**
      * Bind the attributes of the view and config
@@ -434,7 +435,6 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
     }
 
     public void moveToOriginalPosition() {
-        Log.d("dddd","this is executed");
         configViewCallback.showShadow();
         setVisibility(VISIBLE);
         smoothSlideTo(container, 0, 0);
