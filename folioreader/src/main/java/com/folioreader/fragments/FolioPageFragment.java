@@ -404,6 +404,7 @@ public class FolioPageFragment extends Fragment {
 
     public void highLightString(String id, String style) {
         String url = "javascript:alert(audioMarkID('" + Highlight.MEDIA_OVERLAY_STYLE + "','" + id + "'))";
+        mWebview.loadUrl("javascript:alert(setMediaOverlayStyle('" + style + "'))");
         mWebview.loadUrl(url);
     }
 

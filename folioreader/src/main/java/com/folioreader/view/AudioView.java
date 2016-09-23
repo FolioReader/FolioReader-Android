@@ -26,6 +26,7 @@ import android.text.Html;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -95,7 +96,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         mUnderlineStyle = (StyleableTextView) findViewById(R.id.btn_text_undeline_style);
         mTextColorStyle = (StyleableTextView) findViewById(R.id.btn_text_color_style);
         mContext = mHalfSpeed.getContext();
-
+        mHighlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
         mOneAndHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.one_and_half_speed)));
         mHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.half_speed_text)));
         mFolioActivity = (FolioActivity) mHalfSpeed.getContext();
@@ -209,7 +210,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
 
     public void playerStop() {
         if (mPlayer != null && mPlayer.isPlaying()) {
-            mPlayer.pause();
+            mPlayer.release();
             mHandler.removeCallbacks(mHighlightTask);
         }
     }
@@ -245,6 +246,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
             mPlayer.pause();
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
             mHandler.removeCallbacks(mHighlightTask);
+            mFolioActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
             if (mHandler == null) {
                 mHandler = new Handler();
@@ -254,6 +256,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
             mPlayer.start();
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
             mHandler.post(mHighlightTask);
+            mFolioActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             /*mManualPlay = true;
             boolean isPageChange = mFolioActivity.setPagerToPosition(mPosition);
             if (!isPageChange){

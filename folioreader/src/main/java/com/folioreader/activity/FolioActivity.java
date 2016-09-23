@@ -494,17 +494,17 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
 
-    @Override
+   /* @Override
     protected void onResume() {
         super.onResume();
         if (mAudioView != null) {
             mAudioView.playerResume();
         }
-    }
+    }*/
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         if (mAudioView != null) {
             mAudioView.playerStop();
         }
