@@ -74,8 +74,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private static final String ITEM_DELETED = "item_deleted";
 
-
-    private RecyclerView recyclerViewMenu;
+    private RecyclerView mRecyclerViewMenu;
     private VerticalViewPager mFolioPageViewPager;
     private FolioView mFolioView;
     private ConfigView mConfigView;
@@ -85,15 +84,13 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     private String mEpubAssetPath;
     private Book mBook;
-    private List<AudioElement> mAudioElementArrayList;
-    private ArrayList<TOCReference> mTocReferences = new ArrayList<>();
+    private ArrayList<TOCReference> mTocReferences;
     private List<SpineReference> mSpineReferences;
+    private List<AudioElement> mAudioElementArrayList;
     private List<TextElement> mTextElementList;
 
-    public boolean mIsActionBarVisible, mIsAudioPlayed;
+    public boolean mIsActionBarVisible;
     private int mChapterPosition;
-    private Dialog mProgressDailog;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +124,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
     private void initBook() {
-        mProgressDailog = ProgressDialog.show(FolioActivity.this, getString(R.string.please_wait));
+        final Dialog pgDailog = ProgressDialog.show(FolioActivity.this, getString(R.string.please_wait));
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -140,6 +137,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                         @Override
                         public void run() {
                             loadBook();
+                            if (pgDailog != null && pgDailog.isShowing()) pgDailog.dismiss();
                         }
                     });
                 } catch (IOException e) {
@@ -158,16 +156,12 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 parseSmil();
             }
         }).start();
-
-        if (mProgressDailog != null && mProgressDailog.isShowing()) {
-            mProgressDailog.dismiss();
-        }
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        recyclerViewMenu = (RecyclerView) findViewById(R.id.recycler_view_menu);
+        mRecyclerViewMenu = (RecyclerView) findViewById(R.id.recycler_view_menu);
         mFolioView = (FolioView) findViewById(R.id.folio_view);
         mConfigView = (ConfigView) findViewById(R.id.config_view);
         mAudioView = (AudioView) findViewById(R.id.audio_view);
@@ -195,7 +189,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     public void onBackgroundUpdate(int value) {
-        recyclerViewMenu.setBackgroundColor(value);
+        mRecyclerViewMenu.setBackgroundColor(value);
         mFolioView.setBackgroundColor(value);
 
     }
@@ -254,11 +248,29 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         mTocReferences = (ArrayList<TOCReference>) mBook.getTableOfContents().getTocReferences();
         mSpineReferences = mBook.getSpine().getSpineReferences();
         setSpineReferenceTitle();
-        recyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
         if (mTocReferences != null) {
             mTocAdapter = new TOCAdapter(mTocReferences, FolioActivity.this);
-            recyclerViewMenu.setAdapter(mTocAdapter);
+            mRecyclerViewMenu.setAdapter(mTocAdapter);
         }
+    }
+
+    public boolean setPagerToPosition(int audioPosition){
+        String src = mTextElementList.get(audioPosition).getSrc();
+        String temp[] = src.split("#");
+        String hRef = "text//" + temp[0];
+        String currentHref = mSpineReferences.get(mFolioPageViewPager.getCurrentItem()).getResource().getHref();
+        if (hRef.equalsIgnoreCase(currentHref)){
+            return false;
+        } else {
+            setPagerToPosition("text//" + temp[0]);
+            return true;
+        }
+    }
+
+    @Override
+    public void onPageLoaded() {
+        //mAudioView.startMediaPlayer();
     }
 
     public void setPagerToPosition(String href) {
@@ -297,7 +309,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             FolioPageFragmentAdapter folioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferences, mBook);
             mFolioPageViewPager.setAdapter(folioPageFragmentAdapter);
         }
-
     }
 
     private void setSpineReferenceTitle() {
@@ -365,11 +376,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             toolbarAnimateHide();
         }
     }
-
-    @Override
-    public void invalidateActionMode() {
-    }
-
 
     private String readHTmlString(int position) {
         String pageHref = mSpineReferences.get(position).getResource().getHref();
@@ -473,11 +479,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     public void setHighLight(int position, String style) {
         String src = mTextElementList.get(position).getSrc();
         String temp[] = src.split("#");
-        String textid = temp[1];
-        if (position == 0) {
-            setPagerToPosition("text//" + temp[0]);
-        }
-        ((FolioPageFragment) getFragment(mChapterPosition)).highLightString(textid, style);
+        String textId = temp[1];
+        //setPagerToPosition("text//" + temp[0]);
+        ((FolioPageFragment) getFragment(mChapterPosition)).highLightString(textId, style);
     }
 
 

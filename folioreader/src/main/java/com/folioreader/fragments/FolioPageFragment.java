@@ -58,6 +58,7 @@ public class FolioPageFragment extends Fragment {
 
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.fragments.FolioPageFragment.POSITION";
     public static final String KEY_FRAGMENT_FOLIO_BOOK = "com.folioreader.fragments.FolioPageFragment.BOOK";
+
     private static final int ACTION_ID_COPY = 1001;
     private static final int ACTION_ID_SHARE = 1002;
     private static final int ACTION_ID_HIGHLIGHT = 1003;
@@ -71,7 +72,18 @@ public class FolioPageFragment extends Fragment {
     private static final int ACTION_ID_HIGHLIGHT_BLUE = 1009;
     private static final int ACTION_ID_HIGHLIGHT_PINK = 1010;
     private static final int ACTION_ID_HIGHLIGHT_UNDERLINE = 1011;
-    private static final String SCROLL_Y = "Scroll_y";
+
+    public static interface FolioPageFragmentCallback {
+        String getChapterHtmlContent(int position);
+
+        void hideOrshowToolBar();
+
+        void hideToolBarIfVisible();
+
+        void setPagerToPosition(String href);
+
+        void onPageLoaded();
+    }
 
     private View mRootView;
     private Context mContext;
@@ -89,6 +101,9 @@ public class FolioPageFragment extends Fragment {
     private Handler mHandler = new Handler();
     private Animation mFadeInAnimation, mFadeOutAnimation;
 
+    private int mPosition = -1;
+    private Book mBook = null;
+
     public static FolioPageFragment newInstance(int position, Book book) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
@@ -97,21 +112,6 @@ public class FolioPageFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-
-    public static interface FolioPageFragmentCallback {
-        public String getChapterHtmlContent(int position);
-
-        public void hideOrshowToolBar();
-
-        public void hideToolBarIfVisible();
-
-        public void invalidateActionMode();
-
-        public void setPagerToPosition(String href);
-    }
-
-    private int mPosition = -1;
-    private Book mBook = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -129,6 +129,7 @@ public class FolioPageFragment extends Fragment {
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
         if (getActivity() instanceof FolioPageFragmentCallback)
             mActivityCallback = (FolioPageFragmentCallback) getActivity();
+
         initSeekbar();
         initAnimations();
         initWebView();
@@ -155,9 +156,6 @@ public class FolioPageFragment extends Fragment {
 
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
         mWebview.setFragment(FolioPageFragment.this);
-        final Boolean[] mMoveOccured = new Boolean[1];
-        final float[] mDownPosX = new float[1];
-        final float[] mDownPosY = new float[1];
 
         mWebview.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -188,6 +186,7 @@ public class FolioPageFragment extends Fragment {
             @Override
             public void onPageFinished(WebView view, String url) {
                 view.loadUrl("javascript:alert(getReadingTime())");
+                //mActivityCallback.onPageLoaded();
             }
 
             @Override
@@ -286,7 +285,6 @@ public class FolioPageFragment extends Fragment {
         String baseUrl = "file://" + Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS//";
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
     }
-
 
     private void initSeekbar() {
         mScrollSeekbar = (VerticalSeekbar) mRootView.findViewById(R.id.scrollSeekbar);

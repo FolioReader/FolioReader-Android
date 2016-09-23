@@ -24,7 +24,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.text.Html;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -46,24 +45,26 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
     private static final int INVALID_POINTER = -1;
     private int activePointerId = INVALID_POINTER;
 
-    private ImageButton playpause;
-    private RelativeLayout container;
+    private ImageButton mPlayPauseBtn;
+    private RelativeLayout mContainer;
     private StyleableTextView mHalfSpeed, mOneSpeed, mTwoSpeed, mOneAndHalfSpeed;
     private StyleableTextView mBackgroundColorStyle, mUnderlineStyle, mTextColorStyle;
-    private ViewDragHelper viewDragHelper;
+    private ViewDragHelper mViewDragHelper;
 
-    private MediaPlayer player;
-    private AudioElement mAudioElement;
-    private FolioActivity mFolioActivity;
-    private Runnable mEndTask;
-    private ConfigViewCallback configViewCallback;
-    private Handler mHandler;
     private Context mContext;
+    private FolioActivity mFolioActivity;
+    private MediaPlayer mPlayer;
+    private AudioElement mAudioElement;
+    private Runnable mHighlightTask;
+    private ConfigViewCallback mConfigViewCallback;
+    private Handler mHandler;
 
-    private int mStart, mEnd, mSeek;
+    private int mEnd;
     private int mPosition = 0;
     private String mHighlightStyle;
-    private float verticalDragRange;
+    private float mVerticalDragRange;
+
+    private boolean mManualPlay = false;
 
     public AudioView(Context context) {
         this(context, null);
@@ -79,9 +80,8 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
 
     private void inflateView() {
         inflate(getContext(), R.layout.view_audio_player, this);
-        container = (RelativeLayout) findViewById(R.id.container);
+        mContainer = (RelativeLayout) findViewById(R.id.container);
         initViews();
-
     }
 
     private void initViews() {
@@ -89,7 +89,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         mOneSpeed = (StyleableTextView) findViewById(R.id.btn_one_x_speed);
         mTwoSpeed = (StyleableTextView) findViewById(R.id.btn_twox_speed);
         mOneAndHalfSpeed = (StyleableTextView) findViewById(R.id.btn_one_and_half_speed);
-        playpause = (ImageButton) findViewById(R.id.play_button);
+        mPlayPauseBtn = (ImageButton) findViewById(R.id.play_button);
         mBackgroundColorStyle = (StyleableTextView) findViewById(R.id.btn_backcolor_style);
         mBackgroundColorStyle.setSelected(true);
         mUnderlineStyle = (StyleableTextView) findViewById(R.id.btn_text_undeline_style);
@@ -100,33 +100,29 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         mHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.half_speed_text)));
         mFolioActivity = (FolioActivity) mHalfSpeed.getContext();
 
-        Context context = mHalfSpeed.getContext();
         mUnderlineStyle.setText(Html.fromHtml(mHalfSpeed.getContext().getResources().getString(R.string.style_underline)));
 
-        mEndTask = new Runnable() {
+        mHighlightTask = new Runnable() {
             @Override
             public void run() {
 
-              /*  player.pause();*/
-                int currentPosition = player.getCurrentPosition();
-                if (player.getDuration() != currentPosition) {
+                int currentPosition = mPlayer.getCurrentPosition();
+                if (mPlayer.getDuration() != currentPosition) {
                     if (currentPosition > mEnd) {
-                        mPosition++;
                         mAudioElement = mFolioActivity.getElement(mPosition);
-                        mStart = (int) mAudioElement.getClipBegin();
                         mEnd = (int) mAudioElement.getClipEnd();
-                        long cuurenMillies = System.currentTimeMillis();
                         mFolioActivity.setHighLight(mPosition, mHighlightStyle);
+                        mPosition++;
                     }
-                    mHandler.postDelayed(mEndTask, 10);
+                    mHandler.postDelayed(mHighlightTask, 10);
                 } else {
-                    mHandler.removeCallbacks(mEndTask);
+                    mHandler.removeCallbacks(mHighlightTask);
                 }
             }
         };
 
 
-        playpause.setOnClickListener(new OnClickListener() {
+        mPlayPauseBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 playAudio();
@@ -212,67 +208,67 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
     }
 
     public void playerStop() {
-        if (player != null && player.isPlaying()) {
-            player.pause();
-            mHandler.removeCallbacks(mEndTask);
+        if (mPlayer != null && mPlayer.isPlaying()) {
+            mPlayer.pause();
+            mHandler.removeCallbacks(mHighlightTask);
         }
     }
 
     public void playerResume() {
-        if (player != null) {
-            player.start();
-            mHandler.postDelayed(mEndTask, 10);
+        if (mPlayer != null) {
+            mPlayer.start();
+            mHandler.postDelayed(mHighlightTask, 10);
         }
     }
 
     private void setUpPlayer() {
-        player = new MediaPlayer();
-        try {
-            mAudioElement = mFolioActivity.getElement(0);
-            String filePath = mAudioElement.getSrc();
-            filePath = filePath.substring(2, filePath.length());
-            filePath = "/folioreader/temp/OEBPS" + filePath;
-            player.setDataSource(Environment.getExternalStorageDirectory().getAbsolutePath() + filePath);
-            player.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (mPlayer == null){
+            mPlayer = new MediaPlayer();
+            try {
+                mAudioElement = mFolioActivity.getElement(0);
+                String filePath = mAudioElement.getSrc();
+                filePath = filePath.substring(2, filePath.length());
+                filePath = "/folioreader/temp/OEBPS" + filePath;
+                mPlayer.setDataSource(Environment.getExternalStorageDirectory().getAbsolutePath() + filePath);
+                mPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void playAudio() {
-        if (mPosition == 0) {
-            setUpPlayer();
-            mAudioElement = mFolioActivity.getElement(mPosition);
-            mStart = (int) mAudioElement.getClipBegin();
-            mEnd = (int) mAudioElement.getClipEnd();
-            mHighlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
-            mFolioActivity.setHighLightStyle(mHighlightStyle);
-        }
-
-        if (player.isPlaying()) {
-            player.pause();
-            playpause.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
-            mSeek = player.getCurrentPosition();
-            mHandler.removeCallbacks(mEndTask);
-
+    private void playAudio() {
+        mAudioElement = mFolioActivity.getElement(mPosition);
+        setUpPlayer();
+        if (mPlayer.isPlaying()){
+            mManualPlay = false;
+            mPlayer.pause();
+            mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
+            mHandler.removeCallbacks(mHighlightTask);
         } else {
             if (mHandler == null) {
                 mHandler = new Handler();
             }
-            if (mPosition > 0) {
-                player.start();
-                mHandler.postDelayed(mEndTask, 10);
-                playpause.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
-            } else {
-                player.start();
-                mFolioActivity.setPagerToPosition(mAudioElement.getSrc());
-                mFolioActivity.setHighLight(mPosition, mHighlightStyle);
-                mHandler.postDelayed(mEndTask, 10);
-                playpause.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
-            }
+
+            mFolioActivity.setPagerToPosition(mPosition);
+            mPlayer.start();
+            mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
+            mHandler.post(mHighlightTask);
+            /*mManualPlay = true;
+            boolean isPageChange = mFolioActivity.setPagerToPosition(mPosition);
+            if (!isPageChange){
+                startMediaPlayer();
+            }*/
         }
     }
 
+    /*public void startMediaPlayer(){
+        if (mManualPlay){
+            mPlayer.start();
+            mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
+            mHandler.post(mHighlightTask);
+        }
+    }*/
 
     /**
      * Bind the attributes of the view and config
@@ -298,7 +294,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
     @Override
     protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
-        setVerticalDragRange(height);
+        setmVerticalDragRange(height);
     }
 
     /**
@@ -315,8 +311,8 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
                 MeasureSpec.EXACTLY);
         int measureHeight = MeasureSpec.makeMeasureSpec(
                 getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY);
-        if (container != null) {
-            container.measure(measureWidth, measureHeight);
+        if (mContainer != null) {
+            mContainer.measure(measureWidth, measureHeight);
         }
 
     }
@@ -338,7 +334,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         switch (action) {
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
-                viewDragHelper.cancel();
+                mViewDragHelper.cancel();
                 return false;
             case MotionEvent.ACTION_DOWN:
                 int index = MotionEventCompat.getActionIndex(ev);
@@ -347,7 +343,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
                     return false;
                 }
             default:
-                return viewDragHelper.shouldInterceptTouchEvent(ev);
+                return mViewDragHelper.shouldInterceptTouchEvent(ev);
         }
     }
 
@@ -369,8 +365,8 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         if (activePointerId == INVALID_POINTER) {
             return false;
         }
-        viewDragHelper.processTouchEvent(ev);
-        return ViewHelper.isViewHit(container, this, (int) ev.getX(), (int) ev.getY());
+        mViewDragHelper.processTouchEvent(ev);
+        return ViewHelper.isViewHit(mContainer, this, (int) ev.getX(), (int) ev.getY());
     }
 
     @Override
@@ -384,7 +380,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
      */
     @Override
     public void computeScroll() {
-        if (!isInEditMode() && viewDragHelper.continueSettling(true)) {
+        if (!isInEditMode() && mViewDragHelper.continueSettling(true)) {
             ViewCompat.postInvalidateOnAnimation(this);
         }
     }
@@ -395,53 +391,53 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
      * detect the touch callbacks from dragView.
      */
     private void configDragViewHelper() {
-        viewDragHelper = ViewDragHelper.create(this, SENSITIVITY, new AudioViewHelperCallback(this));
+        mViewDragHelper = ViewDragHelper.create(this, SENSITIVITY, new AudioViewHelperCallback(this));
     }
 
     private boolean smoothSlideTo(View view, int x, int y) {
-        if (viewDragHelper != null && viewDragHelper.smoothSlideViewTo(view, x, y)) {
+        if (mViewDragHelper != null && mViewDragHelper.smoothSlideViewTo(view, x, y)) {
             ViewCompat.postInvalidateOnAnimation(this);
             return true;
         }
         return false;
     }
 
-    public float getVerticalDragRange() {
-        return verticalDragRange;
+    public float getmVerticalDragRange() {
+        return mVerticalDragRange;
     }
 
-    public void setVerticalDragRange(float verticalDragRange) {
-        this.verticalDragRange = verticalDragRange;
+    public void setmVerticalDragRange(float mVerticalDragRange) {
+        this.mVerticalDragRange = mVerticalDragRange;
     }
 
-    public RelativeLayout getContainer() {
-        return container;
+    public RelativeLayout getmContainer() {
+        return mContainer;
     }
 
     public void setAudioViewCallback(ConfigViewCallback audioViewCallback) {
-        this.configViewCallback = audioViewCallback;
+        this.mConfigViewCallback = audioViewCallback;
     }
 
     /**
-     * Detect if the container actual position is above the
+     * Detect if the mContainer actual position is above the
      * limit determined with the @param dragLimit.
      *
      * @return Use a dimension and compare with the dragged
      * axis position.
      */
     public boolean isDragViewAboveTheLimit() {
-        int parentSize = container.getHeight();
-        return parentSize < ViewCompat.getY(container) + (parentSize * DEFAULT_DRAG_LIMIT);
+        int parentSize = mContainer.getHeight();
+        return parentSize < ViewCompat.getY(mContainer) + (parentSize * DEFAULT_DRAG_LIMIT);
     }
 
     public void moveToOriginalPosition() {
-        configViewCallback.showShadow();
+        mConfigViewCallback.showShadow();
         setVisibility(VISIBLE);
-        smoothSlideTo(container, 0, 0);
+        smoothSlideTo(mContainer, 0, 0);
     }
 
     public void moveOffScreen() {
-        smoothSlideTo(container, 0, (int) getVerticalDragRange());
+        smoothSlideTo(mContainer, 0, (int) getmVerticalDragRange());
     }
 
     public void hideView() {
@@ -449,7 +445,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
     }
 
     public void onViewPositionChanged(float alpha) {
-        configViewCallback.onShadowAlpha(alpha);
+        mConfigViewCallback.onShadowAlpha(alpha);
     }
 
 }

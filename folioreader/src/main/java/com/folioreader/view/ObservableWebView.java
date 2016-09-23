@@ -53,12 +53,6 @@ public class ObservableWebView extends WebView {
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        int height = (int) Math.floor(this.getContentHeight() * this.getScale());
-        int webViewHeight = this.getMeasuredHeight();
-
-
-        //float scrollPercent = ((float)t/(height - webViewHeight))*100.0f;
-        //Log.d("ObservableWebview", "Height: "+height+", WebviewHeight: "+webViewHeight+", scrollY:"+
         mActivityCallback = (FolioActivity) getContext();
         mActivityCallback.hideToolBarIfVisible();
         // Log.d("in ScrollChange","l"+l+"t"+t);
@@ -80,7 +74,6 @@ public class ObservableWebView extends WebView {
         return this.dummyActionMode();
     }
 
-
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         final boolean[] mMoveOccured = new boolean[1];
@@ -96,28 +89,23 @@ public class ObservableWebView extends WebView {
                 mDownPosX[0] = event.getX();
                 mDownPosY[0] = event.getY();
                 mFolioPageFragment.removeCallback();
-                // mHandler.removeCallbacks(mHideSeekbarRunnable);
                 break;
             case MotionEvent.ACTION_UP:
                 if (!mMoveOccured[0]) {
                     mActivityCallback.hideOrshowToolBar();
                 }
 
-                // mHandler.postDelayed(mHideSeekbarRunnable, 3000);
                 mFolioPageFragment.startCallback();
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (Math.abs(event.getX() - mDownPosX[0]) > MOVE_THRESHOLD_DP || Math.abs(event.getY() - mDownPosY[0]) > MOVE_THRESHOLD_DP) {
-                    //mScrollY = mWebview.getScrollY();
                     mMoveOccured[0] = true;
                     mFolioPageFragment.fadeInSeekbarIfInvisible();
                 }
                 break;
         }
 
-        //mActivityCallback.hideOrshowToolBar();
         return super.dispatchTouchEvent(event);
-        //return false;
     }
 
     @Override

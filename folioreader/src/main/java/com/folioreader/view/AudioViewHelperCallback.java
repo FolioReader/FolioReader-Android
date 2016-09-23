@@ -42,7 +42,7 @@ public class AudioViewHelperCallback extends ViewDragHelper.Callback {
    * @return if the child on focus is equals the AudioView
    */
   @Override public boolean tryCaptureView(View child, int pointerId) {
-    return child.equals(audioView.getContainer());
+    return child.equals(audioView.getmContainer());
   }
 
   /**
@@ -56,7 +56,7 @@ public class AudioViewHelperCallback extends ViewDragHelper.Callback {
    */
   @Override public int clampViewPositionVertical(View child, int top, int dy) {
     return Math.min(Math.max(top, audioView.getPaddingTop()),
-            audioView.getContainer().getHeight());
+            audioView.getmContainer().getHeight());
   }
 
   /**
@@ -67,7 +67,7 @@ public class AudioViewHelperCallback extends ViewDragHelper.Callback {
    * @return max vertical distance that view on focus can slide
    */
   @Override public int getViewVerticalDragRange(View child) {
-    return audioView != null ? (int) audioView.getVerticalDragRange() : 0;
+    return audioView != null ? (int) audioView.getmVerticalDragRange() : 0;
   }
 
   /**
@@ -84,7 +84,7 @@ public class AudioViewHelperCallback extends ViewDragHelper.Callback {
     if ((dragState == ViewDragHelper.STATE_DRAGGING
         || dragState == ViewDragHelper.STATE_SETTLING)
         && state == ViewDragHelper.STATE_IDLE
-        && (dragOffset == audioView.getVerticalDragRange())) {
+        && (dragOffset == audioView.getmVerticalDragRange())) {
       audioView.hideView();
     }
     dragState = state;
@@ -102,7 +102,7 @@ public class AudioViewHelperCallback extends ViewDragHelper.Callback {
   @Override public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
     super.onViewPositionChanged(changedView, left, top, dx, dy);
     dragOffset = Math.abs(top);
-    float fractionScreen = (float) dragOffset / audioView.getVerticalDragRange();
+    float fractionScreen = (float) dragOffset / audioView.getmVerticalDragRange();
     audioView.onViewPositionChanged(fractionScreen >= 1 ? 1 : fractionScreen);
   }
 
