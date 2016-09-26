@@ -282,7 +282,8 @@ public class FolioPageFragment extends Fragment {
         });
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
-        String baseUrl = "file://" + Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS//";
+        String baseUrl = "file://" + Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/"+AppUtil.mFolderName+"/OEBPS//";
+        //String baseUrl = "file:///storage/emulated/0/folioreader/adventures/OEBPS//";
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
     }
 

@@ -59,6 +59,7 @@ import com.folioreader.view.FolioView;
 import com.folioreader.view.FolioViewCallback;
 import com.folioreader.view.VerticalViewPager;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -71,7 +72,7 @@ import nl.siegmann.epublib.domain.TOCReference;
 public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
         FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback, TOCAdapter.ChapterSelectionCallBack {
 
-    public static final String INTENT_EPUB_ASSET_PATH = "com.folioreader.epub_asset_path";
+    public static final String INTENT_EPUB_SOURCE_PATH = "com.folioreader.epub_asset_path";
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
     public static final int ACTION_HIGHLIGHT_lIST = 77;
     private static final String HIGHLIGHT_ITEM = "highlight_item";
@@ -107,7 +108,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
-//        mSourceType=getIntent().getStringExtra(INTENT_EPUB_SOURCE_TYPE);
         initBook();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
@@ -143,19 +143,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         new Thread(new Runnable() {
             @Override
             public void run() {
-                InputStream epubInputStream=null;
-
-                   //String rawUrl="android.resource://" + getPackageName() + "/" + R.raw.a;
-                    /*if(mSourceType.equals("raw")){
-                        mRawId = getIntent().getIntExtra(INTENT_EPUB_ASSET_PATH,0);
-                        Resources res = getResources();
-                        epubInputStream = res.openRawResource(mRawId);
-                    } else if(mSourceType.equals("assest")){
-                        mEpubAssetPath = getIntent().getStringExtra(INTENT_EPUB_ASSET_PATH);
-                        AssetManager assetManager = getAssets();
-                        epubInputStream = assetManager.open(mEpubAssetPath);
-                    }*/
-
                     mBook = AppUtil.saveEpubFile(getIntent().getExtras(), FolioActivity.this);
                     runOnUiThread(new Runnable() {
                         @Override
@@ -395,7 +382,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     private String readHTmlString(int position) {
         String pageHref = mSpineReferences.get(position).getResource().getHref();
-        pageHref = Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/" + pageHref;
+        pageHref = Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/"+AppUtil.mFolderName+"/OEBPS/" + pageHref;
         String html = EpubManipulator.readPage(pageHref);
         return html;
     }

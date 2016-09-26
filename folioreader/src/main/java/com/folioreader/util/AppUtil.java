@@ -58,8 +58,9 @@ import nl.siegmann.epublib.epub.EpubReader;
 public class AppUtil {
 
     private static final ObjectMapper jsonMapper;
-    private static String FILE_NAME = Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/epubfile" + ".epub";
+    private static String FILE_NAME ;
     private static final String SMIL_ELEMENTS = "smil_elements";
+    public static  String mFolderName=null;
 
     static {
         jsonMapper = new ObjectMapper();
@@ -169,47 +170,34 @@ public class AppUtil {
         String assestPath;
         FolioActivity.Epub_Source_Type sourceType;
         int rawId;
+        String fileName;
         InputStream epubInputStream = null;
         Book book = null;
-        boolean isFileAvailable,isFolderAvalable=false;
+        boolean isFileAvailable, isFolderAvalable = false;
         try {
-            if(!isFolderAvalable){
-              sourceType= (FolioActivity.Epub_Source_Type) bundleData.getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
-            if (sourceType.equals(FolioActivity.Epub_Source_Type.RAW)) {
-                rawId = bundleData.getInt(FolioActivity.INTENT_EPUB_ASSET_PATH, 0);
-                Resources res = context.getResources();
-                epubInputStream = res.openRawResource(rawId);
-                isFileAvailable=saveTempEpubFile(epubInputStream);
-            } else if (sourceType.equals(FolioActivity.Epub_Source_Type.ASSESTS)) {
-                assestPath = bundleData.getString(FolioActivity.INTENT_EPUB_ASSET_PATH);
-                AssetManager assetManager = context.getAssets();
-                epubInputStream = assetManager.open(assestPath);
-                isFileAvailable=saveTempEpubFile(epubInputStream);
-            } else {
-                FILE_NAME=bundleData.getString(FolioActivity.INTENT_EPUB_ASSET_PATH);
-                isFileAvailable=saveTempEpubFile(null);
-            }
+            isFolderAvalable = isFolderAvailable(bundleData, context);
 
+            if (!isFolderAvalable) {
+                sourceType = (FolioActivity.Epub_Source_Type) bundleData.getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
+                FILE_NAME = Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/" + mFolderName + "/" + mFolderName + ".epub";
+                if (sourceType.equals(FolioActivity.Epub_Source_Type.RAW)) {
+                    rawId = bundleData.getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH, 0);
+                    Resources res = context.getResources();
+                    epubInputStream = res.openRawResource(rawId);
+//                  fileName=res.getResourceName(rawId);
+                    fileName = res.getResourceEntryName(rawId);
+                    isFileAvailable = saveTempEpubFile(epubInputStream);
+                } else if (sourceType.equals(FolioActivity.Epub_Source_Type.ASSESTS)) {
+                    assestPath = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+                    AssetManager assetManager = context.getAssets();
+                    epubInputStream = assetManager.open(assestPath);
+                    isFileAvailable = saveTempEpubFile(epubInputStream);
+                } else {
+                    FILE_NAME = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+                    isFileAvailable = saveTempEpubFile(null);
+                }
 
-            /*File file = new File(FILE_NAME);
-
-            if (!file.exists()) {
-                File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader");
-                folder.mkdirs();
-                OutputStream outputStream = null;
-
-                outputStream = new FileOutputStream(new File(FILE_NAME));
-                int read = 0;
-                byte[] bytes = new byte[epubInputStream.available()];
-
-                while ((read = epubInputStream.read(bytes)) != -1) {
-                    outputStream.write(bytes, 0, read);
-                }*/
-
-                new EpubManipulator(FILE_NAME, "temp", context);
-                /*if (epubInputStream != null) epubInputStream.close();
-                if (outputStream != null) outputStream.close();*/
-
+                new EpubManipulator(FILE_NAME, mFolderName, context);
                 book = saveBookToDb(FILE_NAME, context);
 
             } else {
@@ -230,6 +218,40 @@ public class AppUtil {
         }
         return book;
     }
+
+    private static boolean isFolderAvailable(Bundle bundleData,Context context) {
+        FolioActivity.Epub_Source_Type sourceType = (FolioActivity.Epub_Source_Type) bundleData.getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
+        String folderName;
+        File file = null;
+        boolean isFileExist = false;
+
+    if (sourceType.equals(FolioActivity.Epub_Source_Type.RAW)) {
+        int rawId = bundleData.getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH, 0);
+        Resources res = context.getResources();
+        mFolderName = res.getResourceEntryName(rawId);
+        file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/" + mFolderName);
+        if (file.isFile()) isFileExist = true;
+    } else if (sourceType.equals(FolioActivity.Epub_Source_Type.ASSESTS)) {
+        String fileName = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+        int fileMaxIndex = fileName.length();
+        mFolderName = fileName.substring(0, fileMaxIndex - 5);
+        file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/" + mFolderName);
+        if (file.isFile()) isFileExist = true;
+    } else {
+        String fileName = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+        String temp[] = fileName.split("/");
+        fileName = temp[temp.length - 1];
+        int fileMaxIndex = fileName.length();
+        mFolderName = fileName.substring(0, fileMaxIndex - 5);
+        file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/" + mFolderName);
+        if (file.isFile()) {
+            isFileExist = true;
+        } else {
+            FILE_NAME = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+        }
+    }
+    return isFileExist;
+}
 
 
     public static boolean compareUrl(String ur1, String ur2) {
@@ -292,8 +314,8 @@ public class AppUtil {
             };
             // returns pathnames for files and directory
             paths = f.listFiles(fileNameFilter);
-            if(paths!=null) {
-                smilFile=new SmilFile();
+            if (paths != null) {
+                smilFile = new SmilFile();
                 smilFile.load(paths[0].getPath());
                 audioElementArrayList = smilFile.getAudioSegments();
                 textElementList = smilFile.getTextSegments();
@@ -326,12 +348,12 @@ public class AppUtil {
     }
 
 
-    public  static Boolean saveTempEpubFile(InputStream inputStream) {
+    public static Boolean saveTempEpubFile(InputStream inputStream) {
         OutputStream outputStream = null;
         File file = new File(FILE_NAME);
         try {
             if (!file.exists()) {
-                File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader");
+                File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/"+mFolderName);
                 folder.mkdirs();
 
                 outputStream = new FileOutputStream(new File(FILE_NAME));
@@ -341,7 +363,7 @@ public class AppUtil {
                 while ((read = inputStream.read(bytes)) != -1) {
                     outputStream.write(bytes, 0, read);
                 }
-            } else{
+            } else {
                 return true;
             }
             if (inputStream != null) inputStream.close();
