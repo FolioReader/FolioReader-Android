@@ -31,6 +31,8 @@ import com.folioreader.activity.FolioActivity;
 
 public class HomeActivity extends AppCompatActivity {
     private static final int GALLERY_REQUEST = 102;
+
+
     public static final String[] WRITE_EXTERNAL_STORAGE_PERMS = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
@@ -58,7 +60,10 @@ public class HomeActivity extends AppCompatActivity {
         Intent intent = new Intent(HomeActivity.this, FolioActivity.class);
         //intent.putExtra(FolioActivity.INTENT_EPUB_ASSET_PATH, "The Silver Chair.epub");
         //intent.putExtra(FolioActivity.INTENT_EPUB_ASSET_PATH, "The Silver Chair.epub");
-        intent.putExtra(FolioActivity.INTENT_EPUB_ASSET_PATH, "The Adventures Of Sherlock Holmes - Adventure I.epub");
+        //intent.putExtra(FolioActivity.INTENT_EPUB_ASSET_PATH, "The Adventures Of Sherlock Holmes - Adventure I.epub");
+       // String path=Environment.getExternalStorageDirectory().getAbsolutePath() + "/epub/" + "The Silver Chair.epub";
+        intent.putExtra(FolioActivity.INTENT_EPUB_ASSET_PATH, "The Silver Chair.epub");
+        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.Epub_Source_Type.ASSESTS);
         startActivity(intent);
     }
 

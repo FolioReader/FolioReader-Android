@@ -21,6 +21,7 @@ import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -36,6 +37,7 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.folioreader.Config;
 import com.folioreader.R;
@@ -70,9 +72,15 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback, TOCAdapter.ChapterSelectionCallBack {
 
     public static final String INTENT_EPUB_ASSET_PATH = "com.folioreader.epub_asset_path";
+    public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
     public static final int ACTION_HIGHLIGHT_lIST = 77;
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private static final String ITEM_DELETED = "item_deleted";
+    public static enum Epub_Source_Type {
+        RAW,
+        ASSESTS,
+        SD_CARD
+    };
 
     private RecyclerView mRecyclerViewMenu;
     private VerticalViewPager mFolioPageViewPager;
@@ -83,6 +91,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private TOCAdapter mTocAdapter;
 
     private String mEpubAssetPath;
+    private String mSourceType;
+    private int mRawId;
     private Book mBook;
     private ArrayList<TOCReference> mTocReferences;
     private List<SpineReference> mSpineReferences;
@@ -90,13 +100,14 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private List<TextElement> mTextElementList;
 
     public boolean mIsActionBarVisible;
+    public  boolean mIsSmilParsed=false;
     private int mChapterPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
-        mEpubAssetPath = getIntent().getStringExtra(INTENT_EPUB_ASSET_PATH);
+//        mSourceType=getIntent().getStringExtra(INTENT_EPUB_SOURCE_TYPE);
         initBook();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
@@ -114,10 +125,14 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         findViewById(R.id.btn_speaker).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mAudioView.isDragViewAboveTheLimit()) {
-                    mAudioView.moveToOriginalPosition();
+                if(mIsSmilParsed) {
+                    if (mAudioView.isDragViewAboveTheLimit()) {
+                        mAudioView.moveToOriginalPosition();
+                    } else {
+                        mAudioView.moveOffScreen();
+                    }
                 } else {
-                    mAudioView.moveOffScreen();
+                    Toast.makeText(FolioActivity.this,getString(R.string.please_wait_till_audio_is_parsed),Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -128,11 +143,20 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         new Thread(new Runnable() {
             @Override
             public void run() {
-                AssetManager assetManager = getAssets();
-                InputStream epubInputStream;
-                try {
-                    epubInputStream = assetManager.open(mEpubAssetPath);
-                    mBook = AppUtil.saveEpubFile(epubInputStream, FolioActivity.this);
+                InputStream epubInputStream=null;
+
+                   //String rawUrl="android.resource://" + getPackageName() + "/" + R.raw.a;
+                    /*if(mSourceType.equals("raw")){
+                        mRawId = getIntent().getIntExtra(INTENT_EPUB_ASSET_PATH,0);
+                        Resources res = getResources();
+                        epubInputStream = res.openRawResource(mRawId);
+                    } else if(mSourceType.equals("assest")){
+                        mEpubAssetPath = getIntent().getStringExtra(INTENT_EPUB_ASSET_PATH);
+                        AssetManager assetManager = getAssets();
+                        epubInputStream = assetManager.open(mEpubAssetPath);
+                    }*/
+
+                    mBook = AppUtil.saveEpubFile(getIntent().getExtras(), FolioActivity.this);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -140,9 +164,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                             if (pgDailog != null && pgDailog.isShowing()) pgDailog.dismiss();
                         }
                     });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }).start();
     }
@@ -150,12 +171,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private void loadBook() {
         configRecyclerViews();
         configFolio();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                parseSmil();
-            }
-        }).start();
+        parseSmil();
     }
 
     @Override
@@ -464,15 +480,30 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
     private void parseSmil() {
-        SmilElements smilElements = AppUtil.retrieveAndParseSmilJSON(FolioActivity.this);
-        if (smilElements != null) {
-            mTextElementList = smilElements.getTextElementArrayList();
-            mAudioElementArrayList = smilElements.getAudioElementArrayList();
-        } else {
-            SmilFile smilFile = AppUtil.createSmilJson(FolioActivity.this);
-            mAudioElementArrayList = smilFile.getAudioSegments();
-            mTextElementList = smilFile.getTextSegments();
-        }
+        mIsSmilParsed=false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SmilElements smilElements = AppUtil.retrieveAndParseSmilJSON(FolioActivity.this);
+                if (smilElements != null) {
+                    mTextElementList = smilElements.getTextElementArrayList();
+                    mAudioElementArrayList = smilElements.getAudioElementArrayList();
+                } else {
+                    SmilFile smilFile = AppUtil.createSmilJson(FolioActivity.this);
+                    if(smilFile!=null) {
+                        mAudioElementArrayList = smilFile.getAudioSegments();
+                        mTextElementList = smilFile.getTextSegments();
+                    }
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mIsSmilParsed=true;
+                    }
+                });
+            }
+        }).start();
+
     }
 
 

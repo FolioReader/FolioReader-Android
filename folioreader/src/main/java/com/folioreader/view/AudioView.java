@@ -15,8 +15,10 @@
 */
 package com.folioreader.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.view.MotionEventCompat;
@@ -103,6 +105,11 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
 
         mUnderlineStyle.setText(Html.fromHtml(mHalfSpeed.getContext().getResources().getString(R.string.style_underline)));
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            findViewById(R.id.playback_speed_Layout).setVisibility(GONE);
+        }
+
+
         mHighlightTask = new Runnable() {
             @Override
             public void run() {
@@ -131,16 +138,19 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         });
 
         mHalfSpeed.setOnClickListener(new OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
                 mHalfSpeed.setSelected(true);
                 mOneSpeed.setSelected(false);
                 mOneAndHalfSpeed.setSelected(false);
                 mTwoSpeed.setSelected(false);
+                mPlayer.getPlaybackParams().setSpeed(100.7f);
             }
         });
 
         mOneSpeed.setOnClickListener(new OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
                 mHalfSpeed.setSelected(false);
@@ -151,6 +161,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
             }
         });
         mOneAndHalfSpeed.setOnClickListener(new OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
                 mHalfSpeed.setSelected(false);
@@ -161,6 +172,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
             }
         });
         mTwoSpeed.setOnClickListener(new OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.M)
             @Override
             public void onClick(View v) {
                 mHalfSpeed.setSelected(false);
@@ -222,6 +234,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
     private void setUpPlayer() {
         if (mPlayer == null){
             mPlayer = new MediaPlayer();

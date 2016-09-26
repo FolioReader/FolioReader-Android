@@ -63,7 +63,7 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_below="@+id/first_separator"/>-->
-    <LinearLayout android:id="@+id/fontLayout"
+    <LinearLayout android:id="@+id/playback_speed_Layout"
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_below="@+id/first_separator"
@@ -116,7 +116,7 @@
         android:id="@+id/second_separator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_below="@+id/fontLayout"
+        android:layout_below="@+id/playback_speed_Layout"
         android:background="@color/borders"/>
 
     <LinearLayout android:layout_width="match_parent"
