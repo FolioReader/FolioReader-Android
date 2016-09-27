@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'checkstyle'
+apply from: '../config/quality/quality.gradle'
 
 android {
   useLibrary 'org.apache.http.legacy'
