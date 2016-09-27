@@ -261,9 +261,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     public boolean setPagerToPosition(int audioPosition){
         String src = mTextElementList.get(audioPosition).getSrc();
         String temp[] = src.split("#");
-        String hRef = "text//" + temp[0];
+        String href = "text//" + temp[0];
         String currentHref = mSpineReferences.get(mFolioPageViewPager.getCurrentItem()).getResource().getHref();
-        if (hRef.equalsIgnoreCase(currentHref)){
+        if (href.equalsIgnoreCase(currentHref)){
             return false;
         } else {
             setPagerToPosition("text//" + temp[0]);

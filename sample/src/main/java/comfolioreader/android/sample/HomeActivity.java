@@ -62,9 +62,9 @@ public class HomeActivity extends AppCompatActivity {
         //intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "The Silver Chair.epub");
         //intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "The Silver Chair.epub");
         //intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "The Adventures Of Sherlock Holmes - Adventure I.epub");
-        //String path= Environment.getExternalStorageDirectory().getAbsolutePath() + "/epub/" + "The Silver Chair.epub";
-        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, R.raw.adventures);
-        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.Epub_Source_Type.RAW);
+        String path= Environment.getExternalStorageDirectory().getAbsolutePath() + "/epub files/" + "EPUB-math-sample.epub";
+        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, path);
+        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.Epub_Source_Type.SD_CARD);
         startActivity(intent);
     }
 

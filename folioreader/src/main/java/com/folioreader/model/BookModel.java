@@ -18,6 +18,8 @@ public class BookModel implements Serializable {
     private int localId;
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     private Book book;
+    @DatabaseField()
+    private String bookName;
 
     public BookModel(){}
 
@@ -37,5 +39,11 @@ public class BookModel implements Serializable {
         this.localId = localId;
     }
 
+    public String getBookName() {
+        return bookName;
+    }
 
+    public void setBookName(String bookName) {
+        this.bookName = bookName;
+    }
 }

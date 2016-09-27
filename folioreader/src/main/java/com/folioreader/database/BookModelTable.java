@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.folioreader.model.BookModel;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -26,10 +27,13 @@ public class BookModelTable {
         return status;
     }
 
-    public static BookModel getAllRecords(Context context) {
+    public static BookModel getBookFromName(Context context,String bookName) {
         List<BookModel> BookModels = null;
         try {
-            BookModels = FolioReaderDB.getInstance(context).getBookModelDao().queryForAll();
+            //BookModels = FolioReaderDB.getInstance(context).getBookModelDao().queryForAll();
+            QueryBuilder queryBuilder=FolioReaderDB.getInstance(context).getBookModelDao().queryBuilder();
+            queryBuilder.where().eq("bookName",bookName);
+            BookModels = queryBuilder.query();
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -201,7 +201,7 @@ public class AppUtil {
                 book = saveBookToDb(FILE_NAME, context);
 
             } else {
-                BookModel bookModel = BookModelTable.getAllRecords(context);
+                BookModel bookModel = BookModelTable.getBookFromName(context,mFolderName);
                 if (bookModel != null) {
                     book = bookModel.getBook();
                 } else {
@@ -230,13 +230,13 @@ public class AppUtil {
         Resources res = context.getResources();
         mFolderName = res.getResourceEntryName(rawId);
         file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/" + mFolderName);
-        if (file.isFile()) isFileExist = true;
+        if (file.isDirectory()) isFileExist = true;
     } else if (sourceType.equals(FolioActivity.Epub_Source_Type.ASSESTS)) {
         String fileName = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         int fileMaxIndex = fileName.length();
         mFolderName = fileName.substring(0, fileMaxIndex - 5);
         file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/" + mFolderName);
-        if (file.isFile()) isFileExist = true;
+        if (file.isDirectory()) isFileExist = true;
     } else {
         String fileName = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         String temp[] = fileName.split("/");
@@ -244,7 +244,7 @@ public class AppUtil {
         int fileMaxIndex = fileName.length();
         mFolderName = fileName.substring(0, fileMaxIndex - 5);
         file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/" + mFolderName);
-        if (file.isFile()) {
+        if (file.isDirectory()) {
             isFileExist = true;
         } else {
             FILE_NAME = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
@@ -274,6 +274,7 @@ public class AppUtil {
             book.setCoverImage(null);
             book.setResources(null);
             bookModel.setBook(book);
+            bookModel.setBookName(mFolderName);
             BookModelTable.createEntryInTableIfNotExist(context, bookModel);
 
         } catch (FileNotFoundException e) {
@@ -321,7 +322,7 @@ public class AppUtil {
                 textElementList = smilFile.getTextSegments();
                 SmilElements smilElement = new SmilElements(audioElementArrayList, textElementList);
                 String smilElemets = jsonMapper.writeValueAsString(smilElement);
-                SharedPreferenceUtil.putSharedPreferencesString(context, SMIL_ELEMENTS, smilElemets);
+                SharedPreferenceUtil.putSharedPreferencesString(context, mFolderName, smilElemets);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -335,7 +336,7 @@ public class AppUtil {
     }
 
     public static SmilElements retrieveAndParseSmilJSON(Context context) {
-        String smilElmentsJson = SharedPreferenceUtil.getSharedPreferencesString(context, SMIL_ELEMENTS, null);
+        String smilElmentsJson = SharedPreferenceUtil.getSharedPreferencesString(context, mFolderName, null);
         SmilElements smilElements = null;
         if (smilElmentsJson != null) {
             try {
