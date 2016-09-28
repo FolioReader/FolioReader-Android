@@ -28,7 +28,9 @@ import java.util.ArrayList;
 public class HighlightListActivity extends AppCompatActivity {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private static final String ITEM_DELETED = "item_deleted";
-
+    private static final int REQUEST_CODE = 1;
+    private static final String ITEM_NOTE = "item_note";
+    private ListView highlightListview;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +62,7 @@ public class HighlightListActivity extends AppCompatActivity {
         }
         ArrayList<Highlight> highlightArrayList = (ArrayList<Highlight>) HighlightTable.getAllRecords(HighlightListActivity.this);
         HightlightAdpater hightlightAdpater = new HightlightAdpater(HighlightListActivity.this, 0, highlightArrayList);
-        ListView highlightListview = (ListView) findViewById(R.id.list_highligts);
+        highlightListview = (ListView) findViewById(R.id.list_highligts);
         highlightListview.setAdapter(hightlightAdpater);
     }
 
@@ -71,12 +73,16 @@ public class HighlightListActivity extends AppCompatActivity {
         private class ViewHolder {
             public UnderlinedTextView txtHightlightText;
             public TextView txtHightLightTime;
+            public TextView txtHightLightNote;
             public ImageView delete;
+            public ImageView editNote;
 
             public ViewHolder(View row) {
                 txtHightlightText = (UnderlinedTextView) row.findViewById(R.id.txt_hightlight_text);
                 txtHightLightTime = (TextView) row.findViewById(R.id.txt_hightlight_time);
+                txtHightLightNote = (TextView) row.findViewById(R.id.txt_hightlight_note);
                 delete = (ImageView) row.findViewById(R.id.delete);
+                editNote = (ImageView) row.findViewById(R.id.edit_note);
             }
         }
 
@@ -99,8 +105,15 @@ public class HighlightListActivity extends AppCompatActivity {
             final Highlight rowItem = getItem(position);
             holder.txtHightlightText.setText(rowItem.getContent().trim());
             holder.txtHightLightTime.setText(AppUtil.formatDate(rowItem.getDate()));
+
+            String editedNote = rowItem.getNote();
+            if(editedNote != null) {
+                if(editedNote.length() > 0) {
+                    holder.txtHightLightNote.setText(editedNote);
+                }
+            }
             AppUtil.setBackColorToTextView(holder.txtHightlightText, rowItem.getType());
-            row.findViewById(R.id.main_data).setOnClickListener(new View.OnClickListener() {
+            row.findViewById(R.id.txt_hightlight_text).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent();
@@ -109,9 +122,17 @@ public class HighlightListActivity extends AppCompatActivity {
                     finish();
                 }
             });
-
+            row.findViewById(R.id.txt_hightlight_note).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getApplicationContext(), EditNoteActivity.class);
+                    intent.putExtra(HIGHLIGHT_ITEM, rowItem);
+                    startActivityForResult(intent, REQUEST_CODE);
+                }
+            });
             if (Config.getConfig().isNightMode()) {
                 holder.txtHightlightText.setTextColor(ContextCompat.getColor(HighlightListActivity.this, R.color.white));
+                holder.txtHightLightNote.setTextColor(ContextCompat.getColor(HighlightListActivity.this, R.color.white));
                 holder.txtHightLightTime.setTextColor(ContextCompat.getColor(HighlightListActivity.this, R.color.white));
             }
 
@@ -125,7 +146,22 @@ public class HighlightListActivity extends AppCompatActivity {
                     finish();
                 }
             });
+            holder.editNote.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getApplicationContext(), EditNoteActivity.class);
+                    intent.putExtra(HIGHLIGHT_ITEM, rowItem);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivityForResult(intent, REQUEST_CODE);
+                }
+            });
             return row;
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        finish();
     }
 }

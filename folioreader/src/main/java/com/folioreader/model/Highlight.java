@@ -110,11 +110,13 @@ public class Highlight implements Parcelable {
     private int currentPagerPostion;
     @DatabaseField
     private int currentWebviewScrollPos;
+    @DatabaseField
+    private String note;
 
     public Highlight() {
     }
 
-    public Highlight(int id, String bookId, String content, String contentPost, String contentPre, Date date, String highlightId, int page, String type) {
+    public Highlight(int id, String bookId, String content, String contentPost, String contentPre, Date date, String highlightId, int page, String type, String note) {
         this.id = id;
         this.bookId = bookId;
         this.content = content;
@@ -124,6 +126,7 @@ public class Highlight implements Parcelable {
         this.highlightId = highlightId;
         this.page = page;
         this.type = type;
+        this.note = note;
     }
 
     protected Highlight(Parcel in) {
@@ -218,6 +221,14 @@ public class Highlight implements Parcelable {
         this.currentWebviewScrollPos = currentWebviewScrollPos;
     }
 
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -289,6 +300,7 @@ public class Highlight implements Parcelable {
         dest.writeString(type);
         dest.writeInt(currentPagerPostion);
         dest.writeInt(currentWebviewScrollPos);
+        dest.writeString(note);
     }
 
     private void readFromParcel(Parcel in) {
@@ -303,6 +315,7 @@ public class Highlight implements Parcelable {
         type = in.readString();
         currentPagerPostion = in.readInt();
         currentWebviewScrollPos = in.readInt();
+        note = in.readString();
     }
 
     public static final Creator<Highlight> CREATOR = new Creator<Highlight>() {
