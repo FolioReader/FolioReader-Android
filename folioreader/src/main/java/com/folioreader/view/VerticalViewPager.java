@@ -43,7 +43,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1016,10 +1015,10 @@ public class VerticalViewPager extends ViewGroup {
                 for (int i = 0; i < getChildCount(); i++) {
                     View child = getChildAt(i);
                     ii = infoForChild(child);
-                    if (ii != null && ii.position == mCurItem) {
-                        if (child.requestFocus(focusDirection)) {
+                    if (ii != null && ii.position == mCurItem && child.requestFocus(focusDirection)) {
+//                        if (child.requestFocus(focusDirection)) {
                             break;
-                        }
+                       // }
                     }
                 }
             }
@@ -1788,11 +1787,9 @@ public class VerticalViewPager extends ViewGroup {
                     if (DEBUG) Log.v(TAG, "Starting unable to drag!");
                     mIsUnableToDrag = true;
                 }
-                if (mIsBeingDragged) {
+                if (mIsBeingDragged && performDrag(y)) {
                     // Scroll to follow the motion event
-                    if (performDrag(y)) {
-                        ViewCompat.postInvalidateOnAnimation(this);
-                    }
+                    ViewCompat.postInvalidateOnAnimation(this);
                 }
                 break;
             }
@@ -2627,10 +2624,8 @@ public class VerticalViewPager extends ViewGroup {
             View child = getChildAt(i);
             if (child.getVisibility() == VISIBLE) {
                 ItemInfo ii = infoForChild(child);
-                if (ii != null && ii.position == mCurItem) {
-                    if (child.requestFocus(direction, previouslyFocusedRect)) {
+                if (ii != null && ii.position == mCurItem && child.requestFocus(direction, previouslyFocusedRect)) {
                         return true;
-                    }
                 }
             }
         }

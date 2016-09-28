@@ -18,7 +18,8 @@ public class FolioPageFragmentAdapter extends FragmentPagerAdapter {
     private List<SpineReference> mSpineReferences;
     private Book mBook;
 
-    public FolioPageFragmentAdapter(FragmentManager fm, List<SpineReference> spineReferences, Book book) {
+    public FolioPageFragmentAdapter(FragmentManager fm,
+                                    List<SpineReference> spineReferences, Book book) {
         super(fm);
         this.mSpineReferences = spineReferences;
         this.mBook = book;

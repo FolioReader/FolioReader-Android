@@ -65,4 +65,15 @@
   <string name="one_and_half_speed"><![CDATA[1<sup>1</sup>/<sub>2</sub>x]]></string>
   <string name="half_speed_text"><![CDATA[<sup>1</sup>/<sub>2</sub>x]]></string>
   <string name="please_wait_till_audio_is_parsed">please wait till audio is been parsed, Retry after some time</string>
+  <string name="audio_mark_id">javascript:alert(audioMarkID(\'epub-media-overlay-playing\',\'%s\'))</string>
+  <string name="setmediaoverlaystyle">javascript:alert(setMediaOverlayStyle(\'%s\'))</string>
+  <string name="getHighlightString">javascript:alert(getHighlightString(\'%s\'))</string>
+  <string name="sethighlightstyle">javascript:alert(setHighlightStyle(\'%s\'));</string>
+  <string name="css_tag"><![CDATA[<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">]]></string>
+  <string name="script_tag"><![CDATA[<script type=\"text/javascript\" src=\"%s\"></script>]]></string>
+  <string name="td_tag"><![CDATA[<td>%s</td></tr>]]></string>
+  <string name="tr_tag"><![CDATA[<tr><td></td><td>%s</td></tr>]]></string>
+  <string name="pattern">\\\\{\\\\{(-?\\\\d+\\\\.?\\\\d*)\\\\,(-?\\\\d+\\\\.?\\\\d*)\\\\}\\\\,\\\\s\\\\{(-?\\\\d+\\\\.?\\\\d*)\\\\,(-?\\\\d+\\\\.?\\\\d*)\\\\}\\\\}</string>
+  <string name="pattern2">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>
+
 </resources>

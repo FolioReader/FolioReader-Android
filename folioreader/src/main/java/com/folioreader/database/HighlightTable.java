@@ -23,9 +23,9 @@ public class HighlightTable {
 
         try {
             status = FolioReaderDB.getInstance(context).getHighlightDao().create(highlight);
-            Log.d(Tag + "CREAT", status + " Highlight");
+            Log.d(Tag , status + " Highlight");
         } catch (SQLException e) {
-            Log.d(Tag + "CREAT", e.getMessage());
+            Log.d(Tag , e.getMessage());
         }
 
         return status;
@@ -37,7 +37,7 @@ public class HighlightTable {
             if (!isHighlightExistInDB(context, highlight))
                 status = FolioReaderDB.getInstance(context).getHighlightDao().create(highlight);
         } catch (SQLException e) {
-            Log.d(Tag + "CREAT", e.getMessage());
+            Log.d(Tag , e.getMessage());
         }
 
         return status;
@@ -49,20 +49,21 @@ public class HighlightTable {
             Log.d(Tag + "UPDATE", count + " Highlight");
             return count;
         } catch (SQLException e) {
-            e.printStackTrace();
+            Log.d(Tag, e.getMessage());
             return -1;
         }
     }
 
     public static int updateHighlightStyle(Context context, String id, String type) {
         try {
-            UpdateBuilder<Highlight, Integer> updateBuilder = FolioReaderDB.getInstance(context).getHighlightDao().updateBuilder();
+            UpdateBuilder<Highlight, Integer> updateBuilder =
+                        FolioReaderDB.getInstance(context).getHighlightDao().updateBuilder();
             updateBuilder.where().eq(Highlight.LOCAL_DB_HIGHLIGHT_ID, id);
             updateBuilder.updateColumnValue(Highlight.LOCAL_DB_HIGHLIGHT_TYPE, type);
             int count = updateBuilder.update();
             return count;
         } catch (SQLException e) {
-            e.printStackTrace();
+            Log.d(Tag, e.getMessage());
             return -1;
         }
     }
@@ -76,7 +77,7 @@ public class HighlightTable {
         try {
             records = FolioReaderDB.getInstance(context).getHighlightDao().queryForAll();
         } catch (SQLException e) {
-            e.printStackTrace();
+            Log.d(Tag, e.getMessage());
         }
 
         return records;
@@ -100,14 +101,18 @@ public class HighlightTable {
             if (highlight != null) {
                 Dao<Highlight, Integer> dao = FolioReaderDB.getInstance(context).getHighlightDao();
                 long count = dao.queryBuilder().setCountOf(true).where()
-                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_PRE, highlight.getContentPre()).and()
-                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT, highlight.getContent()).and()
-                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_POST, highlight.getContentPost()).countOf();
+                            .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_PRE,
+                            highlight.getContentPre()).and()
+                            .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT,
+                            highlight.getContent()).and()
+                            .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_POST,
+                             highlight.getContentPost()).countOf();
                 return count > 0;
-            } else
+            } else {
                 return false;
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
+            Log.d(Tag , e.getMessage());
             return false;
         }
     }
@@ -118,12 +123,15 @@ public class HighlightTable {
             if (highlight != null) {
                 Dao<Highlight, Integer> dao = FolioReaderDB.getInstance(context).getHighlightDao();
                 record = dao.queryBuilder().where()
-                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_PRE, highlight.getContentPre()).and()
-                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT, highlight.getContent()).and()
-                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_POST, highlight.getContentPost()).queryForFirst();
+                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_PRE,
+                         highlight.getContentPre()).and()
+                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT,
+                         highlight.getContent()).and()
+                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_POST,
+                         highlight.getContentPost()).queryForFirst();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            Log.d(Tag, e.getMessage());
             return record;
         }
         return record;
@@ -137,8 +145,9 @@ public class HighlightTable {
             } else {
                 createEntryInTable(context, highlight);
             }
-        } else
+        } else {
             Log.d(Tag + "SAVE:", "can't save null object");
+        }
     }
 
     public static List<Highlight> getAllHighlight(Context context, String bookId, int pageNo) {
@@ -149,7 +158,7 @@ public class HighlightTable {
                     .eq(Highlight.LOCAL_DB_HIGHLIGHT_BOOK_ID, bookId).and()
                     .eq(Highlight.LOCAL_DB_HIGHLIGHT_PAGE, pageNo).query();
         } catch (SQLException e) {
-            e.printStackTrace();
+            Log.d(Tag, e.getMessage());
         }
         return highlights;
     }
@@ -162,12 +171,13 @@ public class HighlightTable {
             deleteBuilder.where().eq(Highlight.LOCAL_DB_HIGHLIGHT_ID, highlightId);
             status = deleteBuilder.delete();
         } catch (SQLException e) {
-            e.printStackTrace();
+            Log.d(Tag, e.getMessage());
         }
-        if (status > 0)
+        if (status > 0) {
             Log.d(Tag + "Remove:", "no of records removed" + status);
-        else
+        } else {
             Log.d(Tag + "Remove:", "can't remove");
+        }
     }
 }
 

@@ -14,14 +14,15 @@ import nl.siegmann.epublib.domain.Book;
 
 @DatabaseTable(tableName = "bookTable")
 public class BookModel implements Serializable {
-    @DatabaseField(generatedId=true)
-    private int localId;
+    @DatabaseField(generatedId = true)
+    int localId;
     @DatabaseField(dataType = DataType.SERIALIZABLE)
-    private Book book;
+    Book book;
     @DatabaseField()
-    private String bookName;
+    String bookName;
 
-    public BookModel(){}
+    public BookModel() {
+    }
 
     public Book getBook() {
         return book;

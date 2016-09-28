@@ -8,34 +8,34 @@ import java.util.List;
  */
 public class SequenceElement implements ContainerElement {
 
-    private double duration;
-    private List<SmilElement> elements = new ArrayList<SmilElement>();
-    private ContainerElement parent;
+    private double mDuration;
+    private List<SmilElement> mElements = new ArrayList<SmilElement>();
+    private ContainerElement mParent;
 
-    public SequenceElement(ContainerElement parent, double duration) {
-        this.parent = parent;
-        this.duration = duration;
+    public SequenceElement(ContainerElement mParent, double mDuration) {
+        this.mParent = mParent;
+        this.mDuration = mDuration;
     }
 
-    public SequenceElement(ContainerElement parent) {
-        this.parent = parent;
+    public SequenceElement(ContainerElement mParent) {
+        this.mParent = mParent;
     }
 
     public void add(SmilElement currentElement) {
-        elements.add(currentElement);
+        mElements.add(currentElement);
     }
 
     // Mac complains about @Override
     public ContainerElement getParent() {
-    	return parent;
+        return mParent;
     }
-    
+
     public SmilElement get(int i) {
-        return elements.get(i);
+        return mElements.get(i);
     }
 
     public int size() {
-        return elements.size();
+        return mElements.size();
     }
 
     @Override
@@ -43,10 +43,10 @@ public class SequenceElement implements ContainerElement {
         final int prime = 31;
         int result = 1;
         long temp;
-        temp = Double.doubleToLongBits(duration);
+        temp = Double.doubleToLongBits(mDuration);
         result = prime * result + (int) (temp ^ (temp >>> 32));
         result = prime * result
-                + ((elements == null) ? 0 : elements.hashCode());
+                + ((mElements == null) ? 0 : mElements.hashCode());
         return result;
     }
 
@@ -62,27 +62,27 @@ public class SequenceElement implements ContainerElement {
             return false;
         }
         SequenceElement other = (SequenceElement) obj;
-        if (Double.doubleToLongBits(duration) != Double
-                .doubleToLongBits(other.duration)) {
+        if (Double.doubleToLongBits(mDuration) != Double
+                .doubleToLongBits(other.mDuration)) {
             return false;
         }
-        if (elements == null) {
-            if (other.elements != null) {
+        if (mElements == null) {
+            if (other.mElements != null) {
                 return false;
             }
-        } else if (!elements.equals(other.elements)) {
+        } else if (!mElements.equals(other.mElements)) {
             return false;
         }
         return true;
     }
 
     public boolean isEmpty() {
-        return elements.isEmpty();
+        return mElements.isEmpty();
     }
-    
+
     public List<AudioElement> getAllAudioElementDepthFirst() {
         List<AudioElement> ret = new ArrayList<AudioElement>();
-        for (SmilElement elem : elements) {
+        for (SmilElement elem : mElements) {
             if (elem instanceof ContainerElement) {
                 ret.addAll(((ContainerElement) elem).getAllAudioElementDepthFirst());
             } else if (elem instanceof AudioElement) {
@@ -94,7 +94,7 @@ public class SequenceElement implements ContainerElement {
 
     public List<TextElement> getAllTextElementDepthFirst() {
         List<TextElement> ret = new ArrayList<TextElement>();
-        for (SmilElement elem : elements) {
+        for (SmilElement elem : mElements) {
             if (elem instanceof ContainerElement) {
                 ret.addAll(((ContainerElement) elem).getAllTextElementDepthFirst());
             } else if (elem instanceof TextElement) {
@@ -105,10 +105,10 @@ public class SequenceElement implements ContainerElement {
     }
 
     /**
-     * @return all the elements found in the SMIL file.
+     * @return all the mElements found in the SMIL file.
      */
-	public List<SmilElement> getElements() {
-		return elements;
-		
-	}
+    public List<SmilElement> getElements() {
+        return mElements;
+
+    }
 }

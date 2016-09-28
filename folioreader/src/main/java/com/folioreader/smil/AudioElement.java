@@ -5,67 +5,68 @@ import java.io.Serializable;
 /**
  * Encapsulates the <audio> tag.
  */
-public class AudioElement implements Serializable,MediaElement {
-    
-    private String src;
-    private int clipBegin;
-    private int clipEnd;
-    private String id;
-    private SmilElement parent;
+public class AudioElement implements Serializable, MediaElement {
+
+    private String mSrc;
+    private int mClipBegin;
+    private int mClipEnd;
+    private String mId;
+    private SmilElement mParent;
 
 
-    public  AudioElement(){}
-
-    public AudioElement(SmilElement parent, String src, int clipBegin, int clipEnd, String id) {
-        super();
-        this.parent = parent;
-        this.src = src;
-        this.clipBegin = clipBegin;
-        this.clipEnd = clipEnd;
-        this.id = id;
+    public AudioElement() {
     }
-    
+
+    public AudioElement(SmilElement mParent, String mSrc, int mClipBegin, int clipEnd, String mId) {
+        super();
+        this.mParent = mParent;
+        this.mSrc = mSrc;
+        this.mClipBegin = mClipBegin;
+        this.mClipEnd = clipEnd;
+        this.mId = mId;
+    }
+
     public String getSrc() {
         // TODO Auto-generated method stub
-        return src;
+        return mSrc;
     }
 
     public double getClipBegin() {
         // TODO Auto-generated method stub
-        return clipBegin;
+        return mClipBegin;
     }
 
-    public double getClipEnd() {
+    public double getmClipEnd() {
         // TODO Auto-generated method stub
-        return clipEnd;
+        return mClipEnd;
     }
 
     public String getId() {
         // TODO Auto-generated method stub
-        return id;
+        return mId;
     }
-    
+
     /**
      * Gets the text element in the same <par> section
-     * 
+     *
      * @return
      */
     public TextElement getCompanionTextElement() {
-        if (parent instanceof ParallelElement) {
-            return ((ParallelElement) parent).getTextElement();
+        if (mParent instanceof ParallelElement) {
+            return ((ParallelElement) mParent).getTextElement();
         } else {
             return null;
         }
     }
-    
+
     /**
      * Whether the given time is in the clip of this audio element
-     * 
+     *
      * @param time
      * @return
      */
     public boolean inClip(double time) {
-        return time < clipEnd && time >= clipBegin;
+        return time < mClipEnd && time >= mClipBegin;
     }
 
     @Override
@@ -73,12 +74,12 @@ public class AudioElement implements Serializable,MediaElement {
         final int prime = 31;
         int result = 1;
         long temp;
-        temp = Double.doubleToLongBits(clipBegin);
+        temp = Double.doubleToLongBits(mClipBegin);
         result = prime * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(clipEnd);
+        temp = Double.doubleToLongBits(mClipEnd);
         result = prime * result + (int) (temp ^ (temp >>> 32));
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((src == null) ? 0 : src.hashCode());
+        result = prime * result + ((mId == null) ? 0 : mId.hashCode());
+        result = prime * result + ((mSrc == null) ? 0 : mSrc.hashCode());
         return result;
     }
 
@@ -90,35 +91,35 @@ public class AudioElement implements Serializable,MediaElement {
         if (obj == null) {
             return false;
         }
-        
+
         if (!(obj instanceof AudioElement)) {
-        	return false;
+            return false;
         }
-        
+
         AudioElement other = (AudioElement) obj;
-        if (Double.doubleToLongBits(clipBegin) != Double
-                .doubleToLongBits(other.clipBegin)) {
+        if (Double.doubleToLongBits(mClipBegin) != Double
+                .doubleToLongBits(other.mClipBegin)) {
             return false;
         }
-        if (Double.doubleToLongBits(clipEnd) != Double
-                .doubleToLongBits(other.clipEnd)) {
+        if (Double.doubleToLongBits(mClipEnd) != Double
+                .doubleToLongBits(other.mClipEnd)) {
             return false;
         }
-        if (id == null) {
-            if (other.id != null) {
+        if (mId == null) {
+            if (other.mId != null) {
                 return false;
             }
-        } else if (!id.equals(other.id)) {
+        } else if (!mId.equals(other.mId)) {
             return false;
         }
-        if (src == null) {
-            if (other.src != null) {
+        if (mSrc == null) {
+            if (other.mSrc != null) {
                 return false;
             }
-        } else if (!src.equals(other.src)) {
+        } else if (!mSrc.equals(other.mSrc)) {
             return false;
         }
         return true;
     }
-    
+
 }

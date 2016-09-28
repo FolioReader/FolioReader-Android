@@ -19,7 +19,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -62,9 +61,9 @@ public class HomeActivity extends AppCompatActivity {
         //intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "The Silver Chair.epub");
         //intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "The Silver Chair.epub");
         //intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "The Adventures Of Sherlock Holmes - Adventure I.epub");
-        String path= Environment.getExternalStorageDirectory().getAbsolutePath() + "/epub files/" + "EPUB-math-sample.epub";
-        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, path);
-        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.Epub_Source_Type.SD_CARD);
+        //String path= Environment.getExternalStorageDirectory().getAbsolutePath() + "/epub/" + "The Silver Chair.epub";
+        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "The Adventures Of Sherlock Holmes - Adventure I.epub");
+        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.ASSESTS);
         startActivity(intent);
     }
 

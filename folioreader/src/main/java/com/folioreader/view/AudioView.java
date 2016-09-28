@@ -26,6 +26,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.text.Html;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -37,16 +38,19 @@ import com.folioreader.R;
 import com.folioreader.activity.FolioActivity;
 import com.folioreader.model.Highlight;
 import com.folioreader.smil.AudioElement;
+import com.folioreader.util.AppUtil;
 import com.folioreader.util.ViewHelper;
 
 import java.io.IOException;
 
-public class AudioView extends FrameLayout implements View.OnClickListener {
+public class AudioView extends FrameLayout implements
+        View.OnClickListener {
 
     private static final float SENSITIVITY = 1.0f;
     private static final float DEFAULT_DRAG_LIMIT = 0.5f;
     private static final int INVALID_POINTER = -1;
-    private int activePointerId = INVALID_POINTER;
+    private static final String TAG = AudioView.class.getSimpleName();
+    private int mActivePointerId = INVALID_POINTER;
 
     private ImageButton mPlayPauseBtn;
     private RelativeLayout mContainer;
@@ -118,7 +122,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
                 if (mPlayer.getDuration() != currentPosition) {
                     if (currentPosition > mEnd) {
                         mAudioElement = mFolioActivity.getElement(mPosition);
-                        mEnd = (int) mAudioElement.getClipEnd();
+                        mEnd = (int) mAudioElement.getmClipEnd();
                         mFolioActivity.setHighLight(mPosition, mHighlightStyle);
                         mPosition++;
                     }
@@ -236,17 +240,17 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
 
     @TargetApi(Build.VERSION_CODES.M)
     private void setUpPlayer() {
-        if (mPlayer == null){
+        if (mPlayer == null) {
             mPlayer = new MediaPlayer();
             try {
                 mAudioElement = mFolioActivity.getElement(0);
                 String filePath = mAudioElement.getSrc();
                 filePath = filePath.substring(2, filePath.length());
-                filePath = "/folioreader/temp/OEBPS" + filePath;
+                filePath = "/folioreader/" + AppUtil.mfolderName + "/OEBPS/" + filePath;
                 mPlayer.setDataSource(Environment.getExternalStorageDirectory().getAbsolutePath() + filePath);
                 mPlayer.prepare();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d(TAG, e.getMessage());
             }
         }
     }
@@ -254,7 +258,7 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
     private void playAudio() {
         mAudioElement = mFolioActivity.getElement(mPosition);
         setUpPlayer();
-        if (mPlayer.isPlaying()){
+        if (mPlayer.isPlaying()) {
             mManualPlay = false;
             mPlayer.pause();
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
@@ -354,8 +358,8 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
                 return false;
             case MotionEvent.ACTION_DOWN:
                 int index = MotionEventCompat.getActionIndex(ev);
-                activePointerId = MotionEventCompat.getPointerId(ev, index);
-                if (activePointerId == INVALID_POINTER) {
+                mActivePointerId = MotionEventCompat.getPointerId(ev, index);
+                if (mActivePointerId == INVALID_POINTER) {
                     return false;
                 }
             default:
@@ -376,9 +380,9 @@ public class AudioView extends FrameLayout implements View.OnClickListener {
     public boolean onTouchEvent(MotionEvent ev) {
         int actionMasked = MotionEventCompat.getActionMasked(ev);
         if ((actionMasked & MotionEventCompat.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
-            activePointerId = MotionEventCompat.getPointerId(ev, actionMasked);
+            mActivePointerId = MotionEventCompat.getPointerId(ev, actionMasked);
         }
-        if (activePointerId == INVALID_POINTER) {
+        if (mActivePointerId == INVALID_POINTER) {
             return false;
         }
         mViewDragHelper.processTouchEvent(ev);

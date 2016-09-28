@@ -7,37 +7,37 @@ import java.util.List;
 /**
  * Encapsulates the <par> tag.
  * Limitations:
- *   Support only one sequence of audio elements, 
- *   i.e. concurrent play of multiple data source is not supported
+ * Support only one sequence of audio elements,
+ * i.e. concurrent play of multiple data source is not supported
  */
 public class ParallelElement implements ContainerElement {
-    private SequenceElement audioSequence;
-    private TextElement textElement;
-    private ContainerElement parent;
-    
-    public ParallelElement(ContainerElement parent) {
-        this.parent = parent;
+    private SequenceElement mAudioSequence;
+    private TextElement mTextElement;
+    private ContainerElement mParent;
+
+    public ParallelElement(ContainerElement mParent) {
+        this.mParent = mParent;
     }
 
     // Mac complains about this @Override
     public ContainerElement getParent() {
-    	return parent;
+        return mParent;
     }
-    
+
     public TextElement getTextElement() {
-        if (textElement != null) {
-            return textElement;
+        if (mTextElement != null) {
+            return mTextElement;
         } else {
             return null;
         }
     }
-    
-    public void setTextElement(TextElement textElement) {
-        this.textElement = textElement;
+
+    public void setTextElement(TextElement mTextElement) {
+        this.mTextElement = mTextElement;
     }
 
     public void addAudioElement(AudioElement audioElement) {
-        audioSequence.add(audioElement);
+        mAudioSequence.add(audioElement);
     }
 
     @Override
@@ -45,9 +45,9 @@ public class ParallelElement implements ContainerElement {
         final int prime = 31;
         int result = 1;
         result = prime * result
-                + ((audioSequence == null) ? 0 : audioSequence.hashCode());
+                + ((mAudioSequence == null) ? 0 : mAudioSequence.hashCode());
         result = prime * result
-                + ((textElement == null) ? 0 : textElement.hashCode());
+                + ((mTextElement == null) ? 0 : mTextElement.hashCode());
         return result;
     }
 
@@ -63,40 +63,40 @@ public class ParallelElement implements ContainerElement {
             return false;
         }
         ParallelElement other = (ParallelElement) obj;
-        if (audioSequence == null) {
-            if (other.audioSequence != null) {
+        if (mAudioSequence == null) {
+            if (other.mAudioSequence != null) {
                 return false;
             }
-        } else if (!audioSequence.equals(other.audioSequence)) {
+        } else if (!mAudioSequence.equals(other.mAudioSequence)) {
             return false;
         }
-        if (textElement == null) {
-            if (other.textElement != null) {
+        if (mTextElement == null) {
+            if (other.mTextElement != null) {
                 return false;
             }
-        } else if (!textElement.equals(other.textElement)) {
+        } else if (!mTextElement.equals(other.mTextElement)) {
             return false;
         }
         return true;
     }
-    
+
     public void setAudioSequence(SequenceElement sequence) {
-        audioSequence = sequence;
+        mAudioSequence = sequence;
     }
 
     public SequenceElement getAudioSequence() {
-        return audioSequence;
+        return mAudioSequence;
     }
 
     public List<AudioElement> getAllAudioElementDepthFirst() {
-        if (audioSequence != null) {
-            return audioSequence.getAllAudioElementDepthFirst();
+        if (mAudioSequence != null) {
+            return mAudioSequence.getAllAudioElementDepthFirst();
         } else {
             return new ArrayList<AudioElement>();
         }
     }
 
     public List<TextElement> getAllTextElementDepthFirst() {
-        return Arrays.asList(textElement);
+        return Arrays.asList(mTextElement);
     }
 }

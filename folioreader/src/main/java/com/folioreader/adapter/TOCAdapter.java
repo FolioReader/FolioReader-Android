@@ -20,10 +20,10 @@ import nl.siegmann.epublib.domain.TOCReference;
  */
 public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
     private List<TOCReference> mTOCReferences;
-    private boolean isNightMode;
-    private int selectedChapterPosition;
-    private ChapterSelectionCallBack chapterSelectionCallBack;
-    private Context context;
+    private boolean mIsNightMode;
+    private int mSelectedChapterPosition;
+    private ChapterSelectionCallBack mChapterSelectionCallBack;
+    private Context mContext;
 
     public interface ChapterSelectionCallBack {
         public void onChapterSelect(int position);
@@ -39,14 +39,15 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
         }
     }
 
-    public TOCAdapter(List<TOCReference> tocReferences, Context context) {
+    public TOCAdapter(List<TOCReference> tocReferences, Context mContext) {
         mTOCReferences = tocReferences;
-        this.context = context;
+        this.mContext = mContext;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_chapter, parent, false);
+        View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.row_chapter, parent, false);
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
@@ -54,10 +55,10 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.tocTitleView.setText(mTOCReferences.get(position).getTitle());
-        Log.d("Href**** TOC",mTOCReferences.get(position).getCompleteHref());
-        Log.d("FRagId**** TOC",mTOCReferences.get(position).getFragmentId());
-        if (!(selectedChapterPosition == position)) {
-            if (isNightMode) {
+        Log.d("Href**** TOC", mTOCReferences.get(position).getCompleteHref());
+        Log.d("FRagId**** TOC", mTOCReferences.get(position).getFragmentId());
+        if (!(mSelectedChapterPosition == position)) {
+            if (mIsNightMode) {
                 holder.tocTitleView.setTextColor(Color.WHITE);
             } else {
                 holder.tocTitleView.setTextColor(Color.BLACK);
@@ -69,8 +70,8 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
         holder.tocTitleView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chapterSelectionCallBack = ((ChapterSelectionCallBack) context);
-                chapterSelectionCallBack.onChapterSelect(position);
+                mChapterSelectionCallBack = ((ChapterSelectionCallBack) mContext);
+                mChapterSelectionCallBack.onChapterSelect(position);
             }
         });
     }
@@ -81,11 +82,11 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
     }
 
     public void setNightMode(boolean nightMode) {
-        isNightMode = nightMode;
+        mIsNightMode = nightMode;
     }
 
     public void setSelectedChapterPosition(int position) {
-        selectedChapterPosition = position;
+        mSelectedChapterPosition = position;
     }
 
 }

@@ -6,7 +6,6 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -15,17 +14,18 @@ import java.util.List;
 @DatabaseTable(tableName = "smiltable")
 public class SmilElements {
     @DatabaseField(generatedId = true)
-    private int id;
+    int id;
     @DatabaseField(dataType = DataType.SERIALIZABLE)
-    private List<AudioElement> audioElementArrayList;
+    List<AudioElement> audioElementArrayList;
     @DatabaseField(dataType = DataType.SERIALIZABLE)
-    private List<TextElement> textElementArrayList;
+    List<TextElement> textElementArrayList;
 
 
     public SmilElements() {
     }
 
-    public SmilElements(List<AudioElement> audioElementArrayList, List<TextElement> textElementArrayList) {
+    public SmilElements(List<AudioElement> audioElementArrayList,
+                        List<TextElement> textElementArrayList) {
         this.audioElementArrayList = audioElementArrayList;
         this.textElementArrayList = textElementArrayList;
     }

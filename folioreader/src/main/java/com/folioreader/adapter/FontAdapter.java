@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ViewHolder> {
 
-    private ArrayList<Font> fonts = null;
+    private ArrayList<Font> mFonts = null;
 
     @Override
     public FontAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int i) {
@@ -38,25 +38,25 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
-        viewHolder.name.setText(fonts.get(i).getName());
+        viewHolder.mName.setText(mFonts.get(i).getName());
     }
 
     @Override
     public int getItemCount() {
-        return fonts != null ? fonts.size() : 0;
+        return mFonts != null ? mFonts.size() : 0;
     }
 
-    public void setFonts(ArrayList<Font> fonts) {
-        this.fonts = fonts;
+    public void setFonts(ArrayList<Font> mFonts) {
+        this.mFonts = mFonts;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView name;
+        private TextView mName;
 
         public ViewHolder(View v) {
             super(v);
-            name = (TextView) v.findViewById(R.id.name);
+            mName = (TextView) v.findViewById(R.id.name);
         }
     }
 }

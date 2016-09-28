@@ -16,10 +16,10 @@ import java.util.List;
 public class BookModelTable {
     private static final String Tag = "SmilTable";
 
-    public static int createEntryInTableIfNotExist(Context context, BookModel BookModel) {
+    public static int createEntryInTableIfNotExist(Context context, BookModel bookModel) {
         int status = -1;
         try {
-            FolioReaderDB.getInstance(context).getBookModelDao().createIfNotExists(BookModel);
+            FolioReaderDB.getInstance(context).getBookModelDao().createIfNotExists(bookModel);
         } catch (SQLException e) {
             Log.d(Tag + "CREAT", e.getMessage());
         }
@@ -27,18 +27,21 @@ public class BookModelTable {
         return status;
     }
 
-    public static BookModel getBookFromName(Context context,String bookName) {
-        List<BookModel> BookModels = null;
+    public static BookModel getBookFromName(Context context, String bookName) {
+        List<BookModel> bookModels = null;
         try {
             //BookModels = FolioReaderDB.getInstance(context).getBookModelDao().queryForAll();
-            QueryBuilder queryBuilder=FolioReaderDB.getInstance(context).getBookModelDao().queryBuilder();
-            queryBuilder.where().eq("bookName",bookName);
-            BookModels = queryBuilder.query();
+            QueryBuilder queryBuilder =
+                        FolioReaderDB.getInstance(context).getBookModelDao().queryBuilder();
+            queryBuilder.where().eq("bookName", bookName);
+            bookModels = queryBuilder.query();
         } catch (SQLException e) {
-            e.printStackTrace();
+            Log.d(Tag, e.toString());
         }
-        if (BookModels != null && BookModels.size()>0) {
-            return BookModels.get(0);
-        } else return null;
+        if (bookModels != null && bookModels.size() > 0) {
+            return bookModels.get(0);
+        } else {
+            return null;
+        }
     }
 }

@@ -23,6 +23,7 @@ public class FolioReaderDB extends OrmLiteSqliteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "folioReader.db";
+    private static final String TAG = FolioReaderDB.class.getSimpleName();
 
     private static FolioReaderDB mInstance = null;
 
@@ -60,12 +61,13 @@ public class FolioReaderDB extends OrmLiteSqliteOpenHelper {
             TableUtils.createTableIfNotExists(connectionSource, Highlight.class);
             TableUtils.createTableIfNotExists(connectionSource, BookModel.class);
         } catch (SQLException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         }
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
+    public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource,
+                          int oldVersion, int newVersion) {
         try {
             Log.i(FolioReaderDB.class.getName(), "onUpgrade");
             TableUtils.dropTable(connectionSource, Highlight.class, true);

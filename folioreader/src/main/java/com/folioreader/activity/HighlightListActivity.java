@@ -54,15 +54,28 @@ public class HighlightListActivity extends AppCompatActivity {
 
     private void initList() {
         if (Config.getConfig().isNightMode()) {
-            ((RelativeLayout) findViewById(R.id.main)).setBackgroundColor(ContextCompat.getColor(HighlightListActivity.this, R.color.black));
-            ((TextView) findViewById(R.id.lbl_center)).setTextColor(ContextCompat.getColor(HighlightListActivity.this, R.color.white));
-            ((Toolbar) findViewById(R.id.toolbar)).setBackgroundColor(ContextCompat.getColor(HighlightListActivity.this, R.color.black));
-            ((View) findViewById(R.id.view)).setBackgroundColor(ContextCompat.getColor(HighlightListActivity.this, R.color.white));
-            ((ListView) findViewById(R.id.list_highligts)).setDivider(new ColorDrawable(ContextCompat.getColor(HighlightListActivity.this, R.color.white)));
+            ((RelativeLayout) findViewById(R.id.main))
+                        .setBackgroundColor(ContextCompat.getColor(HighlightListActivity.this,
+                         R.color.black));
+            ((TextView) findViewById(R.id.lbl_center))
+                        .setTextColor(ContextCompat.getColor(HighlightListActivity.this,
+                         R.color.white));
+            ((Toolbar) findViewById(R.id.toolbar))
+                        .setBackgroundColor(ContextCompat.getColor(HighlightListActivity.this,
+                         R.color.black));
+            ((View) findViewById(R.id.view))
+                        .setBackgroundColor(ContextCompat.getColor(HighlightListActivity.this,
+                         R.color.white));
+            ((ListView) findViewById(R.id.list_highligts))
+                        .setDivider(new ColorDrawable(ContextCompat.
+                        getColor(HighlightListActivity.this, R.color.white)));
             ((ListView) findViewById(R.id.list_highligts)).setDividerHeight(1);
         }
 
-        HightlightAdpater hightlightAdpater = new HightlightAdpater(HighlightListActivity.this, 0, (ArrayList<Highlight>) HighlightTable.getAllRecords(HighlightListActivity.this));
+        HightlightAdpater hightlightAdpater =
+                    new HightlightAdpater(HighlightListActivity.this, 0,
+                    (ArrayList<Highlight>) HighlightTable
+                    .getAllRecords(HighlightListActivity.this));
         ListView highlightListview = (ListView) findViewById(R.id.list_highligts);
         highlightListview.setAdapter(hightlightAdpater);
     }
@@ -82,7 +95,8 @@ public class HighlightListActivity extends AppCompatActivity {
             }
         }
 
-        public HightlightAdpater(Context context, int textViewResourceId, ArrayList<Highlight> objects) {
+        public HightlightAdpater(Context context,
+                                 int textViewResourceId, ArrayList<Highlight> objects) {
             super(context, textViewResourceId, objects);
             mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
@@ -113,8 +127,12 @@ public class HighlightListActivity extends AppCompatActivity {
             });
 
             if (Config.getConfig().isNightMode()) {
-                holder.txtHightlightText.setTextColor(ContextCompat.getColor(HighlightListActivity.this, R.color.white));
-                holder.txtHightLightTime.setTextColor(ContextCompat.getColor(HighlightListActivity.this, R.color.white));
+                holder.txtHightlightText
+                            .setTextColor(ContextCompat.getColor(HighlightListActivity.this,
+                            R.color.white));
+                holder.txtHightLightTime
+                            .setTextColor(ContextCompat.getColor(HighlightListActivity.this,
+                             R.color.white));
             }
 
             holder.delete.setOnClickListener(new View.OnClickListener() {

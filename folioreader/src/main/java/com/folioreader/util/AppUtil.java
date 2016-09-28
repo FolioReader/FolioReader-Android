@@ -21,6 +21,7 @@ import com.folioreader.smil.AudioElement;
 import com.folioreader.smil.SmilFile;
 import com.folioreader.smil.TextElement;
 
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.codehaus.jackson.type.TypeReference;
@@ -58,18 +59,25 @@ import nl.siegmann.epublib.epub.EpubReader;
 public class AppUtil {
 
     private static final ObjectMapper jsonMapper;
-    private static String FILE_NAME ;
+    private static String mfileName;
     private static final String SMIL_ELEMENTS = "smil_elements";
-    public static  String mFolderName=null;
+    public static String mfolderName = null;
+    private static final String TAG = AppUtil.class.getSimpleName();
+    private static final String FOLIO_READER_ROOT = "/folioreader/";
 
     static {
         jsonMapper = new ObjectMapper();
-        jsonMapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        jsonMapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+        jsonMapper
+                .configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
+                        false);
+        jsonMapper
+                .setPropertyNamingStrategy(
+                        PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
     }
 
     public static void copyToClipboard(Context context, String text) {
-        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipboardManager clipboard =
+                (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("copy", text);
         clipboard.setPrimaryClip(clip);
     }
@@ -79,7 +87,8 @@ public class AppUtil {
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(Intent.EXTRA_TEXT, text);
         sendIntent.setType("text/plain");
-        context.startActivity(Intent.createChooser(sendIntent, context.getResources().getText(R.string.send_to)));
+        context.startActivity(Intent.createChooser(sendIntent,
+                context.getResources().getText(R.string.send_to)));
     }
 
     public static float convertDpToPixel(float dp, Context context) {
@@ -92,8 +101,9 @@ public class AppUtil {
     public static Map<String, String> stringToJsonMap(String string) {
         ArrayList<HashMap<String, String>> map = new ArrayList<HashMap<String, String>>();
         try {
-            map = jsonMapper.readValue(string, new TypeReference<ArrayList<HashMap<String, String>>>() {
-            });
+            map = jsonMapper.readValue(string,
+                    new TypeReference<ArrayList<HashMap<String, String>>>() {
+                    });
         } catch (Exception e) {
             map = null;
         }
@@ -109,19 +119,24 @@ public class AppUtil {
     public static void setBackColorToTextView(UnderlinedTextView textView, String type) {
         Context context = textView.getContext();
         if (type.equals("highlight-yellow")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context, R.color.yellow));
+            textView.setBackgroundColor(ContextCompat.getColor(context,
+                    R.color.yellow));
             textView.setUnderlineWidth(0.0f);
         } else if (type.equals("highlight-green")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context, R.color.green));
+            textView.setBackgroundColor(ContextCompat.getColor(context,
+                    R.color.green));
             textView.setUnderlineWidth(0.0f);
         } else if (type.equals("highlight-blue")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context, R.color.blue));
+            textView.setBackgroundColor(ContextCompat.getColor(context,
+                    R.color.blue));
             textView.setUnderlineWidth(0.0f);
         } else if (type.equals("highlight-pink")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context, R.color.pink));
+            textView.setBackgroundColor(ContextCompat.getColor(context,
+                    R.color.pink));
             textView.setUnderlineWidth(0.0f);
         } else if (type.equals("highlight-underline")) {
-            textView.setUnderLineColor(ContextCompat.getColor(context, android.R.color.holo_red_dark));
+            textView.setUnderLineColor(ContextCompat.getColor(context,
+                    android.R.color.holo_red_dark));
             textView.setUnderlineWidth(2.0f);
         }
     }
@@ -154,11 +169,11 @@ public class AppUtil {
                     double mm = Double.valueOf(simpleDateFormat.format(date));
 
                     simpleDateFormat = new SimpleDateFormat("HH");
-                    double HH = Double.valueOf(simpleDateFormat.format(date));
-                    temp = (sec * 1000) + ((mm * 60) * 1000) + ((HH * 60 * 60) * 1000);
+                    double hh = Double.valueOf(simpleDateFormat.format(date));
+                    temp = (sec * 1000) + ((mm * 60) * 1000) + ((hh * 60 * 60) * 1000);
                     return (int) temp;
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    Log.d(TAG, e.getMessage());
                 }
             }
         }
@@ -168,7 +183,7 @@ public class AppUtil {
 
     public static Book saveEpubFile(Bundle bundleData, final Context context) {
         String assestPath;
-        FolioActivity.Epub_Source_Type sourceType;
+        FolioActivity.EpubSourceType sourceType;
         int rawId;
         String fileName;
         InputStream epubInputStream = null;
@@ -178,85 +193,94 @@ public class AppUtil {
             isFolderAvalable = isFolderAvailable(bundleData, context);
 
             if (!isFolderAvalable) {
-                sourceType = (FolioActivity.Epub_Source_Type) bundleData.getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
-                FILE_NAME = Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/" + mFolderName + "/" + mFolderName + ".epub";
-                if (sourceType.equals(FolioActivity.Epub_Source_Type.RAW)) {
+                sourceType = (FolioActivity.EpubSourceType)
+                        bundleData.getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
+                mfileName = Environment.getExternalStorageDirectory().getAbsolutePath()
+                        + FOLIO_READER_ROOT + mfolderName + "/" + mfolderName + ".epub";
+                if (sourceType.equals(FolioActivity.EpubSourceType.RAW)) {
                     rawId = bundleData.getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH, 0);
                     Resources res = context.getResources();
                     epubInputStream = res.openRawResource(rawId);
 //                  fileName=res.getResourceName(rawId);
                     fileName = res.getResourceEntryName(rawId);
                     isFileAvailable = saveTempEpubFile(epubInputStream);
-                } else if (sourceType.equals(FolioActivity.Epub_Source_Type.ASSESTS)) {
+                } else if (sourceType.equals(FolioActivity.EpubSourceType.ASSESTS)) {
                     assestPath = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
                     AssetManager assetManager = context.getAssets();
                     epubInputStream = assetManager.open(assestPath);
                     isFileAvailable = saveTempEpubFile(epubInputStream);
                 } else {
-                    FILE_NAME = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+                    mfileName = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
                     isFileAvailable = saveTempEpubFile(null);
                 }
 
-                new EpubManipulator(FILE_NAME, mFolderName, context);
-                book = saveBookToDb(FILE_NAME, context);
+                new EpubManipulator(mfileName, mfolderName, context);
+                book = saveBookToDb(mfileName, context);
 
             } else {
-                BookModel bookModel = BookModelTable.getBookFromName(context,mFolderName);
+                BookModel bookModel = BookModelTable.getBookFromName(context, mfolderName);
                 if (bookModel != null) {
                     book = bookModel.getBook();
                 } else {
-                    book = saveBookToDb(FILE_NAME, context);
+                    book = saveBookToDb(mfileName, context);
                 }
             }
             return book;
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         }
         return book;
     }
 
-    private static boolean isFolderAvailable(Bundle bundleData,Context context) {
-        FolioActivity.Epub_Source_Type sourceType = (FolioActivity.Epub_Source_Type) bundleData.getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
+    private static boolean isFolderAvailable(Bundle bundleData, Context context) {
+        FolioActivity.EpubSourceType sourceType = (FolioActivity.EpubSourceType)
+                bundleData.getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
         String folderName;
         File file = null;
         boolean isFileExist = false;
 
-    if (sourceType.equals(FolioActivity.Epub_Source_Type.RAW)) {
-        int rawId = bundleData.getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH, 0);
-        Resources res = context.getResources();
-        mFolderName = res.getResourceEntryName(rawId);
-        file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/" + mFolderName);
-        if (file.isDirectory()) isFileExist = true;
-    } else if (sourceType.equals(FolioActivity.Epub_Source_Type.ASSESTS)) {
-        String fileName = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
-        int fileMaxIndex = fileName.length();
-        mFolderName = fileName.substring(0, fileMaxIndex - 5);
-        file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/" + mFolderName);
-        if (file.isDirectory()) isFileExist = true;
-    } else {
-        String fileName = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
-        String temp[] = fileName.split("/");
-        fileName = temp[temp.length - 1];
-        int fileMaxIndex = fileName.length();
-        mFolderName = fileName.substring(0, fileMaxIndex - 5);
-        file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/" + mFolderName);
-        if (file.isDirectory()) {
-            isFileExist = true;
+        if (sourceType.equals(FolioActivity.EpubSourceType.RAW)) {
+            int rawId = bundleData.getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH, 0);
+            Resources res = context.getResources();
+            mfolderName = res.getResourceEntryName(rawId);
+            file =
+                    new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+                    + FOLIO_READER_ROOT + mfolderName);
+            if (file.isDirectory()) isFileExist = true;
+        } else if (sourceType.equals(FolioActivity.EpubSourceType.ASSESTS)) {
+            String fileName = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+            int fileMaxIndex = fileName.length();
+            mfolderName = fileName.substring(0, fileMaxIndex - 5);
+            file =
+                    new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+                    + FOLIO_READER_ROOT + mfolderName);
+            if (file.isDirectory()) isFileExist = true;
         } else {
-            FILE_NAME = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+            String fileName = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+            String []temp = fileName.split("/");
+            fileName = temp[temp.length - 1];
+            int fileMaxIndex = fileName.length();
+            mfolderName = fileName.substring(0, fileMaxIndex - 5);
+            file =
+                    new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+                    + FOLIO_READER_ROOT + mfolderName);
+            if (file.isDirectory()) {
+                isFileExist = true;
+            } else {
+                mfileName = bundleData.getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+            }
         }
+        return isFileExist;
     }
-    return isFileExist;
-}
 
 
     public static boolean compareUrl(String ur1, String ur2) {
-        String s[] = ur1.split("//");
-        String s1[] = ur2.split("/");
+        String []s = ur1.split("//");
+        String []s1 = ur2.split("/");
         ur1 = s[s.length - 1];
         ur2 = s1[s1.length - 1];
         return ur1.equalsIgnoreCase(ur2);
@@ -274,13 +298,13 @@ public class AppUtil {
             book.setCoverImage(null);
             book.setResources(null);
             bookModel.setBook(book);
-            bookModel.setBookName(mFolderName);
+            bookModel.setBookName(mfolderName);
             BookModelTable.createEntryInTableIfNotExist(context, bookModel);
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         }
         return book;
     }
@@ -294,7 +318,8 @@ public class AppUtil {
             File f = null;
             File[] paths;
             // create new file
-            f = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/temp/OEBPS/text");
+            f = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+                    + FOLIO_READER_ROOT + mfolderName + "/OEBPS/text");
             // create new filename filter
             FilenameFilter fileNameFilter = new FilenameFilter() {
 
@@ -322,27 +347,28 @@ public class AppUtil {
                 textElementList = smilFile.getTextSegments();
                 SmilElements smilElement = new SmilElements(audioElementArrayList, textElementList);
                 String smilElemets = jsonMapper.writeValueAsString(smilElement);
-                SharedPreferenceUtil.putSharedPreferencesString(context, mFolderName, smilElemets);
+                SharedPreferenceUtil.putSharedPreferencesString(context, mfolderName, smilElemets);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         } catch (SAXException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         } catch (ParserConfigurationException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         }
         return smilFile;
 
     }
 
     public static SmilElements retrieveAndParseSmilJSON(Context context) {
-        String smilElmentsJson = SharedPreferenceUtil.getSharedPreferencesString(context, mFolderName, null);
+        String smilElmentsJson =
+                SharedPreferenceUtil.getSharedPreferencesString(context, mfolderName, null);
         SmilElements smilElements = null;
         if (smilElmentsJson != null) {
             try {
                 smilElements = jsonMapper.readValue(smilElmentsJson, SmilElements.class);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d(TAG, e.getMessage());
             }
         }
         return smilElements;
@@ -351,13 +377,14 @@ public class AppUtil {
 
     public static Boolean saveTempEpubFile(InputStream inputStream) {
         OutputStream outputStream = null;
-        File file = new File(FILE_NAME);
+        File file = new File(mfileName);
         try {
             if (!file.exists()) {
-                File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/folioreader/"+mFolderName);
+                File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+                        + FOLIO_READER_ROOT + mfolderName);
                 folder.mkdirs();
 
-                outputStream = new FileOutputStream(new File(FILE_NAME));
+                outputStream = new FileOutputStream(new File(mfileName));
                 int read = 0;
                 byte[] bytes = new byte[inputStream.available()];
 
@@ -370,9 +397,9 @@ public class AppUtil {
             if (inputStream != null) inputStream.close();
             if (outputStream != null) outputStream.close();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         }
         return false;
     }

@@ -46,29 +46,29 @@ public class SharedPreferenceUtil {
         edit.commit();
     }
 
-    public static long getSharedPreferencesLong(Context context, String key, long _default) {
+    public static long getSharedPreferencesLong(Context context, String key, long defaultValue) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getLong(key, _default);
+        return preferences.getLong(key, defaultValue);
     }
 
-    public static float getSharedPreferencesFloat(Context context, String key, float _default) {
+    public static float getSharedPreferencesFloat(Context context, String key, float defaultValue) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getFloat(key, _default);
+        return preferences.getFloat(key, defaultValue);
     }
 
-    public static String getSharedPreferencesString(Context context, String key, String _default) {
+    public static String getSharedPreferencesString(Context context, String key, String defaultValue) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getString(key, _default);
+        return preferences.getString(key, defaultValue);
     }
 
-    public static int getSharedPreferencesInt(Context context, String key, int _default) {
+    public static int getSharedPreferencesInt(Context context, String key, int defaultValue) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getInt(key, _default);
+        return preferences.getInt(key, defaultValue);
     }
 
-    public static boolean getSharedPreferencesBoolean(Context context, String key, boolean _default) {
+    public static boolean getSharedPreferencesBoolean(Context context, String key, boolean defaultValue) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(key, _default);
+        return preferences.getBoolean(key, defaultValue);
     }
 
     public static boolean removeSharedPreferencesKey(Context context, String key) {

@@ -21,70 +21,70 @@ import com.folioreader.DummyDtdResolver;
  * Currently it only works with local files.
  */
 public class TextLocator extends DefaultHandler {
-    
-    private File baseDirectory;
-    private String targetId;
-    private String result;
-    private int depth = 0;
-    private Logger log = Logger.getAnonymousLogger();
-    private CharArrayWriter value = new CharArrayWriter();
-    
-    public TextLocator(File baseDirectory) {
-        this.baseDirectory = baseDirectory;
+
+    private File mBaseDirectory;
+    private String mTargetId;
+    private String mResult;
+    private int mDepth = 0;
+    private static final Logger log = Logger.getAnonymousLogger();
+    private CharArrayWriter mValue = new CharArrayWriter();
+
+    public TextLocator(File mBaseDirectory) {
+        this.mBaseDirectory = mBaseDirectory;
     }
-    
+
     public String getText(String src) throws IOException {
         if (src.contains("#")) {
-            targetId = src.substring(src.indexOf('#') + 1);
-            File file = new File(baseDirectory, src.substring(0, src.indexOf('#')));
+            mTargetId = src.substring(src.indexOf('#') + 1);
+            File file = new File(mBaseDirectory, src.substring(0, src.indexOf('#')));
             SAXParserFactory factory = SAXParserFactory.newInstance();
             try {
-            	org.xml.sax.InputSource input = new InputSource(new FileInputStream(file));
-            	XMLReader saxParser = factory.newSAXParser().getXMLReader();
-            	saxParser.setEntityResolver(new DummyDtdResolver());
-            	saxParser.setContentHandler(this);
-            	saxParser.parse(input);
+                InputSource input = new InputSource(new FileInputStream(file));
+                XMLReader saxParser = factory.newSAXParser().getXMLReader();
+                saxParser.setEntityResolver(new DummyDtdResolver());
+                saxParser.setContentHandler(this);
+                saxParser.parse(input);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         } else {
-            File file = new File(baseDirectory, src); 
+            File file = new File(mBaseDirectory, src);
             long len = file.length();
             FileInputStream fis = new FileInputStream(file);
-            byte buf[] = new byte[(int) len];
+            byte []buf = new byte[(int) len];
             fis.read(buf);
             fis.close();
-            result = new String(buf);
+            mResult = new String(buf);
         }
-        return result;
+        return mResult;
     }
-    
+
     @Override
     public void startElement(String uri, String localName, String name,
-            Attributes attributes) throws SAXException {
-    	
-    	value.reset();
+                             Attributes attributes) throws SAXException {
+
+        mValue.reset();
         String id = attributes.getValue("id");
         log.info(name + ": " + id);
-        if (id != null && id.equals(targetId)) {
-            depth++;
+        if (id != null && id.equals(mTargetId)) {
+            mDepth++;
         }
     }
 
     @Override
     public void characters(char[] ch, int start, int length)
             throws SAXException {
-        if (depth > 0) {
-        	value.write(ch, start, length);
+        if (mDepth > 0) {
+            mValue.write(ch, start, length);
         }
     }
-    
+
     @Override
     public void endElement(String uri, String localName, String name) {
-    	if (depth > 0) {
-    		depth--;
-    		result = value.toString();
-    	}
+        if (mDepth > 0) {
+            mDepth--;
+            mResult = mValue.toString();
+        }
     }
-    
+
 }

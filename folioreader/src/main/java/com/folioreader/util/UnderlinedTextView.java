@@ -19,7 +19,7 @@ public class UnderlinedTextView extends TextView {
     private Rect mRect;
     private Paint mPaint;
     private int mColor;
-    private float density;
+    private float mDensity;
     private float mStrokeWidth;
 
     public UnderlinedTextView(Context context) {
@@ -37,11 +37,15 @@ public class UnderlinedTextView extends TextView {
 
     private void init(Context context, AttributeSet attributeSet, int defStyle) {
 
-        density = context.getResources().getDisplayMetrics().density;
+        mDensity = context.getResources().getDisplayMetrics().density;
 
-        TypedArray typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.UnderlinedTextView, defStyle, 0);
-        // mColor = typedArray.getColor(R.styleable.UnderlinedTextView_underlineColor, 0xFFFF0000);
-        mStrokeWidth = typedArray.getDimension(R.styleable.UnderlinedTextView_underlineWidth, density * 2);
+        TypedArray typedArray =
+                context.obtainStyledAttributes(attributeSet, R.styleable.UnderlinedTextView,
+                        defStyle, 0);
+        mStrokeWidth =
+                typedArray.getDimension(
+                        R.styleable.UnderlinedTextView_underlineWidth,
+                        mDensity * 2);
         typedArray.recycle();
 
         mRect = new Rect();
@@ -80,7 +84,7 @@ public class UnderlinedTextView extends TextView {
         int count = getLineCount();
 
         final Layout layout = getLayout();
-        float x_start, x_stop, x_diff;
+        float xStart, xStop, xDiff;
         int firstCharInLine, lastCharInLine;
 
         for (int i = 0; i < count; i++) {
@@ -88,11 +92,15 @@ public class UnderlinedTextView extends TextView {
             firstCharInLine = layout.getLineStart(i);
             lastCharInLine = layout.getLineEnd(i);
 
-            x_start = layout.getPrimaryHorizontal(firstCharInLine);
-            x_diff = layout.getPrimaryHorizontal(firstCharInLine + 1) - x_start;
-            x_stop = layout.getPrimaryHorizontal(lastCharInLine - 1) + x_diff;
+            xStart = layout.getPrimaryHorizontal(firstCharInLine);
+            xDiff = layout.getPrimaryHorizontal(firstCharInLine + 1) - xStart;
+            xStop = layout.getPrimaryHorizontal(lastCharInLine - 1) + xDiff;
 
-            canvas.drawLine(x_start, baseline + mStrokeWidth, x_stop, baseline + mStrokeWidth, mPaint);
+            canvas.drawLine(xStart,
+                    baseline + mStrokeWidth,
+                    xStop,
+                    baseline + mStrokeWidth,
+                    mPaint);
         }
 
         super.onDraw(canvas);

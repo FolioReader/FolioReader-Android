@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 /**
- * Action item, displayed as menu with icon and text.
+ * Action item, displayed as menu with mIcon and text.
  *
  * @author Lorensius. W. L. T <lorenz@londatiga.net>
  *
@@ -12,24 +12,24 @@ import android.graphics.drawable.Drawable;
  *         - Kevin Peck <kevinwpeck@gmail.com>
  */
 public class ActionItem {
-    private Drawable icon;
-    private Bitmap thumb;
-    private String title;
-    private int actionId = -1;
-    private boolean selected;
-    private boolean sticky;
+    private Drawable mIcon;
+    private Bitmap mThumb;
+    private String mTitle;
+    private int mActionId = -1;
+    private boolean mSelected;
+    private boolean mSticky;
 
     /**
      * Constructor
      *
-     * @param actionId Action id for case statements
-     * @param title    Title
-     * @param icon     Icon to use
+     * @param mActionId Action id for case statements
+     * @param mTitle    Title
+     * @param mIcon     Icon to use
      */
-    public ActionItem(int actionId, String title, Drawable icon) {
-        this.title = title;
-        this.icon = icon;
-        this.actionId = actionId;
+    public ActionItem(int mActionId, String mTitle, Drawable mIcon) {
+        this.mTitle = mTitle;
+        this.mIcon = mIcon;
+        this.mActionId = mActionId;
     }
 
     /**
@@ -42,133 +42,133 @@ public class ActionItem {
     /**
      * Constructor
      *
-     * @param actionId Action id of the item
-     * @param title    Text to show for the item
+     * @param mActionId Action id of the item
+     * @param mTitle    Text to show for the item
      */
-    public ActionItem(int actionId, String title) {
-        this(actionId, title, null);
+    public ActionItem(int mActionId, String mTitle) {
+        this(mActionId, mTitle, null);
     }
 
     /**
      * Constructor
      *
-     * @param icon {@link Drawable} action icon
+     * @param mIcon {@link Drawable} action mIcon
      */
-    public ActionItem(Drawable icon) {
-        this(-1, null, icon);
+    public ActionItem(Drawable mIcon) {
+        this(-1, null, mIcon);
     }
 
     /**
      * Constructor
      *
-     * @param actionId Action ID of item
-     * @param icon     {@link Drawable} action icon
+     * @param mActionId Action ID of item
+     * @param mIcon     {@link Drawable} action mIcon
      */
-    public ActionItem(int actionId, Drawable icon) {
-        this(actionId, null, icon);
+    public ActionItem(int mActionId, Drawable mIcon) {
+        this(mActionId, null, mIcon);
     }
 
     /**
-     * Set action title
+     * Set action mTitle
      *
-     * @param title action title
+     * @param mTitle action mTitle
      */
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTitle(String mTitle) {
+        this.mTitle = mTitle;
     }
 
     /**
-     * Get action title
+     * Get action mTitle
      *
-     * @return action title
+     * @return action mTitle
      */
     public String getTitle() {
-        return this.title;
+        return this.mTitle;
     }
 
     /**
-     * Set action icon
+     * Set action mIcon
      *
-     * @param icon {@link Drawable} action icon
+     * @param mIcon {@link Drawable} action mIcon
      */
-    public void setIcon(Drawable icon) {
-        this.icon = icon;
+    public void setIcon(Drawable mIcon) {
+        this.mIcon = mIcon;
     }
 
     /**
-     * Get action icon
+     * Get action mIcon
      *
-     * @return {@link Drawable} action icon
+     * @return {@link Drawable} action mIcon
      */
     public Drawable getIcon() {
-        return this.icon;
+        return this.mIcon;
     }
 
     /**
      * Set action id
      *
-     * @param actionId Action id for this action
+     * @param mActionId Action id for this action
      */
-    public void setActionId(int actionId) {
-        this.actionId = actionId;
+    public void setActionId(int mActionId) {
+        this.mActionId = mActionId;
     }
 
     /**
      * @return Our action id
      */
     public int getActionId() {
-        return actionId;
+        return mActionId;
     }
 
     /**
-     * Set sticky status of button
+     * Set mSticky status of button
      *
-     * @param sticky true for sticky, pop up sends event but does not disappear
+     * @param mSticky true for mSticky, pop up sends event but does not disappear
      */
-    public void setSticky(boolean sticky) {
-        this.sticky = sticky;
+    public void setSticky(boolean mSticky) {
+        this.mSticky = mSticky;
     }
 
     /**
-     * @return true if button is sticky, menu stays visible after press
+     * @return true if button is mSticky, menu stays visible after press
      */
     public boolean isSticky() {
-        return sticky;
+        return mSticky;
     }
 
     /**
-     * Set selected flag;
+     * Set mSelected flag;
      *
-     * @param selected Flag to indicate the item is selected
+     * @param mSelected Flag to indicate the item is mSelected
      */
-    public void setSelected(boolean selected) {
-        this.selected = selected;
+    public void setSelected(boolean mSelected) {
+        this.mSelected = mSelected;
     }
 
     /**
-     * Check if item is selected
+     * Check if item is mSelected
      *
      * @return true or false
      */
     public boolean isSelected() {
-        return this.selected;
+        return this.mSelected;
     }
 
     /**
-     * Set thumb
+     * Set mThumb
      *
-     * @param thumb Thumb image
+     * @param mThumb Thumb image
      */
-    public void setThumb(Bitmap thumb) {
-        this.thumb = thumb;
+    public void setThumb(Bitmap mThumb) {
+        this.mThumb = mThumb;
     }
 
     /**
-     * Get thumb image
+     * Get mThumb image
      *
      * @return Thumb image
      */
     public Bitmap getThumb() {
-        return this.thumb;
+        return this.mThumb;
     }
 }

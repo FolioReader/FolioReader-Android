@@ -58,63 +58,66 @@ import nl.siegmann.epublib.domain.TableOfContents;
 import nl.siegmann.epublib.epub.EpubReader;
 
 public class EpubManipulator {
-    private Book book;
-    private int currentSpineElementIndex;
-    private String currentPage;
-    private String[] spineElementPaths;
+    public static final String FILE = "file://";
+    public static final String TAG = EpubManipulator.class.getSimpleName();
+    private Book mBook;
+    private int mCurrentSpineElementIndex;
+    private String mCurrentPage;
+    private String[] mSpineElementPaths;
     // NOTE: currently, counting the number of XHTML pages
-    private int pageCount;
-    private int currentLanguage;
-    private List<String> availableLanguages;
+    private int mPageCount;
+    private int mCurrentLanguage;
+    private List<String> mAvailableLanguages;
     // tells whether a page has a translation available
-    private List<Boolean> translations;
-    private String decompressedFolder;
-    private String pathOPF;
-    private static Context context;
+    private List<Boolean> mTranslations;
+    private String mDecompressedFolder;
+    private String mPathOPF;
+    private static Context mContext;
     private static String location = Environment.getExternalStorageDirectory()
             + "/folioreader/";
 
-    private String fileName;
-    FileInputStream fs;
-    private String actualCSS = "";
-    private String[][] audio;
+    private String mFileName;
+    FileInputStream mFs;
+    private String mActualCSS = "";
+    private String[][] mAudio;
 
-    // book from fileName
-    public EpubManipulator(String fileName, String destFolder, Context theContext) throws Exception {
+    // mBook from mFileName
+    public EpubManipulator(String mFileName, String destFolder, Context theContext)
+            throws Exception {
 
         List<String> spineElements;
         List<SpineReference> spineList;
 
-        if (context == null) {
-            context = theContext;
+        if (mContext == null) {
+            mContext = theContext;
         }
 
-        this.fs = new FileInputStream(fileName);
-        this.book = (new EpubReader()).readEpub(fs);
+        this.mFs = new FileInputStream(mFileName);
+        this.mBook = (new EpubReader()).readEpub(mFs);
 
-        this.fileName = fileName;
-        this.decompressedFolder = destFolder;
+        this.mFileName = mFileName;
+        this.mDecompressedFolder = destFolder;
 
-        Spine spine = book.getSpine();
+        Spine spine = mBook.getSpine();
         spineList = spine.getSpineReferences();
 
-        this.currentSpineElementIndex = 0;
-        this.currentLanguage = 0;
+        this.mCurrentSpineElementIndex = 0;
+        this.mCurrentLanguage = 0;
 
         spineElements = new ArrayList<String>();
         pages(spineList, spineElements);
-        this.pageCount = spineElements.size();
+        this.mPageCount = spineElements.size();
 
-        this.spineElementPaths = new String[spineElements.size()];
+        this.mSpineElementPaths = new String[spineElements.size()];
 
-        unzip(fileName, location + decompressedFolder);
+        unzip(mFileName, location + mDecompressedFolder);
 
-        pathOPF = getPathOPF(location + decompressedFolder);
+        mPathOPF = getPathOPF(location + mDecompressedFolder);
 
         for (int i = 0; i < spineElements.size(); ++i) {
             // TODO: is there a robust path joiner in the java libs?
-            this.spineElementPaths[i] = "file://" + location
-                    + decompressedFolder + "/" + pathOPF + "/"
+            this.mSpineElementPaths[i] = FILE + location
+                    + mDecompressedFolder + "/" + mPathOPF + "/"
                     + spineElements.get(i);
         }
 
@@ -124,53 +127,53 @@ public class EpubManipulator {
         createTocFile();
     }
 
-    // book from already decompressed folder
-    public EpubManipulator(String fileName, String folder, int spineIndex,
+    // mBook from already decompressed folder
+    public EpubManipulator(String mFileName, String folder, int spineIndex,
                            int language, Context theContext) throws Exception {
         List<String> spineElements;
         List<SpineReference> spineList;
 
-        if (context == null) {
-            context = theContext;
+        if (mContext == null) {
+            mContext = theContext;
         }
 
-        this.fs = new FileInputStream(fileName);
-        this.book = (new EpubReader()).readEpub(fs);
-        this.fileName = fileName;
-        this.decompressedFolder = folder;
+        this.mFs = new FileInputStream(mFileName);
+        this.mBook = (new EpubReader()).readEpub(mFs);
+        this.mFileName = mFileName;
+        this.mDecompressedFolder = folder;
 
-        Spine spine = book.getSpine();
+        Spine spine = mBook.getSpine();
         spineList = spine.getSpineReferences();
-        this.currentSpineElementIndex = spineIndex;
-        this.currentLanguage = language;
+        this.mCurrentSpineElementIndex = spineIndex;
+        this.mCurrentLanguage = language;
         spineElements = new ArrayList<String>();
         pages(spineList, spineElements);
-        this.pageCount = spineElements.size();
-        this.spineElementPaths = new String[spineElements.size()];
+        this.mPageCount = spineElements.size();
+        this.mSpineElementPaths = new String[spineElements.size()];
 
-        pathOPF = getPathOPF(location + folder);
+        mPathOPF = getPathOPF(location + folder);
 
         for (int i = 0; i < spineElements.size(); ++i) {
             // TODO: is there a robust path joiner in the java libs?
-            this.spineElementPaths[i] = "file://" + location + folder + "/"
-                    + pathOPF + "/" + spineElements.get(i);
+            this.mSpineElementPaths[i] = FILE + location + folder + "/"
+                    + mPathOPF + "/" + spineElements.get(i);
         }
         goToPage(spineIndex);
     }
 
     // set language from index
     public void setLanguage(int lang) throws Exception {
-        if ((lang >= 0) && (lang <= this.availableLanguages.size())) {
-            this.currentLanguage = lang;
+        if ((lang >= 0) && (lang <= this.mAvailableLanguages.size())) {
+            this.mCurrentLanguage = lang;
         }
-        goToPage(this.currentSpineElementIndex);
+        goToPage(this.mCurrentSpineElementIndex);
     }
 
     // set language from an identifier string
     public void setLanguage(String lang) throws Exception {
         int i = 0;
-        while ((i < this.availableLanguages.size())
-                && (!(this.availableLanguages.get(i).equals(lang)))) {
+        while ((i < this.mAvailableLanguages.size())
+                && (!(this.mAvailableLanguages.get(i).equals(lang)))) {
             i++;
         }
         setLanguage(i);
@@ -178,9 +181,9 @@ public class EpubManipulator {
 
     // TODO: lookup table of language names from language codes
     public String[] getLanguages() {
-        String[] lang = new String[availableLanguages.size()];
-        for (int i = 0; i < availableLanguages.size(); i++) {
-            lang[i] = availableLanguages.get(i);
+        String[] lang = new String[mAvailableLanguages.size()];
+        for (int i = 0; i < mAvailableLanguages.size(); i++) {
+            lang[i] = mAvailableLanguages.get(i);
         }
         return lang;
     }
@@ -191,26 +194,26 @@ public class EpubManipulator {
         String lang;
         String actualPage;
 
-        this.translations = new ArrayList<Boolean>();
-        this.availableLanguages = new ArrayList<String>();
+        this.mTranslations = new ArrayList<Boolean>();
+        this.mAvailableLanguages = new ArrayList<String>();
 
         for (int i = 0; i < spineList.size(); ++i) {
             actualPage = (spineList.get(i)).getResource().getHref();
             lang = getPageLanguage(actualPage);
-            if (lang != "") {
+            if (lang.equals("")) {
                 // parallel text available
                 langIndex = languageIndexFromID(lang);
 
-                if (langIndex == this.availableLanguages.size())
-                    this.availableLanguages.add(lang);
+                if (langIndex == this.mAvailableLanguages.size())
+                    this.mAvailableLanguages.add(lang);
 
                 if (langIndex == 0) {
-                    this.translations.add(true);
+                    this.mTranslations.add(true);
                     pages.add(actualPage);
                 }
             } else {
                 // parallel text NOT available
-                this.translations.add(false);
+                this.mTranslations.add(false);
                 pages.add(actualPage);
             }
         }
@@ -219,8 +222,8 @@ public class EpubManipulator {
     // language index from language string (id)
     private int languageIndexFromID(String id) {
         int i = 0;
-        while ((i < availableLanguages.size())
-                && (!(availableLanguages.get(i).equals(id)))) {
+        while ((i < mAvailableLanguages.size())
+                && (!(mAvailableLanguages.get(i).equals(id)))) {
             i++;
         }
         return i;
@@ -228,18 +231,20 @@ public class EpubManipulator {
 
     // TODO: better parsing
     private static String getPathOPF(String unzipDir) throws IOException {
-        String pathOPF = "";
+        String mPathOPF = "";
         // get the OPF path, directly from container.xml
         BufferedReader br = new BufferedReader(new FileReader(unzipDir
                 + "/META-INF/container.xml"));
         String line;
         while ((line = br.readLine()) != null) {
-            if (line.indexOf(getS(R.string.full_path)) > -1) {
+            //if (line.indexOf(getS(R.string.full_path)) > -1)
+            if (line.contains(getS(R.string.full_path))) {
                 int start = line.indexOf(getS(R.string.full_path));
-                int start2 = line.indexOf("\"", start);
-                int stop2 = line.indexOf("\"", start2 + 1);
+                //int start2 = line.indexOf("\"", start);
+                int start2 = line.indexOf('\"', start);
+                int stop2 = line.indexOf('\"', start2 + 1);
                 if (start2 > -1 && stop2 > start2) {
-                    pathOPF = line.substring(start2 + 1, stop2).trim();
+                    mPathOPF = line.substring(start2 + 1, stop2).trim();
                     break;
                 }
             }
@@ -247,22 +252,22 @@ public class EpubManipulator {
         br.close();
 
         // in case the OPF file is in the root directory
-        if (!pathOPF.contains("/"))
-            pathOPF = "";
+        if (!mPathOPF.contains("/"))
+            mPathOPF = "";
 
         // remove the OPF file name and the preceding '/'
-        int last = pathOPF.lastIndexOf('/');
+        int last = mPathOPF.lastIndexOf('/');
         if (last > -1) {
-            pathOPF = pathOPF.substring(0, last);
+            mPathOPF = mPathOPF.substring(0, last);
         }
 
-        return pathOPF;
+        return mPathOPF;
     }
 
     // TODO: more efficient unzipping
     public void unzip(String inputZip, String destinationDirectory)
             throws IOException {
-        int BUFFER = 2048;
+        int buffer = 2048;
         List zipFiles = new ArrayList();
         File sourceZipFile = new File(inputZip);
         File unzipDestinationDirectory = new File(destinationDirectory);
@@ -291,13 +296,13 @@ public class EpubManipulator {
                         zipFile.getInputStream(entry));
                 int currentByte;
                 // buffer for writing file
-                byte data[] = new byte[BUFFER];
+                byte[] data = new byte[buffer];
 
                 FileOutputStream fos = new FileOutputStream(destFile);
                 BufferedOutputStream dest = new BufferedOutputStream(fos,
-                        BUFFER);
+                        buffer);
 
-                while ((currentByte = is.read(data, 0, BUFFER)) != -1) {
+                while ((currentByte = is.read(data, 0, buffer)) != -1) {
                     dest.write(data, 0, currentByte);
                 }
                 dest.flush();
@@ -320,48 +325,51 @@ public class EpubManipulator {
     }
 
     public void closeStream() throws IOException {
-        fs.close();
-        book = null;
+        mFs.close();
+        mBook = null;
     }
 
     // close the stream and delete the extraction folder
     public void destroy() throws IOException {
         closeStream();
-        File c = new File(location + decompressedFolder);
+        File c = new File(location + mDecompressedFolder);
         deleteDir(c);
     }
 
     // recursively delete a directory
     private void deleteDir(File f) {
-        if (f.isDirectory())
-            for (File child : f.listFiles())
+        if (f.isDirectory()) {
+            for (File child : f.listFiles()) {
                 deleteDir(child);
+            }
+        }
         f.delete();
     }
 
-    // change the decompressedFolder name
+    // change the mDecompressedFolder name
     public void changeDirName(String newName) {
-        File dir = new File(location + decompressedFolder);
+        File dir = new File(location + mDecompressedFolder);
         File newDir = new File(location + newName);
         dir.renameTo(newDir);
 
-        for (int i = 0; i < spineElementPaths.length; ++i)
+        for (int i = 0; i < mSpineElementPaths.length; ++i) {
             // TODO: is there a robust path joiner in the java libs?
-            spineElementPaths[i] = spineElementPaths[i].replace("file://"
-                    + location + decompressedFolder, "file://" + location
+            mSpineElementPaths[i] = mSpineElementPaths[i].replace(FILE
+                    + location + mDecompressedFolder, FILE + location
                     + newName);
-        decompressedFolder = newName;
+        }
+        mDecompressedFolder = newName;
         try {
-            goToPage(currentSpineElementIndex);
+            goToPage(mCurrentSpineElementIndex);
         } catch (Exception e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         }
     }
 
     // obtain a page in the current language
     public String goToPage(int page) throws Exception {
-        return goToPage(page, this.currentLanguage);
+        return goToPage(page, this.mCurrentLanguage);
     }
 
     // obtain a page in the given language
@@ -371,75 +379,80 @@ public class EpubManipulator {
         if (page < 0) {
             page = 0;
         }
-        if (page >= this.pageCount) {
-            page = this.pageCount - 1;
+        if (page >= this.mPageCount) {
+            page = this.mPageCount - 1;
         }
-        this.currentSpineElementIndex = page;
+        this.mCurrentSpineElementIndex = page;
 
-        spineElement = this.spineElementPaths[currentSpineElementIndex];
+        spineElement = this.mSpineElementPaths[mCurrentSpineElementIndex];
 
         // TODO: better parsing
-        if (this.translations.get(page)) {
-            extension = spineElement.substring(spineElement.lastIndexOf("."));
+        if (this.mTranslations.get(page)) {
+            extension = spineElement.substring(spineElement.lastIndexOf('.'));
             spineElement = spineElement.substring(0,
-                    spineElement.lastIndexOf(this.availableLanguages.get(0)));
+                    spineElement.lastIndexOf(this.mAvailableLanguages.get(0)));
 
-            spineElement = spineElement + this.availableLanguages.get(lang)
+            spineElement = spineElement + this.mAvailableLanguages.get(lang)
                     + extension;
         }
 
-        this.currentPage = spineElement;
+        this.mCurrentPage = spineElement;
 
-        audioExtractor(currentPage);
+        audioExtractor(mCurrentPage);
 
         return spineElement;
     }
 
     public String goToNextChapter() throws Exception {
-        return goToPage(this.currentSpineElementIndex + 1);
+        return goToPage(this.mCurrentSpineElementIndex + 1);
     }
 
     public String goToPreviousChapter() throws Exception {
-        return goToPage(this.currentSpineElementIndex - 1);
+        return goToPage(this.mCurrentSpineElementIndex - 1);
     }
 
-    // create an HTML page with book metadata
+    // create an HTML page with mBook metadata
     // TODO: style it and escape metadata values
     // TODO: use StringBuilder
     public String metadata() {
         List<String> tmp;
-        Metadata metadata = book.getMetadata();
+        Metadata metadata = mBook.getMetadata();
         String html = getS(R.string.htmlBodyTableOpen);
 
         // Titles
         tmp = metadata.getTitles();
         if (tmp.size() > 0) {
             html += getS(R.string.titlesMeta);
-            html += "<td>" + tmp.get(0) + "</td></tr>";
-            for (int i = 1; i < tmp.size(); i++)
-                html += "<tr><td></td><td>" + tmp.get(i) + "</td></tr>";
+            //html += "<td>" + tmp.get(0) + "</td></tr>";
+            html += String.format(getS(R.string.td_tag), tmp.get(0));
+            for (int i = 1; i < tmp.size(); i++) {
+                //html += "<tr><td></td><td>" + tmp.get(i) + "</td></tr>";
+                html += String.format(getS(R.string.tr_tag), tmp.get(i));
+            }
         }
 
         // Authors
         List<Author> authors = metadata.getAuthors();
         if (authors.size() > 0) {
             html += getS(R.string.authorsMeta);
-            html += "<td>" + authors.get(0).getFirstname() + " "
-                    + authors.get(0).getLastname() + "</td></tr>";
-            for (int i = 1; i < authors.size(); i++)
-                html += "<tr><td></td><td>" + authors.get(i).getFirstname()
-                        + " " + authors.get(i).getLastname() + "</td></tr>";
+            html +=
+                    String.format(getS(R.string.td_tag), authors.get(0).getFirstname()
+                            + " " + authors.get(0).getLastname());
+            for (int i = 1; i < authors.size(); i++) {
+                html += String.format(getS(R.string.tr_tag),
+                        authors.get(i).getFirstname() + " " + authors.get(i).getLastname());
+            }
         }
 
         // Contributors
         authors = metadata.getContributors();
         if (authors.size() > 0) {
             html += getS(R.string.contributorsMeta);
-            html += "<td>" + authors.get(0).getFirstname() + " "
-                    + authors.get(0).getLastname() + "</td></tr>";
+            html += String.format(getS(R.string.td_tag),
+                    authors.get(0).getFirstname() + " " + authors.get(0).getLastname());
             for (int i = 1; i < authors.size(); i++) {
-                html += "<tr><td></td><td>" + authors.get(i).getFirstname()
-                        + " " + authors.get(i).getLastname() + "</td></tr>";
+                html += String.format(getS(R.string.tr_tag),
+                        authors.get(i).getFirstname() + " " + authors.get(i).getLastname());
             }
         }
 
@@ -452,54 +465,69 @@ public class EpubManipulator {
         tmp = metadata.getPublishers();
         if (tmp.size() > 0) {
             html += getS(R.string.publishersMeta);
-            html += "<td>" + tmp.get(0) + "</td></tr>";
-            for (int i = 1; i < tmp.size(); i++)
-                html += "<tr><td></td><td>" + tmp.get(i) + "</td></tr>";
+            /*html += "<td>" + tmp.get(0) + "</td></tr>";*/
+            html += String.format(getS(R.string.td_tag), tmp.get(0));
+            for (int i = 1; i < tmp.size(); i++) {
+                //html += "<tr><td></td><td>" + tmp.get(i) + "</td></tr>";
+                html += String.format(getS(R.string.tr_tag),
+                        authors.get(i).getFirstname() + " " + authors.get(i).getLastname());
+            }
         }
 
         // Types
         tmp = metadata.getTypes();
         if (tmp.size() > 0) {
             html += getS(R.string.typesMeta);
-            html += "<td>" + tmp.get(0) + "</td></tr>";
-            for (int i = 1; i < tmp.size(); i++)
-                html += "<tr><td></td><td>" + tmp.get(i) + "</td></tr>";
+            //html += "<td>" + tmp.get(0) + "</td></tr>";
+            html += String.format(getS(R.string.td_tag), tmp.get(0));
+            for (int i = 1; i < tmp.size(); i++) {
+                //html += "<tr><td></td><td>" + tmp.get(i) + "</td></tr>";
+                html += String.format(getS(R.string.tr_tag), tmp.get(i));
+            }
         }
 
         // Descriptions
         tmp = metadata.getDescriptions();
         if (tmp.size() > 0) {
             html += getS(R.string.descriptionsMeta);
-            html += "<td>" + tmp.get(0) + "</td></tr>";
-            for (int i = 1; i < tmp.size(); i++)
-                html += "<tr><td></td><td>" + tmp.get(i) + "</td></tr>";
+            //html += "<td>" + tmp.get(0) + "</td></tr>";
+            html += String.format(getS(R.string.td_tag), tmp.get(0));
+            for (int i = 1; i < tmp.size(); i++) {
+                //html += "<tr><td></td><td>" + tmp.get(i) + "</td></tr>";
+                html += String.format(getS(R.string.tr_tag), tmp.get(i));
+            }
         }
 
         // Rights
         tmp = metadata.getRights();
         if (tmp.size() > 0) {
             html += getS(R.string.rightsMeta);
-            html += "<td>" + tmp.get(0) + "</td></tr>";
-            for (int i = 1; i < tmp.size(); i++)
-                html += "<tr><td></td><td>" + tmp.get(i) + "</td></tr>";
+            //html += "<td>" + tmp.get(0) + "</td></tr>";
+            html += String.format(getS(R.string.td_tag), tmp.get(0));
+            for (int i = 1; i < tmp.size(); i++) {
+                //html += "<tr><td></td><td>" + tmp.get(i) + "</td></tr>";
+                html += String.format(getS(R.string.tr_tag), tmp.get(i));
+            }
+
         }
 
         html += getS(R.string.tablebodyhtmlClose);
         return html;
     }
 
-    public String r_createTocFile(TOCReference e) {
+    public String createTocFile(TOCReference e) {
 
-        String childrenPath = "file://" + location + decompressedFolder + "/"
-                + pathOPF + "/" + e.getCompleteHref();
+        String childrenPath = FILE + location + mDecompressedFolder + "/"
+                + mPathOPF + "/" + e.getCompleteHref();
 
         String html = "<ul><li>" + "<a href=\"" + childrenPath + "\">"
                 + e.getTitle() + "</a>" + "</li></ul>";
 
         List<TOCReference> children = e.getChildren();
 
-        for (int j = 0; j < children.size(); j++)
-            html += r_createTocFile(children.get(j));
+        for (int j = 0; j < children.size(); j++) {
+            html += createTocFile(children.get(j));
+        }
 
         return html;
     }
@@ -507,7 +535,7 @@ public class EpubManipulator {
     // Create an html file, which contain the TOC, in the EPUB folder
     public void createTocFile() {
         List<TOCReference> tmp;
-        TableOfContents toc = book.getTableOfContents();
+        TableOfContents toc = mBook.getTableOfContents();
         String html = "<html><body><ul>";
 
         tmp = toc.getTocReferences();
@@ -515,8 +543,8 @@ public class EpubManipulator {
         if (tmp.size() > 0) {
             html += getS(R.string.tocReference);
             for (int i = 0; i < tmp.size(); i++) {
-                String path = "file://" + location + decompressedFolder + "/"
-                        + pathOPF + "/" + tmp.get(i).getCompleteHref();
+                String path = FILE + location + mDecompressedFolder + "/"
+                        + mPathOPF + "/" + tmp.get(i).getCompleteHref();
 
                 html += "<li>" + "<a href=\"" + path + "\">"
                         + tmp.get(i).getTitle() + "</a>" + "</li>";
@@ -524,8 +552,9 @@ public class EpubManipulator {
                 // pre-order traversal?
                 List<TOCReference> children = tmp.get(i).getChildren();
 
-                for (int j = 0; j < children.size(); j++)
-                    html += r_createTocFile(children.get(j));
+                for (int j = 0; j < children.size(); j++) {
+                    html += createTocFile(children.get(j));
+                }
 
             }
         }
@@ -533,7 +562,7 @@ public class EpubManipulator {
         html += getS(R.string.tablebodyhtmlClose);
 
         // write down the html file
-        String filePath = location + decompressedFolder + "/Toc.html";
+        String filePath = location + mDecompressedFolder + "/Toc.html";
         try {
             File file = new File(filePath);
             FileWriter fw = new FileWriter(file);
@@ -541,29 +570,29 @@ public class EpubManipulator {
             fw.flush();
             fw.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         }
     }
 
     // return the path of the Toc.html file
     public String tableOfContents() {
-        return "File://" + location + decompressedFolder + "/Toc.html";
+        return FILE + location + mDecompressedFolder + "/Toc.html";
     }
 
-    // determine whether a book has the requested page
+    // determine whether a mBook has the requested page
     // if so, return its index; return -1 otherwise
     public int getPageIndex(String page) {
         int result = -1;
         String lang;
 
         lang = getPageLanguage(page);
-        if ((this.availableLanguages.size() > 0) && (lang != "")) {
+        if ((this.mAvailableLanguages.size() > 0) && (lang.equals(""))) {
             page = page.substring(0, page.lastIndexOf(lang))
-                    + this.availableLanguages.get(0)
-                    + page.substring(page.lastIndexOf("."));
+                    + this.mAvailableLanguages.get(0)
+                    + page.substring(page.lastIndexOf('.'));
         }
-        for (int i = 0; i < this.spineElementPaths.length && result == -1; i++) {
-            if (page.equals(this.spineElementPaths[i])) {
+        for (int i = 0; i < this.mSpineElementPaths.length && result == -1; i++) {
+            if (page.equals(this.mSpineElementPaths[i])) {
                 result = i;
             }
         }
@@ -579,7 +608,7 @@ public class EpubManipulator {
             String newLang = getPageLanguage(page);
             try {
                 goToPage(index);
-                if (newLang != "") {
+                if (!newLang.equals("")) {
                     setLanguage(newLang);
                 }
                 res = true;
@@ -618,110 +647,114 @@ public class EpubManipulator {
             css = css + "a:link{color:" + settings[0] + ";}";
         }
 
-        if (!settings[1].isEmpty())
+        if (!settings[1].isEmpty()) {
             css = css + "body {background-color:" + settings[1] + ";}";
+        }
 
-        if (!settings[2].isEmpty())
+        if (!settings[2].isEmpty()) {
             css = css + "p{font-family:" + settings[2] + ";}";
+        }
 
         if (!settings[3].isEmpty())
             css = css + "p{\n\tfont-size:" + settings[3] + "%\n}\n";
 
-        if (!settings[4].isEmpty())
+        if (!settings[4].isEmpty()) {
             css = css + "p{line-height:" + settings[4] + "em;}";
+        }
 
-        if (!settings[5].isEmpty())
+        if (!settings[5].isEmpty()) {
             css = css + "p{text-align:" + settings[5] + ";}";
+        }
 
-        if (!settings[6].isEmpty())
+        if (!settings[6].isEmpty()) {
             css = css + "body{margin-left:" + settings[6] + "%;}";
+        }
 
-        if (!settings[7].isEmpty())
+        if (!settings[7].isEmpty()) {
             css = css + "body{margin-right:" + settings[7] + "%;}";
+        }
 
         css = css + "</style>";
 
-        for (int i = 0; i < spineElementPaths.length; i++) {
-            String path = spineElementPaths[i].replace("file:///", "");
+        for (int i = 0; i < mSpineElementPaths.length; i++) {
+            String path = mSpineElementPaths[i].replace(FILE, "");
             String source = readPage(path);
 
-            source = source.replace(actualCSS + "</head>", css + "</head>");
+            source = source.replace(mActualCSS + "</head>", css + "</head>");
 
             writePage(path, source);
         }
-        actualCSS = css;
+        mActualCSS = css;
 
     }
 
     // change from relative path (that begin with ./ or ../) to absolute path
     private void adjustAudioLinks() {
-        for (int i = 0; i < audio.length; i++)
-            for (int j = 0; j < audio[i].length; j++) {
-                if (audio[i][j].startsWith("./"))
-                    audio[i][j] = currentPage.substring(0,
-                            currentPage.lastIndexOf("/"))
-                            + audio[i][j].substring(1);
+        for (int i = 0; i < mAudio.length; i++) {
+            for (int j = 0; j < mAudio[i].length; j++) {
+                if (mAudio[i][j].startsWith("./")) {
+                    mAudio[i][j] = mCurrentPage.substring(0,
+                            mCurrentPage.lastIndexOf('/'))
+                            + mAudio[i][j].substring(1);
+                }
 
-                if (audio[i][j].startsWith("../")) {
-                    String temp = currentPage.substring(0,
-                            currentPage.lastIndexOf("/"));
-                    audio[i][j] = temp.substring(0, temp.lastIndexOf("/"))
-                            + audio[i][j].substring(2);
+                if (mAudio[i][j].startsWith("../")) {
+                    String temp = mCurrentPage.substring(0,
+                            mCurrentPage.lastIndexOf('/'));
+                    mAudio[i][j] = temp.substring(0, temp.lastIndexOf('/'))
+                            + mAudio[i][j].substring(2);
                 }
             }
+        }
     }
 
-    // Extract all the src field of an audio tag
-    private ArrayList<String> getAudioSources(String audioTag) {
+    // Extract all the src field of an mAudio tag
+    private ArrayList<String> getAudioSources(String mAudioTag) {
         ArrayList<String> srcs = new ArrayList<String>();
         Pattern p = Pattern.compile("src=\"[^\"]*\"");
-        Matcher m = p.matcher(audioTag);
-        while (m.find())
+        Matcher m = p.matcher(mAudioTag);
+        while (m.find()) {
             srcs.add(m.group().replace("src=\"", "").replace("\"", ""));
+        }
 
         return srcs;
     }
 
-    // Extract all audio tags from an xhtml page
+    // Extract all mAudio tags from an xhtml page
     private ArrayList<String> getAudioTags(String page) {
         ArrayList<String> res = new ArrayList<String>();
 
         String source = readPage(page);
 
-        Pattern p = Pattern.compile("<audio(?s).*?</audio>|<audio(?s).*?/>");
+        Pattern p = Pattern.compile("<mAudio(?s).*?</mAudio>|<mAudio(?s).*?/>");
         Matcher m = p.matcher(source);
-        while (m.find())
+        while (m.find()) {
             res.add(m.group(0));
+        }
 
         return res;
     }
 
     private void audioExtractor(String page) {
-        ArrayList<String> tags = getAudioTags(page.replace("file:///", ""));
+        ArrayList<String> tags = getAudioTags(page.replace(FILE, ""));
         ArrayList<String> srcs;
-        audio = new String[tags.size()][];
+        mAudio = new String[tags.size()][];
 
         for (int i = 0; i < tags.size(); i++) {
             srcs = getAudioSources(tags.get(i));
-            audio[i] = new String[srcs.size()];
-            for (int j = 0; j < srcs.size(); j++)
-                audio[i][j] = srcs.get(j);
+            mAudio[i] = new String[srcs.size()];
+            for (int j = 0; j < srcs.size(); j++) {
+                mAudio[i][j] = srcs.get(j);
+            }
         }
         adjustAudioLinks();
     }
 
     public String[][] getAudio() {
-        return audio;
+        return mAudio;
 
     }
 
-	/*
-     * TODO don't work properly, forse non necessario public boolean
-	 * deleteCSS(String path) { path = path.replace("file:///", ""); String
-	 * source = readPage(path); source =
-	 * source.replace("<style type=\"text/css\">.</style></head>", "</head>");
-	 * return writePage(path, source); }
-	 */
 
     // TODO work in progress
     public static String readPage(String path) {
@@ -754,30 +787,30 @@ public class EpubManipulator {
     }
 
     public int getCurrentSpineElementIndex() {
-        return currentSpineElementIndex;
+        return mCurrentSpineElementIndex;
     }
 
     public String getSpineElementPath(int elementIndex) {
-        return spineElementPaths[elementIndex];
+        return mSpineElementPaths[elementIndex];
     }
 
     public String getCurrentPageURL() {
-        return currentPage;
+        return mCurrentPage;
     }
 
     public int getCurrentLanguage() {
-        return currentLanguage;
+        return mCurrentLanguage;
     }
 
     public String getFileName() {
-        return fileName;
+        return mFileName;
     }
 
     public String getDecompressedFolder() {
-        return decompressedFolder;
+        return mDecompressedFolder;
     }
 
     public static String getS(int id) {
-        return context.getResources().getString(id);
+        return mContext.getResources().getString(id);
     }
 }
