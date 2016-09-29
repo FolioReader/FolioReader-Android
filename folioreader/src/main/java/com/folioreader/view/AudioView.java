@@ -1,18 +1,3 @@
-/*
-* Copyright (C) 2016 Pedro Paulo de Amorim
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
 package com.folioreader.view;
 
 import android.annotation.TargetApi;
@@ -37,6 +22,7 @@ import android.widget.RelativeLayout;
 import com.folioreader.R;
 import com.folioreader.activity.FolioActivity;
 import com.folioreader.model.Highlight;
+import com.folioreader.model.Highlight.HighlightStyle;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.ViewHelper;
@@ -106,8 +92,9 @@ public class AudioView extends FrameLayout implements
         mOneAndHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.one_and_half_speed)));
         mHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.half_speed_text)));
         mFolioActivity = (FolioActivity) mHalfSpeed.getContext();
-
-        mUnderlineStyle.setText(Html.fromHtml(mHalfSpeed.getContext().getResources().getString(R.string.style_underline)));
+        String styleUnderline =
+                mHalfSpeed.getContext().getResources().getString(R.string.style_underline);
+        mUnderlineStyle.setText(Html.fromHtml(styleUnderline));
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             findViewById(R.id.playback_speed_Layout).setVisibility(GONE);
@@ -193,7 +180,8 @@ public class AudioView extends FrameLayout implements
                 mBackgroundColorStyle.setSelected(true);
                 mUnderlineStyle.setSelected(false);
                 mTextColorStyle.setSelected(false);
-                mHighlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
+                mHighlightStyle =
+                        Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
                 mFolioActivity.setHighLightStyle(mHighlightStyle);
 
             }
@@ -206,7 +194,8 @@ public class AudioView extends FrameLayout implements
                 mBackgroundColorStyle.setSelected(false);
                 mUnderlineStyle.setSelected(true);
                 mTextColorStyle.setSelected(false);
-                mHighlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
+                mHighlightStyle =
+                        HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
                 mFolioActivity.setHighLightStyle(mHighlightStyle);
             }
         });
@@ -218,7 +207,8 @@ public class AudioView extends FrameLayout implements
                 mBackgroundColorStyle.setSelected(false);
                 mUnderlineStyle.setSelected(false);
                 mTextColorStyle.setSelected(true);
-                mHighlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
+                mHighlightStyle =
+                        Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
                 mFolioActivity.setHighLightStyle(mHighlightStyle);
             }
         });
@@ -247,7 +237,8 @@ public class AudioView extends FrameLayout implements
                 String filePath = mAudioElement.getSrc();
                 filePath = filePath.substring(2, filePath.length());
                 filePath = "/folioreader/" + AppUtil.mfolderName + "/OEBPS/" + filePath;
-                mPlayer.setDataSource(Environment.getExternalStorageDirectory().getAbsolutePath() + filePath);
+                mPlayer.setDataSource(Environment.getExternalStorageDirectory().
+                        getAbsolutePath() + filePath);
                 mPlayer.prepare();
             } catch (IOException e) {
                 Log.d(TAG, e.getMessage());
@@ -405,13 +396,9 @@ public class AudioView extends FrameLayout implements
         }
     }
 
-    /**
-     * Configure the DragViewHelper instance adding a
-     * instance of ViewDragHelperCallback, useful to
-     * detect the touch callbacks from dragView.
-     */
     private void configDragViewHelper() {
-        mViewDragHelper = ViewDragHelper.create(this, SENSITIVITY, new AudioViewHelperCallback(this));
+        mViewDragHelper = ViewDragHelper.create(this,
+                SENSITIVITY, new AudioViewHelperCallback(this));
     }
 
     private boolean smoothSlideTo(View view, int x, int y) {

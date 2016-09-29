@@ -43,7 +43,8 @@ public class ObservableWebView extends WebView {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ObservableWebView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ObservableWebView(Context context, AttributeSet attrs,
+                             int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
@@ -98,7 +99,8 @@ public class ObservableWebView extends WebView {
                 mFolioPageFragment.startCallback();
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (Math.abs(event.getX() - mDownPosX[0]) > MOVE_THRESHOLD_DP || Math.abs(event.getY() - mDownPosY[0]) > MOVE_THRESHOLD_DP) {
+                if (Math.abs(event.getX() - mDownPosX[0]) > MOVE_THRESHOLD_DP
+                        || Math.abs(event.getY() - mDownPosY[0]) > MOVE_THRESHOLD_DP) {
                     mMoveOccured[0] = true;
                     mFolioPageFragment.fadeInSeekbarIfInvisible();
                 }

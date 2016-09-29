@@ -41,14 +41,14 @@ public class VerticalSeekbar extends SeekBar {
         super.onDraw(c);
     }
 
-    private OnSeekBarChangeListener onChangeListener;
+    private OnSeekBarChangeListener mOnChangeListener;
 
     @Override
-    public void setOnSeekBarChangeListener(OnSeekBarChangeListener onChangeListener) {
-        this.onChangeListener = onChangeListener;
+    public void setOnSeekBarChangeListener(OnSeekBarChangeListener mOnChangeListener) {
+        this.mOnChangeListener = mOnChangeListener;
     }
 
-    private int lastProgress = 0;
+    private int mLastProgress = 0;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -58,8 +58,8 @@ public class VerticalSeekbar extends SeekBar {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if (onChangeListener != null)
-                    onChangeListener.onStartTrackingTouch(this);
+                if (mOnChangeListener != null)
+                    mOnChangeListener.onStartTrackingTouch(this);
                 setPressed(true);
                 setSelected(true);
                 break;
@@ -75,11 +75,11 @@ public class VerticalSeekbar extends SeekBar {
                     progress = getMax();
                 }
                 setProgress(progress);  // Draw progress
-                if (progress != lastProgress) {
+                if (progress != mLastProgress) {
                     // Only enact listener if the progress has actually changed
-                    lastProgress = progress;
-                    if (onChangeListener != null)
-                        onChangeListener.onProgressChanged(this, progress, true);
+                    mLastProgress = progress;
+                    if (mOnChangeListener != null)
+                        mOnChangeListener.onProgressChanged(this, progress, true);
                 }
 
                 onSizeChanged(getWidth(), getHeight(), 0, 0);
@@ -87,8 +87,8 @@ public class VerticalSeekbar extends SeekBar {
                 setSelected(true);
                 break;
             case MotionEvent.ACTION_UP:
-                if (onChangeListener != null)
-                    onChangeListener.onStopTrackingTouch(this);
+                if (mOnChangeListener != null)
+                    mOnChangeListener.onStopTrackingTouch(this);
                 setPressed(false);
                 setSelected(false);
                 break;
@@ -104,11 +104,11 @@ public class VerticalSeekbar extends SeekBar {
     public synchronized void setProgressAndThumb(int progress) {
         setProgress(progress);
         onSizeChanged(getWidth(), getHeight(), 0, 0);
-        if (progress != lastProgress) {
+        if (progress != mLastProgress) {
             // Only enact listener if the progress has actually changed
-            lastProgress = progress;
-            if (onChangeListener != null)
-                onChangeListener.onProgressChanged(this, progress, true);
+            mLastProgress = progress;
+            if (mOnChangeListener != null)
+                mOnChangeListener.onProgressChanged(this, progress, true);
         }
     }
 

@@ -48,18 +48,18 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     private static final int FONT_LORA = 3;
     private static final int FONT_RALEWAY = 4;
 
-    private int activePointerId = INVALID_POINTER;
+    private int mActivePointerId = INVALID_POINTER;
 
-    private boolean isNightMode = false;
+    private boolean mIsNightMode = false;
 
-    private float verticalDragRange;
+    private float mVerticalDragRange;
 
-    private RelativeLayout container;
-    private ImageButton dayButton;
-    private ImageButton nightButton;
-    private SeekBar fontSizeSeekBar;
-    private ViewDragHelper viewDragHelper;
-    private ConfigViewCallback configViewCallback;
+    private RelativeLayout mContainer;
+    private ImageButton mDayButton;
+    private ImageButton mNightButton;
+    private SeekBar mFontSizeSeekBar;
+    private ViewDragHelper mViewDragHelper;
+    private ConfigViewCallback mConfigViewCallback;
 
     public ConfigView(Context context) {
         this(context, null);
@@ -75,14 +75,14 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
 
     private void inflateView() {
         inflate(getContext(), R.layout.view_config, this);
-        container = (RelativeLayout) findViewById(R.id.container);
-        fontSizeSeekBar = (SeekBar) findViewById(R.id.seekbar_font_size);
-        dayButton = (ImageButton) findViewById(R.id.day_button);
-        nightButton = (ImageButton) findViewById(R.id.night_button);
-        dayButton.setTag(Tags.DAY_BUTTON);
-        nightButton.setTag(Tags.NIGHT_BUTTON);
-        dayButton.setOnClickListener(this);
-        nightButton.setOnClickListener(this);
+        mContainer = (RelativeLayout) findViewById(R.id.container);
+        mFontSizeSeekBar = (SeekBar) findViewById(R.id.seekbar_font_size);
+        mDayButton = (ImageButton) findViewById(R.id.day_button);
+        mNightButton = (ImageButton) findViewById(R.id.night_button);
+        mDayButton.setTag(Tags.DAY_BUTTON);
+        mNightButton.setTag(Tags.NIGHT_BUTTON);
+        mDayButton.setOnClickListener(this);
+        mNightButton.setOnClickListener(this);
     }
 
     private void configFonts() {
@@ -136,7 +136,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
         }
 
         Config.getConfig().setFont(selectedFont - 1);
-        if (configViewCallback != null) configViewCallback.onConfigChange();
+        if (mConfigViewCallback != null) mConfigViewCallback.onConfigChange();
     }
 
     private void toggleBlackTheme() {
@@ -147,16 +147,16 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
         final int diffNightDark = night - darkNight;
 
         ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(),
-                isNightMode ? night : day, isNightMode ? day : night);
+                mIsNightMode ? night : day, mIsNightMode ? day : night);
         colorAnimation.setDuration(FADE_DAY_NIGHT_MODE);
         colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
                 int value = (int) animator.getAnimatedValue();
-                container.setBackgroundColor(value);
-                if (configViewCallback != null) {
-                    configViewCallback.onBackgroundUpdate(value - diffNightDark);
+                mContainer.setBackgroundColor(value);
+                if (mConfigViewCallback != null) {
+                    mConfigViewCallback.onBackgroundUpdate(value - diffNightDark);
                 }
             }
         });
@@ -167,9 +167,9 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
 
             @Override
             public void onAnimationEnd(Animator animator) {
-                isNightMode = !isNightMode;
-                Config.getConfig().setNightMode(isNightMode);
-                configViewCallback.onConfigChange();
+                mIsNightMode = !mIsNightMode;
+                Config.getConfig().setNightMode(mIsNightMode);
+                mConfigViewCallback.onConfigChange();
             }
 
             @Override
@@ -186,11 +186,11 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     }
 
     private void configSeekbar() {
-        fontSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mFontSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 Config.getConfig().setFontSize(progress);
-                if (configViewCallback != null) configViewCallback.onConfigChange();
+                if (mConfigViewCallback != null) mConfigViewCallback.onConfigChange();
             }
 
             @Override
@@ -201,7 +201,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        fontSizeSeekBar.setProgress(Config.getConfig().getFontSize());
+        mFontSizeSeekBar.setProgress(Config.getConfig().getFontSize());
     }
 
     /**
@@ -217,13 +217,13 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
             configSeekbar();
             configDragViewHelper();
             selectFont(Config.getConfig().getFont());
-            isNightMode = Config.getConfig().isNightMode();
-            if (isNightMode) {
-                dayButton.setSelected(false);
-                nightButton.setSelected(true);
+            mIsNightMode = Config.getConfig().isNightMode();
+            if (mIsNightMode) {
+                mDayButton.setSelected(false);
+                mNightButton.setSelected(true);
             } else {
-                dayButton.setSelected(true);
-                nightButton.setSelected(false);
+                mDayButton.setSelected(true);
+                mNightButton.setSelected(false);
             }
         }
     }
@@ -256,8 +256,8 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
                 MeasureSpec.EXACTLY);
         int measureHeight = MeasureSpec.makeMeasureSpec(
                 getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY);
-        if (container != null) {
-            container.measure(measureWidth, measureHeight);
+        if (mContainer != null) {
+            mContainer.measure(measureWidth, measureHeight);
         }
 
     }
@@ -279,16 +279,16 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
         switch (action) {
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
-                viewDragHelper.cancel();
+                mViewDragHelper.cancel();
                 return false;
             case MotionEvent.ACTION_DOWN:
                 int index = MotionEventCompat.getActionIndex(ev);
-                activePointerId = MotionEventCompat.getPointerId(ev, index);
-                if (activePointerId == INVALID_POINTER) {
+                mActivePointerId = MotionEventCompat.getPointerId(ev, index);
+                if (mActivePointerId == INVALID_POINTER) {
                     return false;
                 }
             default:
-                return viewDragHelper.shouldInterceptTouchEvent(ev);
+                return mViewDragHelper.shouldInterceptTouchEvent(ev);
         }
     }
 
@@ -305,38 +305,47 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     public boolean onTouchEvent(MotionEvent ev) {
         int actionMasked = MotionEventCompat.getActionMasked(ev);
         if ((actionMasked & MotionEventCompat.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
-            activePointerId = MotionEventCompat.getPointerId(ev, actionMasked);
+            mActivePointerId = MotionEventCompat.getPointerId(ev, actionMasked);
         }
-        if (activePointerId == INVALID_POINTER) {
+        if (mActivePointerId == INVALID_POINTER) {
             return false;
         }
-        viewDragHelper.processTouchEvent(ev);
-        return ViewHelper.isViewHit(container, this, (int) ev.getX(), (int) ev.getY());
+        mViewDragHelper.processTouchEvent(ev);
+        return ViewHelper.isViewHit(mContainer, this, (int) ev.getX(), (int) ev.getY());
     }
 
     @Override
     public void onClick(View v) {
         switch (((Integer) v.getTag())) {
             case Tags.DAY_BUTTON:
-                if (isNightMode) {
-                    isNightMode = true;
+                if (mIsNightMode) {
+                    mIsNightMode = true;
                     toggleBlackTheme();
-                    dayButton.setSelected(true);
-                    nightButton.setSelected(false);
-                    ((Activity) getContext()).findViewById(R.id.toolbar).setBackgroundColor(getContext().getResources().getColor(R.color.white));
-                    ((TextView) ((Activity) getContext()).findViewById(R.id.lbl_center)).setTextColor(getResources().getColor(R.color.black));
-                    configViewCallback.changeMenuTextColor();
+                    mDayButton.setSelected(true);
+                    mNightButton.setSelected(false);
+                    ((Activity) getContext()).
+                            findViewById(R.id.toolbar).
+                            setBackgroundColor(getContext().getResources().getColor(R.color.white));
+                    ((TextView) ((Activity) getContext()).
+                            findViewById(R.id.lbl_center)).
+                            setTextColor(getResources().getColor(R.color.black));
+                    mConfigViewCallback.changeMenuTextColor();
                 }
                 break;
             case Tags.NIGHT_BUTTON:
-                if (!isNightMode) {
-                    isNightMode = false;
+                if (!mIsNightMode) {
+                    mIsNightMode = false;
                     toggleBlackTheme();
-                    dayButton.setSelected(false);
-                    nightButton.setSelected(true);
-                    ((Activity) getContext()).findViewById(R.id.toolbar).setBackgroundColor(getContext().getResources().getColor(R.color.black));
-                    ((TextView) ((Activity) getContext()).findViewById(R.id.lbl_center)).setTextColor(getResources().getColor(R.color.white));
-                    configViewCallback.changeMenuTextColor();
+                    mDayButton.setSelected(false);
+                    mNightButton.setSelected(true);
+                    ((Activity) getContext())
+                            .findViewById(R.id.toolbar)
+                            .setBackgroundColor(getContext()
+                            .getResources().getColor(R.color.black));
+                    ((TextView) ((Activity) getContext())
+                            .findViewById(R.id.lbl_center))
+                            .setTextColor(getResources().getColor(R.color.white));
+                    mConfigViewCallback.changeMenuTextColor();
                 }
                 break;
             default:
@@ -351,7 +360,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
      */
     @Override
     public void computeScroll() {
-        if (!isInEditMode() && viewDragHelper.continueSettling(true)) {
+        if (!isInEditMode() && mViewDragHelper.continueSettling(true)) {
             ViewCompat.postInvalidateOnAnimation(this);
         }
     }
@@ -362,12 +371,12 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
      * detect the touch callbacks from dragView.
      */
     private void configDragViewHelper() {
-        viewDragHelper = ViewDragHelper.create(this, SENSITIVITY,
+        mViewDragHelper = ViewDragHelper.create(this, SENSITIVITY,
                 new ConfigViewHelperCallback(this));
     }
 
     private boolean smoothSlideTo(View view, int x, int y) {
-        if (viewDragHelper != null && viewDragHelper.smoothSlideViewTo(view, x, y)) {
+        if (mViewDragHelper != null && mViewDragHelper.smoothSlideViewTo(view, x, y)) {
             ViewCompat.postInvalidateOnAnimation(this);
             return true;
         }
@@ -375,41 +384,41 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     }
 
     public float getVerticalDragRange() {
-        return verticalDragRange;
+        return mVerticalDragRange;
     }
 
-    public void setVerticalDragRange(float verticalDragRange) {
-        this.verticalDragRange = verticalDragRange;
+    public void setVerticalDragRange(float mVerticalDragRange) {
+        this.mVerticalDragRange = mVerticalDragRange;
     }
 
     public RelativeLayout getContainer() {
-        return container;
+        return mContainer;
     }
 
-    public void setConfigViewCallback(ConfigViewCallback configViewCallback) {
-        this.configViewCallback = configViewCallback;
+    public void setConfigViewCallback(ConfigViewCallback mConfigViewCallback) {
+        this.mConfigViewCallback = mConfigViewCallback;
     }
 
     /**
-     * Detect if the container actual position is above the
+     * Detect if the mContainer actual position is above the
      * limit determined with the @param dragLimit.
      *
      * @return Use a dimension and compare with the dragged
      * axis position.
      */
     public boolean isDragViewAboveTheLimit() {
-        int parentSize = container.getHeight();
-        return parentSize < ViewCompat.getY(container) + (parentSize * DEFAULT_DRAG_LIMIT);
+        int parentSize = mContainer.getHeight();
+        return parentSize < ViewCompat.getY(mContainer) + (parentSize * DEFAULT_DRAG_LIMIT);
     }
 
     public void moveToOriginalPosition() {
-        configViewCallback.showShadow();
+        mConfigViewCallback.showShadow();
         setVisibility(VISIBLE);
-        smoothSlideTo(container, 0, 0);
+        smoothSlideTo(mContainer, 0, 0);
     }
 
     public void moveOffScreen() {
-        smoothSlideTo(container, 0, (int) getVerticalDragRange());
+        smoothSlideTo(mContainer, 0, (int) getVerticalDragRange());
     }
 
     public void hideView() {
@@ -421,7 +430,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
     }
 
     public void onViewPositionChanged(float alpha) {
-        configViewCallback.onShadowAlpha(alpha);
+        mConfigViewCallback.onShadowAlpha(alpha);
     }
 
 }
