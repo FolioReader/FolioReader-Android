@@ -27,6 +27,8 @@ import com.folioreader.smil.AudioElement;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.ViewHelper;
 
+import org.codehaus.jackson.map.annotate.JacksonInject;
+
 import java.io.IOException;
 
 public class AudioView extends FrameLayout implements
@@ -228,17 +230,16 @@ public class AudioView extends FrameLayout implements
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
     private void setUpPlayer() {
         if (mPlayer == null) {
             mPlayer = new MediaPlayer();
             try {
                 mAudioElement = mFolioActivity.getElement(0);
                 String filePath = mAudioElement.getSrc();
-                filePath = filePath.substring(2, filePath.length());
-                filePath = "/folioreader/" + AppUtil.mfolderName + "/OEBPS/" + filePath;
-                mPlayer.setDataSource(Environment.getExternalStorageDirectory().
-                        getAbsolutePath() + filePath);
+                String folderPath = AppUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName());
+                //filePath = filePath.substring(2, filePath.length());
+                filePath = folderPath + "/OEBPS/" + filePath;
+                mPlayer.setDataSource(filePath);
                 mPlayer.prepare();
             } catch (IOException e) {
                 Log.d(TAG, e.getMessage());

@@ -82,7 +82,7 @@ public class EpubManipulator {
     private String[][] mAudio;
 
     // mBook from mFileName
-    public EpubManipulator(String mFileName, String destFolder, Context theContext)
+    public EpubManipulator(String srcEpubFilePath, String destFolder, Context theContext)
             throws Exception {
 
         List<String> spineElements;
@@ -92,10 +92,10 @@ public class EpubManipulator {
             mContext = theContext;
         }
 
-        this.mFs = new FileInputStream(mFileName);
+        this.mFs = new FileInputStream(srcEpubFilePath);
         this.mBook = (new EpubReader()).readEpub(mFs);
 
-        this.mFileName = mFileName;
+        this.mFileName = srcEpubFilePath;
         this.mDecompressedFolder = destFolder;
 
         Spine spine = mBook.getSpine();
@@ -110,7 +110,7 @@ public class EpubManipulator {
 
         this.mSpineElementPaths = new String[spineElements.size()];
 
-        unzip(mFileName, location + mDecompressedFolder);
+        unzip(srcEpubFilePath, location + mDecompressedFolder);
 
         mPathOPF = getPathOPF(location + mDecompressedFolder);
 

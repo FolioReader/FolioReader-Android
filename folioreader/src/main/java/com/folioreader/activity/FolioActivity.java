@@ -87,9 +87,10 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private Toolbar mToolbar;
     private TOCAdapter mTocAdapter;
 
-    private String mEpubAssetPath;
-    private String mSourceType;
-    private int mRawId;
+    private EpubSourceType mEpubSourceType;
+    private String mEpubFilePath;
+    private String mEpubFileName;
+    private int mEpubRawId;
     private Book mBook;
     private ArrayList<TOCReference> mTocReferences;
     private List<SpineReference> mSpineReferences;
@@ -104,6 +105,15 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
+        mEpubSourceType = (FolioActivity.EpubSourceType)
+                getIntent().getExtras().getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
+        if (mEpubSourceType.equals(EpubSourceType.RAW)){
+            mEpubRawId = getIntent().getExtras().getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+        } else {
+            mEpubFilePath = getIntent().getExtras().getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+        }
+        mEpubFileName = AppUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
+
         initBook();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
@@ -142,7 +152,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         new Thread(new Runnable() {
             @Override
             public void run() {
-                    mBook = AppUtil.saveEpubFile(getIntent().getExtras(), FolioActivity.this);
+                    mBook = AppUtil.saveEpubFile(FolioActivity.this, mEpubSourceType, mEpubFilePath, mEpubRawId, mEpubFileName);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -316,7 +326,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         if (mBook != null && mSpineReferences != null) {
             FolioPageFragmentAdapter folioPageFragmentAdapter =
                         new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                        mSpineReferences, mBook);
+                        mSpineReferences, mBook, mEpubFileName);
             mFolioPageViewPager.setAdapter(folioPageFragmentAdapter);
         }
     }
@@ -392,8 +402,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     private String readHTmlString(int position) {
         String pageHref = mSpineReferences.get(position).getResource().getHref();
-        pageHref = Environment.getExternalStorageDirectory().getAbsolutePath()
-                   + "/folioreader/" + AppUtil.mfolderName + "/OEBPS/" + pageHref;
+        pageHref = AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/OEBPS/" + pageHref;
         String html = EpubManipulator.readPage(pageHref);
         return html;
     }
@@ -483,12 +492,12 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SmilElements smilElements = AppUtil.retrieveAndParseSmilJSON(FolioActivity.this);
+                SmilElements smilElements = AppUtil.retrieveAndParseSmilJSON(FolioActivity.this, mEpubFileName);
                 if (smilElements != null) {
                     mTextElementList = smilElements.getTextElementArrayList();
                     mAudioElementArrayList = smilElements.getAudioElementArrayList();
                 } else {
-                    SmilFile smilFile = AppUtil.createSmilJson(FolioActivity.this);
+                    SmilFile smilFile = AppUtil.createSmilJson(FolioActivity.this, mEpubFileName);
                     if (smilFile != null) {
                         mAudioElementArrayList = smilFile.getAudioSegments();
                         mTextElementList = smilFile.getTextSegments();
@@ -537,5 +546,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         if (mAudioView != null) {
             mAudioView.playerStop();
         }
+    }
+
+    public String getEpubFileName(){
+        return mEpubFileName;
     }
 }

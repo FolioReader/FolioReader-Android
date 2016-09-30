@@ -57,6 +57,7 @@ public class FolioPageFragment extends Fragment {
 
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.fragments.FolioPageFragment.POSITION";
     public static final String KEY_FRAGMENT_FOLIO_BOOK = "com.folioreader.fragments.FolioPageFragment.BOOK";
+    public static final String KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.fragments.FolioPageFragment.EPUB_FILE_NAME";
     public static final String TAG = FolioPageFragment.class.getSimpleName();
 
     private static final int ACTION_ID_COPY = 1001;
@@ -103,12 +104,14 @@ public class FolioPageFragment extends Fragment {
 
     private int mPosition = -1;
     private Book mBook = null;
+    private String mEpubFileName = null;
 
-    public static FolioPageFragment newInstance(int position, Book book) {
+    public static FolioPageFragment newInstance(int position, Book book, String epubFileName) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
         args.putSerializable(KEY_FRAGMENT_FOLIO_BOOK, book);
+        args.putString(KEY_FRAGMENT_EPUB_FILE_NAME, epubFileName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -121,9 +124,11 @@ public class FolioPageFragment extends Fragment {
                     && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK)) {
             mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBook = (Book) savedInstanceState.getSerializable(KEY_FRAGMENT_FOLIO_BOOK);
+            mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
         } else {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBook = (Book) getArguments().getSerializable(KEY_FRAGMENT_FOLIO_BOOK);
+            mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
         }
 
         mContext = getActivity();
@@ -300,8 +305,7 @@ public class FolioPageFragment extends Fragment {
         });
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
-        String baseUrl = "file://" + Environment.getExternalStorageDirectory().getAbsolutePath()
-                    + "/folioreader/" + AppUtil.mfolderName + "/OEBPS//";
+        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/OEBPS//";
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
     }
 
@@ -427,6 +431,7 @@ public class FolioPageFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_FRAGMENT_FOLIO_POSITION, mPosition);
         outState.putSerializable(KEY_FRAGMENT_FOLIO_BOOK, mBook);
+        outState.putString(KEY_FRAGMENT_EPUB_FILE_NAME, mEpubFileName);
     }
 
     public void reload() {
