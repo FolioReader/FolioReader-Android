@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
@@ -26,8 +25,6 @@ import com.folioreader.model.Highlight.HighlightStyle;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.ViewHelper;
-
-import org.codehaus.jackson.map.annotate.JacksonInject;
 
 import java.io.IOException;
 

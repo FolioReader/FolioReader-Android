@@ -223,12 +223,12 @@ public class AppUtil {
         return book;
     }
 
-    public static String getFolioEpubFolderPath(String epubFileName){
+    public static String getFolioEpubFolderPath(String epubFileName) {
         return Environment.getExternalStorageDirectory().getAbsolutePath()
                 + FOLIO_READER_ROOT + epubFileName;
     }
 
-    public static String getFolioEpubFilePath(FolioActivity.EpubSourceType sourceType, String epubFilePath, String epubFileName){
+    public static String getFolioEpubFilePath(FolioActivity.EpubSourceType sourceType, String epubFilePath, String epubFileName) {
         if (FolioActivity.EpubSourceType.SD_CARD.equals(sourceType)) {
             return epubFilePath;
         } else {
@@ -236,7 +236,7 @@ public class AppUtil {
         }
     }
 
-    private static boolean isFolderAvailable(String epubFileName){
+    private static boolean isFolderAvailable(String epubFileName) {
         File file = new File(getFolioEpubFolderPath(epubFileName));
         return file.isDirectory();
     }

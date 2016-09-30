@@ -47,15 +47,15 @@ task findbugs(type: FindBugs,
     effort = "max"
     reportLevel = "high"
     excludeFilter = new File("$qualityConfigDir/findbugs/android-exclude-filter.xml")
-    classes = files("$project.rootDir/app/build/intermediates/classes")
+    classes = files("$project.rootDir/folioreader/build/intermediates/classes")
 
     source 'src'
     include '**/*.java'
     exclude '**/gen/**'
 
     reports {
-        xml.enabled = true
-        html.enabled = false
+        xml.enabled = false
+        html.enabled = true
         xml {
             destination "$reportsDir/findbugs/findbugs.xml"
         }
