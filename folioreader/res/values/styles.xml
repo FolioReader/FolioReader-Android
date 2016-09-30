@@ -58,4 +58,9 @@
         <attr name="underlineWidth" format="dimension"/>
         <attr name="underlineColor" format="color"/>
     </declare-styleable>
+
+    <style name="DialogCustomTheme" parent="android:Theme.Holo.Dialog.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+    </style>
 </resources>

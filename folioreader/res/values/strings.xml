@@ -28,4 +28,7 @@
     <string name="underline_highlights">
         <span style="border-bottom: 1px solid #ff0000;">%s</span>
     </string>
+    <string name="edit_notes">Save your note</string>
+    <string name="save_note">Save note</string>
+    <string name="please_enter_note">please enter a note</string>
 </resources>

@@ -7,6 +7,7 @@ import com.folioreader.model.Highlight;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.UnderlinedTextView;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -14,14 +15,20 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -76,6 +83,8 @@ public class HighlightListActivity extends AppCompatActivity {
             public TextView txtHightLightNote;
             public ImageView delete;
             public ImageView editNote;
+            public RelativeLayout dataRelativeLayout;
+            public LinearLayout swipeLinearlayout;
 
             public ViewHolder(View row) {
                 txtHightlightText = (UnderlinedTextView) row.findViewById(R.id.txt_hightlight_text);
@@ -83,6 +92,8 @@ public class HighlightListActivity extends AppCompatActivity {
                 txtHightLightNote = (TextView) row.findViewById(R.id.txt_hightlight_note);
                 delete = (ImageView) row.findViewById(R.id.delete);
                 editNote = (ImageView) row.findViewById(R.id.edit_note);
+                dataRelativeLayout = (RelativeLayout) row.findViewById(R.id.main_data);
+                swipeLinearlayout =(LinearLayout)row.findViewById(R.id.swipe_linear_layout);
             }
         }
 
@@ -92,7 +103,7 @@ public class HighlightListActivity extends AppCompatActivity {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             View row = convertView;
             ViewHolder holder = null;
             if (row == null) {
@@ -105,6 +116,24 @@ public class HighlightListActivity extends AppCompatActivity {
             final Highlight rowItem = getItem(position);
             holder.txtHightlightText.setText(rowItem.getContent().trim());
             holder.txtHightLightTime.setText(AppUtil.formatDate(rowItem.getDate()));
+            final ViewHolder holder1=holder;
+            holder.dataRelativeLayout.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    final int height=holder1.dataRelativeLayout.getHeight();
+                    Log.d("height",height+"");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ViewGroup.LayoutParams params = holder1.swipeLinearlayout.getLayoutParams();
+                            params.height = height;
+                            holder1.swipeLinearlayout.setLayoutParams(params);
+                        }
+                    });
+                }
+            },20);
+
+
 
             String editedNote = rowItem.getNote();
             if(editedNote != null) {
@@ -125,9 +154,10 @@ public class HighlightListActivity extends AppCompatActivity {
             row.findViewById(R.id.txt_hightlight_note).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(getApplicationContext(), EditNoteActivity.class);
+                    /*Intent intent = new Intent(getApplicationContext(), EditNoteActivity.class);
                     intent.putExtra(HIGHLIGHT_ITEM, rowItem);
-                    startActivityForResult(intent, REQUEST_CODE);
+                    startActivityForResult(intent, REQUEST_CODE);*/
+                    showEditNoteDailog(getItem(position));
                 }
             });
             if (Config.getConfig().isNightMode()) {
@@ -149,14 +179,41 @@ public class HighlightListActivity extends AppCompatActivity {
             holder.editNote.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(getApplicationContext(), EditNoteActivity.class);
+                   /* Intent intent = new Intent(getApplicationContext(), EditNoteActivity.class);
                     intent.putExtra(HIGHLIGHT_ITEM, rowItem);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivityForResult(intent, REQUEST_CODE);
+                    startActivityForResult(intent, REQUEST_CODE);*/
+                    showEditNoteDailog(getItem(position));
                 }
             });
             return row;
         }
+    }
+
+
+    private void showEditNoteDailog(final Highlight highlightItem) {
+        final Dialog  dailog = new Dialog(HighlightListActivity.this, R.style.DialogCustomTheme);
+        dailog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dailog.setContentView(R.layout.dialog_edit_notes);
+        dailog.show();
+
+        dailog.findViewById(R.id.btn_save_note).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String note = ((EditText) dailog.findViewById(R.id.edit_note)).getText().toString();
+                if (note != null && (!TextUtils.isEmpty(note))) {
+                    highlightItem.setNote(note);
+                    HighlightTable.save(getApplicationContext(), highlightItem);
+                    dailog.dismiss();
+                    initViews();
+                } else {
+                    Toast.makeText(HighlightListActivity.this,getString(R.string.please_enter_note),Toast.LENGTH_SHORT).show();;
+                    //DialogUtil.showErrorDialog(LoginActivity.this, Constants.ERROR, getString(R.string.please_enter_email));
+                }
+
+            }
+        });
     }
 
     @Override
@@ -164,4 +221,6 @@ public class HighlightListActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         finish();
     }
+
+
 }
