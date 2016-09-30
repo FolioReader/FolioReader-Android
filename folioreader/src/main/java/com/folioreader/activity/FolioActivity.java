@@ -492,12 +492,12 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SmilElements smilElements = AppUtil.retrieveAndParseSmilJSON(FolioActivity.this, mEpubFileName);
+                SmilElements smilElements = AppUtil.retrieveAndParseSmilJSON(FolioActivity.this,mEpubFileName);
                 if (smilElements != null) {
                     mTextElementList = smilElements.getTextElementArrayList();
                     mAudioElementArrayList = smilElements.getAudioElementArrayList();
                 } else {
-                    SmilFile smilFile = AppUtil.createSmilJson(FolioActivity.this, mEpubFileName);
+                    SmilFile smilFile  = AppUtil.createSmilJson(FolioActivity.this, mEpubFileName);
                     if (smilFile != null) {
                         mAudioElementArrayList = smilFile.getAudioSegments();
                         mTextElementList = smilFile.getTextSegments();

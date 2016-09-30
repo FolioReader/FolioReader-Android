@@ -12,13 +12,13 @@ public class SequenceElement implements ContainerElement {
     private List<SmilElement> mElements = new ArrayList<SmilElement>();
     private ContainerElement mParent;
 
-    public SequenceElement(ContainerElement mParent, double mDuration) {
-        this.mParent = mParent;
-        this.mDuration = mDuration;
+    public SequenceElement(ContainerElement parent, double duration) {
+        this.mParent = parent;
+        this.mDuration = duration;
     }
 
-    public SequenceElement(ContainerElement mParent) {
-        this.mParent = mParent;
+    public SequenceElement(ContainerElement parent) {
+        this.mParent = parent;
     }
 
     public void add(SmilElement currentElement) {

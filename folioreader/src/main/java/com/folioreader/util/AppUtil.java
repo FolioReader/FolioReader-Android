@@ -17,6 +17,7 @@ import com.folioreader.database.BookModelTable;
 import com.folioreader.model.BookModel;
 import com.folioreader.model.SmilElements;
 import com.folioreader.smil.AudioElement;
+import com.folioreader.smil.SmilElement;
 import com.folioreader.smil.SmilFile;
 import com.folioreader.smil.TextElement;
 
@@ -201,7 +202,7 @@ public class AppUtil {
                     filePath = epubFilePath;
                 }
 
-                new EpubManipulator(filePath, getFolioEpubFolderPath(epubFileName), context);
+                new EpubManipulator(filePath,epubFileName , context);
                 book = saveBookToDb(filePath, epubFileName, context);
             } else {
                 BookModel bookModel = BookModelTable.getBookFromName(context, epubFileName);
@@ -350,6 +351,7 @@ public class AppUtil {
                 Log.d(TAG, e.getMessage());
             }
         }
+
         return smilElements;
     }
 

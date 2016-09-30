@@ -1,29 +1,35 @@
 package com.folioreader.smil;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import java.io.Serializable;
 
 /**
  * Encapsulates the <audio> tag.
  */
 public class AudioElement implements Serializable, MediaElement {
-
+    @JsonProperty("src")
     private String mSrc;
+    @JsonProperty("clip_begin")
     private int mClipBegin;
+    @JsonProperty("m_clip_end")
     private int mClipEnd;
+    @JsonProperty("id")
     private String mId;
+    @JsonProperty("parent")
     private SmilElement mParent;
 
 
     public AudioElement() {
     }
 
-    public AudioElement(SmilElement mParent, String mSrc, int mClipBegin, int clipEnd, String mId) {
+    public AudioElement(SmilElement parent, String src, int clipBegin, int clipEnd, String id) {
         super();
-        this.mParent = mParent;
-        this.mSrc = mSrc;
-        this.mClipBegin = mClipBegin;
+        this.mParent = parent;
+        this.mSrc = src;
+        this.mClipBegin = clipBegin;
         this.mClipEnd = clipEnd;
-        this.mId = mId;
+        this.mId = id;
     }
 
     public String getSrc() {

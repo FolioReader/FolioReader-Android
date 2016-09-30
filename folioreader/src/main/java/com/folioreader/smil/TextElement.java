@@ -1,19 +1,22 @@
 package com.folioreader.smil;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import java.io.Serializable;
 
 /**
  * Encapsulates the <text> tag.
  */
 public class TextElement implements Serializable, MediaElement {
+    @JsonProperty("src")
     private String mSrc;
     private String mId;
 
     public  TextElement(){}
     
-    public TextElement(SmilElement parent, String mSrc, String mId) {
-        this.mSrc = mSrc;
-        this.mId = mId;
+    public TextElement(SmilElement parent, String src, String id) {
+        this.mSrc = src;
+        this.mId = id;
     }
 
     @Override

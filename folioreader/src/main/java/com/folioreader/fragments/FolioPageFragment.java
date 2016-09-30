@@ -448,7 +448,7 @@ public class FolioPageFragment extends Fragment {
     }
 
     public void setStyle(String style) {
-        mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), style));
+       mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), style));
        // mWebview.loadUrl("javascript:alert(setMediaOverlayStyle('" + style + "'))");
     }
 
@@ -474,7 +474,7 @@ public class FolioPageFragment extends Fragment {
                 jsPath + String.format(getString(R.string.script_tag),
                 "file:///android_asset/android.selection.js");
         jsPath =
-                jsPath + String.format(getString(R.string.script_tag),
+                jsPath + String.format(getString(R.string.script_tag_method_call),
                  "setMediaOverlayStyleColors('#C0ED72','#C0ED72')");
         String toInject = "\n" + cssPath + "\n" + jsPath + "\n</head>";
         htmlContent = htmlContent.replace("</head>", toInject);

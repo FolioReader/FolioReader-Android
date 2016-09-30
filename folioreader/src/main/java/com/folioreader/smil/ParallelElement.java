@@ -15,8 +15,8 @@ public class ParallelElement implements ContainerElement {
     private TextElement mTextElement;
     private ContainerElement mParent;
 
-    public ParallelElement(ContainerElement mParent) {
-        this.mParent = mParent;
+    public ParallelElement(ContainerElement parent) {
+        this.mParent = parent;
     }
 
     // Mac complains about this @Override
@@ -32,8 +32,8 @@ public class ParallelElement implements ContainerElement {
         }
     }
 
-    public void setTextElement(TextElement mTextElement) {
-        this.mTextElement = mTextElement;
+    public void setTextElement(TextElement textElement) {
+        this.mTextElement = textElement;
     }
 
     public void addAudioElement(AudioElement audioElement) {

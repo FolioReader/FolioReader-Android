@@ -6,6 +6,8 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import java.util.List;
 
 /**
@@ -15,8 +17,10 @@ import java.util.List;
 public class SmilElements {
     @DatabaseField(generatedId = true)
     int id;
+    @JsonProperty("audio_element_array_list")
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     List<AudioElement> audioElementArrayList;
+    @JsonProperty("text_element_array_list")
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     List<TextElement> textElementArrayList;
 
