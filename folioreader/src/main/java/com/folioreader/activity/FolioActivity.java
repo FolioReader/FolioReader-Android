@@ -22,7 +22,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -107,10 +106,11 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         setContentView(R.layout.folio_activity);
         mEpubSourceType = (FolioActivity.EpubSourceType)
                 getIntent().getExtras().getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
-        if (mEpubSourceType.equals(EpubSourceType.RAW)){
+        if (mEpubSourceType.equals(EpubSourceType.RAW)) {
             mEpubRawId = getIntent().getExtras().getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         } else {
-            mEpubFilePath = getIntent().getExtras().getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+            mEpubFilePath = getIntent().getExtras()
+                    .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         }
         mEpubFileName = AppUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
 
@@ -152,7 +152,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         new Thread(new Runnable() {
             @Override
             public void run() {
-                    mBook = AppUtil.saveEpubFile(FolioActivity.this, mEpubSourceType, mEpubFilePath, mEpubRawId, mEpubFileName);
+                    mBook = AppUtil.saveEpubFile(FolioActivity.this, mEpubSourceType, mEpubFilePath,
+                            mEpubRawId, mEpubFileName);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -492,7 +493,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SmilElements smilElements = AppUtil.retrieveAndParseSmilJSON(FolioActivity.this, mEpubFileName);
+                SmilElements smilElements = AppUtil.retrieveAndParseSmilJSON(FolioActivity.this,
+                        mEpubFileName);
                 if (smilElements != null) {
                     mTextElementList = smilElements.getTextElementArrayList();
                     mAudioElementArrayList = smilElements.getAudioElementArrayList();
@@ -548,7 +550,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         }
     }
 
-    public String getEpubFileName(){
+    public String getEpubFileName() {
         return mEpubFileName;
     }
 }
