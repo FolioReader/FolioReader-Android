@@ -17,7 +17,6 @@ import com.folioreader.database.BookModelTable;
 import com.folioreader.model.BookModel;
 import com.folioreader.model.SmilElements;
 import com.folioreader.smil.AudioElement;
-import com.folioreader.smil.SmilElement;
 import com.folioreader.smil.SmilFile;
 import com.folioreader.smil.TextElement;
 
@@ -202,7 +201,7 @@ public class AppUtil {
                     filePath = epubFilePath;
                 }
 
-                new EpubManipulator(filePath,epubFileName , context);
+                new EpubManipulator(filePath, epubFileName, context);
                 book = saveBookToDb(filePath, epubFileName, context);
             } else {
                 BookModel bookModel = BookModelTable.getBookFromName(context, epubFileName);
@@ -259,8 +258,8 @@ public class AppUtil {
 
 
     public static boolean compareUrl(String ur1, String ur2) {
-        String []s = ur1.split("//");
-        String []s1 = ur2.split("/");
+        String[] s = ur1.split("//");
+        String[] s1 = ur2.split("/");
         ur1 = s[s.length - 1];
         ur2 = s1[s1.length - 1];
         return ur1.equalsIgnoreCase(ur2);

@@ -119,8 +119,8 @@ public class FolioPageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         if ((savedInstanceState != null)
-                    && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_POSITION)
-                    && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK)) {
+                && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_POSITION)
+                && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK)) {
             mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBook = (Book) savedInstanceState.getSerializable(KEY_FRAGMENT_FOLIO_BOOK);
             mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
@@ -212,7 +212,7 @@ public class FolioPageFragment extends Fragment {
                                 double width = Double.parseDouble(matcher.group(3));
                                 double height = Double.parseDouble(matcher.group(4));
                                 onHighlight((int) (AppUtil.convertDpToPixel((float) left,
-                                                getActivity())),
+                                        getActivity())),
                                         (int) (AppUtil.convertDpToPixel((float) top,
                                                 getActivity())),
                                         (int) (AppUtil.convertDpToPixel((float) width,
@@ -266,7 +266,7 @@ public class FolioPageFragment extends Fragment {
                         double width = Double.parseDouble(matcher.group(3));
                         double height = Double.parseDouble(matcher.group(4));
                         showTextSelectionMenu((int) (AppUtil.convertDpToPixel((float) left,
-                                        getActivity())),
+                                getActivity())),
                                 (int) (AppUtil.convertDpToPixel((float) top,
                                         getActivity())),
                                 (int) (AppUtil.convertDpToPixel((float) width,
@@ -311,18 +311,18 @@ public class FolioPageFragment extends Fragment {
     private void initSeekbar() {
         mScrollSeekbar = (VerticalSeekbar) mRootView.findViewById(R.id.scrollSeekbar);
         mScrollSeekbar.getProgressDrawable()
-                      .setColorFilter(getResources()
-                      .getColor(R.color.app_green),
-                       PorterDuff.Mode.SRC_IN);
+                .setColorFilter(getResources()
+                                .getColor(R.color.app_green),
+                        PorterDuff.Mode.SRC_IN);
     }
 
     private void updatePagesLeftTextBg() {
         if (Config.getConfig().isNightMode()) {
             mRootView.findViewById(R.id.indicatorLayout)
-                     .setBackgroundColor(Color.parseColor("#131313"));
+                    .setBackgroundColor(Color.parseColor("#131313"));
         } else {
             mRootView.findViewById(R.id.indicatorLayout)
-                     .setBackgroundColor(Color.WHITE);
+                    .setBackgroundColor(Color.WHITE);
         }
     }
 
@@ -330,8 +330,8 @@ public class FolioPageFragment extends Fragment {
         try {
             int currentPage = (int) Math.ceil(scrollY / mWebview.getWebviewHeight()) + 1;
             int totalPages =
-                        (int) Math.ceil(mWebview.getContentHeightVal()
-                        / mWebview.getWebviewHeight());
+                    (int) Math.ceil(mWebview.getContentHeightVal()
+                            / mWebview.getWebviewHeight());
             int pagesRemaining = totalPages - currentPage;
             String pagesRemainingStrFormat =
                     pagesRemaining > 1 ?
@@ -340,16 +340,16 @@ public class FolioPageFragment extends Fragment {
                     pagesRemainingStrFormat, pagesRemaining);
 
             int minutesRemaining =
-                        (int) Math.ceil((double) (pagesRemaining * mTotalMinutes) / totalPages);
+                    (int) Math.ceil((double) (pagesRemaining * mTotalMinutes) / totalPages);
             String minutesRemainingStr;
             if (minutesRemaining > 1) {
                 minutesRemainingStr =
-                            String.format(Locale.US, getString(R.string.minutes_left),
-                            minutesRemaining);
+                        String.format(Locale.US, getString(R.string.minutes_left),
+                                minutesRemaining);
             } else if (minutesRemaining == 1) {
                 minutesRemainingStr =
-                            String.format(Locale.US, getString(R.string.minute_left),
-                            minutesRemaining);
+                        String.format(Locale.US, getString(R.string.minute_left),
+                                minutesRemaining);
             } else {
                 minutesRemainingStr = getString(R.string.less_than_minute);
             }
@@ -447,34 +447,33 @@ public class FolioPageFragment extends Fragment {
     }
 
     public void setStyle(String style) {
-       mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), style));
-       // mWebview.loadUrl("javascript:alert(setMediaOverlayStyle('" + style + "'))");
+        mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), style));
     }
 
     private String getHtmlContent(String htmlContent) {
         String cssPath =
-                    String.format(getString(R.string.css_tag), "file:///android_asset/Style.css");
+                String.format(getString(R.string.css_tag), "file:///android_asset/Style.css");
         String jsPath =
                 String.format(getString(R.string.script_tag),
-                "file:///android_asset/Bridge.js");
+                        "file:///android_asset/Bridge.js");
         jsPath =
                 jsPath + String.format(getString(R.string.script_tag),
-                "file:///android_asset/jquery-1.8.3.js");
+                        "file:///android_asset/jquery-1.8.3.js");
         jsPath =
                 jsPath + String.format(getString(R.string.script_tag),
-                "file:///android_asset/jpntext.js");
+                        "file:///android_asset/jpntext.js");
         jsPath =
                 jsPath + String.format(getString(R.string.script_tag),
-                "file:///android_asset/rangy-core.js");
+                        "file:///android_asset/rangy-core.js");
         jsPath =
                 jsPath + String.format(getString(R.string.script_tag),
-                "file:///android_asset/rangy-serializer.js");
+                        "file:///android_asset/rangy-serializer.js");
         jsPath =
                 jsPath + String.format(getString(R.string.script_tag),
-                "file:///android_asset/android.selection.js");
+                        "file:///android_asset/android.selection.js");
         jsPath =
                 jsPath + String.format(getString(R.string.script_tag_method_call),
-                 "setMediaOverlayStyleColors('#C0ED72','#C0ED72')");
+                        "setMediaOverlayStyleColors('#C0ED72','#C0ED72')");
         String toInject = "\n" + cssPath + "\n" + jsPath + "\n</head>";
         htmlContent = htmlContent.replace("</head>", toInject);
 
@@ -524,12 +523,12 @@ public class FolioPageFragment extends Fragment {
         htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
         ArrayList<Highlight> highlights =
                 (ArrayList<Highlight>) HighlightTable.getAllHighlight(getActivity().
-                getApplication(), mBook.getTitle(), mPosition);
+                        getApplication(), mBook.getTitle(), mPosition);
         for (Highlight highlight : highlights) {
             String highlightStr =
                     "<highlight id=\"" + highlight.getHighlightId() +
-                    "\" onclick=\"callHighlightURL(this);\" class=\"" +
-                    highlight.getType() + "\">" + highlight.getContent() + "</highlight>";
+                            "\" onclick=\"callHighlightURL(this);\" class=\"" +
+                            highlight.getType() + "\">" + highlight.getContent() + "</highlight>";
             String searchStr = highlight.getContentPre() +
                     "" + highlight.getContent() + "" + highlight.getContentPost();
             htmlContent = htmlContent.replace(searchStr, highlightStr);
