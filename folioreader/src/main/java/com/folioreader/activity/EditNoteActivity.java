@@ -9,7 +9,6 @@ import android.widget.EditText;
 import com.folioreader.R;
 import com.folioreader.database.HighlightTable;
 import com.folioreader.model.Highlight;
-import android.util.Log;
 
 public class EditNoteActivity extends AppCompatActivity {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
@@ -19,7 +18,7 @@ public class EditNoteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.edit_note_xml);
+        setContentView(R.layout.edit_note);
 
         initViews();
     }
@@ -37,7 +36,6 @@ public class EditNoteActivity extends AppCompatActivity {
         findViewById(R.id.save_note_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 String editedNote = mEdit.getText().toString();
                 if(editedNote.length() > 0){
                     highlight_item.setNote(editedNote);
@@ -46,6 +44,7 @@ public class EditNoteActivity extends AppCompatActivity {
                     Intent intent = new Intent();
                     setResult(RESULT_OK, intent);
                 }
+
                 finish();
             }
         });

@@ -2,17 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <Button android:id="@+id/save_note_button"
-    android:layout_width="80dp"
-    android:layout_height="60dp"
-    android:text="Save"
-    android:layout_alignParentLeft="true"
-    android:layout_alignParentTop="true"/>
-
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:text="Save"/>
     <EditText android:id="@+id/edit_text_note"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/save_note_button"
         android:lines="3"/>
 </LinearLayout>
