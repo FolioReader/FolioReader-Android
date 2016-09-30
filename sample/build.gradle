@@ -3,6 +3,11 @@ apply plugin: 'checkstyle'
 
 android {
 
+
+  dexOptions {
+    javaMaxHeapSize "4G"
+  }
+
   compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
   buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
 
@@ -50,16 +55,9 @@ android {
   }
 }
 
+
+
 dependencies {
   compile project(':folioreader')
   compile 'com.android.support:appcompat-v7:23.1.1'
-}
-
-task checkstyle(type: Checkstyle) {
-  configFile file('../config/checkstyle/checkstyle.xml')
-  source 'src/main/java'
-  source 'src/test/java'
-  include '**/*.java'
-  exclude '**/gen/**'
-  classpath = files()
 }

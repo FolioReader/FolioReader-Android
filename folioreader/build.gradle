@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'checkstyle'
+apply from: '../config/quality/quality.gradle'
 
 android {
   useLibrary 'org.apache.http.legacy'
@@ -56,7 +56,6 @@ android {
 dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
   compile project(':webViewMarker-release')
-  compile project(':swipe_library')
 
   compile 'com.android.support:appcompat-v7:23.1.1'
   compile 'com.android.support:recyclerview-v7:23.1.1'
@@ -64,4 +63,7 @@ dependencies {
   compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
   compile 'com.j256.ormlite:ormlite-core:4.48'
   compile 'com.j256.ormlite:ormlite-android:4.48'
+  compile 'com.android.support:support-v4:20.+'
+  compile "com.daimajia.swipelayout:library:1.2.0@aar"
+
 }

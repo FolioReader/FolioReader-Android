@@ -64,14 +64,15 @@ public class PopupWindows {
      */
     protected void preShow() {
         if (mRootView == null)
-            throw new IllegalStateException("setContentView was not called with a view to display.");
+            throw new IllegalStateException("setContentView was not called with a view to display");
 
         onShow();
 
-        if (mBackground == null)
+        if (mBackground == null) {
             mWindow.setBackgroundDrawable(new BitmapDrawable());
-        else
+        } else {
             mWindow.setBackgroundDrawable(mBackground);
+        }
 
         mWindow.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
         mWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
@@ -108,7 +109,8 @@ public class PopupWindows {
      * @param layoutResID Resource id
      */
     public void setContentView(int layoutResID) {
-        LayoutInflater inflator = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflator =
+                (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         setContentView(inflator.inflate(layoutResID, null));
     }

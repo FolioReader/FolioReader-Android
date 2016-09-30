@@ -33,6 +33,34 @@
                        android:scaleType="centerCrop"
                        android:padding="20dp"/>
             <TextView
+                android:id="@+id/lbl_center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Folio Reader"
+                android:textSize="18sp"
+                android:layout_toRightOf="@+id/btn_drawer"
+                android:layout_toLeftOf="@+id/btn_speaker"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:gravity="center"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
+            <ImageView android:id="@+id/btn_speaker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerInParent="true"
+                android:src="@drawable/man_speech_icon"
+                android:scaleType="centerCrop"
+                android:padding="20dp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_alignParentBottom="true"
+                android:background="@android:color/black"/>
+
+<!--=======
                     android:id="@+id/lbl_center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -46,6 +74,7 @@
                     android:layout_height="0.5dp"
                     android:layout_alignParentBottom="true"
                     android:background="@android:color/black"/>
+>>>>>>> 1478cdaff0cb94b1e4415ed3755295cb84202072-->
         </RelativeLayout>
     </android.support.v7.widget.Toolbar>
 
@@ -63,11 +92,19 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
 
+            <com.folioreader.view.AudioView
+                android:id="@+id/audio_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom" />
+
             <com.folioreader.view.ConfigView
-                    android:id="@+id/config_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"/>
+                android:id="@+id/config_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom" />
+
+
         </FrameLayout>
 
         <RelativeLayout android:id="@+id/drawer_menu"

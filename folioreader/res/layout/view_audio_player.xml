@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:id="@+id/top_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2">
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/prev_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:src="@drawable/prev_con"
+            android:background="@android:color/transparent"/>
+
+        <ImageButton
+            android:id="@+id/play_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:src="@drawable/play_icon"
+            android:background="@android:color/transparent"/>
+
+        <ImageButton
+            android:id="@+id/next_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:src="@drawable/next_icon"
+            android:background="@android:color/transparent"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2">
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/first_separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/top_buttons"
+        android:background="@color/borders"/>
+
+    <!--<android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view_fonts"
+        android:scrollbars="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_below="@+id/first_separator"/>-->
+    <LinearLayout android:id="@+id/playback_speed_Layout"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_below="@+id/first_separator"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="4.0">
+        <com.folioreader.view.StyleableTextView
+            android:id="@+id/btn_half_speed"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:gravity="center"
+            android:text="@string/half_speed"
+            android:textSize="14sp"
+            android:textColor="@drawable/font_text_selector"
+            app:font="@string/andada_font"/>
+        <com.folioreader.view.StyleableTextView
+            android:id="@+id/btn_one_x_speed"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:gravity="center"
+            android:text="@string/onex"
+            android:textSize="17sp"
+            android:textColor="@drawable/font_text_selector"
+            app:font="@string/lato_font"/>
+        <com.folioreader.view.StyleableTextView
+            android:id="@+id/btn_one_and_half_speed"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:gravity="center"
+            android:text="@string/one_and_half"
+            android:textSize="14sp"
+            android:textColor="@drawable/font_text_selector"
+            app:font="@string/lora_font"/>
+        <com.folioreader.view.StyleableTextView
+            android:id="@+id/btn_twox_speed"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:gravity="center"
+            android:text="@string/two_x"
+            android:textSize="17sp"
+            android:textColor="@drawable/font_text_selector"
+            app:font="@string/raleway_font"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/second_separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/playback_speed_Layout"
+        android:background="@color/borders"/>
+
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/second_separator"
+        android:orientation="horizontal">
+        <com.folioreader.view.StyleableTextView
+            android:id="@+id/btn_backcolor_style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:gravity="center"
+            android:text="@string/style"
+            android:textSize="17sp"
+            android:textColor="@drawable/style_text_color_selector"
+            android:background="@drawable/style_back_color_selector"
+            app:font="@string/lato_font"/>
+        <View
+            android:id="@+id/third_separator"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/borders"/>
+        <com.folioreader.view.StyleableTextView
+            android:id="@+id/btn_text_undeline_style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:gravity="center"
+            android:text="@string/style_underline"
+            android:textSize="17sp"
+            android:drawableBottom="@drawable/dottet_line"
+            android:layerType="software"
+            android:textColor="@drawable/font_text_selector"
+            app:font="@string/lora_font"/>
+        <View
+            android:id="@+id/fourth_separator"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/borders"/>
+        <com.folioreader.view.StyleableTextView
+            android:id="@+id/btn_text_color_style"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:gravity="center"
+            android:text="@string/style"
+            android:textSize="17sp"
+            android:textColor="@drawable/font_text_selector"
+            app:font="@string/raleway_font"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

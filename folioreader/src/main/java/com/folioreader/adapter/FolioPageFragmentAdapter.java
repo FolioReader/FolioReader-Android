@@ -17,16 +17,19 @@ import nl.siegmann.epublib.domain.SpineReference;
 public class FolioPageFragmentAdapter extends FragmentPagerAdapter {
     private List<SpineReference> mSpineReferences;
     private Book mBook;
+    private String mEpubFileName;
 
-    public FolioPageFragmentAdapter(FragmentManager fm, List<SpineReference> spineReferences, Book book) {
+    public FolioPageFragmentAdapter(FragmentManager fm, List<SpineReference> spineReferences,
+                                    Book book, String epubFilename) {
         super(fm);
         this.mSpineReferences = spineReferences;
         this.mBook = book;
+        this.mEpubFileName = epubFilename;
     }
 
     @Override
     public Fragment getItem(int position) {
-        return FolioPageFragment.newInstance(position, mBook);
+        return FolioPageFragment.newInstance(position, mBook, mEpubFileName);
     }
 
     @Override

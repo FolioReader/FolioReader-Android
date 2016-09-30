@@ -18,8 +18,8 @@ package com.folioreader.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,63 +30,91 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.ActionMode;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.adapter.FolioPageFragmentAdapter;
 import com.folioreader.adapter.TOCAdapter;
 import com.folioreader.fragments.FolioPageFragment;
 import com.folioreader.model.Highlight;
-import com.folioreader.view.*;
-import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.Spine;
-import nl.siegmann.epublib.domain.SpineReference;
-import nl.siegmann.epublib.domain.TOCReference;
-import nl.siegmann.epublib.epub.EpubReader;
+import com.folioreader.model.SmilElements;
+import com.folioreader.smil.AudioElement;
+import com.folioreader.smil.SmilFile;
+import com.folioreader.smil.TextElement;
+import com.folioreader.util.AppUtil;
+import com.folioreader.util.EpubManipulator;
+import com.folioreader.util.ProgressDialog;
+import com.folioreader.view.AudioView;
+import com.folioreader.view.ConfigView;
+import com.folioreader.view.ConfigViewCallback;
+import com.folioreader.view.FolioView;
+import com.folioreader.view.FolioViewCallback;
+import com.folioreader.view.VerticalViewPager;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
-        FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback, TOCAdapter.ChapterSelectionCallBack {
+import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.SpineReference;
+import nl.siegmann.epublib.domain.TOCReference;
 
-    public static final String INTENT_EPUB_ASSET_PATH = "com.folioreader.epub_asset_path";
+public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
+        FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback,
+        TOCAdapter.ChapterSelectionCallBack {
+
+    public static final String INTENT_EPUB_SOURCE_PATH = "com.folioreader.epub_asset_path";
+    public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
     public static final int ACTION_HIGHLIGHT_lIST = 77;
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private static final String ITEM_DELETED = "item_deleted";
+    public static enum EpubSourceType {
+        RAW,
+        ASSESTS,
+        SD_CARD
+    };
 
-    private RecyclerView recyclerViewMenu;
+    private RecyclerView mRecyclerViewMenu;
     private VerticalViewPager mFolioPageViewPager;
-    private FolioView folioView;
-    private ConfigView configView;
+    private FolioView mFolioView;
+    private ConfigView mConfigView;
+    private AudioView mAudioView;
     private Toolbar mToolbar;
-
-    private String mEpubAssetPath;
-    private Book mBook;
-    private ArrayList<TOCReference> mTocReferences = new ArrayList<>();
-    private List<SpineReference> mSpineReferences;
-    private List<String> mSpineReferenceHtmls = new ArrayList<>();
-    private boolean mIsActionBarVisible = false;
     private TOCAdapter mTocAdapter;
-    private int mChapterPosition;
-    private ActionMode mActionMode = null;
 
-    private boolean mHighLight = false;
+    private EpubSourceType mEpubSourceType;
+    private String mEpubFilePath;
+    private String mEpubFileName;
+    private int mEpubRawId;
+    private Book mBook;
+    private ArrayList<TOCReference> mTocReferences;
+    private List<SpineReference> mSpineReferences;
+    private List<AudioElement> mAudioElementArrayList;
+    private List<TextElement> mTextElementList;
+
+    public boolean mIsActionBarVisible;
+    public  boolean mIsSmilParsed = false;
+    private int mChapterPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
+        mEpubSourceType = (FolioActivity.EpubSourceType)
+                getIntent().getExtras().getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
+        if (mEpubSourceType.equals(EpubSourceType.RAW)) {
+            mEpubRawId = getIntent().getExtras().getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+        } else {
+            mEpubFilePath = getIntent().getExtras()
+                    .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
+        }
+        mEpubFileName = AppUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
 
-        mEpubAssetPath = getIntent().getStringExtra(INTENT_EPUB_ASSET_PATH);
-        loadBook();
+        initBook();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,48 +127,74 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 }
             }
         });
+
+        findViewById(R.id.btn_speaker).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mIsSmilParsed) {
+                    if (mAudioView.isDragViewAboveTheLimit()) {
+                        mAudioView.moveToOriginalPosition();
+                    } else {
+                        mAudioView.moveOffScreen();
+                    }
+                } else {
+                    Toast.makeText(FolioActivity.this,
+                            getString(R.string.please_wait_till_audio_is_parsed),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void initBook() {
+        final Dialog pgDailog = ProgressDialog.show(FolioActivity.this,
+                getString(R.string.please_wait));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                    mBook = AppUtil.saveEpubFile(FolioActivity.this, mEpubSourceType, mEpubFilePath,
+                            mEpubRawId, mEpubFileName);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadBook();
+                            if (pgDailog != null && pgDailog.isShowing()) pgDailog.dismiss();
+                        }
+                    });
+            }
+        }).start();
     }
 
     private void loadBook() {
-        AssetManager assetManager = getAssets();
-        try {
-            InputStream epubInputStream = assetManager.open(mEpubAssetPath);
-            mBook = (new EpubReader()).readEpub(epubInputStream);
-            populateTableOfContents(mBook.getTableOfContents().getTocReferences(), 0);
-            Spine spine = new Spine(mBook.getTableOfContents());
-            this.mSpineReferences = spine.getSpineReferences();
-            for (int i = 0; i < mSpineReferences.size(); i++) mSpineReferenceHtmls.add(null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void populateTableOfContents(List<TOCReference> tocReferences, int depth) {
-        if (tocReferences == null) {
-            return;
-        }
-
-        for (TOCReference tocReference : tocReferences) {
-            mTocReferences.add(tocReference);
-            populateTableOfContents(tocReference.getChildren(), depth + 1);
-        }
+        configRecyclerViews();
+        configFolio();
+        parseSmil();
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        recyclerViewMenu = (RecyclerView) findViewById(R.id.recycler_view_menu);
-        folioView = (FolioView) findViewById(R.id.folio_view);
-        configView = (ConfigView) findViewById(R.id.config_view);
-        configRecyclerViews();
-        configFolio();
+        mRecyclerViewMenu = (RecyclerView) findViewById(R.id.recycler_view_menu);
+        mFolioView = (FolioView) findViewById(R.id.folio_view);
+        mConfigView = (ConfigView) findViewById(R.id.config_view);
+        mAudioView = (AudioView) findViewById(R.id.audio_view);
+        mFolioView.setFolioViewCallback(FolioActivity.this);
+        mConfigView.setConfigViewCallback(FolioActivity.this);
+        mAudioView.setAudioViewCallback(FolioActivity.this);
+        mConfigView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mConfigView.moveOffScreen();
+                mAudioView.moveOffScreen();
+            }
+        }, 2);
         configDrawerLayoutButtons();
     }
 
     @Override
     public void onBackPressed() {
-        if (configView.isDragViewAboveTheLimit()) {
-            configView.moveToOriginalPosition();
+        if (mConfigView.isDragViewAboveTheLimit()) {
+            mConfigView.moveToOriginalPosition();
         } else {
             super.onBackPressed();
         }
@@ -148,8 +202,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     public void onBackgroundUpdate(int value) {
-        recyclerViewMenu.setBackgroundColor(value);
-        folioView.setBackgroundColor(value);
+        mRecyclerViewMenu.setBackgroundColor(value);
+        mFolioView.setBackgroundColor(value);
 
     }
 
@@ -162,12 +216,12 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     public void onShadowAlpha(float alpha) {
-        folioView.updateShadowAlpha(alpha);
+        mFolioView.updateShadowAlpha(alpha);
     }
 
     @Override
     public void showShadow() {
-        folioView.resetView();
+        mFolioView.resetView();
     }
 
     @Override
@@ -188,34 +242,77 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         }
     }
 
+    @Override
+    public void onAudioPlayed() {
+        //mFolioPageViewPager.setCurrentItem(mAudioPagePosition);
+    }
+
     private Fragment getFragment(int pos) {
-        return getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.folioPageViewPager + ":" + (pos));
+        return getSupportFragmentManager().
+                findFragmentByTag("android:switcher:" + R.id.folioPageViewPager + ":" + (pos));
     }
 
     @Override
     public void onShadowClick() {
-        configView.moveOffScreen();
+        mConfigView.moveOffScreen();
+        mAudioView.moveOffScreen();
     }
 
-    private void configRecyclerViews() {
-        recyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
+    public void configRecyclerViews() {
+        mTocReferences = (ArrayList<TOCReference>) mBook.getTableOfContents().getTocReferences();
+        mSpineReferences = mBook.getSpine().getSpineReferences();
+        setSpineReferenceTitle();
+        mRecyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
         if (mTocReferences != null) {
             mTocAdapter = new TOCAdapter(mTocReferences, FolioActivity.this);
-            recyclerViewMenu.setAdapter(mTocAdapter);
+            mRecyclerViewMenu.setAdapter(mTocAdapter);
+        }
+    }
+
+    public boolean setPagerToPosition(int audioPosition) {
+        String src = mTextElementList.get(audioPosition).getSrc();
+        String []temp = src.split("#");
+        String href = "text//" + temp[0];
+        String currentHref =
+                    mSpineReferences.get(mFolioPageViewPager.getCurrentItem())
+                    .getResource().getHref();
+        if (href.equalsIgnoreCase(currentHref)) {
+            return false;
+        } else {
+            setPagerToPosition("text//" + temp[0]);
+            return true;
+        }
+    }
+
+    @Override
+    public void onPageLoaded() {
+        //mAudioView.startMediaPlayer();
+    }
+
+    public void setPagerToPosition(String href) {
+        for (int i = 0; i < mSpineReferences.size(); i++) {
+            if (AppUtil.compareUrl(href, mSpineReferences.get(i).getResource().getHref())) {
+                mFolioPageViewPager.setCurrentItem(i, true);
+                toolbarAnimateHide();
+                break;
+            }
         }
     }
 
     private void configFolio() {
-        mFolioPageViewPager = (VerticalViewPager) folioView.findViewById(R.id.folioPageViewPager);
+        mFolioPageViewPager = (VerticalViewPager) mFolioView.findViewById(R.id.folioPageViewPager);
         mFolioPageViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            public void onPageScrolled(int position,
+                                       float positionOffset, int positionOffsetPixels) {
 
             }
 
             @Override
             public void onPageSelected(int position) {
                 mChapterPosition = position;
+                ((TextView) findViewById(R.id.lbl_center)).
+                            setText(mSpineReferences.get(position).getResource().getTitle());
                 mTocAdapter.setNightMode(Config.getConfig().isNightMode());
                 mTocAdapter.setSelectedChapterPosition(mChapterPosition);
                 mTocAdapter.notifyDataSetChanged();
@@ -226,13 +323,30 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
             }
         });
+
         if (mBook != null && mSpineReferences != null) {
-            FolioPageFragmentAdapter folioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferences, mBook);
+            FolioPageFragmentAdapter folioPageFragmentAdapter =
+                        new FolioPageFragmentAdapter(getSupportFragmentManager(),
+                        mSpineReferences, mBook, mEpubFileName);
             mFolioPageViewPager.setAdapter(folioPageFragmentAdapter);
         }
+    }
 
-        folioView.setFolioViewCallback(this);
-        configView.setConfigViewCallback(this);
+    private void setSpineReferenceTitle() {
+        for (int j = 0; j < mSpineReferences.size(); j++) {
+            String href = mSpineReferences.get(j).getResource().getHref();
+            for (int i = 0; i < mTocReferences.size(); i++) {
+                if (mTocReferences.get(i).getResource().getHref().equalsIgnoreCase(href)) {
+                    mSpineReferences.get(j).getResource()
+                                .setTitle(mTocReferences.get(i).getTitle());
+                    break;
+                } else {
+                    mSpineReferences.get(j).getResource().setTitle("");
+                }
+            }
+        }
+        ((TextView) findViewById(R.id.lbl_center))
+                    .setText(mSpineReferences.get(0).getResource().getTitle());
     }
 
     private void configDrawerLayoutButtons() {
@@ -247,10 +361,10 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             @Override
             public void onClick(View v) {
                 ((DrawerLayout) findViewById(R.id.drawer_left)).closeDrawers();
-                if (configView.isDragViewAboveTheLimit()) {
-                    configView.moveToOriginalPosition();
+                if (mConfigView.isDragViewAboveTheLimit()) {
+                    mConfigView.moveToOriginalPosition();
                 } else {
-                    configView.moveOffScreen();
+                    mConfigView.moveOffScreen();
                 }
             }
         });
@@ -258,7 +372,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         findViewById(R.id.btn_highlight_list).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((DrawerLayout) findViewById(R.id.drawer_left)).closeDrawer((RelativeLayout) findViewById(R.id.drawer_menu));
+                ((DrawerLayout) findViewById(R.id.drawer_left))
+                            .closeDrawer(findViewById(R.id.drawer_menu));
                 Intent intent = new Intent(FolioActivity.this, HighlightListActivity.class);
                 startActivityForResult(intent, ACTION_HIGHLIGHT_lIST);
             }
@@ -267,15 +382,14 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     public String getChapterHtmlContent(int position) {
-        return reader(position);
+        return readHTmlString(position);
     }
 
     @Override
     public void hideOrshowToolBar() {
-        Log.d("in hideOrshowToolBar", "main");
-        if (mIsActionBarVisible)
+        if (mIsActionBarVisible) {
             toolbarAnimateHide();
-        else {
+        } else {
             toolbarAnimateShow(1);
         }
     }
@@ -287,33 +401,12 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         }
     }
 
-    @Override
-    public void invalidateActionMode() {
+    private String readHTmlString(int position) {
+        String pageHref = mSpineReferences.get(position).getResource().getHref();
+        pageHref = AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/OEBPS/" + pageHref;
+        String html = EpubManipulator.readPage(pageHref);
+        return html;
     }
-
-    private String reader(int position) {
-        if (mSpineReferenceHtmls.get(position) != null) {
-            return mSpineReferenceHtmls.get(position);
-        } else {
-            try {
-                Reader reader = mSpineReferences.get(position).getResource().getReader();
-
-                StringBuilder builder = new StringBuilder();
-                int numChars;
-                char[] cbuf = new char[2048];
-                while ((numChars = reader.read(cbuf)) >= 0) {
-                    builder.append(cbuf, 0, numChars);
-                }
-                String content = builder.toString();
-                mSpineReferenceHtmls.set(position, content);
-                return content;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return "";
-        }
-    }
-
 
     private void toolbarAnimateShow(final int verticalOffset) {
         mToolbar.animate()
@@ -321,6 +414,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 .setInterpolator(new LinearInterpolator())
                 .setDuration(180)
                 .setListener(new AnimatorListenerAdapter() {
+
                     @Override
                     public void onAnimationStart(Animator animation) {
                         toolbarSetElevation(verticalOffset == 0 ? 0 : 1);
@@ -372,13 +466,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         ((DrawerLayout) findViewById(R.id.drawer_left)).closeDrawer(relativeLayout);
     }
 
-    private String getSelectedTextFromPage() {
-        int currentPosition = mFolioPageViewPager.getCurrentItem();
-        FolioPageFragment folioPageFragment = (FolioPageFragment) getFragment(currentPosition);
-        String selectedText = folioPageFragment.getSelectedText();
-        return selectedText;
-    }
-
     public Highlight setCurrentPagerPostion(Highlight highlight) {
         highlight.setCurrentPagerPostion(mFolioPageViewPager.getCurrentItem());
         return highlight;
@@ -392,89 +479,78 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 int position = highlight.getCurrentPagerPostion();
                 mFolioPageViewPager.setCurrentItem(position);
                 Fragment fragment = getFragment(position);
-                ((FolioPageFragment) fragment).setWebViewPosition(highlight.getCurrentWebviewScrollPos());
+                ((FolioPageFragment) fragment).
+                            setWebViewPosition(highlight.getCurrentWebviewScrollPos());
             } else if (data.hasExtra(ITEM_DELETED)) {
                 ((FolioPageFragment) getFragment(mChapterPosition)).reload();
 
             }
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
-    /*@Override
-    public void onActionModeStarted(ActionMode mode) {
-        String selectedText = getSelectedTextFromPage();
-        if (!TextUtils.isEmpty(selectedText)) {
-            if (mActionMode == null) {
-                mActionMode = mode;
-                Menu menu = mode.getMenu();
-                menu.clear();
-
-                // Inflate your own menu items
-                mode.getMenuInflater().inflate(R.menu.menu_text_selection, menu);
+    private void parseSmil() {
+        mIsSmilParsed = false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SmilElements smilElements = AppUtil.retrieveAndParseSmilJSON(FolioActivity.this,
+                        mEpubFileName);
+                if (smilElements != null) {
+                    mTextElementList = smilElements.getTextElementArrayList();
+                    mAudioElementArrayList = smilElements.getAudioElementArrayList();
+                } else {
+                    SmilFile smilFile  = AppUtil.createSmilJson(FolioActivity.this, mEpubFileName);
+                    if (smilFile != null) {
+                        mAudioElementArrayList = smilFile.getAudioSegments();
+                        mTextElementList = smilFile.getTextSegments();
+                    }
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mIsSmilParsed = true;
+                    }
+                });
             }
-        }
+        }).start();
 
-
-        super.onActionModeStarted(mode);
     }
 
-    public void onContextualMenuItemClicked(MenuItem item) {
-        if (item.getItemId() == R.id.menu_copy) {
-            AppUtil.copyToClipboard(this, getSelectedTextFromPage());
-            Toast.makeText(this, getString(R.string.copied), Toast.LENGTH_SHORT).show();
-        } else if (item.getItemId() == R.id.menu_define) {
-            Toast.makeText(this, "Define " + getSelectedTextFromPage(), Toast.LENGTH_SHORT).show();
-        } else if (item.getItemId() == R.id.menu_highlight) {
-            mHighLight = true;
-            int currentPosition = mFolioPageViewPager.getCurrentItem();
-            FolioPageFragment folioPageFragment = (FolioPageFragment) getFragment(currentPosition);
-            folioPageFragment.highlight();
-            startSupportActionMode(mActionModeCallback);
-        } else if (item.getItemId() == R.id.menu_share) {
-            AppUtil.share(this, getSelectedTextFromPage());
-        }
 
-        // This will likely always be true, but check it anyway, just in case
-        if (mActionMode != null) {
-            mActionMode.finish();
-        }
+    public void setHighLight(int position, String style) {
+        String src = mTextElementList.get(position).getSrc();
+        String []temp = src.split("#");
+        String textId = temp[1];
+        ((FolioPageFragment) getFragment(mChapterPosition)).highLightString(textId, style);
     }
+
+
+    public void setHighLightStyle(String style) {
+        ((FolioPageFragment) getFragment(mChapterPosition)).setStyle(style);
+    }
+
+    public AudioElement getElement(int position) {
+        return mAudioElementArrayList.get(position);
+    }
+
+
+   /* @Override
+    protected void onResume() {
+        super.onResume();
+        if (mAudioView != null) {
+            mAudioView.playerResume();
+        }
+    }*/
 
     @Override
-    public void onActionModeFinished(ActionMode mode) {
-        mActionMode = null;
-        super.onActionModeFinished(mode);
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mAudioView != null) {
+            mAudioView.playerStop();
+        }
     }
 
-<<<<<<< HEAD
-    private android.support.v7.view.ActionMode.Callback mActionModeCallback = new android.support.v7.view.ActionMode.Callback() {
-        @Override
-        public boolean onCreateActionMode(android.support.v7.view.ActionMode mode, Menu menu) {
-            Log.d("FolioActivity", "onCreateActionMode() ========>");
-            // Inflate your own menu items
-            menu.clear();
-            mode.getMenuInflater().inflate(R.menu.menu_on_highlight, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(android.support.v7.view.ActionMode mode, Menu menu) {
-            Log.d("FolioActivity", "onPrepareActionMode() ========>");
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(android.support.v7.view.ActionMode mode, MenuItem item) {
-            Log.d("FolioActivity", "onActionItemClicked() ========>");
-            return false;
-        }
-
-        @Override
-        public void onDestroyActionMode(android.support.v7.view.ActionMode mode) {
-            Log.d("FolioActivity", "onDestroyActionMode() ========>");
-        }
-    };*/
-
-
+    public String getEpubFileName() {
+        return mEpubFileName;
+    }
 }

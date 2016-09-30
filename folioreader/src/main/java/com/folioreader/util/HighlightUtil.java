@@ -1,5 +1,7 @@
 package com.folioreader.util;
 
+import android.util.Log;
+
 import com.folioreader.model.Highlight;
 
 import java.util.Calendar;
@@ -13,28 +15,36 @@ import nl.siegmann.epublib.domain.Book;
  */
 public class HighlightUtil {
     public static final int mHighlightRange = 30;
+    private static final String TAG = HighlightUtil.class.getSimpleName();
 
     public static Highlight matchHighlight(String html, String highlightId, Book book, int pageNo) {
         String contentPre = "";
         String contentPost = "";
         Highlight highlight = null;
         try {
-            String pattern = "<highlight id=\"" + highlightId + "\" onclick=\".*?\" class=\"(.*?)\">(.*?)</highlight>";
-            Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(html);
+            String pattern = "<highlight id=\"" + highlightId
+                    + "\" onclick=\".*?\" class=\"(.*?)\">(.*?)</highlight>";
+            Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE
+                    | Pattern.DOTALL).matcher(html);
             if (matcher.find()) {
                 contentPre = html.substring(matcher.start() - mHighlightRange, matcher.start());
                 contentPost = html.substring(matcher.end(), matcher.end() + mHighlightRange);
                 if (contentPre != null && contentPre.contains(">")) {
-                    Matcher preMatcher = Pattern.compile("((?=[^>]*$)(.|\\s)*$)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(contentPre);
+                    Matcher preMatcher = Pattern.compile("((?=[^>]*$)(.|\\s)*$)",
+                            Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(contentPre);
                     if (preMatcher.find()) {
-                        String searchString = contentPre.substring(contentPre.lastIndexOf(">") + 1, contentPre.length());
+                        String searchString =
+                                contentPre.substring(contentPre.lastIndexOf('>') + 1,
+                                        contentPre.length());
                         contentPre = searchString;
                     }
                 }
                 if (contentPost != null && contentPost.contains("<")) {
-                    Matcher postMatcher = Pattern.compile("^((.|\\s)*?)(?=<)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(contentPost);
+                    Matcher postMatcher = Pattern.compile("^((.|\\s)*?)(?=<)",
+                            Pattern.CASE_INSENSITIVE
+                            | Pattern.DOTALL).matcher(contentPost);
                     if (postMatcher.find()) {
-                        String searchString = contentPost.substring(0, contentPost.indexOf("<"));
+                        String searchString = contentPost.substring(0, contentPost.indexOf('<'));
                         contentPost = searchString;
                     }
                 }
@@ -49,7 +59,7 @@ public class HighlightUtil {
                 highlight.setDate(Calendar.getInstance().getTime());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         }
         return highlight;
     }

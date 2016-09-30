@@ -21,13 +21,18 @@ public class Highlight implements Parcelable {
     public static final String LOCAL_DB_HIGHLIGHT_PAGE = "page";
     public static final String LOCAL_DB_HIGHLIGHT_ID = "highlightId";
     public static final String LOCAL_DB_HIGHLIGHT_TYPE = "type";
+    public static final String MEDIA_OVERLAY_STYLE = "epub-media-overlay-playing";
 
     public static enum HighlightStyle {
         Yellow,
         Green,
         Blue,
         Pink,
-        Underline;
+        Underline,
+        TextColor,
+        DottetUnderline,
+        Normal;
+
 
         /**
          * Return HighlightStyle for CSS class.
@@ -64,8 +69,12 @@ public class Highlight implements Parcelable {
                     return "highlight-pink";
                 case Underline:
                     return "highlight-underline";
+                case DottetUnderline:
+                    return "mediaOverlayStyle1";
+                case TextColor:
+                    return "mediaOverlayStyle2";
                 default:
-                    return "highlight-yellow";
+                    return "mediaOverlayStyle0";
 
             }
         }
@@ -89,32 +98,33 @@ public class Highlight implements Parcelable {
     }
 
     @DatabaseField(generatedId = true)
-    private int id;
+    int id;
     @DatabaseField
-    private String bookId;
+    String bookId;
     @DatabaseField
-    private String content;
+    String content;
     @DatabaseField
-    private String contentPost;
+    String contentPost;
     @DatabaseField
-    private String contentPre;
+    String contentPre;
     @DatabaseField
-    private Date date;
+    Date date;
     @DatabaseField
-    private String highlightId;
+    String highlightId;
     @DatabaseField
-    private int page;
+    int page;
     @DatabaseField
-    private String type;
+    String type;
     @DatabaseField
-    private int currentPagerPostion;
+    int currentPagerPostion;
     @DatabaseField
-    private int currentWebviewScrollPos;
+    int currentWebviewScrollPos;
 
     public Highlight() {
     }
 
-    public Highlight(int id, String bookId, String content, String contentPost, String contentPre, Date date, String highlightId, int page, String type) {
+    public Highlight(int id, String bookId, String content, String contentPost,
+                     String contentPre, Date date, String highlightId, int page, String type) {
         this.id = id;
         this.bookId = bookId;
         this.content = content;
@@ -231,12 +241,15 @@ public class Highlight implements Parcelable {
             return false;
         if (content != null ? !content.equals(highlight.content) : highlight.content != null)
             return false;
-        if (contentPost != null ? !contentPost.equals(highlight.contentPost) : highlight.contentPost != null)
+        if (contentPost != null ? !contentPost.equals(highlight.contentPost) :
+                highlight.contentPost != null)
             return false;
-        if (contentPre != null ? !contentPre.equals(highlight.contentPre) : highlight.contentPre != null)
+        if (contentPre != null ? !contentPre.equals(highlight.contentPre) :
+                highlight.contentPre != null)
             return false;
         if (date != null ? !date.equals(highlight.date) : highlight.date != null) return false;
-        if (highlightId != null ? !highlightId.equals(highlight.highlightId) : highlight.highlightId != null)
+        if (highlightId != null ? !
+                highlightId.equals(highlight.highlightId) : highlight.highlightId != null)
             return false;
         return type != null ? type.equals(highlight.type) : highlight.type == null;
 
