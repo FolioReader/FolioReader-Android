@@ -33,3 +33,31 @@ FolioReader-Android is an ePub reader and parser framework written in Java.
 ##### Media Overlays 
 ![Media Overlay](https://cloud.githubusercontent.com/assets/1277242/19012908/d61f3ce2-87df-11e6-8652-d72b6a1ad9a3.gif)
 
+### Usage
+
+To use FolioReader, you need to call FolioReaderActivity with following parameters:
+1. INTENT_EPUB_SOURCE_TYPE - your epub can come from raw or assets folder or from SD card. Use enum FolioActivity.EpubSourceType.
+2. INTENT_EPUB_SOURCE_PATH - assets/SD card path of the epub file or raw ID of epub file if epub file is in raw folder
+
+Reading from assets folder
+```java
+Intent intent = new Intent(HomeActivity.this, FolioActivity.class);
+intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.ASSESTS);
+intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "epub/The Silver Chair.epub");
+startActivity(intent);
+```
+
+Reading from raw folder of resources
+```java
+Intent intent = new Intent(HomeActivity.this, FolioActivity.class);
+intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.RAW);
+intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, R.raw.adventures);
+startActivity(intent);
+```
+
+For reading from SD card, just retrieve absolute path of epub file and pass that in INTENT_EPUB_SOURCE_PATH.
+
+### Credits
+1. <a href="https://github.com/daimajia/AndroidSwipeLayout">SwipeLayout</a>
+2. <a href="http://ormlite.com/">ORMLite</a>
+3. <a href="https://github.com/julianharty/new-android-daisy-reader">SMIL parsing</a>
