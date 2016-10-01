@@ -43,29 +43,40 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        findViewById(R.id.btn_open).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
                 } else {
-                    openEpub();
+                    openEpub(FolioActivity.EpubSourceType.ASSESTS,"The Silver Chair.epub",0);
+                }
+            }
+        });
+
+        findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
+                } else {
+                    openEpub(FolioActivity.EpubSourceType.RAW,null,R.raw.adventures);
                 }
             }
         });
     }
 
 
-    private void openEpub() {
+    private void openEpub(FolioActivity.EpubSourceType sourceType,String path,int rawID) {
         Intent intent = new Intent(HomeActivity.this, FolioActivity.class);
-        //intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "The Silver Chair.epub");
-        //intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "The Silver Chair.epub");
-        //intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "The Adventures Of Sherlock Holmes - Adventure I.epub");
-        //String path= Environment.getExternalStorageDirectory().getAbsolutePath() + "/epub/" + "The Silver Chair.epub";
-        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, R.raw.adventures);
-        //intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "The Adventures Of Sherlock Holmes - Adventure I.epub");
-        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.RAW);
+        if(rawID!=0) {
+            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawID);
+        } else {
+            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, path);
+        }
+        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, sourceType);
         startActivity(intent);
     }
 
@@ -75,7 +86,7 @@ public class HomeActivity extends AppCompatActivity {
         switch (requestCode) {
             case GALLERY_REQUEST:
                 if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openEpub();
+                    //openEpub();
                 } else {
                     Toast.makeText(this, "Cannot open epub it needs storage access !", Toast.LENGTH_SHORT).show();
                 }

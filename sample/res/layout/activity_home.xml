@@ -1,14 +1,23 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_centerInParent="true">
 
-    <Button android:id="@+id/btn_open"
+    <Button android:id="@+id/btn_raw"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="20dp"
-        android:text="Open epub"/>
+        android:text="Open epub from raw"/>
+    <Button android:id="@+id/btn_assest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/btn_raw"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="20dp"
+        android:text="Open epub assests"/>
     <!--<fr.castorflex.android.verticalviewpager.VerticalViewPager
         android:id="@+id/verticalPager"
         android:layout_width="match_parent"
@@ -16,4 +25,4 @@
 
     </fr.castorflex.android.verticalviewpager.VerticalViewPager>-->
 
-</FrameLayout>
+</RelativeLayout>
