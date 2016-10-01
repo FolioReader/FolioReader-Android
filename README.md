@@ -23,4 +23,13 @@ FolioReader-Android is an ePub reader and parser framework written in Java.
 - [ ] Add Notes to a Highlight
 - [ ] Better Documentation
 
+## Demo
+##### Custom Fonts
+![Custom fonts](https://cloud.githubusercontent.com/assets/1277242/19012810/4d00f4b6-87dd-11e6-8a1d-aff645a17455.gif)
+##### Day and Night Mode
+![Day night mode](https://cloud.githubusercontent.com/assets/1277242/19012816/7a887ada-87dd-11e6-8648-291923bb00cb.gif)
+##### Text Highlighting :heart_eyes:
+![Highlight](https://cloud.githubusercontent.com/assets/1277242/19012834/e8d40798-87dd-11e6-9a77-f9f2eebc7fc1.gif)
+##### Media Overlays 😭
+![Media Overlay](https://cloud.githubusercontent.com/assets/1277242/19012819/90e1f75c-87dd-11e6-9fbc-befa328bc59b.gif)
 
