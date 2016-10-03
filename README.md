@@ -20,7 +20,7 @@ FolioReader-Android is an ePub reader and parser framework written in Java.
 - [ ] Parse epub cover image
 - [ ] PDF support
 - [ ] Book Search
-- [ ] Add Notes to a Highlight
+- [x] Add Notes to a Highlight
 - [ ] Better Documentation
 
 ## Demo
