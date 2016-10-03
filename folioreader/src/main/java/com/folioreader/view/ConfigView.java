@@ -110,6 +110,21 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
                 selectFont(FONT_RALEWAY);
             }
         });
+
+
+        findViewById(R.id.btn_horizontal_orentation).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               mConfigViewCallback.onOrentationChange(1);
+            }
+        });
+
+        findViewById(R.id.btn_vertical_orentation).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mConfigViewCallback.onOrentationChange(0);
+            }
+        });
     }
 
     private void selectFont(int selectedFont) {

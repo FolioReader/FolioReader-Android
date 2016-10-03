@@ -31,6 +31,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -79,7 +80,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     };
 
     private RecyclerView mRecyclerViewMenu;
-    private VerticalViewPager mFolioPageViewPager;
+    private ViewPager mFolioPageViewPager;
     private FolioView mFolioView;
     private ConfigView mConfigView;
     private AudioView mAudioView;
@@ -247,6 +248,22 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         //mFolioPageViewPager.setCurrentItem(mAudioPagePosition);
     }
 
+    @Override
+    public void onOrentationChange(int orentation) {
+        if(orentation==0){
+            mFolioView.removeView(mFolioPageViewPager);
+            ViewPager viewPager=new ViewPager(FolioActivity.this);
+            viewPager.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            mFolioView.addView(viewPager);
+        } else{
+            mFolioView.removeView(mFolioPageViewPager);
+            VerticalViewPager viewPager=new VerticalViewPager(FolioActivity.this);
+            viewPager.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            mFolioView.addView(viewPager);
+        }
+
+    }
+
     private Fragment getFragment(int pos) {
         return getSupportFragmentManager().
                 findFragmentByTag("android:switcher:" + R.id.folioPageViewPager + ":" + (pos));
@@ -300,7 +317,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
     private void configFolio() {
-        mFolioPageViewPager = (VerticalViewPager) mFolioView.findViewById(R.id.folioPageViewPager);
+        mFolioPageViewPager = (ViewPager) mFolioView.findViewById(R.id.folioPageViewPager);
         mFolioPageViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position,

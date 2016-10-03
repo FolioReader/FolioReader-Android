@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/white">
-
-    <com.folioreader.view.VerticalViewPager android:id="@+id/folioPageViewPager"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="match_parent">
-
-    </com.folioreader.view.VerticalViewPager>
-
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+   <!-- <com.folioreader.view.VerticalViewPager
+        android:id="@+id/folioPageViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </com.folioreader.view.VerticalViewPager>-->
+    <android.support.v4.view.ViewPager
+        android:id="@+id/folioPageViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </android.support.v4.view.ViewPager>
     <View
-            android:id="@+id/shadow"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/transparent_black"/>
+        android:id="@+id/shadow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent_black" />
 
 </RelativeLayout>
