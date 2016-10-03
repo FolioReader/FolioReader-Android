@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.folioreader">
 
-    <application >
-        <activity android:name=".activity.HighlightListActivity"></activity>
+    <application>
+        <activity android:name=".activity.HighlightListActivity" />
     </application>
 
 </manifest>

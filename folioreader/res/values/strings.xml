@@ -25,7 +25,6 @@
   <string name="pages_left">%1$d pages left</string>
   <string name="page_left">%1$d page left</string>
   <string name="highlights">Highlights</string>
-  <string name="underline_highlights"><span style="border-bottom: 1px solid #ff0000;">%s</span></string>
   <string name="half_speed">1/2x</string>
   <string name="onex">1x</string>
   <string name="one_and_half">1&#160;1/2x</string>
@@ -76,6 +75,10 @@
   <string name="pattern">\\\\{\\\\{(-?\\\\d+\\\\.?\\\\d*)\\\\,(-?\\\\d+\\\\.?\\\\d*)\\\\}\\\\,\\\\s\\\\{(-?\\\\d+\\\\.?\\\\d*)\\\\,(-?\\\\d+\\\\.?\\\\d*)\\\\}\\\\}</string>
   <string name="pattern2">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>
   <string name="script_tag_method_call"><![CDATA[<script type=\"text/javascript\">%s</script>]]></string>
-
-
+  <string name="underline_highlights">
+      <span style="border-bottom: 1px solid #ff0000;">%s</span>
+  </string>
+  <string name="edit_notes">Save your note</string>
+  <string name="save_note">Save note</string>
+  <string name="please_enter_note">please enter a note</string>
 </resources>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="290dp"
+    android:layout_height="250dp"
+    android:gravity="center"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="290dp"
+        android:layout_height="250dp"
+        android:padding="10dp"
+        android:background="@color/white">
+        <TextView
+            android:id="@+id/lbl_heading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/edit_notes"
+            android:textSize="23sp" />
+        <EditText
+            android:id="@+id/edit_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="5"
+            android:gravity="start"
+            android:layout_below="@id/lbl_heading"
+            android:inputType="textMultiLine"
+            android:scrollbars="vertical"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/note_edittext_background"
+            android:padding="10dp"
+            android:textColor="@android:color/black" />
+        <Button
+            android:id="@+id/btn_save_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/edit_note"
+            android:layout_marginTop="8dp"
+            android:text="@string/save_note"
+            android:textColor="@android:color/white"
+            android:background="@color/app_green"
+            android:textAllCaps="false"
+            android:textSize="16sp" />
+    </RelativeLayout>
+</RelativeLayout>
