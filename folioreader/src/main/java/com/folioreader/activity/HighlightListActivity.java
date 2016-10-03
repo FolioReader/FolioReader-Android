@@ -196,6 +196,8 @@ public class HighlightListActivity extends AppCompatActivity {
         dailog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dailog.setContentView(R.layout.dialog_edit_notes);
         dailog.show();
+        String noteText=highlightItem.getNote();
+        ((EditText) dailog.findViewById(R.id.edit_note)).setText(noteText);
 
         dailog.findViewById(R.id.btn_save_note).setOnClickListener(new View.OnClickListener() {
             @Override
