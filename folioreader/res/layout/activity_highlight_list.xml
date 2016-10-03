@@ -35,6 +35,7 @@
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+
             <ImageView
                 android:id="@+id/btn_close"
                 android:layout_width="wrap_content"
