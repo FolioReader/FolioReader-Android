@@ -32,6 +32,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.LinearInterpolator;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -60,6 +61,7 @@ import com.folioreader.view.VerticalViewPager;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.siegmann.epublib.Constants;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.SpineReference;
 import nl.siegmann.epublib.domain.TOCReference;
@@ -80,7 +82,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     };
 
     private RecyclerView mRecyclerViewMenu;
-    private ViewPager mFolioPageViewPager;
+    private VerticalViewPager mFolioPageViewPager;
     private FolioView mFolioView;
     private ConfigView mConfigView;
     private AudioView mAudioView;
@@ -132,17 +134,22 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         findViewById(R.id.btn_speaker).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mIsSmilParsed) {
+                /*if (mIsSmilParsed) {
                     if (mAudioView.isDragViewAboveTheLimit()) {
                         mAudioView.moveToOriginalPosition();
                     } else {
                         mAudioView.moveOffScreen();
-                    }
-                } else {
+                    }*/
+                Intent intent =new Intent(FolioActivity.this,ContentHighlightActivity.class);
+                intent.putExtra(com.folioreader.Constants.BOOK,mBook);
+                intent.putExtra(com.folioreader.Constants.SELECTED_CHAPTER_POSITION,mChapterPosition);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
+               /* } else {
                     Toast.makeText(FolioActivity.this,
                             getString(R.string.please_wait_till_audio_is_parsed),
                             Toast.LENGTH_SHORT).show();
-                }
+                }*/
             }
         });
     }
@@ -281,8 +288,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         setSpineReferenceTitle();
         mRecyclerViewMenu.setLayoutManager(new LinearLayoutManager(this));
         if (mTocReferences != null) {
-            mTocAdapter = new TOCAdapter(mTocReferences, FolioActivity.this);
-            mRecyclerViewMenu.setAdapter(mTocAdapter);
+            //mTocAdapter = new TOCAdapter(mTocReferences, FolioActivity.this);
+           // mRecyclerViewMenu.setAdapter(mTocAdapter);
         }
     }
 
@@ -317,7 +324,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
     private void configFolio() {
-        mFolioPageViewPager = (ViewPager) mFolioView.findViewById(R.id.folioPageViewPager);
+        mFolioPageViewPager = (VerticalViewPager) mFolioView.findViewById(R.id.folioPageViewPager);
         mFolioPageViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position,
@@ -330,9 +337,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 mChapterPosition = position;
                 ((TextView) findViewById(R.id.lbl_center)).
                             setText(mSpineReferences.get(position).getResource().getTitle());
-                mTocAdapter.setNightMode(Config.getConfig().isNightMode());
+                /*mTocAdapter.setNightMode(Config.getConfig().isNightMode());
                 mTocAdapter.setSelectedChapterPosition(mChapterPosition);
-                mTocAdapter.notifyDataSetChanged();
+                mTocAdapter.notifyDataSetChanged();*/
             }
 
             @Override

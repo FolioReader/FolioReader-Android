@@ -39,9 +39,10 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
         }
     }
 
-    public TOCAdapter(List<TOCReference> tocReferences, Context mContext) {
+    public TOCAdapter(List<TOCReference> tocReferences, Context mContext,int selectedChapterPosition) {
         mTOCReferences = tocReferences;
         this.mContext = mContext;
+        mSelectedChapterPosition=selectedChapterPosition;
     }
 
     @Override
@@ -55,8 +56,6 @@ public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.tocTitleView.setText(mTOCReferences.get(position).getTitle());
-        Log.d("Href**** TOC", mTOCReferences.get(position).getCompleteHref());
-        Log.d("FRagId**** TOC", mTOCReferences.get(position).getFragmentId());
         if (!(mSelectedChapterPosition == position)) {
             if (mIsNightMode) {
                 holder.tocTitleView.setTextColor(Color.WHITE);
