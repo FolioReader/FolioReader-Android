@@ -9,9 +9,9 @@ import android.os.Parcelable;
 public class Config implements Parcelable {
     private static Config mConfig;
 
-    private int font;
-    private int fontSize;
-    private boolean nightMode;
+    int font;
+    int fontSize;
+    boolean nightMode;
 
     public Config(int font, int fontSize, boolean nightMode) {
         this.font = font;

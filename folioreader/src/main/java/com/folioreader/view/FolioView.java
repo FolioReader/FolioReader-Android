@@ -24,9 +24,9 @@ import android.widget.FrameLayout;
 
 public class FolioView extends FrameLayout implements View.OnClickListener {
 
-    private View shadowView;
+    private View mShadowView;
 
-    private FolioViewCallback folioViewCallback;
+    private FolioViewCallback mFolioViewCallback;
 
     public FolioView(Context context) {
         this(context, null);
@@ -54,33 +54,37 @@ public class FolioView extends FrameLayout implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        folioViewCallback.onShadowClick();
+        mFolioViewCallback.onShadowClick();
     }
 
-    public void setFolioViewCallback(FolioViewCallback folioViewCallback) {
-        this.folioViewCallback = folioViewCallback;
+    public void setFolioViewCallback(FolioViewCallback mFolioViewCallback) {
+        this.mFolioViewCallback = mFolioViewCallback;
     }
 
     private void inflateView() {
         inflate(getContext(), R.layout.view_folio, this);
-        shadowView = findViewById(R.id.shadow);
+        mShadowView = findViewById(R.id.shadow);
         configClickListener();
     }
 
     private void configClickListener() {
-        shadowView.setOnClickListener(this);
+        mShadowView.setOnClickListener(this);
     }
 
     public void updateShadowAlpha(float alpha) {
         float invertedShadow = 1 - alpha;
-        shadowView.setAlpha(invertedShadow);
+        mShadowView.setAlpha(invertedShadow);
         if (invertedShadow == 0.0) {
-            shadowView.setVisibility(GONE);
+            mShadowView.setVisibility(GONE);
         }
     }
 
     public void resetView() {
-        shadowView.setVisibility(VISIBLE);
+        mShadowView.setVisibility(VISIBLE);
+    }
+
+    public void hideShadow() {
+        mShadowView.setVisibility(GONE);
     }
 
 }

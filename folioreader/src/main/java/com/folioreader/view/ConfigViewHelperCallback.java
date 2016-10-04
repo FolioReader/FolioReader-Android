@@ -20,17 +20,17 @@ import android.view.View;
 
 public class ConfigViewHelperCallback extends ViewDragHelper.Callback {
 
-    private int dragState = 0;
-    private int dragOffset = 0;
-    private ConfigView configView;
+    private int mDragState = 0;
+    private int mDragOffset = 0;
+    private ConfigView mConfigView;
 
     /**
      * The constructor get the instance of ConfigView
      *
-     * @param configView provide the instance of ConfigView
+     * @param mConfigView provide the instance of ConfigView
      */
-    public ConfigViewHelperCallback(ConfigView configView) {
-        this.configView = configView;
+    public ConfigViewHelperCallback(ConfigView mConfigView) {
+        this.mConfigView = mConfigView;
     }
 
     /**
@@ -42,7 +42,7 @@ public class ConfigViewHelperCallback extends ViewDragHelper.Callback {
      */
     @Override
     public boolean tryCaptureView(View child, int pointerId) {
-        return child.equals(configView.getContainer());
+        return child.equals(mConfigView.getContainer());
     }
 
     /**
@@ -56,8 +56,8 @@ public class ConfigViewHelperCallback extends ViewDragHelper.Callback {
      */
     @Override
     public int clampViewPositionVertical(View child, int top, int dy) {
-        return Math.min(Math.max(top, configView.getPaddingTop()),
-                configView.getContainer().getHeight());
+        return Math.min(Math.max(top, mConfigView.getPaddingTop()),
+                mConfigView.getContainer().getHeight());
     }
 
     /**
@@ -69,28 +69,28 @@ public class ConfigViewHelperCallback extends ViewDragHelper.Callback {
      */
     @Override
     public int getViewVerticalDragRange(View child) {
-        return configView != null ? (int) configView.getVerticalDragRange() : 0;
+        return mConfigView != null ? (int) mConfigView.getVerticalDragRange() : 0;
     }
 
     /**
      * Verify if container is dragging or idle and
-     * check dragOffset is bigger than dragRange,
+     * check mDragOffset is bigger than dragRange,
      * if true, set the visible to gone.
      *
      * @param state return the touch state of view
      */
     @Override
     public void onViewDragStateChanged(int state) {
-        if (state == dragState) {
+        if (state == mDragState) {
             return;
         }
-        if ((dragState == ViewDragHelper.STATE_DRAGGING
-                || dragState == ViewDragHelper.STATE_SETTLING)
+        if ((mDragState == ViewDragHelper.STATE_DRAGGING
+                || mDragState == ViewDragHelper.STATE_SETTLING)
                 && state == ViewDragHelper.STATE_IDLE
-                && (dragOffset == configView.getVerticalDragRange())) {
-            configView.hideView();
+                && (mDragOffset == mConfigView.getVerticalDragRange())) {
+            mConfigView.hideView();
         }
-        dragState = state;
+        mDragState = state;
     }
 
     /**
@@ -105,9 +105,9 @@ public class ConfigViewHelperCallback extends ViewDragHelper.Callback {
     @Override
     public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
         super.onViewPositionChanged(changedView, left, top, dx, dy);
-        dragOffset = Math.abs(top);
-        float fractionScreen = (float) dragOffset / configView.getVerticalDragRange();
-        configView.onViewPositionChanged(fractionScreen >= 1 ? 1 : fractionScreen);
+        mDragOffset = Math.abs(top);
+        float fractionScreen = (float) mDragOffset / mConfigView.getVerticalDragRange();
+        mConfigView.onViewPositionChanged(fractionScreen >= 1 ? 1 : fractionScreen);
     }
 
     /**
@@ -120,10 +120,10 @@ public class ConfigViewHelperCallback extends ViewDragHelper.Callback {
     @Override
     public void onViewReleased(View releasedChild, float xVel, float yVel) {
         super.onViewReleased(releasedChild, xVel, yVel);
-        if (configView.isDragViewAboveTheLimit()) {
-            configView.moveOffScreen();
+        if (mConfigView.isDragViewAboveTheLimit()) {
+            mConfigView.moveOffScreen();
         } else {
-            configView.moveToOriginalPosition();
+            mConfigView.moveToOriginalPosition();
         }
     }
 

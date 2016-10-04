@@ -17,7 +17,7 @@ package com.folioreader;
 
 public class Font {
 
-    private String name;
+    String name;
 
     public Font(String name) {
         this.name = name;

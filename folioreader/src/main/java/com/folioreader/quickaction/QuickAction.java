@@ -40,7 +40,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
     private OnActionItemClickListener mItemClickListener;
     private OnDismissListener mDismissListener;
 
-    private List<ActionItem> actionItems = new ArrayList<ActionItem>();
+    private List<ActionItem> mActionItems = new ArrayList<ActionItem>();
 
     private boolean mDidAction;
 
@@ -48,7 +48,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
     private int mInsertPos;
     private int mAnimStyle;
     private int mOrientation;
-    private int rootWidth = 0;
+    private int mRootWidth = 0;
 
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
@@ -98,7 +98,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
      * @return Action Item at the position
      */
     public ActionItem getActionItem(int index) {
-        return actionItems.get(index);
+        return mActionItems.get(index);
     }
 
     /**
@@ -115,10 +115,12 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 
         mScroller = (ScrollView) mRootView.findViewById(R.id.scroller);
 
-        //This was previously defined on show() method, moved here to prevent force close that occured
+        //This was previously defined on show()
+        // method, moved here to prevent force close that occured
         //when tapping fastly on a view to show quickaction dialog.
         //Thanx to zammbi (github.com/zammbi)
-        mRootView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+        mRootView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT));
 
         setContentView(mRootView);
     }
@@ -147,7 +149,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
      * @param action {@link ActionItem}
      */
     public void addActionItem(ActionItem action) {
-        actionItems.add(action);
+        mActionItems.add(action);
 
         String title = action.getTitle();
         Drawable icon = action.getIcon();
@@ -199,7 +201,9 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
         if (mOrientation == HORIZONTAL && mChildPos != 0) {
             View separator = mInflater.inflate(R.layout.horiz_separator, null);
 
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
+            RelativeLayout.LayoutParams params =
+                    new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+                            LayoutParams.FILL_PARENT);
 
             separator.setLayoutParams(params);
             separator.setPadding(5, 0, 5, 0);
@@ -229,32 +233,31 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 
         anchor.getLocationOnScreen(location);
 
-        Rect anchorRect = new Rect(location[0], location[1], location[0] + anchor.getWidth(), location[1]
+        Rect anchorRect = new Rect(location[0], location[1], location[0]
+                + anchor.getWidth(), location[1]
                 + anchor.getHeight());
-
-        //mRootView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
         mRootView.measure(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
         int rootHeight = mRootView.getMeasuredHeight();
 
-        if (rootWidth == 0) {
-            rootWidth = mRootView.getMeasuredWidth();
+        if (mRootWidth == 0) {
+            mRootWidth = mRootView.getMeasuredWidth();
         }
 
         int screenWidth = mWindowManager.getDefaultDisplay().getWidth();
         int screenHeight = mWindowManager.getDefaultDisplay().getHeight();
 
         //automatically get X coord of popup (top left)
-        if ((anchorRect.left + rootWidth) > screenWidth) {
-            xPos = anchorRect.left - (rootWidth - anchor.getWidth());
+        if ((anchorRect.left + mRootWidth) > screenWidth) {
+            xPos = anchorRect.left - (mRootWidth - anchor.getWidth());
             xPos = (xPos < 0) ? 0 : xPos;
 
             arrowPos = anchorRect.centerX() - xPos;
 
         } else {
-            if (anchor.getWidth() > rootWidth) {
-                xPos = anchorRect.centerX() - (rootWidth / 2);
+            if (anchor.getWidth() > mRootWidth) {
+                xPos = anchorRect.centerX() - (mRootWidth / 2);
             } else {
                 xPos = anchorRect.left;
             }
@@ -299,7 +302,8 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 
         anchor.getLocationOnScreen(location);
 
-        Rect anchorRect = new Rect(location[0], location[1], location[0] + width, location[1] + height);
+        Rect anchorRect =
+                new Rect(location[0], location[1], location[0] + width, location[1] + height);
 
         mDidAction = false;
 
@@ -307,23 +311,23 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 
         int rootHeight = mRootView.getMeasuredHeight();
 
-        if (rootWidth == 0) {
-            rootWidth = mRootView.getMeasuredWidth();
+        if (mRootWidth == 0) {
+            mRootWidth = mRootView.getMeasuredWidth();
         }
 
         int screenWidth = mWindowManager.getDefaultDisplay().getWidth();
         int screenHeight = mWindowManager.getDefaultDisplay().getHeight();
 
         //automatically get X coord of popup (top left)
-        if ((anchorRect.left + rootWidth) > screenWidth) {
-            xPos = anchorRect.left - (rootWidth - width);
+        if ((anchorRect.left + mRootWidth) > screenWidth) {
+            xPos = anchorRect.left - (mRootWidth - width);
             xPos = (xPos < 0) ? 0 : xPos;
 
             arrowPos = anchorRect.centerX() - xPos;
 
         } else {
-            if (width > rootWidth) {
-                xPos = anchorRect.centerX() - (rootWidth / 2);
+            if (width > mRootWidth) {
+                xPos = anchorRect.centerX() - (mRootWidth / 2);
             } else {
                 xPos = anchorRect.left;
             }
@@ -374,28 +378,41 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 
         switch (mAnimStyle) {
             case ANIM_GROW_FROM_LEFT:
-                mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Left : R.style.Animations_PopDownMenu_Left);
+                mWindow.setAnimationStyle((onTop) ?
+                        R.style.Animations_PopUpMenu_Left : R.style.Animations_PopDownMenu_Left);
                 break;
 
             case ANIM_GROW_FROM_RIGHT:
-                mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Right : R.style.Animations_PopDownMenu_Right);
+                mWindow.setAnimationStyle((onTop) ?
+                        R.style.Animations_PopUpMenu_Right : R.style.Animations_PopDownMenu_Right);
                 break;
 
             case ANIM_GROW_FROM_CENTER:
-                mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Center : R.style.Animations_PopDownMenu_Center);
+                mWindow.setAnimationStyle((onTop) ?
+                        R.style.Animations_PopUpMenu_Center :
+                        R.style.Animations_PopDownMenu_Center);
                 break;
 
             case ANIM_REFLECT:
-                mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Reflect : R.style.Animations_PopDownMenu_Reflect);
+                mWindow.setAnimationStyle((onTop) ?
+                        R.style.Animations_PopUpMenu_Reflect :
+                        R.style.Animations_PopDownMenu_Reflect);
                 break;
 
             case ANIM_AUTO:
                 if (arrowPos <= screenWidth / 4) {
-                    mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Left : R.style.Animations_PopDownMenu_Left);
-                } else if (arrowPos > screenWidth / 4 && arrowPos < 3 * (screenWidth / 4)) {
-                    mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Center : R.style.Animations_PopDownMenu_Center);
+                    mWindow.setAnimationStyle((onTop) ?
+                            R.style.Animations_PopUpMenu_Left :
+                            R.style.Animations_PopDownMenu_Left);
+                } else if (arrowPos > screenWidth / 4 &&
+                        arrowPos < 3 * (screenWidth / 4)) {
+                    mWindow.setAnimationStyle((onTop) ?
+                            R.style.Animations_PopUpMenu_Center :
+                            R.style.Animations_PopDownMenu_Center);
                 } else {
-                    mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Right : R.style.Animations_PopDownMenu_Right);
+                    mWindow.setAnimationStyle((onTop) ?
+                            R.style.Animations_PopUpMenu_Right :
+                            R.style.Animations_PopDownMenu_Right);
                 }
 
                 break;
@@ -416,7 +433,8 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 
         showArrow.setVisibility(View.VISIBLE);
 
-        ViewGroup.MarginLayoutParams param = (ViewGroup.MarginLayoutParams) showArrow.getLayoutParams();
+        ViewGroup.MarginLayoutParams param =
+                (ViewGroup.MarginLayoutParams) showArrow.getLayoutParams();
 
         param.leftMargin = requestedX - arrowWidth / 2;
 

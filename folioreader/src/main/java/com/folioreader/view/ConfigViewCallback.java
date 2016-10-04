@@ -16,6 +16,7 @@
 package com.folioreader.view;
 
 public interface ConfigViewCallback {
+    //<<<<<<< HEAD
     void onBackgroundUpdate(int color);
 
     void changeMenuTextColor();
@@ -25,4 +26,19 @@ public interface ConfigViewCallback {
     void showShadow();
 
     void onConfigChange();
+
+    void onAudioPlayed();
+/*
+=======
+    void onBackgroundUpdate(int color);
+
+    void changeMenuTextColor();
+
+    void onShadowAlpha(float alpha);
+
+    void showShadow();
+
+    void onConfigChange();
+*/
+//>>>>>>> 1478cdaff0cb94b1e4415ed3755295cb84202072
 }
