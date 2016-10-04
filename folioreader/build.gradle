@@ -1,4 +1,29 @@
 apply plugin: 'com.android.library'
+
+ext {
+  bintrayRepo = 'maven'
+  bintrayName = 'folio-reader'
+
+  publishedGroupId = 'com.folioreader'
+  libraryName = 'FolioReader'
+  artifact = 'folioreader'
+
+  libraryDescription = 'An epub reader for Android'
+
+  siteUrl = 'https://github.com/FolioReader/FolioReader-Android'
+  gitUrl = 'https://github.com/FolioReader/FolioReader-Android.git'
+
+  libraryVersion = '0.1'
+
+  developerId = 'mobisystech'
+  developerName = 'Folio Reader'
+  developerEmail = 'mahavir@codetoart.com'
+
+  licenseName = 'FreeBSD License'
+  licenseUrl = 'https://en.wikipedia.org/wiki/FreeBSD_Documentation_License#License'
+  allLicenses = ["FreeBSD"]
+}
+
 apply plugin: 'checkstyle'
 
 android {
@@ -65,3 +90,6 @@ dependencies {
   compile 'com.j256.ormlite:ormlite-core:4.48'
   compile 'com.j256.ormlite:ormlite-android:4.48'
 }
+
+apply from: 'bintray/installv1.gradle'
+apply from: 'bintray/bintrayv1.gradle'
