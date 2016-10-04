@@ -25,12 +25,21 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <ImageView
-                android:id="@+id/btn_drawer"
+                android:id="@+id/btn_close"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_centerInParent="true"
-                android:padding="20dp"
+                android:padding="10dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_close_green" />
+            <ImageView
+                android:id="@+id/btn_drawer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/btn_close"
+                android:paddingLeft="10dp"
+                android:paddingTop="20dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_drawer" />
             <TextView
@@ -48,12 +57,22 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
             <ImageView
+                android:id="@+id/btn_config"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_toLeftOf="@+id/btn_speaker"
+                android:background="@color/app_green"
+                android:padding="10dp"
+                android:layout_marginBottom="10dp"
+                android:src="@drawable/icon_font" />
+            <ImageView
                 android:id="@+id/btn_speaker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerInParent="true"
-                android:padding="20dp"
+                android:padding="10dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/man_speech_icon" />
             <View
@@ -63,10 +82,10 @@
                 android:background="@android:color/black" />
         </RelativeLayout>
     </android.support.v7.widget.Toolbar>
-    <android.support.v4.widget.DrawerLayout
+    <!--<android.support.v4.widget.DrawerLayout
         android:id="@+id/drawer_left"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent">-->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -85,7 +104,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom" />
         </FrameLayout>
-        <RelativeLayout
+        <!--<RelativeLayout
             android:id="@+id/drawer_menu"
             android:layout_width="280dp"
             android:layout_height="match_parent"
@@ -95,10 +114,8 @@
                 android:id="@+id/recycler_view_menu"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@+id/btn_close"
                 android:background="@android:color/white" />
             <ImageButton
-                android:id="@+id/btn_close"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
@@ -106,12 +123,10 @@
                 android:padding="8dp"
                 android:src="@drawable/icon_close" />
             <ImageButton
-                android:id="@+id/btn_config"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_marginLeft="6dp"
-                android:layout_toRightOf="@+id/btn_close"
                 android:background="@android:color/transparent"
                 android:padding="8dp"
                 android:src="@drawable/icon_font" />
@@ -126,5 +141,5 @@
                 android:padding="8dp"
                 android:src="@drawable/icon_highlight" />
         </RelativeLayout>
-    </android.support.v4.widget.DrawerLayout>
+    </android.support.v4.widget.DrawerLayout>-->
 </FrameLayout>
