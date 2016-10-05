@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.folioreader.Config;
+import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.database.HighlightTable;
 import com.folioreader.model.Highlight;
@@ -34,7 +35,6 @@ import java.util.ArrayList;
 
 public class HighlightListFragment extends Fragment {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
-    private static final String ITEM_DELETED = "item_deleted";
     private View mRootView;
     private Context mContext;
 
@@ -52,46 +52,17 @@ public class HighlightListFragment extends Fragment {
         return mRootView;
     }
 
-
-    /* public class HighlightListActivity extends AppCompatActivity {
-         private static final String HIGHLIGHT_ITEM = "highlight_item";
-         private static final String ITEM_DELETED = "item_deleted";
-
-         //private static final int REQUEST_CODE = 1;
-         @Override
-         protected void onCreate(Bundle savedInstanceState) {
-             super.onCreate(savedInstanceState);
-             setContentView(R.layout.activity_highlight_list);
-             initViews();
-         }
- */
-   /* private void initViews() {
-           *//* if (getSupportActionBar() != null) {
-                getSupportActionBar().hide();
-            }*//*
-       *//* mRootView.findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.putExtra(ITEM_DELETED, true);
-                getActivity().setResult(Activity.RESULT_OK, intent);
-                getActivity().finish();
-            }
-        });*//*
-        initList();
-    }*/
-
     private void initViews() {
         if (Config.getConfig().isNightMode()) {
             ((RelativeLayout) mRootView.findViewById(R.id.main))
                     .setBackgroundColor(ContextCompat.getColor(mContext,
                             R.color.black));
-            ((TextView) mRootView.findViewById(R.id.lbl_center))
+            /*((TextView) mRootView.findViewById(R.id.lbl_center))
                     .setTextColor(ContextCompat.getColor(mContext,
                             R.color.white));
             ((View) mRootView.findViewById(R.id.view))
                     .setBackgroundColor(ContextCompat.getColor(mContext,
-                            R.color.white));
+                            R.color.white));*/
             ((ListView) mRootView.findViewById(R.id.list_highligts))
                     .setDivider(new ColorDrawable(ContextCompat.
                             getColor(mContext, R.color.white)));
@@ -182,6 +153,7 @@ public class HighlightListFragment extends Fragment {
                         public void onClick(View v) {
                             Intent intent = new Intent();
                             intent.putExtra(HIGHLIGHT_ITEM, rowItem);
+                            intent.putExtra(Constants.TYPE,Constants.HIGHLIGHT_SELECTED);
                             getActivity().setResult(Activity.RESULT_OK, intent);
                             getActivity().finish();
                         }
@@ -210,11 +182,8 @@ public class HighlightListFragment extends Fragment {
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    HighlightTable.remove(rowItem.getHighlightId(), mContext);
-                    Intent intent = new Intent();
-                    intent.putExtra(ITEM_DELETED, true);
-                    getActivity().setResult(Activity.RESULT_OK, intent);
-                    getActivity().finish();
+                    HighlightTable.remove(rowItem.getHighlightId(),mContext);
+                    initViews();
                 }
             });
             holder.editNote.setOnClickListener(new View.OnClickListener() {

@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerInParent="true"
-                android:padding="1dp"
+                android:padding="1.8dp"
                 android:background="@drawable/btn_contents_highlights"
                 android:orientation="horizontal">
                 <TextView

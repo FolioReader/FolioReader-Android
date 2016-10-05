@@ -5,6 +5,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
@@ -381,6 +382,22 @@ public class AppUtil {
             Log.d(TAG, e.getMessage());
         }
         return false;
+    }
+
+
+    public static ColorStateList getColorList(Context context,int selectedColor,int unselectedColor){
+        int[][] states = new int[][] {
+                new int[] { android.R.attr.state_pressed}, // pressed
+                new int[] { android.R.attr.state_selected}, // focused
+                new int[] {}
+        };
+        int[] colors = new int[] {
+                ContextCompat.getColor(context,selectedColor), // green
+                ContextCompat.getColor(context,selectedColor), // green
+                ContextCompat.getColor(context,unselectedColor)  // white
+        };
+        ColorStateList list = new ColorStateList(states, colors);
+        return  list;
     }
 }
 

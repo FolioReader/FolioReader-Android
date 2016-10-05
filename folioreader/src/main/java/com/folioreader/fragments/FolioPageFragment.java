@@ -436,7 +436,8 @@ public class FolioPageFragment extends Fragment {
     public void reload() {
         final WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
         String htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
-        webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null);
+        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/OEBPS//";
+        webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
         updatePagesLeftTextBg();
     }
 
