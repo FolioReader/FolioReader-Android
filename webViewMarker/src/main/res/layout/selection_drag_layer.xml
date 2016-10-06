@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.blahti.drag.DragLayer 
+    	xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:id="@+id/dragLayer"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:background="@android:color/transparent" >
+	
+	    <ImageView
+		    android:id="@+id/startHandle"
+		    android:src="@drawable/text_select_handle_left"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:scaleType="center" />
+		<ImageView
+		    android:id="@+id/endHandle"
+		    android:src="@drawable/text_select_handle_right"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:scaleType="center" />
+	
+	</com.blahti.drag.DragLayer>

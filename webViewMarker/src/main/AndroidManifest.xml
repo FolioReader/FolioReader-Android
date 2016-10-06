@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.bossturban.webviewmarker" android:versionCode="4" android:versionName="0.1.3">
+  <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="19"/>
+</manifest>
