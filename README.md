@@ -42,7 +42,7 @@ maven {
 ```
 Add following dependency to your app build.gradle
 ``` java
-compile 'com.folioreader:folioreader:0.2'
+compile 'com.folioreader:folioreader:0.1'
 ```
 
 ### Usage
