@@ -8,7 +8,7 @@
 
 var thisHighlight;
 var audioMarkClass;
-var wordsPerMinute = 200;
+var wordsPerMinute = 180;
 
 document.addEventListener("DOMContentLoaded", function(event) {
 //    var lnk = document.getElementsByClassName("lnk");
@@ -28,8 +28,7 @@ function guid() {
 
 // Get All HTML
 function getHTML() {
-    Highlight.getHtmlAndSaveHighlight(document.documentElement.outerHTML);
-    //return document.documentElement.outerHTML;
+    return document.documentElement.outerHTML;
 }
 
 // Class manipulation
@@ -84,6 +83,8 @@ function setFontSize(cls) {
  */
 function highlightString(style) {
     var range = window.getSelection().getRangeAt(0);
+    var startOffset = range.startOffset;
+    var endOffset = range.endOffset;
     var selectionContents = range.extractContents();
     var elm = document.createElement("highlight");
     var id = guid();
@@ -97,39 +98,20 @@ function highlightString(style) {
     thisHighlight = elm;
     
     var params = [];
-    params.push({id: id, rect: getRectForSelectedText(elm)});
-
+    params.push({id: id, rect: getRectForSelectedText(elm), startOffset: startOffset.toString(), endOffset: endOffset.toString()});
+    
     return JSON.stringify(params);
-}
-
-function getHighlightString(style) {
-    var range = window.getSelection().getRangeAt(0);
-    var selectionContents = range.extractContents();
-    var elm = document.createElement("highlight");
-    var id = guid();
-
-    elm.appendChild(selectionContents);
-    elm.setAttribute("id", id);
-    elm.setAttribute("onclick","callHighlightURL(this);");
-    elm.setAttribute("class", style);
-
-    range.insertNode(elm);
-    thisHighlight = elm;
-
-    var params = [];
-    params.push({id: id, rect: getRectForSelectedText(elm)});
-    Highlight.getHighlightJson(JSON.stringify(params));
 }
 
 // Menu colors
 function setHighlightStyle(style) {
     thisHighlight.className = style;
-    Highlight.getUpdatedHighlightId(thisHighlight.id, style);
+    return thisHighlight.id;
 }
 
 function removeThisHighlight() {
     thisHighlight.outerHTML = thisHighlight.innerHTML;
-    Highlight.getRemovedHighlightId(thisHighlight.id);
+    return thisHighlight.id;
 }
 
 function removeHighlightById(elmId) {
@@ -163,13 +145,13 @@ var getRectForSelectedText = function(elm) {
 // Method that call that a hightlight was clicked
 // with URL scheme and rect informations
 var callHighlightURL = function(elm) {
-    var URLBase = "highlight://";
+	event.stopPropagation();
+	var URLBase = "highlight://";
     var currentHighlightRect = getRectForSelectedText(elm);
     thisHighlight = elm;
     
     window.location = URLBase + encodeURIComponent(currentHighlightRect);
 }
-
 
 // Reading time
 function getReadingTime() {
@@ -182,6 +164,22 @@ function getReadingTime() {
     return readingTimeMinutes;
 }
 
+/**
+ Get Vertical or Horizontal paged #anchor offset
+ */
+var getAnchorOffset = function(target, horizontal) {
+    var elem = document.getElementById(target);
+    
+    if (!elem) {
+        elem = document.getElementsByName(target)[0];
+    }
+    
+    if (horizontal) {
+        return document.body.clientWidth * Math.floor(elem.offsetTop / window.innerHeight);
+    }
+    
+    return elem.offsetTop;
+}
 
 function findElementWithID(node) {
     if( !node || node.tagName == "BODY")
@@ -206,9 +204,22 @@ function findElementWithIDInView() {
     // @NOTE: is `span` too limiting?
     var els = document.querySelectorAll("span[id]")
 
-    for(indx in els){
-        if( els[indx].offsetTop > document.body.scrollTop )
-            return els[indx]
+    for(indx in els) {
+        var element = els[indx];
+
+        // Horizontal scroll
+        if (document.body.scrollTop == 0) {
+            var elLeft = document.body.clientWidth * Math.floor(element.offsetTop / window.innerHeight);
+            // document.body.scrollLeft = elLeft;
+
+            if (elLeft == document.body.scrollLeft) {
+                return element;
+            }
+
+        // Vertical
+        } else if(element.offsetTop > document.body.scrollTop) {
+            return element;
+        }
     }
 
     return null
@@ -255,6 +266,18 @@ function goToEl(el) {
     if(elBottom > bottom || elTop < top) {
         document.body.scrollTop = el.offsetTop - 20
     }
+    
+    /* Set scroll left in case horz scroll is activated.
+    
+        The following works because el.offsetTop accounts for each page turned
+        as if the document was scrolling vertical. We then divide by the window
+        height to figure out what page the element should appear on and set scroll left
+        to scroll to that page.
+    */
+    if( document.body.scrollTop == 0 ){
+        var elLeft = document.body.clientWidth * Math.floor(el.offsetTop / window.innerHeight);
+        document.body.scrollLeft = elLeft;
+    }
 
     return el;
 }
@@ -294,4 +317,305 @@ function setMediaOverlayStyleColors(color, colorHighlight) {
     stylesheet.insertRule(".mediaOverlayStyle0 span.epub-media-overlay-playing { background: "+colorHighlight+" !important }")
     stylesheet.insertRule(".mediaOverlayStyle1 span.epub-media-overlay-playing { border-color: "+color+" !important }")
     stylesheet.insertRule(".mediaOverlayStyle2 span.epub-media-overlay-playing { color: "+color+" !important }")
+}
+
+var currentIndex = -1;
+
+
+function findSentenceWithIDInView(els) {
+    // @NOTE: is `span` too limiting?
+    for(indx in els) {
+        var element = els[indx];
+
+        // Horizontal scroll
+        if (document.body.scrollTop == 0) {
+            var elLeft = document.body.clientWidth * Math.floor(element.offsetTop / window.innerHeight);
+            // document.body.scrollLeft = elLeft;
+
+            if (elLeft == document.body.scrollLeft) {
+                currentIndex = indx;
+                return element;
+            }
+
+        // Vertical
+        } else if(element.offsetTop > document.body.scrollTop) {
+            currentIndex = indx;
+            return element;
+        }
+    }
+    
+    return null
+}
+
+function findNextSentenceInArray(els) {
+    if(currentIndex >= 0) {
+        currentIndex ++;
+        return els[currentIndex];
+    }
+    
+    return null
+}
+
+function resetCurrentSentenceIndex() {
+    currentIndex = -1;
+}
+
+function rewindCurrentIndex() {
+    currentIndex = currentIndex-1;
+}
+
+function getSentenceWithIndex(className) {
+    var sentence;
+    var sel = getSelection();
+    var node = null;
+    var elements = document.querySelectorAll("span.sentence");
+
+    // Check for a selected text, if found start reading from it
+    if (sel.toString() != "") {
+        console.log(sel.anchorNode.parentNode);
+        node = sel.anchorNode.parentNode;
+
+        if (node.className == "sentence") {
+            sentence = node
+
+            for(var i = 0, len = elements.length; i < len; i++) {
+                if (elements[i] === sentence) {
+                    currentIndex = i;
+                    break;
+                }
+            }
+        } else {
+            sentence = findSentenceWithIDInView(elements);
+        }
+    } else if (currentIndex < 0) {
+        sentence = findSentenceWithIDInView(elements);
+    } else {
+        sentence = findNextSentenceInArray(elements);
+    }
+
+    var text = sentence.innerText || sentence.textContent;
+    
+    goToEl(sentence);
+    
+    if (audioMarkClass){
+        removeAllClasses(audioMarkClass);
+    }
+    
+    audioMarkClass = className;
+    sentence.classList.add(className)
+    return text;
+}
+
+function wrappingSentencesWithinPTags(){
+    currentIndex = -1;
+    "use strict";
+    
+    var rxOpen = new RegExp("<[^\\/].+?>"),
+    rxClose = new RegExp("<\\/.+?>"),
+    rxSupStart = new RegExp("^<sup\\b[^>]*>"),
+    rxSupEnd = new RegExp("<\/sup>"),
+    sentenceEnd = [],
+    rxIndex;
+    
+    sentenceEnd.push(new RegExp("[^\\d][\\.!\\?]+"));
+    sentenceEnd.push(new RegExp("(?=([^\\\"]*\\\"[^\\\"]*\\\")*[^\\\"]*?$)"));
+    sentenceEnd.push(new RegExp("(?![^\\(]*?\\))"));
+    sentenceEnd.push(new RegExp("(?![^\\[]*?\\])"));
+    sentenceEnd.push(new RegExp("(?![^\\{]*?\\})"));
+    sentenceEnd.push(new RegExp("(?![^\\|]*?\\|)"));
+    sentenceEnd.push(new RegExp("(?![^\\\\]*?\\\\)"));
+    //sentenceEnd.push(new RegExp("(?![^\\/.]*\\/)")); // all could be a problem, but this one is problematic
+    
+    rxIndex = new RegExp(sentenceEnd.reduce(function (previousValue, currentValue) {
+                                            return previousValue + currentValue.source;
+                                            }, ""));
+    
+    function indexSentenceEnd(html) {
+        var index = html.search(rxIndex);
+        
+        if (index !== -1) {
+            index += html.match(rxIndex)[0].length - 1;
+        }
+        
+        return index;
+    }
+
+    function pushSpan(array, className, string, classNameOpt) {
+        if (!string.match('[a-zA-Z0-9]+')) {
+            array.push(string);
+        } else {
+            array.push('<span class="' + className + '">' + string + '</span>');
+        }
+    }
+    
+    function addSupToPrevious(html, array) {
+        var sup = html.search(rxSupStart),
+        end = 0,
+        last;
+        
+        if (sup !== -1) {
+            end = html.search(rxSupEnd);
+            if (end !== -1) {
+                last = array.pop();
+                end = end + 6;
+                array.push(last.slice(0, -7) + html.slice(0, end) + last.slice(-7));
+            }
+        }
+        
+        return html.slice(end);
+    }
+    
+    function paragraphIsSentence(html, array) {
+        var index = indexSentenceEnd(html);
+        
+        if (index === -1 || index === html.length) {
+            pushSpan(array, "sentence", html, "paragraphIsSentence");
+            html = "";
+        }
+        
+        return html;
+    }
+    
+    function paragraphNoMarkup(html, array) {
+        var open = html.search(rxOpen),
+        index = 0;
+        
+        if (open === -1) {
+            index = indexSentenceEnd(html);
+            if (index === -1) {
+                index = html.length;
+            }
+            
+            pushSpan(array, "sentence", html.slice(0, index += 1), "paragraphNoMarkup");
+        }
+        
+        return html.slice(index);
+    }
+    
+    function sentenceUncontained(html, array) {
+        var open = html.search(rxOpen),
+        index = 0,
+        close;
+        
+        if (open !== -1) {
+            index = indexSentenceEnd(html);
+            if (index === -1) {
+                index = html.length;
+            }
+            
+            close = html.search(rxClose);
+            if (index < open || index > close) {
+                pushSpan(array, "sentence", html.slice(0, index += 1), "sentenceUncontained");
+            } else {
+                index = 0;
+            }
+        }
+        
+        return html.slice(index);
+    }
+    
+    function sentenceContained(html, array) {
+        var open = html.search(rxOpen),
+        index = 0,
+        close,
+        count;
+        
+        if (open !== -1) {
+            index = indexSentenceEnd(html);
+            if (index === -1) {
+                index = html.length;
+            }
+            
+            close = html.search(rxClose);
+            if (index > open && index < close) {
+                count = html.match(rxClose)[0].length;
+                pushSpan(array, "sentence", html.slice(0, close + count), "sentenceContained");
+                index = close + count;
+            } else {
+                index = 0;
+            }
+        }
+        
+        return html.slice(index);
+    }
+    
+    function anythingElse(html, array) {
+        pushSpan(array, "sentence", html, "anythingElse");
+        
+        return "";
+    }
+    
+    function guessSenetences() {
+        var paragraphs = document.getElementsByTagName("p");
+
+        Array.prototype.forEach.call(paragraphs, function (paragraph) {
+            var html = paragraph.innerHTML,
+                length = html.length,
+                array = [],
+                safety = 100;
+
+            while (length && safety) {
+                html = addSupToPrevious(html, array);
+                if (html.length === length) {
+                    if (html.length === length) {
+                        html = paragraphIsSentence(html, array);
+                        if (html.length === length) {
+                            html = paragraphNoMarkup(html, array);
+                            if (html.length === length) {
+                                html = sentenceUncontained(html, array);
+                                if (html.length === length) {
+                                    html = sentenceContained(html, array);
+                                    if (html.length === length) {
+                                        html = anythingElse(html, array);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                length = html.length;
+                safety -= 1;
+            }
+
+            paragraph.innerHTML = array.join("");
+        });
+    }
+    
+    guessSenetences();
+}
+
+// Class based onClick listener
+
+function addClassBasedOnClickListener(schemeName, querySelector, attributeName, selectAll) {
+	if (selectAll) {
+		// Get all elements with the given query selector
+		var elements = document.querySelectorAll(querySelector);
+		for (elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+			var element = elements[elementIndex];
+			addClassBasedOnClickListenerToElement(element, schemeName, attributeName);
+		}
+	} else {
+		// Get the first element with the given query selector
+		var element = document.querySelector(querySelector);
+		addClassBasedOnClickListenerToElement(element, schemeName, attributeName);
+	}
+}
+
+function addClassBasedOnClickListenerToElement(element, schemeName, attributeName) {
+	// Get the content from the given attribute name
+	var attributeContent = element.getAttribute(attributeName);
+	// Add the on click logic
+	element.setAttribute("onclick", "onClassBasedListenerClick(\"" + schemeName + "\", \"" + encodeURIComponent(attributeContent) + "\");");
+}
+
+var onClassBasedListenerClick = function(schemeName, attributeContent) {
+	// Prevent the browser from performing the default on click behavior
+	event.preventDefault();
+	// Don't pass the click event to other elemtents
+	event.stopPropagation();
+	// Create parameters containing the click position inside the web view.
+	var positionParameterString = "/clientX=" + event.clientX + "&clientY=" + event.clientY;
+	// Set the custom link URL to the event
+	window.location = schemeName + "://" + attributeContent + positionParameterString;
 }

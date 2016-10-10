@@ -1,5 +1,6 @@
 package com.folioreader.util;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.folioreader.R;
 import com.folioreader.activity.FolioActivity;
@@ -398,6 +400,14 @@ public class AppUtil {
         };
         ColorStateList list = new ColorStateList(states, colors);
         return  list;
+    }
+
+    public static void keepScreenAwake(boolean enable,Context context){
+        if(enable){
+            ((Activity)context).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            ((Activity)context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 }
 

@@ -30,6 +30,7 @@ public interface ConfigViewCallback {
     void onAudioPlayed();
 
     void onOrentationChange(int orentation);
+
 /*
 =======
     void onBackgroundUpdate(int color);

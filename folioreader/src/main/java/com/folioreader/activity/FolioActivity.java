@@ -93,6 +93,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     public boolean mIsActionBarVisible;
     public  boolean mIsSmilParsed = false;
     private int mChapterPosition;
+    private boolean mIsSmilAvailable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,7 +197,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     public void onBackgroundUpdate(int value) {
-        //mRecyclerViewMenu.setBackgroundColor(value);
         mFolioView.setBackgroundColor(value);
 
     }
@@ -256,6 +256,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         }
 
     }
+
+
 
     private Fragment getFragment(int pos) {
         return getSupportFragmentManager().
@@ -329,7 +331,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         if (mBook != null && mSpineReferences != null) {
             FolioPageFragmentAdapter folioPageFragmentAdapter =
                         new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                        mSpineReferences, mBook, mEpubFileName);
+                        mSpineReferences, mBook, mEpubFileName,mIsSmilParsed);
             mFolioPageViewPager.setAdapter(folioPageFragmentAdapter);
         }
     }
@@ -488,11 +490,15 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 if (smilElements != null) {
                     mTextElementList = smilElements.getTextElementArrayList();
                     mAudioElementArrayList = smilElements.getAudioElementArrayList();
+                    mIsSmilAvailable=true;
                 } else {
                     SmilFile smilFile  = AppUtil.createSmilJson(FolioActivity.this, mEpubFileName);
                     if (smilFile != null) {
                         mAudioElementArrayList = smilFile.getAudioSegments();
                         mTextElementList = smilFile.getTextSegments();
+                        mIsSmilAvailable=true;
+                    } else {
+                        mIsSmilAvailable=false;
                     }
                 }
                 runOnUiThread(new Runnable() {
@@ -507,11 +513,13 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
 
-    public void setHighLight(int position, String style) {
-        String src = mTextElementList.get(position).getSrc();
-        String []temp = src.split("#");
-        String textId = temp[1];
-        ((FolioPageFragment) getFragment(mChapterPosition)).highLightString(textId, style);
+    public void setHighLight(int position) {
+        if(mTextElementList!=null) {
+            String src = mTextElementList.get(position).getSrc();
+            String[] temp = src.split("#");
+            String textId = temp[1];
+            ((FolioPageFragment) getFragment(mChapterPosition)).highLightString(textId);
+        }
     }
 
 
@@ -520,7 +528,11 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
     public AudioElement getElement(int position) {
-        return mAudioElementArrayList.get(position);
+        if(mAudioElementArrayList!=null) {
+            return mAudioElementArrayList.get(position);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -533,5 +545,23 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     public String getEpubFileName() {
         return mEpubFileName;
+    }
+
+
+    public void getSentance(){
+         ((FolioPageFragment) getFragment(mChapterPosition)).getTextSentence();
+    }
+
+    @Override
+    public void speakSentence(String sentance) {
+        mAudioView.speakAudio(sentance);
+    }
+
+    public void resetCurrentIndex(){
+        ((FolioPageFragment) getFragment(mChapterPosition)).resetCurrentIndex();
+    }
+
+    public boolean isSmilAvailable(){
+        return mIsSmilAvailable;
     }
 }

@@ -18,18 +18,20 @@ public class FolioPageFragmentAdapter extends FragmentPagerAdapter {
     private List<SpineReference> mSpineReferences;
     private Book mBook;
     private String mEpubFileName;
+    private boolean mIsSmilAvailable;
 
     public FolioPageFragmentAdapter(FragmentManager fm, List<SpineReference> spineReferences,
-                                    Book book, String epubFilename) {
+                                    Book book, String epubFilename,boolean isSmilAvilable) {
         super(fm);
         this.mSpineReferences = spineReferences;
         this.mBook = book;
         this.mEpubFileName = epubFilename;
+        this.mIsSmilAvailable=isSmilAvilable;
     }
 
     @Override
     public Fragment getItem(int position) {
-        return FolioPageFragment.newInstance(position, mBook, mEpubFileName);
+        return FolioPageFragment.newInstance(position, mBook, mEpubFileName,mIsSmilAvailable);
     }
 
     @Override

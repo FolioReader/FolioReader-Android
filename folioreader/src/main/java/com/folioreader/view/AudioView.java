@@ -5,6 +5,7 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
@@ -13,7 +14,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -27,6 +27,8 @@ import com.folioreader.util.AppUtil;
 import com.folioreader.util.ViewHelper;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Locale;
 
 public class AudioView extends FrameLayout implements
         View.OnClickListener {
@@ -42,6 +44,7 @@ public class AudioView extends FrameLayout implements
     private StyleableTextView mHalfSpeed, mOneSpeed, mTwoSpeed, mOneAndHalfSpeed;
     private StyleableTextView mBackgroundColorStyle, mUnderlineStyle, mTextColorStyle;
     private ViewDragHelper mViewDragHelper;
+    private TextToSpeech mTextToSpeach;
 
     private Context mContext;
     private FolioActivity mFolioActivity;
@@ -56,7 +59,7 @@ public class AudioView extends FrameLayout implements
     private String mHighlightStyle;
     private float mVerticalDragRange;
 
-    private boolean mManualPlay = false;
+    private boolean mIsSpeaking = false;
 
     public AudioView(Context context) {
         this(context, null);
@@ -109,7 +112,7 @@ public class AudioView extends FrameLayout implements
                     if (currentPosition > mEnd) {
                         mAudioElement = mFolioActivity.getElement(mPosition);
                         mEnd = (int) mAudioElement.getmClipEnd();
-                        mFolioActivity.setHighLight(mPosition, mHighlightStyle);
+                        mFolioActivity.setHighLight(mPosition);
                         mPosition++;
                     }
                     mHandler.postDelayed(mHighlightTask, 10);
@@ -119,11 +122,40 @@ public class AudioView extends FrameLayout implements
             }
         };
 
+        mTextToSpeach = new TextToSpeech(mContext, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    mTextToSpeach.setLanguage(Locale.UK);
+                    mTextToSpeach.setSpeechRate(0.70f);
+                }
+
+                mTextToSpeach.setOnUtteranceCompletedListener(new TextToSpeech.OnUtteranceCompletedListener() {
+                    @Override
+                    public void onUtteranceCompleted(String utteranceId) {
+                        mFolioActivity.runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                if(mIsSpeaking) {
+                                    mFolioActivity.getSentance();
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
 
         mPlayPauseBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                playAudio();
+                if(mFolioActivity.isSmilAvailable()){
+                    playAudio();
+                } else {
+                    playAudioWithoutSmil();
+                }
             }
         });
 
@@ -213,10 +245,36 @@ public class AudioView extends FrameLayout implements
         });
     }
 
+    private void playAudioWithoutSmil() {
+        if(mTextToSpeach.isSpeaking()) {
+            mTextToSpeach.stop();
+            mIsSpeaking=false;
+            mFolioActivity.resetCurrentIndex();
+            AppUtil.keepScreenAwake(false,mContext);
+            mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
+        } else {
+            mIsSpeaking=true;
+            mFolioActivity.getSentance();
+            mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
+            AppUtil.keepScreenAwake(true,mContext);
+           // mFolioActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+    }
+
+
+    public void speakAudio(final String sentence) {
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"stringId");
+        mTextToSpeach.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
+    }
+
     public void playerStop() {
         if (mPlayer != null && mPlayer.isPlaying()) {
             mPlayer.release();
             mHandler.removeCallbacks(mHighlightTask);
+            if (mTextToSpeach != null) {
+                mTextToSpeach.stop();
+            }
         }
     }
 
@@ -249,11 +307,11 @@ public class AudioView extends FrameLayout implements
         mAudioElement = mFolioActivity.getElement(mPosition);
         setUpPlayer();
         if (mPlayer.isPlaying()) {
-            mManualPlay = false;
             mPlayer.pause();
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
             mHandler.removeCallbacks(mHighlightTask);
-            mFolioActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            AppUtil.keepScreenAwake(false,mContext);
+            //mFolioActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
             if (mHandler == null) {
                 mHandler = new Handler();
@@ -263,22 +321,10 @@ public class AudioView extends FrameLayout implements
             mPlayer.start();
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
             mHandler.post(mHighlightTask);
-            mFolioActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            /*mManualPlay = true;
-            boolean isPageChange = mFolioActivity.setPagerToPosition(mPosition);
-            if (!isPageChange){
-                startMediaPlayer();
-            }*/
+            AppUtil.keepScreenAwake(true,mContext);
+            //mFolioActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
-
-    /*public void startMediaPlayer(){
-        if (mManualPlay){
-            mPlayer.start();
-            mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
-            mHandler.post(mHighlightTask);
-        }
-    }*/
 
     /**
      * Bind the attributes of the view and config
@@ -453,5 +499,6 @@ public class AudioView extends FrameLayout implements
     public void onViewPositionChanged(float alpha) {
         mConfigViewCallback.onShadowAlpha(alpha);
     }
+
 
 }
