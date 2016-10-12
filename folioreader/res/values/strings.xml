@@ -72,8 +72,8 @@
   <string name="script_tag"><![CDATA[<script type=\"text/javascript\" src=\"%s\"></script>]]></string>
   <string name="td_tag"><![CDATA[<td>%s</td></tr>]]></string>
   <string name="tr_tag"><![CDATA[<tr><td></td><td>%s</td></tr>]]></string>
-  <string name="pattern">\\\\{\\\\{(-?\\\\d+\\\\.?\\\\d*)\\\\,(-?\\\\d+\\\\.?\\\\d*)\\\\}\\\\,\\\\s\\\\{(-?\\\\d+\\\\.?\\\\d*)\\\\,(-?\\\\d+\\\\.?\\\\d*)\\\\}\\\\}</string>
-  <string name="pattern2">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>
+  <string name="pattern">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>
+  <!--<string name="pattern2">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>-->
   <string name="script_tag_method_call"><![CDATA[<script type=\"text/javascript\">%s</script>]]></string>
   <string name="underline_highlights">
       <span style="border-bottom: 1px solid #ff0000;">%s</span>

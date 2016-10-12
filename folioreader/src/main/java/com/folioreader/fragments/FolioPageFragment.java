@@ -258,7 +258,7 @@ public class FolioPageFragment extends Fragment {
                 if (TextUtils.isDigitsOnly(message)) {
                     mTotalMinutes = Integer.parseInt(message);
                 } else {
-                    final Pattern pattern = Pattern.compile(getString(R.string.pattern2));
+                    final Pattern pattern = Pattern.compile(getString(R.string.pattern));
                     Matcher matcher = pattern.matcher(message);
                     if (matcher.matches()) {
                         double left = Double.parseDouble(matcher.group(1));
