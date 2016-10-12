@@ -24,12 +24,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,9 +47,9 @@ import com.folioreader.util.ProgressDialog;
 import com.folioreader.view.AudioView;
 import com.folioreader.view.ConfigView;
 import com.folioreader.view.ConfigViewCallback;
+import com.folioreader.view.DirectionalViewpager;
 import com.folioreader.view.FolioView;
 import com.folioreader.view.FolioViewCallback;
-import com.folioreader.view.VerticalViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +72,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     };
 
     private RecyclerView mRecyclerViewMenu;
-    private VerticalViewPager mFolioPageViewPager;
+    private DirectionalViewpager mFolioPageViewPager;
     private FolioView mFolioView;
     private ConfigView mConfigView;
     private AudioView mAudioView;
@@ -94,6 +92,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     public  boolean mIsSmilParsed = false;
     private int mChapterPosition;
     private boolean mIsSmilAvailable;
+    private  FolioPageFragmentAdapter mFolioPageFragmentAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -243,18 +242,29 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     public void onOrentationChange(int orentation) {
-        if(orentation==0){
-            mFolioView.removeView(mFolioPageViewPager);
-            ViewPager viewPager=new ViewPager(FolioActivity.this);
-            viewPager.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            mFolioView.addView(viewPager);
-        } else{
-            mFolioView.removeView(mFolioPageViewPager);
-            VerticalViewPager viewPager=new VerticalViewPager(FolioActivity.this);
-            viewPager.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            mFolioView.addView(viewPager);
+        if (orentation == 0) {
+            //mFolioPageViewPager = (DirectionalViewpager) mFolioView.findViewById(R.id.folioPageViewPager);
+            mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
+            //mFolioPageFragmentAdapter.notifyDataSetChanged();
+            if (mBook != null && mSpineReferences != null) {
+                mFolioPageFragmentAdapter =
+                        new FolioPageFragmentAdapter(getSupportFragmentManager(),
+                                mSpineReferences, mBook, mEpubFileName, mIsSmilParsed);
+                mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
+                mFolioPageViewPager.setCurrentItem(mChapterPosition);
+            }
+        } else {
+            //mFolioPageViewPager = (DirectionalViewpager) mFolioView.findViewById(R.id.folioPageViewPager);
+            mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
+           // mFolioPageFragmentAdapter.notifyDataSetChanged();
+                if (mBook != null && mSpineReferences != null) {
+                    mFolioPageFragmentAdapter =
+                            new FolioPageFragmentAdapter(getSupportFragmentManager(),
+                                    mSpineReferences, mBook, mEpubFileName, mIsSmilParsed);
+                    mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
+                    mFolioPageViewPager.setCurrentItem(mChapterPosition);
+                }
         }
-
     }
 
 
@@ -307,8 +317,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
     private void configFolio() {
-        mFolioPageViewPager = (VerticalViewPager) mFolioView.findViewById(R.id.folioPageViewPager);
-        mFolioPageViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mFolioPageViewPager = (DirectionalViewpager) mFolioView.findViewById(R.id.folioPageViewPager);
+        mFolioPageViewPager.setOnPageChangeListener(new DirectionalViewpager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position,
                                        float positionOffset, int positionOffsetPixels) {
@@ -329,10 +339,10 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         });
 
         if (mBook != null && mSpineReferences != null) {
-            FolioPageFragmentAdapter folioPageFragmentAdapter =
+            mFolioPageFragmentAdapter             =
                         new FolioPageFragmentAdapter(getSupportFragmentManager(),
                         mSpineReferences, mBook, mEpubFileName,mIsSmilParsed);
-            mFolioPageViewPager.setAdapter(folioPageFragmentAdapter);
+            mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         }
     }
 
@@ -396,7 +406,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     private String readHTmlString(int position) {
         String pageHref = mSpineReferences.get(position).getResource().getHref();
-        pageHref = AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/OEBPS/" + pageHref;
+        String opfpath=AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName),FolioActivity.this);
+        pageHref = AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/"+opfpath+"/" + pageHref;
+
         String html = EpubManipulator.readPage(pageHref);
         return html;
     }

@@ -29,10 +29,12 @@ import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.codehaus.jackson.type.TypeReference;
 import org.xml.sax.SAXException;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -408,6 +410,49 @@ public class AppUtil {
         } else {
             ((Activity)context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
+    }
+
+
+    public static String getPathOPF(String unzipDir,Context context) {
+        String mPathOPF = "";
+        try {
+            // get the OPF path, directly from container.xml
+            BufferedReader br = new BufferedReader(new FileReader(unzipDir
+                    + "/META-INF/container.xml"));
+            String line;
+            while ((line = br.readLine()) != null) {
+                //if (line.indexOf(getS(R.string.full_path)) > -1)
+                if (line.contains(context.getString(R.string.full_path))) {
+                    int start = line.indexOf(context.getString((R.string.full_path)));
+                    //int start2 = line.indexOf("\"", start);
+                    int start2 = line.indexOf('\"', start);
+                    int stop2 = line.indexOf('\"', start2 + 1);
+                    if (start2 > -1 && stop2 > start2) {
+                        mPathOPF = line.substring(start2 + 1, stop2).trim();
+                        break;
+                    }
+                }
+            }
+            br.close();
+
+            // in case the OPF file is in the root directory
+            if (!mPathOPF.contains("/"))
+                mPathOPF = "";
+
+            // remove the OPF file name and the preceding '/'
+            int last = mPathOPF.lastIndexOf('/');
+            if (last > -1) {
+                mPathOPF = mPathOPF.substring(0, last);
+            }
+
+            return mPathOPF;
+        } catch (NullPointerException ae) {
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+      return  mPathOPF;
     }
 }
 

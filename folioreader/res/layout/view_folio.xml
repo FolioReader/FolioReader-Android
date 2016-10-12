@@ -5,16 +5,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/white"
     android:orientation="vertical">
-    <com.folioreader.view.VerticalViewPager
+   <!-- <com.folioreader.view.VerticalViewPager
         android:id="@+id/folioPageViewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </com.folioreader.view.VerticalViewPager>
-   <!-- <android.support.v4.view.ViewPager
+    </com.folioreader.view.VerticalViewPager>-->
+    <com.folioreader.view.DirectionalViewpager
         android:id="@+id/folioPageViewPager"
         android:layout_width="match_parent"
+        app:direction="horizontal"
         android:layout_height="match_parent">
-    </android.support.v4.view.ViewPager>-->
+    </com.folioreader.view.DirectionalViewpager>
     <View
         android:id="@+id/shadow"
         android:layout_width="match_parent"

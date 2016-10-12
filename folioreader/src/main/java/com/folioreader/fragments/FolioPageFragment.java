@@ -10,6 +10,7 @@ import com.folioreader.quickaction.ActionItem;
 import com.folioreader.quickaction.QuickAction;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.HighlightUtil;
+import com.folioreader.util.ScreenUtils;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 
@@ -20,6 +21,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -212,6 +214,38 @@ public class FolioPageFragment extends Fragment {
                     view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
                     view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal)));
                 }
+
+                /*ScreenUtils screen = new ScreenUtils(getContext());
+
+                int deviceHeight = screen.getRealHeight();
+                int deviceWidth = screen.getRealWidth();
+
+                String js = "javascript:function initialize() { " +
+                        "var body = document.getElementsByTagName('body')[0];" +
+                        "var ourH = window.innerHeight - 40; " +
+                        "var ourW = window.innerWidth; " +
+                        "var fullH = body.offsetHeight; " +
+                        "var pageCount = Math.floor(fullH/ourH)+1;" +
+                        "var currentPage = 0; " +
+                        "var newW = pageCount*ourW; " +
+                        "body.style.height = " + deviceHeight + "+ 'px' ;" +
+                        "body.style.width = newW+'px';" +
+                        "body.style.padding = 0; " +
+                        "body.style.margin = 0; " +
+                        "body.style.webkitColumnGap = '25px';" +
+                        "body.style.webkitColumnCount = pageCount;" +
+                        "body.style.webkitColumnWidth = " + (deviceWidth-15) + "+ 'px' ;" +
+                        "body.style.height = ourH" + "+ 'px' ;" +
+                        "}" +
+                        "javascript:initialize()";
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    view.evaluateJavascript(js, null);
+                } else {
+                    view.loadUrl(js);
+                }*/
+
+
             }
 
             @Override
@@ -324,7 +358,8 @@ public class FolioPageFragment extends Fragment {
         });
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
-        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/OEBPS//";
+        String opfPath=AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName),mContext);
+        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/"+opfPath+"//";
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
     }
 
@@ -456,7 +491,8 @@ public class FolioPageFragment extends Fragment {
     public void reload() {
         final WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
         String htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
-        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/OEBPS//";
+        String opfPath=AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName),mContext);
+        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/"+opfPath+"//";
         webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
         updatePagesLeftTextBg();
     }
@@ -573,6 +609,8 @@ public class FolioPageFragment extends Fragment {
             mWebview.loadUrl(String.format(getString(R.string.sethighlightstyle),
                     Highlight.HighlightStyle.classForStyle(style)));
         }
+
+
     }
 
     public void highlightRemove() {
@@ -785,6 +823,9 @@ public class FolioPageFragment extends Fragment {
     public void resetCurrentIndex(){
         mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
     }
+
+
+
 
 }
 

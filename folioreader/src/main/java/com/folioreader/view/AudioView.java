@@ -294,7 +294,8 @@ public class AudioView extends FrameLayout implements
                 String folderPath =
                         AppUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName());
                 filePath = filePath.substring(2, filePath.length());
-                filePath = folderPath + "/OEBPS/" + filePath;
+                String opfpath=AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName()),mFolioActivity);
+                filePath = folderPath + "/"+opfpath+"/" + filePath;
                 mPlayer.setDataSource(filePath);
                 mPlayer.prepare();
             } catch (IOException e) {

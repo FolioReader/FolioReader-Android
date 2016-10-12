@@ -73,6 +73,8 @@ public class VerticalViewPager extends ViewGroup {
             android.R.attr.layout_gravity
     };
 
+
+
     /**
      * Used to track what the expected number of items in the adapter should be.
      * If the app changes this when we don't expect it, we'll throw a big obnoxious exception.
@@ -84,6 +86,7 @@ public class VerticalViewPager extends ViewGroup {
         int position;
         boolean scrolling;
         float heightFactor;
+
         float offset;
     }
 
@@ -177,7 +180,6 @@ public class VerticalViewPager extends ViewGroup {
 
     private EdgeEffectCompat mTopEdge;
     private EdgeEffectCompat mBottomEdge;
-
     private boolean mFirstLayout = true;
     private boolean mNeedCalculatePageOffsets = false;
     private boolean mCalledSuper;
@@ -999,6 +1001,7 @@ public class VerticalViewPager extends ViewGroup {
         // Check width measurement of current pages and drawing sort order.
         // Update LayoutParams as needed.
         final int childCount = getChildCount();
+
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
@@ -2261,6 +2264,7 @@ public class VerticalViewPager extends ViewGroup {
         if (!mFakeDragging) {
             throw new IllegalStateException("No fake drag in progress. Call beginFakeDrag first.");
         }
+
 
         mLastMotionY += yOffset;
 

@@ -83,6 +83,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
         mNightButton.setTag(Tags.NIGHT_BUTTON);
         mDayButton.setOnClickListener(this);
         mNightButton.setOnClickListener(this);
+        findViewById(R.id.btn_vertical_orentation).setSelected(true);
     }
 
     private void configFonts() {
@@ -116,6 +117,8 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
             @Override
             public void onClick(View v) {
                mConfigViewCallback.onOrentationChange(1);
+                findViewById(R.id.btn_horizontal_orentation).setSelected(true);
+                findViewById(R.id.btn_vertical_orentation).setSelected(false);
             }
         });
 
@@ -123,6 +126,8 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
             @Override
             public void onClick(View v) {
                 mConfigViewCallback.onOrentationChange(0);
+                findViewById(R.id.btn_horizontal_orentation).setSelected(false);
+                findViewById(R.id.btn_vertical_orentation).setSelected(true);
             }
         });
     }
