@@ -8,7 +8,7 @@
     <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="50dp"
             android:alpha="0.8"
             app:contentInsetEnd="0dp"
             android:layout_margin="0dp"
@@ -51,6 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerInParent="true"
+                android:visibility="invisible"
                 android:src="@drawable/man_speech_icon"
                 android:scaleType="centerCrop"
                 android:padding="20dp"/>

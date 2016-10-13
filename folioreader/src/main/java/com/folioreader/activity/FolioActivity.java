@@ -131,17 +131,17 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         findViewById(R.id.btn_speaker).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mIsSmilParsed) {
+                //if (mIsSmilParsed) {
                     if (mAudioView.isDragViewAboveTheLimit()) {
                         mAudioView.moveToOriginalPosition();
                     } else {
                         mAudioView.moveOffScreen();
                     }
-                } else {
+               /*// } else {
                     Toast.makeText(FolioActivity.this,
                             getString(R.string.please_wait_till_audio_is_parsed),
                             Toast.LENGTH_SHORT).show();
-                }
+                }*/
             }
         });
     }
@@ -489,7 +489,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
     private void parseSmil() {
-        mIsSmilParsed = false;
+        //mIsSmilParsed = false;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -508,7 +508,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mIsSmilParsed = true;
+                        if(mAudioElementArrayList!=null && mTextElementList!=null) {
+                            findViewById(R.id.btn_speaker).setVisibility(View.VISIBLE);
+                        }
                     }
                 });
             }
@@ -530,7 +532,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
     public AudioElement getElement(int position) {
-        return mAudioElementArrayList.get(position);
+        if(mAudioElementArrayList.size()>0) {
+            return mAudioElementArrayList.get(position);
+        } else return  null;
     }
 
 
