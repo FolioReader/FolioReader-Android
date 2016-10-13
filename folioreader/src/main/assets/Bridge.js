@@ -619,3 +619,22 @@ var onClassBasedListenerClick = function(schemeName, attributeContent) {
 	// Set the custom link URL to the event
 	window.location = schemeName + "://" + attributeContent + positionParameterString;
 }
+
+function getHighlightString(style) {
+    var range = window.getSelection().getRangeAt(0);
+    var selectionContents = range.extractContents();
+    var elm = document.createElement("highlight");
+    var id = guid();
+
+    elm.appendChild(selectionContents);
+    elm.setAttribute("id", id);
+    elm.setAttribute("onclick","callHighlightURL(this);");
+    elm.setAttribute("class", style);
+
+    range.insertNode(elm);
+    thisHighlight = elm;
+
+    var params = [];
+    params.push({id: id, rect: getRectForSelectedText(elm)});
+    Highlight.getHighlightJson(JSON.stringify(params));
+}
