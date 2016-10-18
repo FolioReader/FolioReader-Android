@@ -16,13 +16,8 @@
  */
 package com.folioreader.smil;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.logging.Logger;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
+import com.folioreader.DummyDtdResolver;
+import com.folioreader.util.AppUtil;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -30,8 +25,13 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.folioreader.DummyDtdResolver;
-import com.folioreader.util.AppUtil;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Logger;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 
 /**
  * Parser for SMIL files.
@@ -206,14 +206,12 @@ public class SmilParser extends DefaultHandler {
                 AppUtil.parseTimeToLong(mAttributes.getValue("clipBegin")
                         .replace("npt=", "").replace("s", "")),
                 AppUtil.parseTimeToLong(mAttributes.getValue("clipEnd")
-                        .replace("npt=", "").replace("s", "")),
-                mAttributes.getValue("id"));
+                        .replace("npt=", "").replace("s", "")));
     }
 
     private TextElement createTextElement() {
         //TODO: handle inline text
         return new TextElement(mCurrentElement,
-                mAttributes.getValue("src"),
-                mAttributes.getValue("id"));
+                mAttributes.getValue("src"));
     }
 }

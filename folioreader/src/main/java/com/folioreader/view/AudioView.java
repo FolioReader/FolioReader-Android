@@ -111,7 +111,7 @@ public class AudioView extends FrameLayout implements
                 if (mPlayer.getDuration() != currentPosition) {
                     if (currentPosition > mEnd) {
                         mAudioElement = mFolioActivity.getElement(mPosition);
-                        mEnd = (int) mAudioElement.getmClipEnd();
+                        mEnd = (int) mAudioElement.getClipEnd();
                         mFolioActivity.setHighLight(mPosition);
                         mPosition++;
                     }

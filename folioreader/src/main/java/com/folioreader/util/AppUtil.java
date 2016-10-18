@@ -25,7 +25,6 @@ import com.folioreader.smil.TextElement;
 
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.codehaus.jackson.type.TypeReference;
 import org.xml.sax.SAXException;
 
@@ -71,12 +70,12 @@ public class AppUtil {
 
     static {
         jsonMapper = new ObjectMapper();
+        try{
         jsonMapper
-                .configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
-                        false);
-        jsonMapper
-                .setPropertyNamingStrategy(
-                        PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+                .configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        }catch (Exception e){
+            Log.d(TAG, e.getMessage());
+        }
     }
 
     public static void copyToClipboard(Context context, String text) {
