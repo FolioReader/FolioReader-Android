@@ -28,7 +28,8 @@ function guid() {
 
 // Get All HTML
 function getHTML() {
-    return document.documentElement.outerHTML;
+    Highlight.getHtmlAndSaveHighlight(document.documentElement.outerHTML);
+    //return document.documentElement.outerHTML;
 }
 
 // Class manipulation
@@ -106,11 +107,13 @@ function highlightString(style) {
 // Menu colors
 function setHighlightStyle(style) {
     thisHighlight.className = style;
+    Highlight.getUpdatedHighlightId(thisHighlight.id, style);
     return thisHighlight.id;
 }
 
 function removeThisHighlight() {
     thisHighlight.outerHTML = thisHighlight.innerHTML;
+    Highlight.getRemovedHighlightId(thisHighlight.id);
     return thisHighlight.id;
 }
 

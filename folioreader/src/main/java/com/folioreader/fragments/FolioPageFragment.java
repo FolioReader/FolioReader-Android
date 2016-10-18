@@ -1,27 +1,11 @@
 package com.folioreader.fragments;
 
-import com.bossturban.webviewmarker.TextSelectionSupport;
-import com.folioreader.Config;
-import com.folioreader.R;
-import com.folioreader.activity.FolioActivity;
-import com.folioreader.database.HighlightTable;
-import com.folioreader.model.Highlight;
-import com.folioreader.quickaction.ActionItem;
-import com.folioreader.quickaction.QuickAction;
-import com.folioreader.util.AppUtil;
-import com.folioreader.util.HighlightUtil;
-import com.folioreader.util.ScreenUtils;
-import com.folioreader.view.ObservableWebView;
-import com.folioreader.view.VerticalSeekbar;
-
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -36,11 +20,23 @@ import android.view.animation.AnimationUtils;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bossturban.webviewmarker.TextSelectionSupport;
+import com.folioreader.Config;
+import com.folioreader.R;
+import com.folioreader.activity.FolioActivity;
+import com.folioreader.database.HighlightTable;
+import com.folioreader.model.Highlight;
+import com.folioreader.quickaction.ActionItem;
+import com.folioreader.quickaction.QuickAction;
+import com.folioreader.util.AppUtil;
+import com.folioreader.util.HighlightUtil;
+import com.folioreader.view.ObservableWebView;
+import com.folioreader.view.VerticalSeekbar;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -850,9 +846,6 @@ public class FolioPageFragment extends Fragment {
     public void resetCurrentIndex(){
         mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
     }
-
-
-
 
 }
 
