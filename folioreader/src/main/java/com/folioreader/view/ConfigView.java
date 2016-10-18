@@ -15,11 +15,6 @@
 */
 package com.folioreader.view;
 
-import com.folioreader.Config;
-import com.folioreader.R;
-import com.folioreader.util.Tags;
-import com.folioreader.util.ViewHelper;
-
 import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
@@ -36,6 +31,11 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.folioreader.Config;
+import com.folioreader.R;
+import com.folioreader.util.Tags;
+import com.folioreader.util.ViewHelper;
 
 public class ConfigView extends FrameLayout implements View.OnClickListener {
 
@@ -113,7 +113,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
         });
 
 
-        findViewById(R.id.btn_horizontal_orentation).setOnClickListener(new OnClickListener() {
+        /*findViewById(R.id.btn_horizontal_orentation).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                mConfigViewCallback.onOrentationChange(1);
@@ -129,7 +129,7 @@ public class ConfigView extends FrameLayout implements View.OnClickListener {
                 findViewById(R.id.btn_horizontal_orentation).setSelected(false);
                 findViewById(R.id.btn_vertical_orentation).setSelected(true);
             }
-        });
+        });*/
     }
 
     private void selectFont(int selectedFont) {

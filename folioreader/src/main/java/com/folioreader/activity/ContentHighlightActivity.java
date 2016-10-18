@@ -70,7 +70,7 @@ public class ContentHighlightActivity extends AppCompatActivity {
         findViewById(R.id.btn_highlights).setSelected(false);
         ContentsFragment contentFrameLayout = ContentsFragment.newInstance(mBook, mSelectedChapterPosition);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
+        //ft.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
         ft.replace(R.id.parent, contentFrameLayout);
         ft.commit();
     }
@@ -80,7 +80,7 @@ public class ContentHighlightActivity extends AppCompatActivity {
         findViewById(R.id.btn_highlights).setSelected(true);
         HighlightListFragment highlightListFragment = HighlightListFragment.newInstance();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
+        //ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
         ft.replace(R.id.parent, highlightListFragment);
         ft.commit();
     }
