@@ -68,6 +68,12 @@ public class AppUtil {
     private static final String TAG = AppUtil.class.getSimpleName();
     private static final String FOLIO_READER_ROOT = "/folioreader/";
 
+
+    private static enum FileType{
+        OPS,
+        OEBPS
+    }
+
     static {
         jsonMapper = new ObjectMapper();
         try{
@@ -435,8 +441,11 @@ public class AppUtil {
             br.close();
 
             // in case the OPF file is in the root directory
-            if (!mPathOPF.contains("/"))
-                mPathOPF = "";
+            if (!mPathOPF.contains("/")){
+                mPathOPF = AppUtil.getTypeOfOPF(unzipDir);
+            }
+
+
 
             // remove the OPF file name and the preceding '/'
             int last = mPathOPF.lastIndexOf('/');
@@ -453,6 +462,62 @@ public class AppUtil {
         }
       return  mPathOPF;
     }
+
+    public static boolean checkOPFInRootDirectory(String unzipDir, Context context) {
+        String mPathOPF = "";
+        boolean status = false;
+        try {
+            // get the OPF path, directly from container.xml
+            BufferedReader br = new BufferedReader(new FileReader(unzipDir
+                    + "/META-INF/container.xml"));
+            String line;
+            while ((line = br.readLine()) != null) {
+                //if (line.indexOf(getS(R.string.full_path)) > -1)
+                if (line.contains(context.getString(R.string.full_path))) {
+                    int start = line.indexOf(context.getString((R.string.full_path)));
+                    //int start2 = line.indexOf("\"", start);
+                    int start2 = line.indexOf('\"', start);
+                    int stop2 = line.indexOf('\"', start2 + 1);
+                    if (start2 > -1 && stop2 > start2) {
+                        mPathOPF = line.substring(start2 + 1, stop2).trim();
+                        break;
+                    }
+                }
+            }
+            br.close();
+
+            // check the OPF file is in the root directory
+            if (!mPathOPF.contains("/"))
+                status = true;
+            else
+                status = false;
+
+
+        } catch (NullPointerException ae) {
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return status;
+    }
+
+    private static String getTypeOfOPF(String unzipDir) {
+        File folder = new File(unzipDir);
+        File[] listOfFiles = folder.listFiles();
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isDirectory()) {
+                FileType type = FileType.valueOf(listOfFiles[i].getName());
+                if(type.equals(FileType.OPS))
+                    return type.name();
+                if(type.equals(FileType.OEBPS))
+                    return type.name();
+            }
+        }
+        return "";
+    }
+
 }
 
 
