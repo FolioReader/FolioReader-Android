@@ -269,11 +269,15 @@ public class AudioView extends FrameLayout implements
     }
 
     public void playerStop() {
-        if (mPlayer != null && mPlayer.isPlaying()) {
-            mPlayer.release();
-            mHandler.removeCallbacks(mHighlightTask);
+        if (mFolioActivity.isSmilAvailable()) {
+            if (mPlayer != null && mPlayer.isPlaying()) {
+                mPlayer.release();
+                mHandler.removeCallbacks(mHighlightTask);
+            }
+        } else {
             if (mTextToSpeech != null) {
                 mTextToSpeech.stop();
+                mTextToSpeech.shutdown();
             }
         }
     }
