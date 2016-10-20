@@ -44,7 +44,7 @@ public class AudioView extends FrameLayout implements
     private StyleableTextView mHalfSpeed, mOneSpeed, mTwoSpeed, mOneAndHalfSpeed;
     private StyleableTextView mBackgroundColorStyle, mUnderlineStyle, mTextColorStyle;
     private ViewDragHelper mViewDragHelper;
-    private TextToSpeech mTextToSpeach;
+    private TextToSpeech mTextToSpeech;
 
     private Context mContext;
     private FolioActivity mFolioActivity;
@@ -122,15 +122,15 @@ public class AudioView extends FrameLayout implements
             }
         };
 
-        mTextToSpeach = new TextToSpeech(mContext, new TextToSpeech.OnInitListener() {
+        mTextToSpeech = new TextToSpeech(mContext, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR) {
-                    mTextToSpeach.setLanguage(Locale.UK);
-                    mTextToSpeach.setSpeechRate(0.70f);
+                    mTextToSpeech.setLanguage(Locale.UK);
+                    mTextToSpeech.setSpeechRate(0.70f);
                 }
 
-                mTextToSpeach.setOnUtteranceCompletedListener(new TextToSpeech.OnUtteranceCompletedListener() {
+                mTextToSpeech.setOnUtteranceCompletedListener(new TextToSpeech.OnUtteranceCompletedListener() {
                     @Override
                     public void onUtteranceCompleted(String utteranceId) {
                         mFolioActivity.runOnUiThread(new Runnable() {
@@ -246,8 +246,8 @@ public class AudioView extends FrameLayout implements
     }
 
     private void playAudioWithoutSmil() {
-        if(mTextToSpeach.isSpeaking()) {
-            mTextToSpeach.stop();
+        if(mTextToSpeech.isSpeaking()) {
+            mTextToSpeech.stop();
             mIsSpeaking=false;
             mFolioActivity.resetCurrentIndex();
             AppUtil.keepScreenAwake(false,mContext);
@@ -265,15 +265,16 @@ public class AudioView extends FrameLayout implements
     public void speakAudio(final String sentence) {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"stringId");
-        mTextToSpeach.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
+        mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
     }
 
     public void playerStop() {
         if (mPlayer != null && mPlayer.isPlaying()) {
             mPlayer.release();
             mHandler.removeCallbacks(mHighlightTask);
-            if (mTextToSpeach != null) {
-                mTextToSpeach.stop();
+            if (mTextToSpeech != null) {
+                mTextToSpeech.stop();
+                mTextToSpeech.shutdown();
             }
         }
     }
