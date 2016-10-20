@@ -12,4 +12,5 @@ public class Constants {
     public static final String BOOK_TITLE = "book_title";
     public static final String WEBVIEW_SCROLL_POSITION = "webView_scroll_position";
     public static final String VIEWPAGER_POSITION = "view_pager_position";
+    public static final String BOOK_STATE = "book_state";
 }

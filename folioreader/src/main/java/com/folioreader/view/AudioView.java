@@ -274,7 +274,6 @@ public class AudioView extends FrameLayout implements
             mHandler.removeCallbacks(mHighlightTask);
             if (mTextToSpeech != null) {
                 mTextToSpeech.stop();
-                mTextToSpeech.shutdown();
             }
         }
     }

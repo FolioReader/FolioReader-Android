@@ -64,6 +64,7 @@
                             android:id="@+id/btn_close"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:padding="8dp"
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_close_green" />
                     </LinearLayout>
@@ -76,6 +77,7 @@
                             android:id="@+id/btn_drawer"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:padding="8dp"
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_drawer" />
                     </LinearLayout>
@@ -111,6 +113,7 @@
                             android:id="@+id/btn_config"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:padding="8dp"
                             android:src="@drawable/icon_font" />
                     </LinearLayout>
                     <LinearLayout
@@ -123,6 +126,7 @@
                             android:id="@+id/btn_speaker"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:padding="8dp"
                             android:scaleType="centerCrop"
                             android:src="@drawable/man_speech_icon" />
                     </LinearLayout>

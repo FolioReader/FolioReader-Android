@@ -57,6 +57,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
 
+import static com.folioreader.Constants.BOOK_STATE;
 import static com.folioreader.Constants.BOOK_TITLE;
 import static com.folioreader.Constants.VIEWPAGER_POSITION;
 import static com.folioreader.Constants.WEBVIEW_SCROLL_POSITION;
@@ -522,20 +523,20 @@ public class AppUtil {
     }
 
     public static void saveBookState(Context context, Book book, int folioPageViewPagerPosition, int webViewScrollPosition) {
-        SharedPreferenceUtil.removeSharedPreferencesKey(context, book.getTitle());
+        SharedPreferenceUtil.removeSharedPreferencesKey(context, book.getTitle() + BOOK_STATE);
         JSONObject obj = new JSONObject();
         try {
             obj.put(BOOK_TITLE, book.getTitle());
             obj.put(WEBVIEW_SCROLL_POSITION, webViewScrollPosition);
             obj.put(VIEWPAGER_POSITION, folioPageViewPagerPosition);
-            SharedPreferenceUtil.putSharedPreferencesString(context, book.getTitle(), obj.toString());
+            SharedPreferenceUtil.putSharedPreferencesString(context, book.getTitle() + BOOK_STATE, obj.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
     public static boolean checkPreviousBookStateExist(Context context, Book book) {
-        String json = SharedPreferenceUtil.getSharedPreferencesString(context, book.getTitle(), null);
+        String json = SharedPreferenceUtil.getSharedPreferencesString(context, book.getTitle() + BOOK_STATE, null);
         if (json != null) {
             try {
                 JSONObject jsonObject = new JSONObject(json);
@@ -551,7 +552,7 @@ public class AppUtil {
     }
 
     public static int getPreviousBookStatePosition(Context context, Book book) {
-        String json = SharedPreferenceUtil.getSharedPreferencesString(context, book.getTitle(), null);
+        String json = SharedPreferenceUtil.getSharedPreferencesString(context, book.getTitle() + BOOK_STATE, null);
         if (json != null) {
             try {
                 JSONObject jsonObject = new JSONObject(json);
@@ -565,7 +566,7 @@ public class AppUtil {
     }
 
     public static int getPreviousBookStateWebViewPosition(Context context, Book book) {
-        String json = SharedPreferenceUtil.getSharedPreferencesString(context, book.getTitle(), null);
+        String json = SharedPreferenceUtil.getSharedPreferencesString(context, book.getTitle() + BOOK_STATE, null);
         if (json != null) {
             try {
                 JSONObject jsonObject = new JSONObject(json);
