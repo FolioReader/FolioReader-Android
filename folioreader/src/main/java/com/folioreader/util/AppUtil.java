@@ -450,8 +450,6 @@ public class AppUtil {
                 mPathOPF = AppUtil.getTypeOfOPF(unzipDir);
             }
 
-
-
             // remove the OPF file name and the preceding '/'
             int last = mPathOPF.lastIndexOf('/');
             if (last > -1) {

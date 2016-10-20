@@ -811,12 +811,12 @@ public class FolioPageFragment extends Fragment {
     }
 
     public void setWebViewPosition(final int position) {
-        mWebview.postDelayed(new Runnable() {
+        mWebview.post(new Runnable() {
             @Override
             public void run() {
                 mWebview.scrollTo(0, position);
             }
-        }, 50);
+        });
 
     }
 

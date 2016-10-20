@@ -48,17 +48,14 @@ public class AudioElement implements Parcelable, MediaElement {
     };
 
     public String getSrc() {
-        // TODO Auto-generated method stub
         return src;
     }
 
     public double getClipBegin() {
-        // TODO Auto-generated method stub
         return clipBegin;
     }
 
     public double getClipEnd() {
-        // TODO Auto-generated method stub
         return clipEnd;
     }
 

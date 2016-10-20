@@ -70,9 +70,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         RAW,
         ASSESTS,
         SD_CARD
-    }
-
-    ;
+    };
 
     private RecyclerView mRecyclerViewMenu;
     private DirectionalViewpager mFolioPageViewPager;
