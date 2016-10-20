@@ -9,4 +9,7 @@ public class Constants {
     public static final String TYPE = "type";
     public static final String CHAPTER_SELECTED ="chapter_selected" ;
     public static final String HIGHLIGHT_SELECTED ="highlight_selected" ;
+    public static final String BOOK_TITLE = "book_title";
+    public static final String WEBVIEW_SCROLL_POSITION = "webView_scroll_position";
+    public static final String VIEWPAGER_POSITION = "view_pager_position";
 }

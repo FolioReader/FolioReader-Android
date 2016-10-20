@@ -26,6 +26,8 @@ import com.folioreader.smil.TextElement;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
@@ -55,6 +57,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
 
+import static com.folioreader.Constants.BOOK_TITLE;
+import static com.folioreader.Constants.VIEWPAGER_POSITION;
+import static com.folioreader.Constants.WEBVIEW_SCROLL_POSITION;
+
 
 /**
  * Created by mahavir on 5/7/16.
@@ -67,7 +73,6 @@ public class AppUtil {
     //private static String mFolderName = null;
     private static final String TAG = AppUtil.class.getSimpleName();
     private static final String FOLIO_READER_ROOT = "/folioreader/";
-
 
     private static enum FileType{
         OPS,
@@ -516,6 +521,63 @@ public class AppUtil {
             }
         }
         return "";
+    }
+
+    public static void saveBookState(Context context, Book book, int folioPageViewPagerPosition, int webViewScrollPosition) {
+        SharedPreferenceUtil.removeSharedPreferencesKey(context, book.getTitle());
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put(BOOK_TITLE, book.getTitle());
+            obj.put(WEBVIEW_SCROLL_POSITION, webViewScrollPosition);
+            obj.put(VIEWPAGER_POSITION, folioPageViewPagerPosition);
+            SharedPreferenceUtil.putSharedPreferencesString(context, book.getTitle(), obj.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static boolean checkPreviousBookStateExist(Context context, Book book) {
+        String json = SharedPreferenceUtil.getSharedPreferencesString(context, book.getTitle(), null);
+        if (json != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(json);
+                String bookTitle = jsonObject.getString(BOOK_TITLE);
+                if (bookTitle.equals(book.getTitle()))
+                    return true;
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public static int getPreviousBookStatePosition(Context context, Book book) {
+        String json = SharedPreferenceUtil.getSharedPreferencesString(context, book.getTitle(), null);
+        if (json != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(json);
+                return jsonObject.getInt(VIEWPAGER_POSITION);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return 0;
+            }
+        }
+        return 0;
+    }
+
+    public static int getPreviousBookStateWebViewPosition(Context context, Book book) {
+        String json = SharedPreferenceUtil.getSharedPreferencesString(context, book.getTitle(), null);
+        if (json != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(json);
+                return jsonObject.getInt(WEBVIEW_SCROLL_POSITION);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return 0;
+            }
+        }
+        return 0;
     }
 
 }
