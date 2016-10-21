@@ -801,7 +801,7 @@ public class FolioPageFragment extends Fragment {
 
     @JavascriptInterface
     public void getHtmlAndSaveHighlight(String html) {
-        if (html != null) {
+        if (html != null && mHighlightMap != null) {
             Highlight highlight =
                     HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBook, mPosition);
             highlight.setCurrentWebviewScrollPos(mWebview.getScrollY());

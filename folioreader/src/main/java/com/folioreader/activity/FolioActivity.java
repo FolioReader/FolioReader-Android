@@ -32,7 +32,6 @@ import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.adapter.FolioPageFragmentAdapter;
 import com.folioreader.fragments.FolioPageFragment;
@@ -57,6 +56,12 @@ import java.util.List;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.SpineReference;
 import nl.siegmann.epublib.domain.TOCReference;
+
+import static com.folioreader.Constants.BOOK;
+import static com.folioreader.Constants.CHAPTER_SELECTED;
+import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
+import static com.folioreader.Constants.SELECTED_CHAPTER_POSITION;
+import static com.folioreader.Constants.TYPE;
 
 public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
         FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback {
@@ -134,8 +139,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
-                intent.putExtra(com.folioreader.Constants.BOOK, mBook);
-                intent.putExtra(com.folioreader.Constants.SELECTED_CHAPTER_POSITION, mChapterPosition);
+                intent.putExtra(BOOK, mBook);
+                intent.putExtra(SELECTED_CHAPTER_POSITION, mChapterPosition);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
                 overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
             }
@@ -492,22 +497,20 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ACTION_CONTENT_HIGHLIGHT && resultCode == RESULT_OK) {
-            if (data.hasExtra(com.folioreader.Constants.TYPE)) {
-                String type = data.getStringExtra(Constants.TYPE);
-                if (type.equals(Constants.CHAPTER_SELECTED)) {
-                    mChapterPosition = data.getIntExtra(com.folioreader.Constants.SELECTED_CHAPTER_POSITION, 0);
-                    mFolioPageViewPager.setCurrentItem(mChapterPosition);
-                } else if (type.equals(Constants.HIGHLIGHT_SELECTED)) {
-                    Highlight highlight = data.getParcelableExtra(HIGHLIGHT_ITEM);
-                    int position = highlight.getCurrentPagerPostion();
-                    mFolioPageViewPager.setCurrentItem(position);
-                    Fragment fragment = getFragment(position);
-                    ((FolioPageFragment) fragment).
-                            setWebViewPosition(highlight.getCurrentWebviewScrollPos());
-                }
-            }
+        if (requestCode == ACTION_CONTENT_HIGHLIGHT && resultCode == RESULT_OK && data.hasExtra(TYPE)) {
 
+            String type = data.getStringExtra(TYPE);
+            if (type.equals(CHAPTER_SELECTED)) {
+                mChapterPosition = data.getIntExtra(SELECTED_CHAPTER_POSITION, 0);
+                mFolioPageViewPager.setCurrentItem(mChapterPosition);
+            } else if (type.equals(HIGHLIGHT_SELECTED)) {
+                Highlight highlight = data.getParcelableExtra(HIGHLIGHT_ITEM);
+                int position = highlight.getCurrentPagerPostion();
+                mFolioPageViewPager.setCurrentItem(position);
+                Fragment fragment = getFragment(position);
+                ((FolioPageFragment) fragment).
+                        setWebViewPosition(highlight.getCurrentWebviewScrollPos());
+            }
         }
     }
 

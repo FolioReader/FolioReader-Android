@@ -1201,8 +1201,7 @@ public class DirectionalViewpager extends ViewGroup {
                             mItems.remove(itemIndex);
                             mAdapter.destroyItem(this, pos, ii.object);
                             if (DEBUG) {
-                                Log.i(TAG, "populate() - destroyItem() with pos: " + pos +
-                                        " view: " + ((View) ii.object));
+                                Log.i(TAG, "populate() - destroyItem() with pos: " + pos +" view: " + ((View) ii.object));
                             }
                             itemIndex--;
                             curIndex--;
@@ -1361,10 +1360,8 @@ public class DirectionalViewpager extends ViewGroup {
                     for (int i = 0; i < getChildCount(); i++) {
                         View child = getChildAt(i);
                         ii = infoForChild(child);
-                        if (ii != null && ii.position == mCurItem) {
-                            if (child.requestFocus(View.FOCUS_FORWARD)) {
-                                break;
-                            }
+                        if (ii != null && ii.position == mCurItem && child.requestFocus(View.FOCUS_FORWARD) {
+                            break;
                         }
                     }
                 }
@@ -2360,10 +2357,8 @@ public class DirectionalViewpager extends ViewGroup {
                 int y = mScroller.getCurrY();
                 if (oldX != x || oldY != y) {
                     scrollTo(x, y);
-                    if(isHorizontal()) {
-                        if (x != oldX) {
-                            pageScrolled(x, 0);
-                        }
+                    if (isHorizontal() && x != oldX) {
+                        pageScrolled(x, 0);
                     }
                 }
             }

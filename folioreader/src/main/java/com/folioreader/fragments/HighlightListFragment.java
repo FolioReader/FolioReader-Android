@@ -24,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.folioreader.Config;
-import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.database.HighlightTable;
 import com.folioreader.model.Highlight;
@@ -35,6 +34,10 @@ import java.util.ArrayList;
 
 import nl.siegmann.epublib.domain.Book;
 
+import static com.folioreader.Constants.BOOK;
+import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
+import static com.folioreader.Constants.TYPE;
+
 public class HighlightListFragment extends Fragment {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private View mRootView;
@@ -44,7 +47,7 @@ public class HighlightListFragment extends Fragment {
     public static HighlightListFragment newInstance(Book book) {
         HighlightListFragment fragment = new HighlightListFragment();
         Bundle args = new Bundle();
-        args.putSerializable(Constants.BOOK, book);
+        args.putSerializable(BOOK, book);
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,7 +56,7 @@ public class HighlightListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_highlight_list, container, false);
         mContext = getActivity();
-        mBook = (Book) getArguments().getSerializable(com.folioreader.Constants.BOOK);
+        mBook = (Book) getArguments().getSerializable(BOOK);
         initViews();
         return mRootView;
     }
@@ -158,7 +161,7 @@ public class HighlightListFragment extends Fragment {
                         public void onClick(View v) {
                             Intent intent = new Intent();
                             intent.putExtra(HIGHLIGHT_ITEM, rowItem);
-                            intent.putExtra(Constants.TYPE, Constants.HIGHLIGHT_SELECTED);
+                            intent.putExtra(TYPE, HIGHLIGHT_SELECTED);
                             getActivity().setResult(Activity.RESULT_OK, intent);
                             getActivity().finish();
                         }

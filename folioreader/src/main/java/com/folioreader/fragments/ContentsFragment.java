@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,9 +15,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.folioreader.Config;
-import com.folioreader.Constants;
 import com.folioreader.R;
-import com.folioreader.view.VerticalViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +23,11 @@ import java.util.List;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.SpineReference;
 import nl.siegmann.epublib.domain.TOCReference;
+
+import static com.folioreader.Constants.BOOK;
+import static com.folioreader.Constants.CHAPTER_SELECTED;
+import static com.folioreader.Constants.SELECTED_CHAPTER_POSITION;
+import static com.folioreader.Constants.TYPE;
 
 
 public class ContentsFragment extends Fragment {
@@ -41,8 +43,8 @@ public class ContentsFragment extends Fragment {
     public static ContentsFragment newInstance(Book book,int selectedChapterPosition) {
         ContentsFragment contentsFragment = new ContentsFragment();
         Bundle args = new Bundle();
-        args.putSerializable(Constants.BOOK, book);
-        args.putInt(Constants.SELECTED_CHAPTER_POSITION,selectedChapterPosition);
+        args.putSerializable(BOOK, book);
+        args.putInt(SELECTED_CHAPTER_POSITION,selectedChapterPosition);
         contentsFragment.setArguments(args);
         return contentsFragment;
     }
@@ -61,8 +63,8 @@ public class ContentsFragment extends Fragment {
 
 
     public void configRecyclerViews() {
-        Book book= (Book) getArguments().getSerializable(com.folioreader.Constants.BOOK);
-        mSelectedChapterPosition=getArguments().getInt(Constants.SELECTED_CHAPTER_POSITION);
+        Book book= (Book) getArguments().getSerializable(BOOK);
+        mSelectedChapterPosition=getArguments().getInt(SELECTED_CHAPTER_POSITION);
         mTocReferences= (ArrayList<TOCReference>) book.getTableOfContents().getTocReferences();
         mSpineReferences=book.getSpine().getSpineReferences();
         RecyclerView recyclerView=(RecyclerView) mRootView.findViewById(R.id.recycler_view_menu);
@@ -131,8 +133,8 @@ public class ContentsFragment extends Fragment {
                             if(mSpineReferences.get(i).getResource().getTitle().equals(title)){
                                 mSelectedChapterPosition=i;
                                 Intent intent=new Intent();
-                                intent.putExtra(Constants.SELECTED_CHAPTER_POSITION,mSelectedChapterPosition);
-                                intent.putExtra(Constants.TYPE,Constants.CHAPTER_SELECTED);
+                                intent.putExtra(SELECTED_CHAPTER_POSITION,mSelectedChapterPosition);
+                                intent.putExtra(TYPE, CHAPTER_SELECTED);
                                 getActivity().setResult(Activity.RESULT_OK,intent);
                                 getActivity().finish();
                                 return;

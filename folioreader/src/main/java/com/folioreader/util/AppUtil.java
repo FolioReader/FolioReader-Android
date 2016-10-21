@@ -33,7 +33,6 @@ import org.xml.sax.SAXException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
@@ -75,17 +74,17 @@ public class AppUtil {
     private static final String TAG = AppUtil.class.getSimpleName();
     private static final String FOLIO_READER_ROOT = "/folioreader/";
 
-    private static enum FileType{
+    private static enum FileType {
         OPS,
         OEBPS
     }
 
     static {
         jsonMapper = new ObjectMapper();
-        try{
-        jsonMapper
-                .configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        }catch (Exception e){
+        try {
+            jsonMapper
+                    .configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        } catch (Exception e) {
             Log.d(TAG, e.getMessage());
         }
     }
@@ -120,7 +119,8 @@ public class AppUtil {
                     new TypeReference<ArrayList<HashMap<String, String>>>() {
                     });
         } catch (Exception e) {
-            map = null;
+            Log.d(TAG, e.getMessage());
+            return null;
         }
         return map.get(0);
     }
@@ -228,10 +228,6 @@ public class AppUtil {
                 }
             }
             return book;
-        } catch (FileNotFoundException e) {
-            Log.d(TAG, e.getMessage());
-        } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
         } catch (Exception e) {
             Log.d(TAG, e.getMessage());
         }
@@ -296,8 +292,6 @@ public class AppUtil {
             bookModel.setBookName(epubFileName);
             BookModelTable.createEntryInTableIfNotExist(context, bookModel);
 
-        } catch (FileNotFoundException e) {
-            Log.d(TAG, e.getMessage());
         } catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }
@@ -344,11 +338,7 @@ public class AppUtil {
                 String smilElemets = jsonMapper.writeValueAsString(smilElement);
                 SharedPreferenceUtil.putSharedPreferencesString(context, epubFileName, smilElemets);
             }
-        } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
-        } catch (SAXException e) {
-            Log.d(TAG, e.getMessage());
-        } catch (ParserConfigurationException e) {
+        } catch (IOException | SAXException | ParserConfigurationException e) {
             Log.d(TAG, e.getMessage());
         }
         return smilFile;
@@ -391,8 +381,6 @@ public class AppUtil {
             }
             if (inputStream != null) inputStream.close();
             if (outputStream != null) outputStream.close();
-        } catch (FileNotFoundException e) {
-            Log.d(TAG, e.getMessage());
         } catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }
@@ -400,31 +388,31 @@ public class AppUtil {
     }
 
 
-    public static ColorStateList getColorList(Context context,int selectedColor,int unselectedColor){
-        int[][] states = new int[][] {
-                new int[] { android.R.attr.state_pressed}, // pressed
-                new int[] { android.R.attr.state_selected}, // focused
-                new int[] {}
+    public static ColorStateList getColorList(Context context, int selectedColor, int unselectedColor) {
+        int[][] states = new int[][]{
+                new int[]{android.R.attr.state_pressed}, // pressed
+                new int[]{android.R.attr.state_selected}, // focused
+                new int[]{}
         };
-        int[] colors = new int[] {
-                ContextCompat.getColor(context,selectedColor), // green
-                ContextCompat.getColor(context,selectedColor), // green
-                ContextCompat.getColor(context,unselectedColor)  // white
+        int[] colors = new int[]{
+                ContextCompat.getColor(context, selectedColor), // green
+                ContextCompat.getColor(context, selectedColor), // green
+                ContextCompat.getColor(context, unselectedColor)  // white
         };
         ColorStateList list = new ColorStateList(states, colors);
-        return  list;
+        return list;
     }
 
-    public static void keepScreenAwake(boolean enable,Context context){
-        if(enable){
-            ((Activity)context).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    public static void keepScreenAwake(boolean enable, Context context) {
+        if (enable) {
+            ((Activity) context).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
-            ((Activity)context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            ((Activity) context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
 
 
-    public static String getPathOPF(String unzipDir,Context context) {
+    public static String getPathOPF(String unzipDir, Context context) {
         String mPathOPF = "";
         try {
             // get the OPF path, directly from container.xml
@@ -447,7 +435,7 @@ public class AppUtil {
             br.close();
 
             // in case the OPF file is in the root directory
-            if (!mPathOPF.contains("/")){
+            if (!mPathOPF.contains("/")) {
                 mPathOPF = AppUtil.getTypeOfOPF(unzipDir);
             }
 
@@ -458,13 +446,10 @@ public class AppUtil {
             }
 
             return mPathOPF;
-        } catch (NullPointerException ae) {
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (NullPointerException | IOException e) {
+            Log.e(TAG, e.getMessage());
         }
-      return  mPathOPF;
+        return mPathOPF;
     }
 
     public static boolean checkOPFInRootDirectory(String unzipDir, Context context) {
@@ -491,17 +476,15 @@ public class AppUtil {
             br.close();
 
             // check the OPF file is in the root directory
-            if (!mPathOPF.contains("/"))
+            if (!mPathOPF.contains("/")) {
                 status = true;
-            else
+            } else {
                 status = false;
+            }
 
 
-        } catch (NullPointerException ae) {
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (NullPointerException | IOException e) {
+            Log.e(TAG, e.getMessage());
         }
         return status;
     }
@@ -513,9 +496,9 @@ public class AppUtil {
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isDirectory()) {
                 FileType type = FileType.valueOf(listOfFiles[i].getName());
-                if(type.equals(FileType.OPS))
+                if (type.equals(FileType.OPS))
                     return type.name();
-                if(type.equals(FileType.OEBPS))
+                if (type.equals(FileType.OEBPS))
                     return type.name();
             }
         }
@@ -531,7 +514,7 @@ public class AppUtil {
             obj.put(VIEWPAGER_POSITION, folioPageViewPagerPosition);
             SharedPreferenceUtil.putSharedPreferencesString(context, book.getTitle() + BOOK_STATE, obj.toString());
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -544,7 +527,7 @@ public class AppUtil {
                 if (bookTitle.equals(book.getTitle()))
                     return true;
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
                 return false;
             }
         }
@@ -558,7 +541,7 @@ public class AppUtil {
                 JSONObject jsonObject = new JSONObject(json);
                 return jsonObject.getInt(VIEWPAGER_POSITION);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
                 return 0;
             }
         }
@@ -572,7 +555,7 @@ public class AppUtil {
                 JSONObject jsonObject = new JSONObject(json);
                 return jsonObject.getInt(WEBVIEW_SCROLL_POSITION);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
                 return 0;
             }
         }

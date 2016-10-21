@@ -1,22 +1,18 @@
 package com.folioreader.view;
 
-import com.folioreader.activity.FolioActivity;
-import com.folioreader.fragments.FolioPageFragment;
-import com.folioreader.util.ScreenUtils;
-
-import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
+
+import com.folioreader.activity.FolioActivity;
+import com.folioreader.fragments.FolioPageFragment;
 
 /**
  * Created by mahavir on 3/31/16.
