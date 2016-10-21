@@ -269,6 +269,7 @@ public class AudioView extends FrameLayout implements
     }
 
     public void playerStop() {
+        mIsSpeaking = false;
         if (mFolioActivity.isSmilAvailable()) {
             if (mPlayer != null && mPlayer.isPlaying()) {
                 mPlayer.release();
