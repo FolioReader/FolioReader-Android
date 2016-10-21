@@ -1200,9 +1200,9 @@ public class DirectionalViewpager extends ViewGroup {
                         if (pos == ii.position && !ii.scrolling) {
                             mItems.remove(itemIndex);
                             mAdapter.destroyItem(this, pos, ii.object);
-                            if (DEBUG) {
+                            /*if (DEBUG) {
                                 Log.i(TAG, "populate() - destroyItem() with pos: " + pos +" view: " + ((View) ii.object));
-                            }
+                            }*/
                             itemIndex--;
                             curIndex--;
                             ii = itemIndex >= 0 ? mItems.get(itemIndex) : null;
@@ -1233,10 +1233,10 @@ public class DirectionalViewpager extends ViewGroup {
                             if (pos == ii.position && !ii.scrolling) {
                                 mItems.remove(itemIndex);
                                 mAdapter.destroyItem(this, pos, ii.object);
-                                if (DEBUG) {
+                                /*if (DEBUG) {
                                     Log.i(TAG, "populate() - destroyItem() with pos: " + pos +
                                             " view: " + ((View) ii.object));
-                                }
+                                }*/
                                 ii = itemIndex < mItems.size() ? mItems.get(itemIndex) : null;
                             }
                         } else if (ii != null && pos == ii.position) {
@@ -1266,10 +1266,10 @@ public class DirectionalViewpager extends ViewGroup {
                         if (pos == ii.position && !ii.scrolling) {
                             mItems.remove(itemIndex);
                             mAdapter.destroyItem(this, pos, ii.object);
-                            if (DEBUG) {
+                            /*if (DEBUG) {
                                 Log.i(TAG, "populate() - destroyItem() with pos: " + pos +
                                         " view: " + ((View) ii.object));
-                            }
+                            }*/
                             itemIndex--;
                             curIndex--;
                             ii = itemIndex >= 0 ? mItems.get(itemIndex) : null;
@@ -1300,10 +1300,10 @@ public class DirectionalViewpager extends ViewGroup {
                             if (pos == ii.position && !ii.scrolling) {
                                 mItems.remove(itemIndex);
                                 mAdapter.destroyItem(this, pos, ii.object);
-                                if (DEBUG) {
+                                /*if (DEBUG) {
                                     Log.i(TAG, "populate() - destroyItem() with pos: " + pos +
                                             " view: " + ((View) ii.object));
-                                }
+                                }*/
                                 ii = itemIndex < mItems.size() ? mItems.get(itemIndex) : null;
                             }
                         } else if (ii != null && pos == ii.position) {
@@ -2463,8 +2463,8 @@ public class DirectionalViewpager extends ViewGroup {
                     final float xDiff = Math.abs(dx);
                     final float y = MotionEventCompat.getY(ev, pointerIndex);
                     final float yDiff = Math.abs(y - mInitialMotionY);
-                    if (DEBUG)
-                        Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
+                    /*if (DEBUG)
+                        Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);*/
 
                     if (dx != 0 && !isGutterDrag(mLastMotionX, dx,0,0) &&
                             canScroll(this, false, (int) dx, 0,(int) x, (int) y)) {
@@ -2475,7 +2475,7 @@ public class DirectionalViewpager extends ViewGroup {
                         return false;
                     }
                     if (xDiff > mTouchSlop && xDiff * 0.5f > yDiff) {
-                        if (DEBUG) Log.v(TAG, "Starting drag!");
+                        if (DEBUG) Log.v(TAG, getContext().getString(R.string.debug_start_drag));
                         mIsBeingDragged = true;
                         requestParentDisallowInterceptTouchEvent(true);
                         setScrollState(SCROLL_STATE_DRAGGING);
@@ -2488,14 +2488,12 @@ public class DirectionalViewpager extends ViewGroup {
                         // direction to be counted as a drag...  abort
                         // any attempt to drag horizontally, to work correctly
                         // with children that have scrolling containers.
-                        if (DEBUG) Log.v(TAG, "Starting unable to drag!");
+                        if (DEBUG) Log.v(TAG, getContext().getString(R.string.debug_start_unable_drag));
                         mIsUnableToDrag = true;
                     }
-                    if (mIsBeingDragged) {
+                    if (mIsBeingDragged && performDrag(x,0)) {
                         // Scroll to follow the motion event
-                        if (performDrag(x,0)) {
                             ViewCompat.postInvalidateOnAnimation(this);
-                        }
                     }
                     break;
                 }
@@ -2570,7 +2568,7 @@ public class DirectionalViewpager extends ViewGroup {
                     final float yDiff = Math.abs(dy);
                     final float x = MotionEventCompat.getX(ev, pointerIndex);
                     final float xDiff = Math.abs(x - mInitialMotionX);
-                    if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
+                    /*if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);*/
 
                     if (dy != 0 && !isGutterDrag(0,0,mLastMotionY, dy) &&
                             canScroll(this, false, 0,(int) dy, (int) x, (int) y)) {
@@ -2581,7 +2579,7 @@ public class DirectionalViewpager extends ViewGroup {
                         return false;
                     }
                     if (yDiff > mTouchSlop && yDiff * 0.5f > xDiff) {
-                        if (DEBUG) Log.v(TAG, "Starting drag!");
+                        if (DEBUG) Log.v(TAG, getContext().getString(R.string.debug_start_drag));
                         mIsBeingDragged = true;
                         requestParentDisallowInterceptTouchEvent(true);
                         setScrollState(SCROLL_STATE_DRAGGING);
@@ -2594,7 +2592,7 @@ public class DirectionalViewpager extends ViewGroup {
                         // direction to be counted as a drag...  abort
                         // any attempt to drag horizontally, to work correctly
                         // with children that have scrolling containers.
-                        if (DEBUG) Log.v(TAG, "Starting unable to drag!");
+                        if (DEBUG) Log.v(TAG, getContext().getString(R.string.debug_start_unable_drag));
                         mIsUnableToDrag = true;
                     }
                     if (mIsBeingDragged && performDrag(0,y)) {
@@ -2701,10 +2699,10 @@ public class DirectionalViewpager extends ViewGroup {
                         final float xDiff = Math.abs(x - mLastMotionX);
                         final float y = MotionEventCompat.getY(ev, pointerIndex);
                         final float yDiff = Math.abs(y - mLastMotionY);
-                        if (DEBUG)
-                            Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
+                       /* if (DEBUG)
+                            Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);*/
                         if (xDiff > mTouchSlop && xDiff > yDiff) {
-                            if (DEBUG) Log.v(TAG, "Starting drag!");
+                            if (DEBUG) Log.v(TAG, getContext().getString(R.string.debug_start_drag));
                             mIsBeingDragged = true;
                             requestParentDisallowInterceptTouchEvent(true);
                             mLastMotionX = x - mInitialMotionX > 0 ? mInitialMotionX + mTouchSlop :
@@ -2794,10 +2792,10 @@ public class DirectionalViewpager extends ViewGroup {
                         final float yDiff = Math.abs(y - mLastMotionY);
                         final float x = MotionEventCompat.getX(ev, pointerIndex);
                         final float xDiff = Math.abs(x - mLastMotionX);
-                        if (DEBUG)
-                            Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);
+                        /*if (DEBUG)
+                            Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);*/
                         if (yDiff > mTouchSlop && yDiff > xDiff) {
-                            if (DEBUG) Log.v(TAG, "Starting drag!");
+                            if (DEBUG) Log.v(TAG, getContext().getString(R.string.debug_start_drag));
                             mIsBeingDragged = true;
                             requestParentDisallowInterceptTouchEvent(true);
                             mLastMotionY = y - mInitialMotionY > 0 ? mInitialMotionY + mTouchSlop :
@@ -3853,10 +3851,8 @@ public class DirectionalViewpager extends ViewGroup {
             View child = getChildAt(i);
             if (child.getVisibility() == VISIBLE) {
                 ItemInfo ii = infoForChild(child);
-                if (ii != null && ii.position == mCurItem) {
-                    if (child.requestFocus(direction, previouslyFocusedRect)) {
+                if (ii != null && ii.position == mCurItem && child.requestFocus(direction, previouslyFocusedRect)) {
                         return true;
-                    }
                 }
             }
         }

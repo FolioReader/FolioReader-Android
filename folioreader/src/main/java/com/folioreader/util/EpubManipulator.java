@@ -60,6 +60,8 @@ import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.domain.TableOfContents;
 import nl.siegmann.epublib.epub.EpubReader;
 
+import static com.folioreader.Constants.CHARSET_NAME;
+
 public class EpubManipulator {
     public static final String FILE = "file://";
     public static final String TAG = EpubManipulator.class.getSimpleName();
@@ -238,8 +240,7 @@ public class EpubManipulator {
         // get the OPF path, directly from container.xml
         /*BufferedReader br = new BufferedReader(new FileReader(unzipDir
                 + "/META-INF/container.xml"));*/
-        BufferedReader br =new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir
-                + "/META-INF/container.xml"), "UTF-8"));
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir + "/META-INF/container.xml"), CHARSET_NAME));
         String line;
         while ((line = br.readLine()) != null) {
             //if (line.indexOf(getS(R.string.full_path)) > -1)
@@ -571,7 +572,7 @@ public class EpubManipulator {
         try {
             File file = new File(filePath);
             //FileWriter fw = new FileWriter(file);
-            Writer w = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+            Writer w = new OutputStreamWriter(new FileOutputStream(file), CHARSET_NAME);
             PrintWriter fw = new PrintWriter(w);
             fw.write(html);
             fw.flush();
@@ -772,7 +773,7 @@ public class EpubManipulator {
             input.read(fileData);
             input.close();
 
-            String xhtml = new String(fileData, Charset.forName("UTF-8"));
+            String xhtml = new String(fileData, Charset.forName(CHARSET_NAME));
             return xhtml;
         } catch (IOException e) {
             return "";
@@ -784,7 +785,7 @@ public class EpubManipulator {
         try {
             File file = new File(path);
             //FileWriter fw = new FileWriter(file);
-            Writer w = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+            Writer w = new OutputStreamWriter(new FileOutputStream(file), CHARSET_NAME);
             PrintWriter fw = new PrintWriter(w);
             fw.write(xhtml);
             fw.flush();
