@@ -1,8 +1,5 @@
 package com.folioreader.view;
 
-import com.folioreader.activity.FolioActivity;
-import com.folioreader.fragments.FolioPageFragment;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -13,6 +10,9 @@ import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
+
+import com.folioreader.activity.FolioActivity;
+import com.folioreader.fragments.FolioPageFragment;
 
 /**
  * Created by mahavir on 3/31/16.
@@ -84,6 +84,7 @@ public class ObservableWebView extends WebView {
         final float MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
         mActivityCallback = (FolioActivity) getContext();
         final int action = event.getAction();
+        int positionScroll = 0;
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mMoveOccured[0] = false;
@@ -95,6 +96,44 @@ public class ObservableWebView extends WebView {
                 if (!mMoveOccured[0]) {
                     mActivityCallback.hideOrshowToolBar();
                 }
+
+               /* boolean isHorizontal = true;
+                if (isHorizontal) {
+                   *//* DisplayMetrics dm = new DisplayMetrics();
+                    ((Activity)this.getContext()).getWindowManager().getDefaultDisplay().getMetrics(dm);*//*
+                    ScreenUtils screen = new ScreenUtils(getContext());
+
+                    int w = screen.getWidth();
+                    int contentWidth = w - 15;
+                    int deviceWidth = this.getWidth();
+                    int totalPages = contentWidth / deviceWidth + 1;
+                    int curentPage = (totalPages - (totalPages - positionScroll)) / this.getWidth();
+
+                    int position = curentPage * deviceWidth;
+
+                    int scrollX = this.getScrollX();
+
+                    if (scrollX > position + deviceWidth / 4) { // right
+
+                        position += deviceWidth;
+
+                    } else if (scrollX < position - deviceWidth / 4) { // left
+
+                        position -= deviceWidth;
+                    }
+
+                    positionScroll = position;
+
+                   *//* ObjectAnimator anim = ObjectAnimator.ofInt(this,
+                            "scrollX", getScrollX(), position);
+                    anim.setDuration(600);
+                    anim.start();
+
+                    ObjectAnimator animY = ObjectAnimator.ofInt(this, "scrollY", getScrollY(), 0);
+                    animY.setDuration(300);
+                    animY.start();
+
+                }*/
 
                 mFolioPageFragment.startCallback();
                 break;

@@ -1,55 +1,62 @@
 package com.folioreader.smil;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import java.io.Serializable;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Encapsulates the <audio> tag.
  */
-public class AudioElement implements Serializable, MediaElement {
-    @JsonProperty("src")
-    private String mSrc;
-    @JsonProperty("clip_begin")
-    private int mClipBegin;
-    @JsonProperty("m_clip_end")
-    private int mClipEnd;
-    @JsonProperty("id")
-    private String mId;
-    @JsonProperty("parent")
-    private SmilElement mParent;
+public class AudioElement implements Parcelable, MediaElement {
+    @JsonProperty
+    private String src;
+    @JsonProperty
+    private int clipBegin;
+    @JsonProperty
+    private int clipEnd;
+    @JsonIgnore
+    private SmilElement parent;
 
 
     public AudioElement() {
     }
 
-    public AudioElement(SmilElement parent, String src, int clipBegin, int clipEnd, String id) {
+    public AudioElement(SmilElement parent, String src, int clipBegin, int clipEnd) {
         super();
-        this.mParent = parent;
-        this.mSrc = src;
-        this.mClipBegin = clipBegin;
-        this.mClipEnd = clipEnd;
-        this.mId = id;
+        this.parent = parent;
+        this.src = src;
+        this.clipBegin = clipBegin;
+        this.clipEnd = clipEnd;
     }
 
+    public AudioElement(Parcel parcel) {
+        readFromParcel(parcel);
+    }
+
+    public static final Creator<AudioElement> CREATOR = new Creator<AudioElement>() {
+        @Override
+        public AudioElement createFromParcel(Parcel in) {
+            return new AudioElement(in);
+        }
+
+        @Override
+        public AudioElement[] newArray(int size) {
+            return new AudioElement[size];
+        }
+    };
+
     public String getSrc() {
-        // TODO Auto-generated method stub
-        return mSrc;
+        return src;
     }
 
     public double getClipBegin() {
-        // TODO Auto-generated method stub
-        return mClipBegin;
+        return clipBegin;
     }
 
-    public double getmClipEnd() {
-        // TODO Auto-generated method stub
-        return mClipEnd;
-    }
-
-    public String getId() {
-        // TODO Auto-generated method stub
-        return mId;
+    public double getClipEnd() {
+        return clipEnd;
     }
 
     /**
@@ -58,8 +65,8 @@ public class AudioElement implements Serializable, MediaElement {
      * @return
      */
     public TextElement getCompanionTextElement() {
-        if (mParent instanceof ParallelElement) {
-            return ((ParallelElement) mParent).getTextElement();
+        if (parent instanceof ParallelElement) {
+            return ((ParallelElement) parent).getTextElement();
         } else {
             return null;
         }
@@ -72,7 +79,7 @@ public class AudioElement implements Serializable, MediaElement {
      * @return
      */
     public boolean inClip(double time) {
-        return time < mClipEnd && time >= mClipBegin;
+        return time < clipEnd && time >= clipBegin;
     }
 
     @Override
@@ -80,12 +87,11 @@ public class AudioElement implements Serializable, MediaElement {
         final int prime = 31;
         int result = 1;
         long temp;
-        temp = Double.doubleToLongBits(mClipBegin);
+        temp = Double.doubleToLongBits(clipBegin);
         result = prime * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(mClipEnd);
+        temp = Double.doubleToLongBits(clipEnd);
         result = prime * result + (int) (temp ^ (temp >>> 32));
-        result = prime * result + ((mId == null) ? 0 : mId.hashCode());
-        result = prime * result + ((mSrc == null) ? 0 : mSrc.hashCode());
+        result = prime * result + ((src == null) ? 0 : src.hashCode());
         return result;
     }
 
@@ -103,29 +109,41 @@ public class AudioElement implements Serializable, MediaElement {
         }
 
         AudioElement other = (AudioElement) obj;
-        if (Double.doubleToLongBits(mClipBegin) != Double
-                .doubleToLongBits(other.mClipBegin)) {
+        if (Double.doubleToLongBits(clipBegin) != Double
+                .doubleToLongBits(other.clipBegin)) {
             return false;
         }
-        if (Double.doubleToLongBits(mClipEnd) != Double
-                .doubleToLongBits(other.mClipEnd)) {
+        if (Double.doubleToLongBits(clipEnd) != Double
+                .doubleToLongBits(other.clipEnd)) {
             return false;
         }
-        if (mId == null) {
-            if (other.mId != null) {
+        if (src == null) {
+            if (other.src != null) {
                 return false;
             }
-        } else if (!mId.equals(other.mId)) {
-            return false;
-        }
-        if (mSrc == null) {
-            if (other.mSrc != null) {
-                return false;
-            }
-        } else if (!mSrc.equals(other.mSrc)) {
+        } else if (!src.equals(other.src)) {
             return false;
         }
         return true;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable((Parcelable) parent,flags);
+        dest.writeString(src);
+        dest.writeInt(clipBegin);
+        dest.writeInt(clipEnd);
+    }
+
+    private void readFromParcel(Parcel in) {
+        parent =in.readParcelable(SmilElement.class.getClassLoader());
+        src = in.readString();
+        clipBegin = in.readInt();
+        clipEnd = in.readInt();
+    }
 }
