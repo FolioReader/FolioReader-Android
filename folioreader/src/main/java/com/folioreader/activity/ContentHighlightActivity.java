@@ -29,17 +29,21 @@ public class ContentHighlightActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         mBook = (Book) getIntent().getSerializableExtra(Constants.BOOK);
         mSelectedChapterPosition = getIntent().getIntExtra(Constants.SELECTED_CHAPTER_POSITION, 0);
-        mIsNightMode= Config.getConfig().isNightMode();
+        mIsNightMode = Config.getConfig().isNightMode();
         initViews();
     }
 
     private void initViews() {
-        if(mIsNightMode){
-            ((Toolbar)findViewById(R.id.toolbar)).setBackgroundColor(Color.BLACK);
-            ((TextView)findViewById(R.id.btn_contents)).setBackgroundResource(R.drawable.content_highlight_back_selector_night_mode);
-            ((TextView)findViewById(R.id.btn_contents)).setTextColor(AppUtil.getColorList(this,R.color.black,R.color.app_green));
-            ((TextView)findViewById(R.id.btn_highlights)).setBackgroundResource(R.drawable.content_highlight_back_selector_night_mode);
-            ((TextView)findViewById(R.id.btn_highlights)).setTextColor(AppUtil.getColorList(this,R.color.black,R.color.app_green));
+        if (mIsNightMode) {
+            ((Toolbar) findViewById(R.id.toolbar)).setBackgroundColor(Color.BLACK);
+            ((TextView) findViewById(R.id.btn_contents))
+                    .setBackgroundResource(R.drawable.content_highlight_back_selector_night_mode);
+            ((TextView) findViewById(R.id.btn_contents))
+                    .setTextColor(AppUtil.getColorList(this, R.color.black, R.color.app_green));
+            ((TextView) findViewById(R.id.btn_highlights))
+                    .setBackgroundResource(R.drawable.content_highlight_back_selector_night_mode);
+            ((TextView) findViewById(R.id.btn_highlights))
+                    .setTextColor(AppUtil.getColorList(this, R.color.black, R.color.app_green));
         }
 
         loadContentFragment();

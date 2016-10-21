@@ -75,7 +75,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         RAW,
         ASSESTS,
         SD_CARD
-    };
+    }
+
+    ;
 
     private RecyclerView mRecyclerViewMenu;
     private DirectionalViewpager mFolioPageViewPager;
@@ -393,7 +395,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         });
     }
 
-    private void saveBookState(){
+    private void saveBookState() {
         AppUtil.saveBookState(FolioActivity.this, mBook, mFolioPageViewPager.getCurrentItem(), mWebViewScrollPosition);
     }
 

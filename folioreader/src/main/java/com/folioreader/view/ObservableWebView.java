@@ -84,7 +84,7 @@ public class ObservableWebView extends WebView {
         final float MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
         mActivityCallback = (FolioActivity) getContext();
         final int action = event.getAction();
-         int positionScroll=0;
+        int positionScroll = 0;
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mMoveOccured[0] = false;
