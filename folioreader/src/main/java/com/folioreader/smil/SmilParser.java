@@ -28,6 +28,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -76,7 +77,7 @@ public class SmilParser extends DefaultHandler {
      */
     public SequenceElement parse(String content) throws IOException,
             SAXException, ParserConfigurationException {
-        return this.parse(new ByteArrayInputStream(content.getBytes()));
+        return this.parse(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
     }
 
     /**

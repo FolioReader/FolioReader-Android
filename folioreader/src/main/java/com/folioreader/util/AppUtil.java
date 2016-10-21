@@ -34,10 +34,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -416,8 +416,10 @@ public class AppUtil {
         String mPathOPF = "";
         try {
             // get the OPF path, directly from container.xml
-            BufferedReader br = new BufferedReader(new FileReader(unzipDir
-                    + "/META-INF/container.xml"));
+            /*BufferedReader br = new BufferedReader(new FileReader(unzipDir
+                    + "/META-INF/container.xml"));*/
+            BufferedReader br =new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir
+                    + "/META-INF/container.xml"), "UTF-8"));
             String line;
             while ((line = br.readLine()) != null) {
                 //if (line.indexOf(getS(R.string.full_path)) > -1)
@@ -457,8 +459,10 @@ public class AppUtil {
         boolean status = false;
         try {
             // get the OPF path, directly from container.xml
-            BufferedReader br = new BufferedReader(new FileReader(unzipDir
-                    + "/META-INF/container.xml"));
+           /* BufferedReader br = new BufferedReader(new FileReader(unzipDir
+                    + "/META-INF/container.xml"));*/
+            BufferedReader br =new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir
+                    + "/META-INF/container.xml"), "UTF-8"));
             String line;
             while ((line = br.readLine()) != null) {
                 //if (line.indexOf(getS(R.string.full_path)) > -1)

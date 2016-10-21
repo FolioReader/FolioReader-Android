@@ -199,7 +199,7 @@ public class FolioPageFragment extends Fragment {
                     mScrollY = mWebview.getScrollY();
                     ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
                 }
-                mScrollSeekbar.setProgressAndThumb((int) percent);
+                mScrollSeekbar.setProgressAndThumb(percent);
                 updatePagesLeftText(percent);
 
             }
@@ -213,7 +213,7 @@ public class FolioPageFragment extends Fragment {
                     view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
                     view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal)));
                 }
-                ((FolioActivity)getActivity()).onPageLoaded();
+                ((FolioActivity) getActivity()).onPageLoaded();
                 /*ScreenUtils screen = new ScreenUtils(getContext());
 
                 int deviceHeight = screen.getRealHeight();
@@ -407,9 +407,9 @@ public class FolioPageFragment extends Fragment {
 
     private void updatePagesLeftText(int scrollY) {
         try {
-            int currentPage = (int) Math.ceil(scrollY / mWebview.getWebviewHeight()) + 1;
+            int currentPage = (int) (Math.ceil((double) scrollY / mWebview.getWebviewHeight()) + 1);
             int totalPages =
-                    (int) Math.ceil(mWebview.getContentHeightVal()
+                    (int) Math.ceil((double) mWebview.getContentHeightVal()
                             / mWebview.getWebviewHeight());
             int pagesRemaining = totalPages - currentPage;
             String pagesRemainingStrFormat =

@@ -1360,7 +1360,7 @@ public class DirectionalViewpager extends ViewGroup {
                     for (int i = 0; i < getChildCount(); i++) {
                         View child = getChildAt(i);
                         ii = infoForChild(child);
-                        if (ii != null && ii.position == mCurItem && child.requestFocus(View.FOCUS_FORWARD) {
+                        if (ii != null && ii.position == mCurItem && child.requestFocus(View.FOCUS_FORWARD)) {
                             break;
                         }
                     }

@@ -1,4 +1,6 @@
 package com.folioreader.smil;
 
-public interface SmilElement {
+import java.io.Serializable;
+
+public interface SmilElement extends Serializable {
 }
