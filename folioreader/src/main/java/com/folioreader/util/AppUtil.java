@@ -329,7 +329,7 @@ public class AppUtil {
             };
             // returns pathnames for files and directory
             paths = f.listFiles(fileNameFilter);
-            if (paths != null) {
+            if (paths != null && paths.length>0) {
                 smilFile = new SmilFile();
                 smilFile.load(paths[0].getPath());
                 audioElementArrayList = smilFile.getAudioSegments();

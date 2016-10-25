@@ -79,7 +79,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     ;
 
-    private RecyclerView mRecyclerViewMenu;
     private DirectionalViewpager mFolioPageViewPager;
     private FolioView mFolioView;
     private ConfigView mConfigView;
@@ -177,7 +176,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mRecyclerViewMenu = (RecyclerView) findViewById(R.id.recycler_view_menu);
         mFolioView = (FolioView) findViewById(R.id.folio_view);
         mConfigView = (ConfigView) findViewById(R.id.config_view);
         mAudioView = (AudioView) findViewById(R.id.audio_view);
