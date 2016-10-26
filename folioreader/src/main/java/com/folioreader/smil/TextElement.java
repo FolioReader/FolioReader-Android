@@ -11,7 +11,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class TextElement implements Parcelable, MediaElement {
     @JsonProperty
-    private String src;
+    String src;
 
     public  TextElement(){}
     

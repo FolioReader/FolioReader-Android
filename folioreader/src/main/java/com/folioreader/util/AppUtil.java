@@ -60,6 +60,7 @@ import static com.folioreader.Constants.BOOK_STATE;
 import static com.folioreader.Constants.BOOK_TITLE;
 import static com.folioreader.Constants.VIEWPAGER_POSITION;
 import static com.folioreader.Constants.WEBVIEW_SCROLL_POSITION;
+import static com.folioreader.util.SharedPreferenceUtil.getSharedPreferencesString;
 
 
 /**
@@ -329,7 +330,7 @@ public class AppUtil {
             };
             // returns pathnames for files and directory
             paths = f.listFiles(fileNameFilter);
-            if (paths != null && paths.length>0) {
+            if (paths != null && paths.length > 0) {
                 smilFile = new SmilFile();
                 smilFile.load(paths[0].getPath());
                 audioElementArrayList = smilFile.getAudioSegments();
@@ -347,7 +348,7 @@ public class AppUtil {
 
     public static SmilElements retrieveAndParseSmilJSON(Context context, String epubFileName) {
         String smilElmentsJson =
-                SharedPreferenceUtil.getSharedPreferencesString(context, epubFileName, null);
+                getSharedPreferencesString(context, epubFileName, null);
         SmilElements smilElements = null;
         if (smilElmentsJson != null) {
             try {
@@ -405,9 +406,11 @@ public class AppUtil {
 
     public static void keepScreenAwake(boolean enable, Context context) {
         if (enable) {
-            ((Activity) context).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            ((Activity) context)
+                    .getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
-            ((Activity) context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            ((Activity) context)
+                    .getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
 
@@ -416,9 +419,9 @@ public class AppUtil {
         String mPathOPF = "";
         try {
             // get the OPF path, directly from container.xml
-            /*BufferedReader br = new BufferedReader(new FileReader(unzipDir
-                    + "/META-INF/container.xml"));*/
-            BufferedReader br =new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir
+
+            BufferedReader br
+                    = new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir
                     + "/META-INF/container.xml"), "UTF-8"));
             String line;
             while ((line = br.readLine()) != null) {
@@ -461,7 +464,8 @@ public class AppUtil {
             // get the OPF path, directly from container.xml
            /* BufferedReader br = new BufferedReader(new FileReader(unzipDir
                     + "/META-INF/container.xml"));*/
-            BufferedReader br =new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir
+            BufferedReader br =
+                    new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir
                     + "/META-INF/container.xml"), "UTF-8"));
             String line;
             while ((line = br.readLine()) != null) {
@@ -516,14 +520,19 @@ public class AppUtil {
             obj.put(BOOK_TITLE, book.getTitle());
             obj.put(WEBVIEW_SCROLL_POSITION, webViewScrollPosition);
             obj.put(VIEWPAGER_POSITION, folioPageViewPagerPosition);
-            SharedPreferenceUtil.putSharedPreferencesString(context, book.getTitle() + BOOK_STATE, obj.toString());
+            SharedPreferenceUtil.
+                    putSharedPreferencesString(
+                    context, book.getTitle() + BOOK_STATE, obj.toString());
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage());
         }
     }
 
     public static boolean checkPreviousBookStateExist(Context context, Book book) {
-        String json = SharedPreferenceUtil.getSharedPreferencesString(context, book.getTitle() + BOOK_STATE, null);
+        String json
+                = getSharedPreferencesString(
+                context, book.getTitle() + BOOK_STATE,
+                null);
         if (json != null) {
             try {
                 JSONObject jsonObject = new JSONObject(json);
@@ -539,7 +548,10 @@ public class AppUtil {
     }
 
     public static int getPreviousBookStatePosition(Context context, Book book) {
-        String json = SharedPreferenceUtil.getSharedPreferencesString(context, book.getTitle() + BOOK_STATE, null);
+        String json
+                = getSharedPreferencesString(context,
+                book.getTitle() + BOOK_STATE,
+                null);
         if (json != null) {
             try {
                 JSONObject jsonObject = new JSONObject(json);
@@ -553,7 +565,7 @@ public class AppUtil {
     }
 
     public static int getPreviousBookStateWebViewPosition(Context context, Book book) {
-        String json = SharedPreferenceUtil.getSharedPreferencesString(context, book.getTitle() + BOOK_STATE, null);
+        String json = getSharedPreferencesString(context, book.getTitle() + BOOK_STATE, null);
         if (json != null) {
             try {
                 JSONObject jsonObject = new JSONObject(json);

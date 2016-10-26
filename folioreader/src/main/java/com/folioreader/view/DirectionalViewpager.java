@@ -57,36 +57,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Layout manager that allows the user to flip left and right
- * through pages of data.  You supply an implementation of a
- * {@link PagerAdapter} to generate the pages that the view shows.
- * <p>
- * <p>Note this class is currently under early design and
- * development.  The API will likely change in later updates of
- * the compatibility library, requiring changes to the source code
- * of apps when they are compiled against the newer version.</p>
- * <p>
- * <p>ViewPager is most often used in conjunction with {@link android.app.Fragment},
- * which is a convenient way to supply and manage the lifecycle of each page.
- * There are standard adapters implemented for using fragments with the ViewPager,
- * which cover the most common use cases.  These are
- * {@link android.support.v4.app.FragmentPagerAdapter} and
- * {@link android.support.v4.app.FragmentStatePagerAdapter}; each of these
- * classes have simple code showing how to build a full user interface
- * with them.
- * <p>
- * <p>For more information about how to use ViewPager, read <a
- * href="{@docRoot}training/implementing-navigation/lateral.html">Creating Swipe Views with
- * Tabs</a>.</p>
- * <p>
- * <p>Below is a more complicated example of ViewPager, using it in conjunction
- * with {@link android.app.ActionBar} tabs.  You can find other examples of using
- * ViewPager in the API 4+ Support Demos and API 13+ Support Demos sample code.
- * <p>
- * {@sample development/samples/Support13Demos/src/com/example/android/supportv13/app/ActionBarTabsPager.java
- * complete}
- */
 public class DirectionalViewpager extends ViewGroup {
     private static final String TAG = "ViewPager";
     private static final boolean DEBUG = false;
@@ -274,13 +244,18 @@ public class DirectionalViewpager extends ViewGroup {
     public interface OnPageChangeListener {
 
         /**
-         * This method will be invoked when the current page is scrolled, either as part
-         * of a programmatically initiated smooth scroll or a user initiated touch scroll.
+         * This method will be invoked when the current
+         * page is scrolled, either as part
+         * of a programmatically initiated
+         * smooth scroll or a user initiated touch scroll.
          *
          * @param position             Position index of the first page currently being displayed.
+         *                             <p>
          *                             Page position+1 will be visible if positionOffset is nonzero.
-         * @param positionOffset       Value from [0, 1) indicating the offset from the page at position.
-         * @param positionOffsetPixels Value in pixels indicating the offset from position.
+         * @param positionOffset
+         * Value from [0, 1) indicating the offset from the page at position.
+         * @param positionOffsetPixels
+         * Value in pixels indicating the offset from position.
          */
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels);
 
@@ -306,8 +281,10 @@ public class DirectionalViewpager extends ViewGroup {
     }
 
     /**
-     * Simple implementation of the {@link OnPageChangeListener} interface with stub
-     * implementations of each method. Extend this if you do not intend to override
+     * Simple implementation of the {@link OnPageChangeListener}
+     * interface with stub
+     * implementations of each method.
+     * Extend this if you do not intend to override
      * every method of {@link OnPageChangeListener}.
      */
     public static class SimpleOnPageChangeListener implements OnPageChangeListener {
@@ -406,15 +383,17 @@ public class DirectionalViewpager extends ViewGroup {
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(this,
-                new android.support.v4.view.OnApplyWindowInsetsListener() {
+                new android.support
+                        .v4.view.OnApplyWindowInsetsListener() {
                     private final Rect mTempRect = new Rect();
 
                     @Override
-                    public WindowInsetsCompat onApplyWindowInsets(final View v,
-                                                                  final WindowInsetsCompat originalInsets) {
+                    public WindowInsetsCompat
+                            onApplyWindowInsets(final View v,
+                                        final WindowInsetsCompat originalInsets) {
                         // First let the ViewPager itself try and consume them...
                         final WindowInsetsCompat applied =
-                                ViewCompat.onApplyWindowInsets(v, originalInsets);
+                                    ViewCompat.onApplyWindowInsets(v, originalInsets);
                         if (applied.isConsumed()) {
                             // If the ViewPager consumed all insets, return now
                             return applied;
@@ -438,7 +417,8 @@ public class DirectionalViewpager extends ViewGroup {
                                     .dispatchApplyWindowInsets(getChildAt(i), applied);
                             // Now keep track of any consumed by tracking each dimension's min
                             // value
-                            res.left = Math.min(childInsets.getSystemWindowInsetLeft(),
+                            res.left
+                                    = Math.min(childInsets.getSystemWindowInsetLeft(),
                                     res.left);
                             res.top = Math.min(childInsets.getSystemWindowInsetTop(),
                                     res.top);
@@ -773,7 +753,8 @@ public class DirectionalViewpager extends ViewGroup {
                 }
             }
             try {
-                mSetChildrenDrawingOrderEnabled.invoke(this, enable);
+                mSetChildrenDrawingOrderEnabled
+                        .invoke(this, enable);
             } catch (Exception e) {
                 Log.e(TAG, "Error changing children drawing order", e);
             }
@@ -782,8 +763,10 @@ public class DirectionalViewpager extends ViewGroup {
 
     @Override
     protected int getChildDrawingOrder(int childCount, int i) {
-        final int index = mDrawingOrder == DRAW_ORDER_REVERSE ? childCount - 1 - i : i;
-        final int result = ((LayoutParams) mDrawingOrderedChildren.get(index).getLayoutParams()).childIndex;
+        final int index = mDrawingOrder
+                == DRAW_ORDER_REVERSE ? childCount - 1 - i : i;
+        final int result
+                = ((LayoutParams) mDrawingOrderedChildren.get(index).getLayoutParams()).childIndex;
         return result;
     }
 
@@ -811,18 +794,27 @@ public class DirectionalViewpager extends ViewGroup {
     }
 
     /**
-     * Set the number of pages that should be retained to either side of the
-     * current page in the view hierarchy in an idle state. Pages beyond this
+     * Set the number of pages that should be
+     * retained to either side of the
+     * current page in the view hierarchy
+     * in an idle state. Pages beyond this
      * limit will be recreated from the adapter when needed.
      * <p>
-     * <p>This is offered as an optimization. If you know in advance the number
-     * of pages you will need to support or have lazy-loading mechanisms in place
-     * on your pages, tweaking this setting can have benefits in perceived smoothness
-     * of paging animations and interaction. If you have a small number of pages (3-4)
-     * that you can keep active all at once, less time will be spent in layout for
-     * newly created view subtrees as the user pages back and forth.</p>
+     * <p>This is offered as an optimization.
+     * If you know in advance the number
+     * of pages you will need to support or
+     * have lazy-loading mechanisms in place
+     * on your pages, tweaking this setting
+     * can have benefits in perceived smoothness
+     * of paging animations and interaction.
+     * If you have a small number of pages (3-4)
+     * that you can keep active all at once,
+     * less time will be spent in layout for
+     * newly created view subtrees as the
+     * user pages back and forth.</p>
      * <p>
-     * <p>You should keep this limit low, especially if your pages have complex layouts.
+     * <p>You should keep this limit low,
+     * especially if your pages have complex layouts.
      * This setting defaults to 1.</p>
      *
      * @param limit How many pages will be kept offscreen in an idle state.
@@ -1246,17 +1238,20 @@ public class DirectionalViewpager extends ViewGroup {
                             ii = addNewItem(pos, itemIndex);
                             itemIndex++;
                             extraWidthRight += ii.widthFactor;
-                            ii = itemIndex < mItems.size() ? mItems.get(itemIndex) : null;
+                            ii = itemIndex < mItems.size()
+                                    ? mItems.get(itemIndex) : null;
                         }
                     }
                 }
             } else {
                 float extraHeightTop = 0.f;
                 int itemIndex = curIndex - 1;
-                ItemInfo ii = itemIndex >= 0 ? mItems.get(itemIndex) : null;
+                ItemInfo ii
+                        = itemIndex >= 0 ? mItems.get(itemIndex) : null;
                 final int clientHeight = getClientHeight();
                 final float topHeightNeeded = clientHeight <= 0 ? 0 :
-                        2.f - curItem.heightFactor + (float) getPaddingLeft() / (float) clientHeight;
+                        2.f - curItem.heightFactor
+                                + (float) getPaddingLeft() / (float) clientHeight;
                 for (int pos = mCurItem - 1; pos >= 0; pos--) {
                     if (extraHeightTop >= topHeightNeeded && pos < startPos) {
                         if (ii == null) {
@@ -1352,12 +1347,15 @@ public class DirectionalViewpager extends ViewGroup {
 
             if (hasFocus()) {
                 View currentFocused = findFocus();
-                ItemInfo ii = currentFocused != null ? infoForAnyChild(currentFocused) : null;
+                ItemInfo ii
+                        = currentFocused != null ? infoForAnyChild(currentFocused) : null;
                 if (ii == null || ii.position != mCurItem) {
                     for (int i = 0; i < getChildCount(); i++) {
                         View child = getChildAt(i);
                         ii = infoForChild(child);
-                        if (ii != null && ii.position == mCurItem && child.requestFocus(View.FOCUS_FORWARD)) {
+                        if (ii != null
+                                && ii.position == mCurItem &&
+                                child.requestFocus(View.FOCUS_FORWARD)) {
                             break;
                         }
                     }
@@ -1369,7 +1367,6 @@ public class DirectionalViewpager extends ViewGroup {
                 final LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 lp.childIndex = i;
                 if (!lp.isDecor && lp.heightFactor == 0.f) {
-                    // 0 means requery the adapter for this, it doesn't have a valid width.
                     final ItemInfo ii = infoForChild(child);
                     if (ii != null) {
                         lp.heightFactor = ii.heightFactor;
@@ -1428,7 +1425,7 @@ public class DirectionalViewpager extends ViewGroup {
                     ItemInfo ii = null;
                     float offset = oldCurInfo.offset + oldCurInfo.widthFactor + marginOffset;
                     for (int pos = oldCurPosition + 1;
-                         pos <= curItem.position && itemIndex < mItems.size(); pos++) {
+                             pos <= curItem.position && itemIndex < mItems.size(); pos++) {
                         ii = mItems.get(itemIndex);
                         while (pos > ii.position && itemIndex < mItems.size() - 1) {
                             itemIndex++;
@@ -1448,7 +1445,7 @@ public class DirectionalViewpager extends ViewGroup {
                     ItemInfo ii = null;
                     float offset = oldCurInfo.offset;
                     for (int pos = oldCurPosition - 1;
-                         pos >= curItem.position && itemIndex >= 0; pos--) {
+                            pos >= curItem.position && itemIndex >= 0; pos--) {
                         ii = mItems.get(itemIndex);
                         while (pos < ii.position && itemIndex > 0) {
                             itemIndex--;
@@ -1509,7 +1506,7 @@ public class DirectionalViewpager extends ViewGroup {
                     ItemInfo ii = null;
                     float offset = oldCurInfo.offset + oldCurInfo.heightFactor + marginOffset;
                     for (int pos = oldCurPosition + 1;
-                         pos <= curItem.position && itemIndex < mItems.size(); pos++) {
+                            pos <= curItem.position && itemIndex < mItems.size(); pos++) {
                         ii = mItems.get(itemIndex);
                         while (pos > ii.position && itemIndex < mItems.size() - 1) {
                             itemIndex++;
@@ -1529,8 +1526,8 @@ public class DirectionalViewpager extends ViewGroup {
                     ItemInfo ii = null;
                     float offset = oldCurInfo.offset;
                     for (int pos = oldCurPosition - 1;
-                         pos >= curItem.position && itemIndex >= 0;
-                         pos--) {
+                            pos >= curItem.position && itemIndex >= 0;
+                                pos--) {
                         ii = mItems.get(itemIndex);
                         while (pos < ii.position && itemIndex > 0) {
                             itemIndex--;
@@ -1614,17 +1611,19 @@ public class DirectionalViewpager extends ViewGroup {
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR
-                = ParcelableCompat.newCreator(new ParcelableCompatCreatorCallbacks<SavedState>() {
-            @Override
-            public SavedState createFromParcel(Parcel in, ClassLoader loader) {
-                return new SavedState(in, loader);
-            }
+                = ParcelableCompat
+                .newCreator(new ParcelableCompatCreatorCallbacks<SavedState>() {
+                    @Override
+                    public SavedState
+                            createFromParcel(Parcel in, ClassLoader loader) {
+                                return new SavedState(in, loader);
+                            }
 
-            @Override
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        });
+                            @Override
+                            public SavedState[] newArray(int size) {
+                                return new SavedState[size];
+                            }
+                });
 
         SavedState(Parcel in, ClassLoader loader) {
             super(in);
@@ -1872,15 +1871,19 @@ public class DirectionalViewpager extends ViewGroup {
     }
 
 
-    private void recomputeScrollPosition(int width, int oldWidth, int margin, int oldMargin, int height, int oldHeight) {
+    private void recomputeScrollPosition(int width, int oldWidth, int margin,
+                                                int oldMargin, int height, int oldHeight) {
         if (isHorizontal()) {
             if (oldWidth > 0 && !mItems.isEmpty()) {
                 if (!mScroller.isFinished()) {
-                    mScroller.setFinalX(getCurrentItem() * getClientWidth());
+                    mScroller.setFinalX(
+                            getCurrentItem() * getClientWidth());
                 } else {
-                    final int widthWithMargin = width - getPaddingLeft() - getPaddingRight() + margin;
-                    final int oldWidthWithMargin = oldWidth - getPaddingLeft() - getPaddingRight()
-                            + oldMargin;
+                    final int widthWithMargin
+                            = width - getPaddingLeft() - getPaddingRight() + margin;
+                    final int oldWidthWithMargin
+                            = oldWidth - getPaddingLeft() - getPaddingRight()
+                                + oldMargin;
                     final int xpos = getScrollX();
                     final float pageOffset = (float) xpos / oldWidthWithMargin;
                     final int newOffsetPixels = (int) (pageOffset * widthWithMargin);
@@ -2221,7 +2224,8 @@ public class DirectionalViewpager extends ViewGroup {
                     final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
                     if (lp.isDecor) continue;
-                    final float transformPos = (float) (child.getLeft() - scrollX) / getClientWidth();
+                    final float transformPos
+                            = (float) (child.getLeft() - scrollX) / getClientWidth();
                     mPageTransformer.transformPage(child, transformPos);
                 }
             }
@@ -2281,7 +2285,8 @@ public class DirectionalViewpager extends ViewGroup {
 
                     if (lp.isDecor) continue;
 
-                    final float transformPos = (float) (child.getTop() - scrollY) / getClientHeight();
+                    final float transformPos
+                            = (float) (child.getTop() - scrollY) / getClientHeight();
                     mPageTransformer.transformPage(child, transformPos);
                 }
             }
@@ -2451,22 +2456,21 @@ public class DirectionalViewpager extends ViewGroup {
                 */
                     final int activePointerId = mActivePointerId;
                     if (activePointerId == INVALID_POINTER) {
-                        // If we don't have a valid id, the touch down wasn't on content.
                         break;
                     }
 
-                    final int pointerIndex = MotionEventCompat.findPointerIndex(ev, activePointerId);
+                    final int pointerIndex
+                            = MotionEventCompat.findPointerIndex(ev, activePointerId);
                     final float x = MotionEventCompat.getX(ev, pointerIndex);
                     final float dx = x - mLastMotionX;
                     final float xDiff = Math.abs(dx);
                     final float y = MotionEventCompat.getY(ev, pointerIndex);
                     final float yDiff = Math.abs(y - mInitialMotionY);
-                    /*if (DEBUG)
-                        Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);*/
 
                     if (dx != 0 && !isGutterDrag(mLastMotionX, dx, 0, 0) &&
                             canScroll(this, false, (int) dx, 0, (int) x, (int) y)) {
-                        // Nested view has scrollable area under this point. Let it be handled there.
+                        // Nested view has scrollable
+                        // area under this point. Let it be handled there.
                         mLastMotionX = x;
                         mLastMotionY = y;
                         mIsUnableToDrag = true;
@@ -2561,17 +2565,21 @@ public class DirectionalViewpager extends ViewGroup {
                         break;
                     }
 
-                    final int pointerIndex = MotionEventCompat.findPointerIndex(ev, activePointerId);
+                    final int pointerIndex
+                            = MotionEventCompat.findPointerIndex(ev, activePointerId);
                     final float y = MotionEventCompat.getY(ev, pointerIndex);
                     final float dy = y - mLastMotionY;
                     final float yDiff = Math.abs(dy);
-                    final float x = MotionEventCompat.getX(ev, pointerIndex);
+                    final float x
+                                = MotionEventCompat.getX(ev, pointerIndex);
                     final float xDiff = Math.abs(x - mInitialMotionX);
-                    /*if (DEBUG) Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);*/
 
                     if (dy != 0 && !isGutterDrag(0, 0, mLastMotionY, dy) &&
-                            canScroll(this, false, 0, (int) dy, (int) x, (int) y)) {
-                        // Nested view has scrollable area under this point. Let it be handled there.
+                            canScroll(this, false, 0,
+                                    (int) dy, (int) x, (int) y)) {
+                        // Nested view has scrollable
+                        // area under this point.
+                        // Let it be handled there.
                         mLastMotionX = x;
                         mLastMotionY = y;
                         mIsUnableToDrag = true;
@@ -2689,18 +2697,21 @@ public class DirectionalViewpager extends ViewGroup {
                 }
                 case MotionEvent.ACTION_MOVE:
                     if (!mIsBeingDragged) {
-                        final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                        final int pointerIndex
+                                = MotionEventCompat.findPointerIndex(ev,
+                                    mActivePointerId);
                         if (pointerIndex == -1) {
-                            // A child has consumed some touch events and put us into an inconsistent state.
+                            // A child has consumed some
+                            // touch events and put us into an inconsistent state.
                             needsInvalidate = resetTouch();
                             break;
                         }
                         final float x = MotionEventCompat.getX(ev, pointerIndex);
                         final float xDiff = Math.abs(x - mLastMotionX);
-                        final float y = MotionEventCompat.getY(ev, pointerIndex);
+                        final float y
+                                = MotionEventCompat.getY(ev,
+                                    pointerIndex);
                         final float yDiff = Math.abs(y - mLastMotionY);
-                       /* if (DEBUG)
-                            Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);*/
                         if (xDiff > mTouchSlop && xDiff > yDiff) {
                             if (DEBUG)
                                 Log.v(TAG, getContext().getString(R.string.debug_start_drag));
@@ -2790,11 +2801,12 @@ public class DirectionalViewpager extends ViewGroup {
                         final int pointerIndex =
                                 MotionEventCompat.findPointerIndex(ev, mActivePointerId);
                         final float y = MotionEventCompat.getY(ev, pointerIndex);
-                        final float yDiff = Math.abs(y - mLastMotionY);
-                        final float x = MotionEventCompat.getX(ev, pointerIndex);
+                        final float yDiff
+                                = Math.abs(y - mLastMotionY);
+                        final float x
+                                = MotionEventCompat.getX(ev, pointerIndex);
                         final float xDiff = Math.abs(x - mLastMotionX);
-                        /*if (DEBUG)
-                            Log.v(TAG, "Moved x to " + x + "," + y + " diff=" + xDiff + "," + yDiff);*/
+
                         if (yDiff > mTouchSlop && yDiff > xDiff) {
                             if (DEBUG)
                                 Log.v(TAG, getContext().getString(R.string.debug_start_drag));
@@ -3066,7 +3078,8 @@ public class DirectionalViewpager extends ViewGroup {
         return lastItem;
     }
 
-    private int determineTargetPage(int currentPage, float pageOffset, int velocity, int deltaX, int deltaY) {
+    private int determineTargetPage(int currentPage, float pageOffset,
+                                        int velocity, int deltaX, int deltaY) {
         int targetPage;
         if (isHorizontal()) {
             if (Math.abs(deltaX) > mFlingDistance && Math.abs(velocity) > mMinimumVelocity) {
@@ -3614,8 +3627,10 @@ public class DirectionalViewpager extends ViewGroup {
             currentFocused = null;
         } else if (currentFocused != null) {
             boolean isChild = false;
-            for (ViewParent parent = currentFocused.getParent(); parent instanceof ViewGroup;
-                 parent = parent.getParent()) {
+            for (ViewParent parent
+                    = currentFocused.getParent();
+                        parent instanceof ViewGroup;
+                            parent = parent.getParent()) {
                 if (parent == this) {
                     isChild = true;
                     break;
@@ -3625,8 +3640,10 @@ public class DirectionalViewpager extends ViewGroup {
                 // This would cause the focus search down below to fail in fun ways.
                 final StringBuilder sb = new StringBuilder();
                 sb.append(currentFocused.getClass().getSimpleName());
-                for (ViewParent parent = currentFocused.getParent(); parent instanceof ViewGroup;
-                     parent = parent.getParent()) {
+                for (ViewParent parent
+                        = currentFocused.getParent();
+                                parent instanceof ViewGroup;
+                                   parent = parent.getParent()) {
                     sb.append(" => ").append(parent.getClass().getSimpleName());
                 }
                 Log.e(TAG, "arrowScroll tried to find focus based on non-child " +
@@ -3637,25 +3654,35 @@ public class DirectionalViewpager extends ViewGroup {
 
         boolean handled = false;
 
-        View nextFocused = FocusFinder.getInstance().findNextFocus(this, currentFocused,
-                direction);
+        View nextFocused
+                    = FocusFinder.getInstance().findNextFocus(this, currentFocused,
+                        direction);
         if (nextFocused != null && nextFocused != currentFocused) {
             if (isHorizontal()) {
                 if (direction == View.FOCUS_LEFT) {
-                    // If there is nothing to the left, or this is causing us to
-                    // jump to the right, then what we really want to do is page left.
-                    final int nextLeft = getChildRectInPagerCoordinates(mTempRect, nextFocused).left;
-                    final int currLeft = getChildRectInPagerCoordinates(mTempRect, currentFocused).left;
+                    // If there is nothing
+                    // to the left, or this is causing us to
+                    // jump to the right,
+                    // then what we really want to do is page left.
+                    final int nextLeft
+                            = getChildRectInPagerCoordinates(mTempRect, nextFocused).left;
+                    final int currLeft
+                            = getChildRectInPagerCoordinates(mTempRect, currentFocused).left;
                     if (currentFocused != null && nextLeft >= currLeft) {
                         handled = pageLeft();
                     } else {
                         handled = nextFocused.requestFocus();
                     }
                 } else if (direction == View.FOCUS_RIGHT) {
-                    // If there is nothing to the right, or this is causing us to
-                    // jump to the left, then what we really want to do is page right.
-                    final int nextLeft = getChildRectInPagerCoordinates(mTempRect, nextFocused).left;
-                    final int currLeft = getChildRectInPagerCoordinates(mTempRect, currentFocused).left;
+                    // If there is nothing to the right,
+                    // or this is causing us to
+                    // jump to the left,
+                    // then what we really
+                    // want to do is page right.
+                    final int nextLeft
+                            = getChildRectInPagerCoordinates(mTempRect, nextFocused).left;
+                    final int currLeft
+                            = getChildRectInPagerCoordinates(mTempRect, currentFocused).left;
                     if (currentFocused != null && nextLeft <= currLeft) {
                         handled = pageRight();
                     } else {
@@ -3670,10 +3697,14 @@ public class DirectionalViewpager extends ViewGroup {
                 }
             } else {
                 if (direction == View.FOCUS_UP) {
-                    // If there is nothing to the left, or this is causing us to
-                    // jump to the right, then what we really want to do is page left.
-                    final int nextTop = getChildRectInPagerCoordinates(mTempRect, nextFocused).top;
-                    final int currTop = getChildRectInPagerCoordinates(mTempRect, currentFocused).top;
+                    // If there is nothing to the left,
+                    // or this is causing us to
+                    // jump to the right,
+                    // then what we really want to do is page left.
+                    final int nextTop
+                            = getChildRectInPagerCoordinates(mTempRect, nextFocused).top;
+                    final int currTop
+                            = getChildRectInPagerCoordinates(mTempRect, currentFocused).top;
                     if (currentFocused != null && nextTop >= currTop) {
                         handled = pageUp();
                     } else {
@@ -3851,7 +3882,8 @@ public class DirectionalViewpager extends ViewGroup {
             View child = getChildAt(i);
             if (child.getVisibility() == VISIBLE) {
                 ItemInfo ii = infoForChild(child);
-                if (ii != null && ii.position == mCurItem && child.requestFocus(direction, previouslyFocusedRect)) {
+                if (ii != null && ii.position ==
+                            mCurItem && child.requestFocus(direction, previouslyFocusedRect)) {
                     return true;
                 }
             }

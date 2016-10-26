@@ -53,7 +53,8 @@ public class HighlightListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_highlight_list, container, false);
         mContext = getActivity();
         mBook = (Book) getArguments().getSerializable(BOOK);
@@ -112,7 +113,8 @@ public class HighlightListFragment extends Fragment {
         public HightlightAdpater(Context context,
                                  int textViewResourceId, ArrayList<Highlight> objects) {
             super(context, textViewResourceId, objects);
-            mInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            mInflater = (LayoutInflater) getActivity()
+                      .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override

@@ -34,28 +34,30 @@ public class ContentsFragment extends Fragment {
     private View mRootView;
     private Context mContext;
     private ArrayList<TOCReference> mTocReferences;
-    private  List<SpineReference> mSpineReferences;
+    private List<SpineReference> mSpineReferences;
     private int mSelectedChapterPosition;
     private boolean mIsNightMode;
 
 
-
-    public static ContentsFragment newInstance(Book book,int selectedChapterPosition) {
+    public static ContentsFragment newInstance(Book book, int selectedChapterPosition) {
         ContentsFragment contentsFragment = new ContentsFragment();
         Bundle args = new Bundle();
         args.putSerializable(BOOK, book);
-        args.putInt(SELECTED_CHAPTER_POSITION,selectedChapterPosition);
+        args.putInt(SELECTED_CHAPTER_POSITION, selectedChapterPosition);
         contentsFragment.setArguments(args);
         return contentsFragment;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView=inflater.inflate(R.layout.fragment_contents, container, false);
-        mContext=getActivity();
-        mIsNightMode=Config.getConfig().isNightMode();
-        if(mIsNightMode){
-            mRootView.findViewById(R.id.recycler_view_menu).setBackgroundColor(ContextCompat.getColor(mContext,R.color.black));
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        mRootView = inflater.inflate(R.layout.fragment_contents, container, false);
+        mContext = getActivity();
+        mIsNightMode = Config.getConfig().isNightMode();
+        if (mIsNightMode) {
+            mRootView.findViewById(R.id.recycler_view_menu).
+                    setBackgroundColor(ContextCompat.getColor(mContext,
+                    R.color.black));
         }
         configRecyclerViews();
         return mRootView;
@@ -63,15 +65,20 @@ public class ContentsFragment extends Fragment {
 
 
     public void configRecyclerViews() {
-        Book book= (Book) getArguments().getSerializable(BOOK);
-        mSelectedChapterPosition=getArguments().getInt(SELECTED_CHAPTER_POSITION);
-        mTocReferences= (ArrayList<TOCReference>) book.getTableOfContents().getTocReferences();
-        mSpineReferences=book.getSpine().getSpineReferences();
-        RecyclerView recyclerView=(RecyclerView) mRootView.findViewById(R.id.recycler_view_menu);
-        recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        if (mTocReferences != null) {
-            TOCAdapter tocAdapter = new TOCAdapter(mTocReferences, mContext,mSelectedChapterPosition);
-            recyclerView.setAdapter(tocAdapter);
+        Book book = (Book) getArguments().getSerializable(BOOK);
+        if (book != null) {
+            mSelectedChapterPosition
+                    = getArguments().getInt(SELECTED_CHAPTER_POSITION);
+            mTocReferences = (ArrayList<TOCReference>) book.getTableOfContents().getTocReferences();
+            mSpineReferences
+                    = book.getSpine().getSpineReferences();
+            RecyclerView recyclerView
+                    = (RecyclerView) mRootView.findViewById(R.id.recycler_view_menu);
+            recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+            if (mTocReferences != null) {
+                TOCAdapter tocAdapter = new TOCAdapter(mTocReferences, mSelectedChapterPosition);
+                recyclerView.setAdapter(tocAdapter);
+            }
         }
     }
 
@@ -79,7 +86,6 @@ public class ContentsFragment extends Fragment {
     public class TOCAdapter extends RecyclerView.Adapter<TOCAdapter.ViewHolder> {
         private List<TOCReference> mTOCReferences;
         private int mSelectedChapterPosition;
-        private Context mContext;
 
 
         public class ViewHolder extends RecyclerView.ViewHolder {
@@ -89,14 +95,13 @@ public class ContentsFragment extends Fragment {
             public ViewHolder(View v) {
                 super(v);
                 tocTitleView = (TextView) v.findViewById(R.id.chapter);
-                line=v.findViewById(R.id.line1);
+                line = v.findViewById(R.id.line1);
             }
         }
 
-        public TOCAdapter(List<TOCReference> tocReferences, Context mContext,int selectedChapterPosition) {
+        public TOCAdapter(List<TOCReference> tocReferences, int selectedChapterPosition) {
             mTOCReferences = tocReferences;
-            this.mContext = mContext;
-            mSelectedChapterPosition=selectedChapterPosition;
+            mSelectedChapterPosition = selectedChapterPosition;
         }
 
         @Override
@@ -128,17 +133,17 @@ public class ContentsFragment extends Fragment {
             holder.tocTitleView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String title=mSpineReferences.get(position).getResource().getTitle();
-                    for(int i=0;i<mSpineReferences.size();i++){
-                            if(mSpineReferences.get(i).getResource().getTitle().equals(title)){
-                                mSelectedChapterPosition=i;
-                                Intent intent=new Intent();
-                                intent.putExtra(SELECTED_CHAPTER_POSITION,mSelectedChapterPosition);
-                                intent.putExtra(TYPE, CHAPTER_SELECTED);
-                                getActivity().setResult(Activity.RESULT_OK,intent);
-                                getActivity().finish();
-                                return;
-                            }
+                    String title = mSpineReferences.get(position).getResource().getTitle();
+                    for (int i = 0; i < mSpineReferences.size(); i++) {
+                        if (mSpineReferences.get(i).getResource().getTitle().equals(title)) {
+                            mSelectedChapterPosition = i;
+                            Intent intent = new Intent();
+                            intent.putExtra(SELECTED_CHAPTER_POSITION, mSelectedChapterPosition);
+                            intent.putExtra(TYPE, CHAPTER_SELECTED);
+                            getActivity().setResult(Activity.RESULT_OK, intent);
+                            getActivity().finish();
+                            return;
+                        }
                     }
                 }
             });
@@ -148,15 +153,6 @@ public class ContentsFragment extends Fragment {
         public int getItemCount() {
             return mTOCReferences.size();
         }
-
-        /*public void setNightMode(boolean nightMode) {
-            mIsNightMode = nightMode;
-        }
-
-        public void setSelectedChapterPosition(int position) {
-            mSelectedChapterPosition = position;
-        }*/
-
     }
 
 }

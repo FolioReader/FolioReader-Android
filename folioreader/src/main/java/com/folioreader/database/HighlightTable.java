@@ -25,9 +25,9 @@ public class HighlightTable {
 
         try {
             status = FolioReaderDB.getInstance(context).getHighlightDao().create(highlight);
-            Log.d(Tag , status + " Highlight");
+            Log.d(Tag, status + " Highlight");
         } catch (SQLException e) {
-            Log.d(Tag , e.getMessage());
+            Log.d(Tag, e.getMessage());
         }
 
         return status;
@@ -39,7 +39,7 @@ public class HighlightTable {
             if (!isHighlightExistInDB(context, highlight))
                 status = FolioReaderDB.getInstance(context).getHighlightDao().create(highlight);
         } catch (SQLException e) {
-            Log.d(Tag , e.getMessage());
+            Log.d(Tag, e.getMessage());
         }
 
         return status;
@@ -59,7 +59,7 @@ public class HighlightTable {
     public static int updateHighlightStyle(Context context, String id, String type) {
         try {
             UpdateBuilder<Highlight, Integer> updateBuilder =
-                        FolioReaderDB.getInstance(context).getHighlightDao().updateBuilder();
+                    FolioReaderDB.getInstance(context).getHighlightDao().updateBuilder();
             updateBuilder.where().eq(Highlight.LOCAL_DB_HIGHLIGHT_ID, id);
             updateBuilder.updateColumnValue(Highlight.LOCAL_DB_HIGHLIGHT_TYPE, type);
             int count = updateBuilder.update();
@@ -103,18 +103,18 @@ public class HighlightTable {
             if (highlight != null) {
                 Dao<Highlight, Integer> dao = FolioReaderDB.getInstance(context).getHighlightDao();
                 long count = dao.queryBuilder().setCountOf(true).where()
-                            .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_PRE,
-                            highlight.getContentPre()).and()
-                            .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT,
-                            highlight.getContent()).and()
-                            .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_POST,
-                             highlight.getContentPost()).countOf();
+                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_PRE,
+                                highlight.getContentPre()).and()
+                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT,
+                                highlight.getContent()).and()
+                        .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_POST,
+                                highlight.getContentPost()).countOf();
                 return count > 0;
             } else {
                 return false;
             }
         } catch (SQLException e) {
-            Log.d(Tag , e.getMessage());
+            Log.d(Tag, e.getMessage());
             return false;
         }
     }
@@ -126,11 +126,11 @@ public class HighlightTable {
                 Dao<Highlight, Integer> dao = FolioReaderDB.getInstance(context).getHighlightDao();
                 record = dao.queryBuilder().where()
                         .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_PRE,
-                         highlight.getContentPre()).and()
+                                highlight.getContentPre()).and()
                         .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT,
-                         highlight.getContent()).and()
+                                highlight.getContent()).and()
                         .eq(Highlight.LOCAL_DB_HIGHLIGHT_CONTENT_POST,
-                         highlight.getContentPost()).queryForFirst();
+                                highlight.getContentPost()).queryForFirst();
             }
         } catch (SQLException e) {
             Log.d(Tag, e.getMessage());

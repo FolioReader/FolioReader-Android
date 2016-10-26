@@ -61,6 +61,10 @@ import static com.folioreader.Constants.CHAPTER_SELECTED;
 import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
 import static com.folioreader.Constants.SELECTED_CHAPTER_POSITION;
 import static com.folioreader.Constants.TYPE;
+import static com.folioreader.util.AppUtil.checkOPFInRootDirectory;
+import static com.folioreader.util.AppUtil.getFolioEpubFolderPath;
+import static com.folioreader.util.AppUtil.getPreviousBookStatePosition;
+import static com.folioreader.util.AppUtil.getPreviousBookStateWebViewPosition;
 
 public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
         FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback {
@@ -75,8 +79,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         ASSESTS,
         SD_CARD
     }
-
-    ;
 
     private DirectionalViewpager mFolioPageViewPager;
     private FolioView mFolioView;
@@ -238,7 +240,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         ((FolioPageFragment) page).reload();
         if (position < mSpineReferences.size()) {
             page = getFragment(position + 1);
-            if(page!=null) {
+            if (page != null) {
                 ((FolioPageFragment) page).reload();
             }
 
@@ -253,24 +255,26 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     @Override
     public void onOrentationChange(int orentation) {
         if (orentation == 0) {
-            //mFolioPageViewPager = (DirectionalViewpager) mFolioView.findViewById(R.id.folioPageViewPager);
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
-            //mFolioPageFragmentAdapter.notifyDataSetChanged();
             if (mBook != null && mSpineReferences != null) {
                 mFolioPageFragmentAdapter =
                         new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                                mSpineReferences, mBook, mEpubFileName, mIsSmilParsed);
+                                mSpineReferences,
+                                mBook,
+                                mEpubFileName,
+                                mIsSmilParsed);
                 mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
                 mFolioPageViewPager.setCurrentItem(mChapterPosition);
             }
         } else {
-            //mFolioPageViewPager = (DirectionalViewpager) mFolioView.findViewById(R.id.folioPageViewPager);
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
-            // mFolioPageFragmentAdapter.notifyDataSetChanged();
             if (mBook != null && mSpineReferences != null) {
                 mFolioPageFragmentAdapter =
                         new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                                mSpineReferences, mBook, mEpubFileName, mIsSmilParsed);
+                                mSpineReferences,
+                                mBook,
+                                mEpubFileName,
+                                mIsSmilParsed);
                 mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
                 mFolioPageViewPager.setCurrentItem(mChapterPosition);
             }
@@ -328,26 +332,28 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
     private void configFolio() {
-        mFolioPageViewPager = (DirectionalViewpager) mFolioView.findViewById(R.id.folioPageViewPager);
-        mFolioPageViewPager.setOnPageChangeListener(new DirectionalViewpager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position,
-                                       float positionOffset, int positionOffsetPixels) {
+        mFolioPageViewPager
+                = (DirectionalViewpager) mFolioView.findViewById(R.id.folioPageViewPager);
+        mFolioPageViewPager
+                .setOnPageChangeListener(new DirectionalViewpager.OnPageChangeListener() {
+                    @Override
+                    public void onPageScrolled(int position,
+                                               float positionOffset, int positionOffsetPixels) {
 
-            }
+                    }
 
-            @Override
-            public void onPageSelected(int position) {
-                mChapterPosition = position;
-                ((TextView) findViewById(R.id.lbl_center)).
-                        setText(mSpineReferences.get(position).getResource().getTitle());
-            }
+                    @Override
+                    public void onPageSelected(int position) {
+                        mChapterPosition = position;
+                        ((TextView) findViewById(R.id.lbl_center)).
+                                setText(mSpineReferences.get(position).getResource().getTitle());
+                    }
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
+                    @Override
+                    public void onPageScrollStateChanged(int state) {
 
-            }
-        });
+                    }
+                });
 
         if (mBook != null && mSpineReferences != null) {
             mFolioPageFragmentAdapter =
@@ -396,15 +402,23 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
     private void saveBookState() {
-        AppUtil.saveBookState(FolioActivity.this, mBook, mFolioPageViewPager.getCurrentItem(), mWebViewScrollPosition);
+        AppUtil.saveBookState(FolioActivity.this,
+                mBook,
+                mFolioPageViewPager.getCurrentItem(),
+                mWebViewScrollPosition);
     }
 
     private void checkAndRestoreBookState() {
         if (AppUtil.checkPreviousBookStateExist(FolioActivity.this, mBook)) {
-            mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBook));
-            Fragment fragment = getFragment(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBook));
+            mFolioPageViewPager
+                    .setCurrentItem(getPreviousBookStatePosition(FolioActivity.this,
+                    mBook));
+            Fragment fragment
+                    = getFragment(getPreviousBookStatePosition(FolioActivity.this,
+                    mBook));
             ((FolioPageFragment) fragment)
-                    .setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(FolioActivity.this, mBook));
+                    .setWebViewPosition(getPreviousBookStateWebViewPosition(FolioActivity.this,
+                    mBook));
         }
     }
 
@@ -431,11 +445,15 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     private String readHTmlString(int position) {
         String pageHref = mSpineReferences.get(position).getResource().getHref();
-        String opfpath = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), FolioActivity.this);
-        if (AppUtil.checkOPFInRootDirectory(AppUtil.getFolioEpubFolderPath(mEpubFileName), FolioActivity.this)) {
-            pageHref = AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + pageHref;
+        String opfpath =
+                AppUtil.getPathOPF(getFolioEpubFolderPath(mEpubFileName),
+                        FolioActivity.this);
+        if (checkOPFInRootDirectory(getFolioEpubFolderPath(mEpubFileName),
+                FolioActivity.this)) {
+            pageHref = getFolioEpubFolderPath(mEpubFileName) + "/" + pageHref;
         } else {
-            pageHref = AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfpath + "/" + pageHref;
+            pageHref =
+                    getFolioEpubFolderPath(mEpubFileName) + "/" + opfpath + "/" + pageHref;
         }
         String html = EpubManipulator.readPage(pageHref);
         return html;
@@ -499,8 +517,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ACTION_CONTENT_HIGHLIGHT && resultCode == RESULT_OK && data.hasExtra(TYPE)) {
-
+        if (requestCode == ACTION_CONTENT_HIGHLIGHT && resultCode == RESULT_OK
+                && data.hasExtra(TYPE)) {
             String type = data.getStringExtra(TYPE);
             if (type.equals(CHAPTER_SELECTED)) {
                 mChapterPosition = data.getIntExtra(SELECTED_CHAPTER_POSITION, 0);

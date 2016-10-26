@@ -211,7 +211,9 @@ public class FolioPageFragment extends Fragment {
                 view.loadUrl("javascript:alert(getReadingTime())");
                 if (!mIsSmilAvailable) {
                     view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
-                    view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal)));
+                    view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
+                            Highlight.HighlightStyle.classForStyle(
+                                    Highlight.HighlightStyle.Normal)));
                 }
                 ((FolioActivity) getActivity()).onPageLoaded();
                 /*ScreenUtils screen = new ScreenUtils(getContext());
@@ -358,31 +360,10 @@ public class FolioPageFragment extends Fragment {
         });
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
-        String opfPath = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
-        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
-       /* htmlContent="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n" +
-                "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"bg\">"+
-                "<head>\n" +
-               "<title/>\n" +
-                "<link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\"/>\n" +
-                "<link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\"/>\n" +
-                "\n" +
-                "<link rel=\"stylesheet\" type=\"text/css\" href=\"file:///android_asset/Style.css\">\n" +
-                "<script type=\"text/javascript\" src=\"file:///android_asset/Bridge.js\">" +
-                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/jquery-1.8.3.js\">" +
-                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/jpntext.js\">" +
-                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/rangy-core.js\">" +
-                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/rangy-serializer.js\">" +
-                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/android.selection.js\">" +
-                        "</script><script type=\"text/javascript\">setMediaOverlayStyleColors('#C0ED72','#C0ED72')</script>\n" +
-                "</head>\n" +
-                 "<body class=\"z\">\n" +
-                "<div class=\"title\">\n" +
-                "<p class=\"p\">Павел Светличный</p>\n" +
-                "<p class=\"p\">Киндер-сюрприз для зэка</p>\n" +
-                "</body>\n" +
-                "</html>\n";*/
+        String opfPath
+                = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
+        String baseUrl
+                = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
         ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
     }
@@ -514,8 +495,10 @@ public class FolioPageFragment extends Fragment {
     public void reload() {
         final WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
         String htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
-        String opfPath = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
-        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+        String opfPath
+                = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
+        String baseUrl
+                = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
         webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
         updatePagesLeftTextBg();
     }

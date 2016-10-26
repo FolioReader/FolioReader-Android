@@ -1,10 +1,10 @@
 package com.folioreader.adapter;
 
-import com.folioreader.fragments.FolioPageFragment;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import com.folioreader.fragments.FolioPageFragment;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class FolioPageFragmentAdapter extends FragmentPagerAdapter {
         this.mSpineReferences = spineReferences;
         this.mBook = book;
         this.mEpubFileName = epubFilename;
-        this.mIsSmilAvailable=isSmilAvilable;
+        this.mIsSmilAvailable = isSmilAvilable;
     }
 
     @Override

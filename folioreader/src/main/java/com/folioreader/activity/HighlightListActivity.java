@@ -1,12 +1,5 @@
 package com.folioreader.activity;
 
-import com.folioreader.Config;
-import com.folioreader.R;
-import com.folioreader.database.HighlightTable;
-import com.folioreader.model.Highlight;
-import com.folioreader.util.AppUtil;
-import com.folioreader.util.UnderlinedTextView;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +9,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +21,13 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.folioreader.Config;
+import com.folioreader.R;
+import com.folioreader.database.HighlightTable;
+import com.folioreader.model.Highlight;
+import com.folioreader.util.AppUtil;
+import com.folioreader.util.UnderlinedTextView;
 
 import java.util.ArrayList;
 
@@ -137,7 +136,6 @@ public class HighlightListActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     final int height = holder1.dataRelativeLayout.getHeight();
-                    Log.d("height", height + "");
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
