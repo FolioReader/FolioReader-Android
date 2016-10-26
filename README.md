@@ -36,7 +36,7 @@ FolioReader-Android is an ePub reader and parser framework written in Java.
 ### Gradle
 Add following dependency to your app build.gradle
 ``` java
-compile 'com.folioreader:folioreader:0.2.1'
+compile 'com.folioreader:folioreader:0.2.2'
 ```
 
 ### Usage
