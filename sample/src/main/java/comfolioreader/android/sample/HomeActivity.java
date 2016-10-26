@@ -49,7 +49,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
                 } else {
-                    openEpub(FolioActivity.EpubSourceType.ASSESTS,"nuevounitled.epub",0);
+                    openEpub(FolioActivity.EpubSourceType.ASSESTS,"The Silver Chair2.epub",0);
                 }
             }
         });
