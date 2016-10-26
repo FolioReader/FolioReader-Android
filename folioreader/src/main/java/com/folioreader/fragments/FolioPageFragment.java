@@ -607,6 +607,7 @@ public class FolioPageFragment extends Fragment {
         ArrayList<Highlight> highlights =
                 (ArrayList<Highlight>) HighlightTable.getAllHighlight(getActivity().
                         getApplication(), mBook.getTitle(), mPosition);
+
         for (Highlight highlight : highlights) {
             String highlightStr =
                     "<highlight id=\"" + highlight.getHighlightId() +
@@ -614,7 +615,7 @@ public class FolioPageFragment extends Fragment {
                             highlight.getType() + "\">" + highlight.getContent() + "</highlight>";
             String searchStr = highlight.getContentPre() +
                     "" + highlight.getContent() + "" + highlight.getContentPost();
-            htmlContent = htmlContent.replace(searchStr, highlightStr);
+            htmlContent = htmlContent.replaceFirst(searchStr, highlightStr);
         }
         return htmlContent;
     }

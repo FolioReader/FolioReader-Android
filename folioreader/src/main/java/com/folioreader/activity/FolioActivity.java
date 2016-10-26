@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -239,7 +238,10 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         ((FolioPageFragment) page).reload();
         if (position < mSpineReferences.size()) {
             page = getFragment(position + 1);
-            ((FolioPageFragment) page).reload();
+            if(page!=null) {
+                ((FolioPageFragment) page).reload();
+            }
+
         }
     }
 
