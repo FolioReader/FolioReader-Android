@@ -15,12 +15,13 @@ import java.util.List;
  */
 @DatabaseTable(tableName = "smiltable")
 public class SmilElements {
+    @JsonProperty
     @DatabaseField(generatedId = true)
     int id;
-    @JsonProperty("audio_element_array_list")
+    @JsonProperty
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     List<AudioElement> audioElementArrayList;
-    @JsonProperty("text_element_array_list")
+    @JsonProperty
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     List<TextElement> textElementArrayList;
 

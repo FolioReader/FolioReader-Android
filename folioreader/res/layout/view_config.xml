@@ -121,7 +121,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/font_size_layout"
-        android:background="@color/borders" />
+        android:background="@color/borders" android:visibility="gone"/>
     <LinearLayout
         android:id="@+id/orientationLayout"
         android:layout_width="match_parent"
@@ -129,7 +129,7 @@
         android:layout_below="@+id/third_separator"
         android:gravity="center"
         android:orientation="horizontal"
-        android:weightSum="4.0">
+        android:weightSum="4.0" android:visibility="gone">
         <com.folioreader.view.StyleableTextView
             android:id="@+id/btn_vertical_orentation"
             android:layout_width="0dp"

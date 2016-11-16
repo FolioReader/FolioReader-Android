@@ -14,6 +14,7 @@ import com.folioreader.R;
  */
 
 public class AudioViewBottomView extends BottomSheetDialogFragment {
+    private CoordinatorLayout.Behavior mBehavior;
 
     private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
 
@@ -30,7 +31,7 @@ public class AudioViewBottomView extends BottomSheetDialogFragment {
         }
     };
 
-    private CoordinatorLayout.Behavior mBehavior;
+
     @Override
     public void setupDialog(Dialog dialog, int style) {
         super.setupDialog(dialog, style);

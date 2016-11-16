@@ -25,19 +25,19 @@ import com.folioreader.smil.TextElement;
 
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.codehaus.jackson.type.TypeReference;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -56,6 +56,12 @@ import javax.xml.parsers.ParserConfigurationException;
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.epub.EpubReader;
 
+import static com.folioreader.Constants.BOOK_STATE;
+import static com.folioreader.Constants.BOOK_TITLE;
+import static com.folioreader.Constants.VIEWPAGER_POSITION;
+import static com.folioreader.Constants.WEBVIEW_SCROLL_POSITION;
+import static com.folioreader.util.SharedPreferenceUtil.getSharedPreferencesString;
+
 
 /**
  * Created by mahavir on 5/7/16.
@@ -69,14 +75,19 @@ public class AppUtil {
     private static final String TAG = AppUtil.class.getSimpleName();
     private static final String FOLIO_READER_ROOT = "/folioreader/";
 
+    private static enum FileType {
+        OPS,
+        OEBPS
+    }
+
     static {
         jsonMapper = new ObjectMapper();
-        jsonMapper
-                .configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
-                        false);
-        jsonMapper
-                .setPropertyNamingStrategy(
-                        PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+        try {
+            jsonMapper
+                    .configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        } catch (Exception e) {
+            Log.d(TAG, e.getMessage());
+        }
     }
 
     public static void copyToClipboard(Context context, String text) {
@@ -109,7 +120,8 @@ public class AppUtil {
                     new TypeReference<ArrayList<HashMap<String, String>>>() {
                     });
         } catch (Exception e) {
-            map = null;
+            Log.d(TAG, e.getMessage());
+            return null;
         }
         return map.get(0);
     }
@@ -217,10 +229,6 @@ public class AppUtil {
                 }
             }
             return book;
-        } catch (FileNotFoundException e) {
-            Log.d(TAG, e.getMessage());
-        } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
         } catch (Exception e) {
             Log.d(TAG, e.getMessage());
         }
@@ -285,8 +293,6 @@ public class AppUtil {
             bookModel.setBookName(epubFileName);
             BookModelTable.createEntryInTableIfNotExist(context, bookModel);
 
-        } catch (FileNotFoundException e) {
-            Log.d(TAG, e.getMessage());
         } catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }
@@ -324,7 +330,7 @@ public class AppUtil {
             };
             // returns pathnames for files and directory
             paths = f.listFiles(fileNameFilter);
-            if (paths != null) {
+            if (paths != null && paths.length > 0) {
                 smilFile = new SmilFile();
                 smilFile.load(paths[0].getPath());
                 audioElementArrayList = smilFile.getAudioSegments();
@@ -333,11 +339,7 @@ public class AppUtil {
                 String smilElemets = jsonMapper.writeValueAsString(smilElement);
                 SharedPreferenceUtil.putSharedPreferencesString(context, epubFileName, smilElemets);
             }
-        } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
-        } catch (SAXException e) {
-            Log.d(TAG, e.getMessage());
-        } catch (ParserConfigurationException e) {
+        } catch (IOException | SAXException | ParserConfigurationException e) {
             Log.d(TAG, e.getMessage());
         }
         return smilFile;
@@ -346,7 +348,7 @@ public class AppUtil {
 
     public static SmilElements retrieveAndParseSmilJSON(Context context, String epubFileName) {
         String smilElmentsJson =
-                SharedPreferenceUtil.getSharedPreferencesString(context, epubFileName, null);
+                getSharedPreferencesString(context, epubFileName, null);
         SmilElements smilElements = null;
         if (smilElmentsJson != null) {
             try {
@@ -380,8 +382,6 @@ public class AppUtil {
             }
             if (inputStream != null) inputStream.close();
             if (outputStream != null) outputStream.close();
-        } catch (FileNotFoundException e) {
-            Log.d(TAG, e.getMessage());
         } catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }
@@ -389,36 +389,40 @@ public class AppUtil {
     }
 
 
-    public static ColorStateList getColorList(Context context,int selectedColor,int unselectedColor){
-        int[][] states = new int[][] {
-                new int[] { android.R.attr.state_pressed}, // pressed
-                new int[] { android.R.attr.state_selected}, // focused
-                new int[] {}
+    public static ColorStateList getColorList(Context context, int selectedColor, int unselectedColor) {
+        int[][] states = new int[][]{
+                new int[]{android.R.attr.state_pressed}, // pressed
+                new int[]{android.R.attr.state_selected}, // focused
+                new int[]{}
         };
-        int[] colors = new int[] {
-                ContextCompat.getColor(context,selectedColor), // green
-                ContextCompat.getColor(context,selectedColor), // green
-                ContextCompat.getColor(context,unselectedColor)  // white
+        int[] colors = new int[]{
+                ContextCompat.getColor(context, selectedColor), // green
+                ContextCompat.getColor(context, selectedColor), // green
+                ContextCompat.getColor(context, unselectedColor)  // white
         };
         ColorStateList list = new ColorStateList(states, colors);
-        return  list;
+        return list;
     }
 
-    public static void keepScreenAwake(boolean enable,Context context){
-        if(enable){
-            ((Activity)context).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    public static void keepScreenAwake(boolean enable, Context context) {
+        if (enable) {
+            ((Activity) context)
+                    .getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
-            ((Activity)context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            ((Activity) context)
+                    .getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
 
 
-    public static String getPathOPF(String unzipDir,Context context) {
+    public static String getPathOPF(String unzipDir, Context context) {
         String mPathOPF = "";
         try {
             // get the OPF path, directly from container.xml
-            BufferedReader br = new BufferedReader(new FileReader(unzipDir
-                    + "/META-INF/container.xml"));
+
+            BufferedReader br
+                    = new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir
+                    + "/META-INF/container.xml"), "UTF-8"));
             String line;
             while ((line = br.readLine()) != null) {
                 //if (line.indexOf(getS(R.string.full_path)) > -1)
@@ -436,8 +440,9 @@ public class AppUtil {
             br.close();
 
             // in case the OPF file is in the root directory
-            if (!mPathOPF.contains("/"))
-                mPathOPF = "";
+            if (!mPathOPF.contains("/")) {
+                mPathOPF = AppUtil.getTypeOfOPF(unzipDir);
+            }
 
             // remove the OPF file name and the preceding '/'
             int last = mPathOPF.lastIndexOf('/');
@@ -446,14 +451,133 @@ public class AppUtil {
             }
 
             return mPathOPF;
-        } catch (NullPointerException ae) {
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (NullPointerException | IOException e) {
+            Log.e(TAG, e.getMessage());
         }
-      return  mPathOPF;
+        return mPathOPF;
     }
+
+    public static boolean checkOPFInRootDirectory(String unzipDir, Context context) {
+        String mPathOPF = "";
+        boolean status = false;
+        try {
+            // get the OPF path, directly from container.xml
+           /* BufferedReader br = new BufferedReader(new FileReader(unzipDir
+                    + "/META-INF/container.xml"));*/
+            BufferedReader br =
+                    new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir
+                    + "/META-INF/container.xml"), "UTF-8"));
+            String line;
+            while ((line = br.readLine()) != null) {
+                //if (line.indexOf(getS(R.string.full_path)) > -1)
+                if (line.contains(context.getString(R.string.full_path))) {
+                    int start = line.indexOf(context.getString((R.string.full_path)));
+                    //int start2 = line.indexOf("\"", start);
+                    int start2 = line.indexOf('\"', start);
+                    int stop2 = line.indexOf('\"', start2 + 1);
+                    if (start2 > -1 && stop2 > start2) {
+                        mPathOPF = line.substring(start2 + 1, stop2).trim();
+                        break;
+                    }
+                }
+            }
+            br.close();
+
+            // check the OPF file is in the root directory
+            if (!mPathOPF.contains("/")) {
+                status = true;
+            } else {
+                status = false;
+            }
+
+
+        } catch (NullPointerException | IOException e) {
+            Log.e(TAG, e.getMessage());
+        }
+        return status;
+    }
+
+    private static String getTypeOfOPF(String unzipDir) {
+        File folder = new File(unzipDir);
+        File[] listOfFiles = folder.listFiles();
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isDirectory()) {
+                FileType type = FileType.valueOf(listOfFiles[i].getName());
+                if (type.equals(FileType.OPS))
+                    return type.name();
+                if (type.equals(FileType.OEBPS))
+                    return type.name();
+            }
+        }
+        return "";
+    }
+
+    public static void saveBookState(Context context, Book book, int folioPageViewPagerPosition, int webViewScrollPosition) {
+        SharedPreferenceUtil.removeSharedPreferencesKey(context, book.getTitle() + BOOK_STATE);
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put(BOOK_TITLE, book.getTitle());
+            obj.put(WEBVIEW_SCROLL_POSITION, webViewScrollPosition);
+            obj.put(VIEWPAGER_POSITION, folioPageViewPagerPosition);
+            SharedPreferenceUtil.
+                    putSharedPreferencesString(
+                    context, book.getTitle() + BOOK_STATE, obj.toString());
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    public static boolean checkPreviousBookStateExist(Context context, Book book) {
+        String json
+                = getSharedPreferencesString(
+                context, book.getTitle() + BOOK_STATE,
+                null);
+        if (json != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(json);
+                String bookTitle = jsonObject.getString(BOOK_TITLE);
+                if (bookTitle.equals(book.getTitle()))
+                    return true;
+            } catch (JSONException e) {
+                Log.e(TAG, e.getMessage());
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public static int getPreviousBookStatePosition(Context context, Book book) {
+        String json
+                = getSharedPreferencesString(context,
+                book.getTitle() + BOOK_STATE,
+                null);
+        if (json != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(json);
+                return jsonObject.getInt(VIEWPAGER_POSITION);
+            } catch (JSONException e) {
+                Log.e(TAG, e.getMessage());
+                return 0;
+            }
+        }
+        return 0;
+    }
+
+    public static int getPreviousBookStateWebViewPosition(Context context, Book book) {
+        String json = getSharedPreferencesString(context, book.getTitle() + BOOK_STATE, null);
+        if (json != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(json);
+                return jsonObject.getInt(WEBVIEW_SCROLL_POSITION);
+            } catch (JSONException e) {
+                Log.e(TAG, e.getMessage());
+                return 0;
+            }
+        }
+        return 0;
+    }
+
 }
 
 

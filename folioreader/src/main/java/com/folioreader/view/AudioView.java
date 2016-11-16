@@ -44,7 +44,7 @@ public class AudioView extends FrameLayout implements
     private StyleableTextView mHalfSpeed, mOneSpeed, mTwoSpeed, mOneAndHalfSpeed;
     private StyleableTextView mBackgroundColorStyle, mUnderlineStyle, mTextColorStyle;
     private ViewDragHelper mViewDragHelper;
-    private TextToSpeech mTextToSpeach;
+    private TextToSpeech mTextToSpeech;
 
     private Context mContext;
     private FolioActivity mFolioActivity;
@@ -111,7 +111,7 @@ public class AudioView extends FrameLayout implements
                 if (mPlayer.getDuration() != currentPosition) {
                     if (currentPosition > mEnd) {
                         mAudioElement = mFolioActivity.getElement(mPosition);
-                        mEnd = (int) mAudioElement.getmClipEnd();
+                        mEnd = (int) mAudioElement.getClipEnd();
                         mFolioActivity.setHighLight(mPosition);
                         mPosition++;
                     }
@@ -122,28 +122,29 @@ public class AudioView extends FrameLayout implements
             }
         };
 
-        mTextToSpeach = new TextToSpeech(mContext, new TextToSpeech.OnInitListener() {
+        mTextToSpeech = new TextToSpeech(mContext, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR) {
-                    mTextToSpeach.setLanguage(Locale.UK);
-                    mTextToSpeach.setSpeechRate(0.70f);
+                    mTextToSpeech.setLanguage(Locale.UK);
+                    mTextToSpeech.setSpeechRate(0.70f);
                 }
 
-                mTextToSpeach.setOnUtteranceCompletedListener(new TextToSpeech.OnUtteranceCompletedListener() {
-                    @Override
-                    public void onUtteranceCompleted(String utteranceId) {
-                        mFolioActivity.runOnUiThread(new Runnable() {
-
+                mTextToSpeech.setOnUtteranceCompletedListener(
+                        new TextToSpeech.OnUtteranceCompletedListener() {
                             @Override
-                            public void run() {
-                                if(mIsSpeaking) {
-                                    mFolioActivity.getSentance();
-                                }
+                            public void onUtteranceCompleted(String utteranceId) {
+                                mFolioActivity.runOnUiThread(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        if (mIsSpeaking) {
+                                            mFolioActivity.getSentance();
+                                        }
+                                    }
+                                });
                             }
                         });
-                    }
-                });
             }
         });
 
@@ -151,7 +152,7 @@ public class AudioView extends FrameLayout implements
         mPlayPauseBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mFolioActivity.isSmilAvailable()){
+                if (mFolioActivity.isSmilAvailable()) {
                     playAudio();
                 } else {
                     playAudioWithoutSmil();
@@ -246,34 +247,39 @@ public class AudioView extends FrameLayout implements
     }
 
     private void playAudioWithoutSmil() {
-        if(mTextToSpeach.isSpeaking()) {
-            mTextToSpeach.stop();
-            mIsSpeaking=false;
+        if (mTextToSpeech.isSpeaking()) {
+            mTextToSpeech.stop();
+            mIsSpeaking = false;
             mFolioActivity.resetCurrentIndex();
-            AppUtil.keepScreenAwake(false,mContext);
+            AppUtil.keepScreenAwake(false, mContext);
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
         } else {
-            mIsSpeaking=true;
+            mIsSpeaking = true;
             mFolioActivity.getSentance();
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
-            AppUtil.keepScreenAwake(true,mContext);
-           // mFolioActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            AppUtil.keepScreenAwake(true, mContext);
+            // mFolioActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
 
 
     public void speakAudio(final String sentence) {
         HashMap<String, String> params = new HashMap<String, String>();
-        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,"stringId");
-        mTextToSpeach.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
+        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
+        mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
     }
 
     public void playerStop() {
-        if (mPlayer != null && mPlayer.isPlaying()) {
-            mPlayer.release();
-            mHandler.removeCallbacks(mHighlightTask);
-            if (mTextToSpeach != null) {
-                mTextToSpeach.stop();
+        mIsSpeaking = false;
+        if (mFolioActivity.isSmilAvailable()) {
+            if (mPlayer != null && mPlayer.isPlaying()) {
+                mPlayer.release();
+                mHandler.removeCallbacks(mHighlightTask);
+            }
+        } else {
+            if (mTextToSpeech != null) {
+                mTextToSpeech.stop();
+                mTextToSpeech.shutdown();
             }
         }
     }
@@ -294,8 +300,11 @@ public class AudioView extends FrameLayout implements
                 String folderPath =
                         AppUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName());
                 filePath = filePath.substring(2, filePath.length());
-                String opfpath=AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName()),mFolioActivity);
-                filePath = folderPath + "/"+opfpath+"/" + filePath;
+                String opfpath
+                        = AppUtil.getPathOPF(
+                          AppUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName()),
+                        mFolioActivity);
+                filePath = folderPath + "/" + opfpath + "/" + filePath;
                 mPlayer.setDataSource(filePath);
                 mPlayer.prepare();
             } catch (IOException e) {
@@ -311,7 +320,7 @@ public class AudioView extends FrameLayout implements
             mPlayer.pause();
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
             mHandler.removeCallbacks(mHighlightTask);
-            AppUtil.keepScreenAwake(false,mContext);
+            AppUtil.keepScreenAwake(false, mContext);
             //mFolioActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
             if (mHandler == null) {
@@ -322,7 +331,7 @@ public class AudioView extends FrameLayout implements
             mPlayer.start();
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
             mHandler.post(mHighlightTask);
-            AppUtil.keepScreenAwake(true,mContext);
+            AppUtil.keepScreenAwake(true, mContext);
             //mFolioActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }

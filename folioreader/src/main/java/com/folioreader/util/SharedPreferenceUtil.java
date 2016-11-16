@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.util.Set;
+
 /**
  * Created by PC on 6/9/2016.
  */
@@ -30,6 +32,13 @@ public class SharedPreferenceUtil {
         SharedPreferences.Editor edit = preferences.edit();
         edit.putString(key, val);
         edit.commit();
+    }
+
+    public static void putSharedPreferencesStringSet(Context context, String key, Set<String> val) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putStringSet(key, val);
+        editor.commit();
     }
 
     public static void putSharedPreferencesFloat(Context context, String key, float val) {
@@ -59,6 +68,11 @@ public class SharedPreferenceUtil {
     public static String getSharedPreferencesString(Context context, String key, String defaultValue) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getString(key, defaultValue);
+    }
+
+    public static Set<String> getSharedPreferencesStringSet(Context context, String key, Set<String> defaultValue) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getStringSet(key, defaultValue);
     }
 
     public static int getSharedPreferencesInt(Context context, String key, int defaultValue) {

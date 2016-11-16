@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -24,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.folioreader.Config;
-import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.database.HighlightTable;
 import com.folioreader.model.Highlight;
@@ -33,21 +33,37 @@ import com.folioreader.util.UnderlinedTextView;
 
 import java.util.ArrayList;
 
+import nl.siegmann.epublib.domain.Book;
+
+import static com.folioreader.Constants.BOOK;
+import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
+import static com.folioreader.Constants.TYPE;
+
 public class HighlightListFragment extends Fragment {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private View mRootView;
     private Context mContext;
+    private Book mBook;
 
-    public static HighlightListFragment newInstance() {
+    public static HighlightListFragment newInstance(Book book) {
         HighlightListFragment fragment = new HighlightListFragment();
         Bundle args = new Bundle();
+        args.putSerializable(BOOK, book);
+        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_highlight_list, container, false);
         mContext = getActivity();
+        mBook = (Book) getArguments().getSerializable(BOOK);
         initViews();
         return mRootView;
     }
@@ -71,8 +87,7 @@ public class HighlightListFragment extends Fragment {
 
         HightlightAdpater hightlightAdpater =
                 new HightlightAdpater(mContext, 0,
-                        (ArrayList<Highlight>) HighlightTable
-                                .getAllRecords(mContext));
+                        (ArrayList<Highlight>) HighlightTable.getBookHighlight(mContext, mBook));
         ListView highlightListview = (ListView) mRootView.findViewById(R.id.list_highligts);
         highlightListview.setAdapter(hightlightAdpater);
     }
@@ -104,7 +119,8 @@ public class HighlightListFragment extends Fragment {
         public HightlightAdpater(Context context,
                                  int textViewResourceId, ArrayList<Highlight> objects) {
             super(context, textViewResourceId, objects);
-            mInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            mInflater = (LayoutInflater) getActivity()
+                      .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
@@ -153,7 +169,7 @@ public class HighlightListFragment extends Fragment {
                         public void onClick(View v) {
                             Intent intent = new Intent();
                             intent.putExtra(HIGHLIGHT_ITEM, rowItem);
-                            intent.putExtra(Constants.TYPE,Constants.HIGHLIGHT_SELECTED);
+                            intent.putExtra(TYPE, HIGHLIGHT_SELECTED);
                             getActivity().setResult(Activity.RESULT_OK, intent);
                             getActivity().finish();
                         }
@@ -182,7 +198,7 @@ public class HighlightListFragment extends Fragment {
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    HighlightTable.remove(rowItem.getHighlightId(),mContext);
+                    HighlightTable.remove(rowItem.getHighlightId(), mContext);
                     initViews();
                 }
             });
@@ -231,7 +247,6 @@ public class HighlightListFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         getActivity().finish();
     }
-
 
 }
 
