@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -46,6 +45,7 @@ import com.folioreader.util.EpubManipulator;
 import com.folioreader.util.ProgressDialog;
 import com.folioreader.view.AudioView;
 import com.folioreader.view.ConfigView;
+import com.folioreader.view.ConfigViewBottomView;
 import com.folioreader.view.ConfigViewCallback;
 import com.folioreader.view.DirectionalViewpager;
 import com.folioreader.view.FolioView;
@@ -71,7 +71,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         SD_CARD
     };
 
-    private RecyclerView mRecyclerViewMenu;
+
+    ConfigViewBottomView mConfigViewBottomView;
     private DirectionalViewpager mFolioPageViewPager;
     private FolioView mFolioView;
     private ConfigView mConfigView;
@@ -168,7 +169,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mRecyclerViewMenu = (RecyclerView) findViewById(R.id.recycler_view_menu);
+        //mRecyclerViewMenu = (RecyclerView) findViewById(R.id.recycler_view_menu);
         mFolioView = (FolioView) findViewById(R.id.folio_view);
         mConfigView = (ConfigView) findViewById(R.id.config_view);
         mAudioView = (AudioView) findViewById(R.id.audio_view);
@@ -374,11 +375,14 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         findViewById(R.id.btn_config).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mConfigView.isDragViewAboveTheLimit()) {
+                /*if (mConfigView.isDragViewAboveTheLimit()) {
                     mConfigView.moveToOriginalPosition();
                 } else {
                     mConfigView.moveOffScreen();
-                }
+                }*/
+                mConfigViewBottomView= new ConfigViewBottomView();
+                mConfigViewBottomView.show(getSupportFragmentManager(), mConfigViewBottomView.getTag());
+
             }
         });
 }
