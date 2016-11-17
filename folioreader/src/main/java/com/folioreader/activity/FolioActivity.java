@@ -140,18 +140,11 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                ContentHighlightBottomSheet contentHighlightBottomSheet = new ContentHighlightBottomSheet();
-                Bundle bundle =new Bundle();
-                bundle.putSerializable(BOOK,mBook);
-                bundle.putInt(SELECTED_CHAPTER_POSITION,mChapterPosition);
-                contentHighlightBottomSheet.setArguments(bundle);
-                contentHighlightBottomSheet.show(getSupportFragmentManager(), contentHighlightBottomSheet.getTag());
-                /*Intent intent = new Intent(FolioActivity.this, ContentHighlightBottomSheet.class);
+                Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
                 intent.putExtra(BOOK, mBook);
                 intent.putExtra(SELECTED_CHAPTER_POSITION, mChapterPosition);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
-                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);*/
+                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
             }
         });
     }
