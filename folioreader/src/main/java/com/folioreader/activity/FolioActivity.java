@@ -431,6 +431,10 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     private String readHTmlString(int position) {
         String pageHref = mSpineReferences.get(position).getResource().getHref();
+        if (EpubManipulator.isImage(pageHref)) {
+            return EpubManipulator.generateHtmlfromImage(pageHref);
+        }
+
         String opfpath = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), FolioActivity.this);
         if (AppUtil.checkOPFInRootDirectory(AppUtil.getFolioEpubFolderPath(mEpubFileName), FolioActivity.this)) {
             pageHref = AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + pageHref;
