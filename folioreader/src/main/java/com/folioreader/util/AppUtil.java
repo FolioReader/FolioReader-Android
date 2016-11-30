@@ -220,7 +220,13 @@ public class AppUtil {
                 new EpubManipulator(filePath, epubFileName, context);
                 book = saveBookToDb(filePath, epubFileName, context);
             } else {
-                BookModel bookModel = BookModelTable.getBookFromName(context, epubFileName);
+                BookModel bookModel = null;
+                try {
+                    bookModel = BookModelTable.getBookFromName(context, epubFileName);
+                } catch (Exception e) {
+                    Log.d(TAG, e.getMessage());
+                }
+
                 if (bookModel != null) {
                     book = bookModel.getBook();
                 } else {
@@ -284,7 +290,7 @@ public class AppUtil {
             fs = new FileInputStream(epubFilePath);
             book = (new EpubReader()).readEpub(fs);
             fs = null;
-
+            EpubManipulator.removeImagefromSpineList(book);
             BookModel bookModel = new BookModel();
             book.setCoverImage(null);
             book.setResources(null);

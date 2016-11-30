@@ -104,6 +104,7 @@ public class EpubManipulator {
         this.mDecompressedFolder = destFolder;
 
         Spine spine = mBook.getSpine();
+        removeImagefromSpineList(mBook);
         spineList = spine.getSpineReferences();
 
         this.mCurrentSpineElementIndex = 0;
@@ -777,6 +778,34 @@ public class EpubManipulator {
             return xhtml;
         } catch (IOException e) {
             return "";
+        }
+    }
+
+    public static boolean isImage(String path) {
+        return  (path.endsWith("jpeg") || path.endsWith("jpg") || path.endsWith("bmp") || path.endsWith("png"));
+    }
+
+    public static String generateHtmlfromImage(String path) {
+        String html = "<html>";
+        html += "<body> <img src=";
+        html += "\"" + path + "\"";
+        html += " align=\"center\"/></body>\n" +
+                "</html>";
+        return html;
+    }
+
+    public static void removeImagefromSpineList(Book book) {
+        if (book == null || book.getCoverImage() == null)
+            return;
+
+        String coverImageID = book.getCoverImage().getId();
+        Spine spine = book.getSpine();
+        List<SpineReference> spineList = spine.getSpineReferences();
+        for (int i = spineList.size() - 1; i >= 0; i--) {
+            SpineReference r = spineList.get(i);
+            String href = r.getResource().getHref();
+            if (isImage(href) && coverImageID.equals(r.getResourceId()))
+                spineList.remove(r);
         }
     }
 
