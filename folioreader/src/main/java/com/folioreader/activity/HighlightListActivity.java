@@ -202,10 +202,6 @@ public class HighlightListActivity extends AppCompatActivity {
             holder.editNote.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                   /* Intent intent = new Intent(getApplicationContext(), EditNoteActivity.class);
-                    intent.putExtra(HIGHLIGHT_ITEM, rowItem);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivityForResult(intent, REQUEST_CODE);*/
                     showEditNoteDailog(getItem(position));
                 }
             });

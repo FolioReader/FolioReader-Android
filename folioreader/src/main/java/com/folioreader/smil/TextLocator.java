@@ -1,12 +1,6 @@
 package com.folioreader.smil;
 
-import java.io.CharArrayWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.logging.Logger;
-
-import javax.xml.parsers.SAXParserFactory;
+import com.folioreader.DummyDtdResolver;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -14,7 +8,14 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.folioreader.DummyDtdResolver;
+import java.io.CharArrayWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.logging.Logger;
+
+import javax.xml.parsers.SAXParserFactory;
 
 /**
  * Helper Class for retrieving the text for TextElement
@@ -54,7 +55,7 @@ public class TextLocator extends DefaultHandler {
             byte []buf = new byte[(int) len];
             fis.read(buf);
             fis.close();
-            mResult = new String(buf);
+            mResult = new String(buf, Charset.forName("UTF-8"));
         }
         return mResult;
     }

@@ -1,16 +1,18 @@
 package com.folioreader.database;
 
+import android.content.Context;
+import android.util.Log;
+
 import com.folioreader.model.Highlight;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
 import com.j256.ormlite.table.TableUtils;
 
-import android.content.Context;
-import android.util.Log;
-
 import java.sql.SQLException;
 import java.util.List;
+
+import nl.siegmann.epublib.domain.Book;
 
 /**
  * Created by mobisys2 on 5/21/2016.
@@ -178,6 +180,17 @@ public class HighlightTable {
         } else {
             Log.d(Tag + "Remove:", "can't remove");
         }
+    }
+
+    public static List<Highlight> getBookHighlight(Context context, Book book) {
+        List<Highlight> records = null;
+        try {
+            records = FolioReaderDB.getInstance(context).getHighlightDao()
+                    .queryBuilder().where().eq("bookId", book.getTitle()).query();
+        } catch (SQLException e) {
+            Log.d(Tag, e.getMessage());
+        }
+        return records;
     }
 }
 

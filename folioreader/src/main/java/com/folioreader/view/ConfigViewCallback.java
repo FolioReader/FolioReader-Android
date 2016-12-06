@@ -28,6 +28,9 @@ public interface ConfigViewCallback {
     void onConfigChange();
 
     void onAudioPlayed();
+
+    void onOrentationChange(int orentation);
+
 /*
 =======
     void onBackgroundUpdate(int color);

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.folioreader.activity.ContentHighlightActivity">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="0dp"
+        android:alpha="0.8"
+        android:background="@color/white"
+        android:contentInsetLeft="0dp"
+        android:contentInsetRight="0dp"
+        android:contentInsetStart="0dp"
+        android:padding="0dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:contentInsetEnd="0dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetRight="0dp"
+        app:contentInsetStart="0dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/btn_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerInParent="true"
+                android:padding="20dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_close_green" />
+            <LinearLayout
+                android:layout_width="170dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerInParent="true"
+                android:padding="1.8dp"
+                android:background="@drawable/btn_contents_highlights"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/btn_contents"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="5dp"
+                    android:gravity="center|end"
+                    android:background="@drawable/style_back_color_selector"
+                    android:text="@string/contents"
+                    android:textColor="@drawable/content_highlight_text_selector"
+                    android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/btn_highlights"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="5dp"
+                    android:background="@drawable/style_back_color_selector"
+                    android:gravity="center|start"
+                    android:text="@string/highlights"
+                    android:textColor="@drawable/content_highlight_text_selector"
+                    android:textSize="16sp" />
+            </LinearLayout>
+            <View
+                android:id="@+id/view"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_alignParentBottom="true"
+                android:background="@android:color/black" />
+        </RelativeLayout>
+    </android.support.v7.widget.Toolbar>
+    <FrameLayout android:id="@+id/parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar">
+    </FrameLayout>
+</RelativeLayout>
