@@ -16,7 +16,7 @@ FolioReader-Android is an ePub reader and parser framework written in Java.
 - [x] Reading Time Left / Pages left
 - [ ] In-App Dictionary
 - [x] Media Overlays (Sync text rendering with audio playback)
-- [ ] TTS - Text to Speech Support
+- [x] TTS - Text to Speech Support
 - [ ] Parse epub cover image
 - [ ] PDF support
 - [ ] Book Search
@@ -34,13 +34,9 @@ FolioReader-Android is an ePub reader and parser framework written in Java.
 ![Media Overlay](https://cloud.githubusercontent.com/assets/1277242/19012908/d61f3ce2-87df-11e6-8652-d72b6a1ad9a3.gif)
 
 ### Gradle
-Add following to Project's build.gradle
-``` java
-mavenCentral()
-```
 Add following dependency to your app build.gradle
 ``` java
-compile 'com.folioreader:folioreader:0.1.1'
+compile 'com.folioreader:folioreader:0.2.2'
 ```
 
 ### Usage

@@ -1,19 +1,5 @@
 package com.folioreader.fragments;
 
-import com.bossturban.webviewmarker.TextSelectionSupport;
-import com.folioreader.Config;
-import com.folioreader.R;
-import com.folioreader.activity.FolioActivity;
-import com.folioreader.database.HighlightTable;
-import com.folioreader.model.Highlight;
-import com.folioreader.quickaction.ActionItem;
-import com.folioreader.quickaction.QuickAction;
-import com.folioreader.util.AppUtil;
-import com.folioreader.util.HighlightUtil;
-import com.folioreader.view.ObservableWebView;
-import com.folioreader.view.VerticalSeekbar;
-
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -39,6 +25,19 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bossturban.webviewmarker.TextSelectionSupport;
+import com.folioreader.Config;
+import com.folioreader.R;
+import com.folioreader.activity.FolioActivity;
+import com.folioreader.database.HighlightTable;
+import com.folioreader.model.Highlight;
+import com.folioreader.quickaction.ActionItem;
+import com.folioreader.quickaction.QuickAction;
+import com.folioreader.util.AppUtil;
+import com.folioreader.util.HighlightUtil;
+import com.folioreader.view.ObservableWebView;
+import com.folioreader.view.VerticalSeekbar;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -57,6 +56,7 @@ public class FolioPageFragment extends Fragment {
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.fragments.FolioPageFragment.POSITION";
     public static final String KEY_FRAGMENT_FOLIO_BOOK = "com.folioreader.fragments.FolioPageFragment.BOOK";
     public static final String KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.fragments.FolioPageFragment.EPUB_FILE_NAME";
+    private static final String KEY_IS_SMIL_AVAILABLE = "com.folioreader.fragments.FolioPageFragment.IS_SMIL_AVAILABLE";
     public static final String TAG = FolioPageFragment.class.getSimpleName();
 
     private static final int ACTION_ID_COPY = 1001;
@@ -73,6 +73,7 @@ public class FolioPageFragment extends Fragment {
     private static final int ACTION_ID_HIGHLIGHT_PINK = 1010;
     private static final int ACTION_ID_HIGHLIGHT_UNDERLINE = 1011;
 
+
     public static interface FolioPageFragmentCallback {
         String getChapterHtmlContent(int position);
 
@@ -83,6 +84,10 @@ public class FolioPageFragment extends Fragment {
         void setPagerToPosition(String href);
 
         void onPageLoaded();
+
+        void speakSentence(String sentance);
+
+        void setLastWebViewPosition(int position);
     }
 
     private View mRootView;
@@ -97,6 +102,7 @@ public class FolioPageFragment extends Fragment {
     private int mScrollY;
     private int mTotalMinutes;
     private String mSelectedText;
+    private boolean mIsSpeaking = false;
     private Map<String, String> mHighlightMap;
     private Handler mHandler = new Handler();
     private Animation mFadeInAnimation, mFadeOutAnimation;
@@ -104,13 +110,15 @@ public class FolioPageFragment extends Fragment {
     private int mPosition = -1;
     private Book mBook = null;
     private String mEpubFileName = null;
+    private boolean mIsSmilAvailable;
 
-    public static FolioPageFragment newInstance(int position, Book book, String epubFileName) {
+    public static FolioPageFragment newInstance(int position, Book book, String epubFileName, boolean isSmilAvailable) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
         args.putSerializable(KEY_FRAGMENT_FOLIO_BOOK, book);
         args.putString(KEY_FRAGMENT_EPUB_FILE_NAME, epubFileName);
+        args.putSerializable(KEY_IS_SMIL_AVAILABLE, isSmilAvailable);
         fragment.setArguments(args);
         return fragment;
     }
@@ -124,10 +132,12 @@ public class FolioPageFragment extends Fragment {
             mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBook = (Book) savedInstanceState.getSerializable(KEY_FRAGMENT_FOLIO_BOOK);
             mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
+            mIsSmilAvailable = savedInstanceState.getBoolean(KEY_IS_SMIL_AVAILABLE);
         } else {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBook = (Book) getArguments().getSerializable(KEY_FRAGMENT_FOLIO_BOOK);
             mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
+            mIsSmilAvailable = getArguments().getBoolean(KEY_IS_SMIL_AVAILABLE);
         }
 
         mContext = getActivity();
@@ -178,14 +188,18 @@ public class FolioPageFragment extends Fragment {
         mWebview.getSettings().setJavaScriptEnabled(true);
         mWebview.setVerticalScrollBarEnabled(false);
         mWebview.getSettings().setAllowFileAccess(true);
+
+        mWebview.setHorizontalScrollBarEnabled(false);
+
         mWebview.addJavascriptInterface(this, "Highlight");
         mWebview.setScrollListener(new ObservableWebView.ScrollListener() {
             @Override
             public void onScrollChange(int percent) {
                 if (mWebview.getScrollY() != 0) {
                     mScrollY = mWebview.getScrollY();
+                    ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
                 }
-                mScrollSeekbar.setProgressAndThumb((int) percent);
+                mScrollSeekbar.setProgressAndThumb(percent);
                 updatePagesLeftText(percent);
 
             }
@@ -195,8 +209,44 @@ public class FolioPageFragment extends Fragment {
             @Override
             public void onPageFinished(WebView view, String url) {
                 view.loadUrl("javascript:alert(getReadingTime())");
-                //mActivityCallback.onPageLoaded();
+                if (!mIsSmilAvailable) {
+                    view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
+                    view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal)));
+                }
+                ((FolioActivity) getActivity()).onPageLoaded();
+                /*ScreenUtils screen = new ScreenUtils(getContext());
+
+                int deviceHeight = screen.getRealHeight();
+                int deviceWidth = screen.getRealWidth();
+
+                String js = "javascript:function initialize() { " +
+                        "var body = document.getElementsByTagName('body')[0];" +
+                        "var ourH = window.innerHeight - 40; " +
+                        "var ourW = window.innerWidth; " +
+                        "var fullH = body.offsetHeight; " +
+                        "var pageCount = Math.floor(fullH/ourH)+1;" +
+                        "var currentPage = 0; " +
+                        "var newW = pageCount*ourW; " +
+                        "body.style.height = " + deviceHeight + "+ 'px' ;" +
+                        "body.style.width = newW+'px';" +
+                        "body.style.padding = 0; " +
+                        "body.style.margin = 0; " +
+                        "body.style.webkitColumnGap = '25px';" +
+                        "body.style.webkitColumnCount = pageCount;" +
+                        "body.style.webkitColumnWidth = " + (deviceWidth-15) + "+ 'px' ;" +
+                        "body.style.height = ourH" + "+ 'px' ;" +
+                        "}" +
+                        "javascript:initialize()";
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    view.evaluateJavascript(js, null);
+                } else {
+                    view.loadUrl(js);
+                }*/
+
+
             }
+
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -224,10 +274,10 @@ public class FolioPageFragment extends Fragment {
                             Log.d(TAG, e.getMessage());
                         }
                     } else {
-                        // Otherwise, give the default behavior (open in browser)
                         if (url.contains("storage")) {
                             mActivityCallback.setPagerToPosition(url);
                         } else {
+                            // Otherwise, give the default behavior (open in browser)
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                             startActivity(intent);
                         }
@@ -254,7 +304,7 @@ public class FolioPageFragment extends Fragment {
 
             @Override
             public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-                Log.d("FolioPageFragment", "Message: " + message);
+                Log.d("FolioPageFragment", "Message from js: " + message);
                 if (TextUtils.isDigitsOnly(message)) {
                     mTotalMinutes = Integer.parseInt(message);
                 } else {
@@ -273,6 +323,10 @@ public class FolioPageFragment extends Fragment {
                                         getActivity())),
                                 (int) (AppUtil.convertDpToPixel((float) height,
                                         getActivity())));
+                    } else {
+                        if (mIsSpeaking && (!message.equals("undefined"))) {
+                            mActivityCallback.speakSentence(message);
+                        }
                     }
                 }
                 result.confirm();
@@ -304,8 +358,33 @@ public class FolioPageFragment extends Fragment {
         });
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
-        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/OEBPS//";
+        String opfPath = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
+        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+       /* htmlContent="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n" +
+                "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"bg\">"+
+                "<head>\n" +
+               "<title/>\n" +
+                "<link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\"/>\n" +
+                "<link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\"/>\n" +
+                "\n" +
+                "<link rel=\"stylesheet\" type=\"text/css\" href=\"file:///android_asset/Style.css\">\n" +
+                "<script type=\"text/javascript\" src=\"file:///android_asset/Bridge.js\">" +
+                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/jquery-1.8.3.js\">" +
+                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/jpntext.js\">" +
+                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/rangy-core.js\">" +
+                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/rangy-serializer.js\">" +
+                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/android.selection.js\">" +
+                        "</script><script type=\"text/javascript\">setMediaOverlayStyleColors('#C0ED72','#C0ED72')</script>\n" +
+                "</head>\n" +
+                 "<body class=\"z\">\n" +
+                "<div class=\"title\">\n" +
+                "<p class=\"p\">Павел Светличный</p>\n" +
+                "<p class=\"p\">Киндер-сюрприз для зэка</p>\n" +
+                "</body>\n" +
+                "</html>\n";*/
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
+        ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
     }
 
     private void initSeekbar() {
@@ -328,9 +407,9 @@ public class FolioPageFragment extends Fragment {
 
     private void updatePagesLeftText(int scrollY) {
         try {
-            int currentPage = (int) Math.ceil(scrollY / mWebview.getWebviewHeight()) + 1;
+            int currentPage = (int) (Math.ceil((double) scrollY / mWebview.getWebviewHeight()) + 1);
             int totalPages =
-                    (int) Math.ceil(mWebview.getContentHeightVal()
+                    (int) Math.ceil((double) mWebview.getContentHeightVal()
                             / mWebview.getWebviewHeight());
             int pagesRemaining = totalPages - currentPage;
             String pagesRemainingStrFormat =
@@ -424,7 +503,6 @@ public class FolioPageFragment extends Fragment {
         super.onDestroyView();
     }
 
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -436,14 +514,19 @@ public class FolioPageFragment extends Fragment {
     public void reload() {
         final WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
         String htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
-        webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null);
+        String opfPath = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
+        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+        webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
         updatePagesLeftTextBg();
     }
 
-
-    public void highLightString(String id, String style) {
-        mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), style));
+    public void highLightString(String id) {
         mWebview.loadUrl(String.format(getString(R.string.audio_mark_id), id));
+    }
+
+    public void getTextSentence() {
+        mIsSpeaking = true;
+        mWebview.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))");
     }
 
     public void setStyle(String style) {
@@ -524,6 +607,7 @@ public class FolioPageFragment extends Fragment {
         ArrayList<Highlight> highlights =
                 (ArrayList<Highlight>) HighlightTable.getAllHighlight(getActivity().
                         getApplication(), mBook.getTitle(), mPosition);
+
         for (Highlight highlight : highlights) {
             String highlightStr =
                     "<highlight id=\"" + highlight.getHighlightId() +
@@ -531,7 +615,7 @@ public class FolioPageFragment extends Fragment {
                             highlight.getType() + "\">" + highlight.getContent() + "</highlight>";
             String searchStr = highlight.getContentPre() +
                     "" + highlight.getContent() + "" + highlight.getContentPost();
-            htmlContent = htmlContent.replace(searchStr, highlightStr);
+            htmlContent = htmlContent.replaceFirst(searchStr, highlightStr);
         }
         return htmlContent;
     }
@@ -548,6 +632,8 @@ public class FolioPageFragment extends Fragment {
             mWebview.loadUrl(String.format(getString(R.string.sethighlightstyle),
                     Highlight.HighlightStyle.classForStyle(style)));
         }
+
+
     }
 
     public void highlightRemove() {
@@ -716,7 +802,7 @@ public class FolioPageFragment extends Fragment {
 
     @JavascriptInterface
     public void getHtmlAndSaveHighlight(String html) {
-        if (html != null) {
+        if (html != null && mHighlightMap != null) {
             Highlight highlight =
                     HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBook, mPosition);
             highlight.setCurrentWebviewScrollPos(mWebview.getScrollY());
@@ -726,12 +812,12 @@ public class FolioPageFragment extends Fragment {
     }
 
     public void setWebViewPosition(final int position) {
-        mWebview.postDelayed(new Runnable() {
+        mWebview.post(new Runnable() {
             @Override
             public void run() {
                 mWebview.scrollTo(0, position);
             }
-        }, 50);
+        });
 
     }
 
@@ -757,6 +843,8 @@ public class FolioPageFragment extends Fragment {
         mHandler.postDelayed(mHideSeekbarRunnable, 3000);
     }
 
+    public void resetCurrentIndex() {
+        mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
+    }
+
 }
-
-

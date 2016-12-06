@@ -5,6 +5,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.Charset;
 
 
 // The EntityResolver prevents the SAX parser from trying to
@@ -22,7 +23,7 @@ public class DummyDtdResolver implements EntityResolver {
             throws SAXException, java.io.IOException {
         if (systemId.endsWith(".dtd")) {
             return new InputSource(new ByteArrayInputStream(
-                    "<?xml version='1.0' encoding='UTF-8'?>".getBytes()));
+                    "<?xml version='1.0' encoding='UTF-8'?>".getBytes(Charset.forName("UTF-8"))));
         } else {
             return null;
         }

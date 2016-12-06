@@ -19,7 +19,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -50,7 +49,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
                 } else {
-                    openEpub(FolioActivity.EpubSourceType.ASSESTS,"The Silver Chair.epub",0);
+                    openEpub(FolioActivity.EpubSourceType.ASSESTS,"1rosecsem1.epub",0);
                 }
             }
         });
@@ -62,7 +61,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
                 } else {
-                    openEpub(FolioActivity.EpubSourceType.RAW,null,R.raw.adventures);
+                    openEpub(FolioActivity.EpubSourceType.RAW,null,R.raw.metamorphoepub);
                 }
             }
         });
