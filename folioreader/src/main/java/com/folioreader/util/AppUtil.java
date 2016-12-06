@@ -487,13 +487,13 @@ public class AppUtil {
             }
 
 
-        } catch (NullPointerException | IOException e) {
+        } catch (NullPointerException | IOException | IllegalArgumentException  e) {
             Log.e(TAG, e.getMessage());
         }
         return status;
     }
 
-    private static String getTypeOfOPF(String unzipDir) {
+    private static String getTypeOfOPF(String unzipDir) throws IllegalArgumentException {
         File folder = new File(unzipDir);
         File[] listOfFiles = folder.listFiles();
 
