@@ -76,7 +76,8 @@ public class AppUtil {
 
     private static enum FileType {
         OPS,
-        OEBPS
+        OEBPS,
+        NONE
     }
 
     static {
@@ -438,7 +439,7 @@ public class AppUtil {
 
             // in case the OPF file is in the root directory
             if (!mPathOPF.contains("/")) {
-                mPathOPF = AppUtil.getTypeOfOPF(unzipDir);
+                return null;
             }
 
             // remove the OPF file name and the preceding '/'

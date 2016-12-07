@@ -409,8 +409,16 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
     @Override
-    public String getChapterHtmlContent(int position) {
-        return readHTmlString(position);
+    public String getPageHref(int position) {
+        String pageHref = mSpineReferences.get(position).getResource().getHref();
+        String opfpath = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), FolioActivity.this);
+        if (AppUtil.checkOPFInRootDirectory(AppUtil.getFolioEpubFolderPath(mEpubFileName), FolioActivity.this)) {
+            pageHref = AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + pageHref;
+        } else {
+            pageHref = AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfpath + "/" + pageHref;
+        }
+        //String html = EpubManipulator.readPage(pageHref);
+        return pageHref;
     }
 
     @Override
@@ -429,7 +437,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         }
     }
 
-    private String readHTmlString(int position) {
+    /*private String readHTmlString(int position) {
         String pageHref = mSpineReferences.get(position).getResource().getHref();
         String opfpath = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), FolioActivity.this);
         if (AppUtil.checkOPFInRootDirectory(AppUtil.getFolioEpubFolderPath(mEpubFileName), FolioActivity.this)) {
@@ -437,9 +445,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         } else {
             pageHref = AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfpath + "/" + pageHref;
         }
-        String html = EpubManipulator.readPage(pageHref);
-        return html;
-    }
+        //String html = EpubManipulator.readPage(pageHref);
+        return pageHref;
+    }*/
 
     private void toolbarAnimateShow(final int verticalOffset) {
         mToolbar.animate()

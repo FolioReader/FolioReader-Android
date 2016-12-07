@@ -34,6 +34,7 @@ import com.folioreader.model.Highlight;
 import com.folioreader.quickaction.ActionItem;
 import com.folioreader.quickaction.QuickAction;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.EpubManipulator;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
@@ -75,7 +76,7 @@ public class FolioPageFragment extends Fragment {
 
 
     public static interface FolioPageFragmentCallback {
-        String getChapterHtmlContent(int position);
+        String getPageHref(int position);
 
         void hideOrshowToolBar();
 
@@ -168,8 +169,10 @@ public class FolioPageFragment extends Fragment {
     }
 
     private void initWebView() {
-        String htmlContent = null;
-        htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
+        //String htmlContent = null;
+        //htmlContent = getHtmlContent(mActivityCallback.getPageHref(mPosition));
+        String pageHref = mActivityCallback.getPageHref(mPosition);
+        String htmlContent = getHtmlContent(EpubManipulator.readPage(pageHref));
 
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
         mWebview.setFragment(FolioPageFragment.this);
@@ -214,37 +217,6 @@ public class FolioPageFragment extends Fragment {
                     view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal)));
                 }
                 ((FolioActivity) getActivity()).onPageLoaded();
-                /*ScreenUtils screen = new ScreenUtils(getContext());
-
-                int deviceHeight = screen.getRealHeight();
-                int deviceWidth = screen.getRealWidth();
-
-                String js = "javascript:function initialize() { " +
-                        "var body = document.getElementsByTagName('body')[0];" +
-                        "var ourH = window.innerHeight - 40; " +
-                        "var ourW = window.innerWidth; " +
-                        "var fullH = body.offsetHeight; " +
-                        "var pageCount = Math.floor(fullH/ourH)+1;" +
-                        "var currentPage = 0; " +
-                        "var newW = pageCount*ourW; " +
-                        "body.style.height = " + deviceHeight + "+ 'px' ;" +
-                        "body.style.width = newW+'px';" +
-                        "body.style.padding = 0; " +
-                        "body.style.margin = 0; " +
-                        "body.style.webkitColumnGap = '25px';" +
-                        "body.style.webkitColumnCount = pageCount;" +
-                        "body.style.webkitColumnWidth = " + (deviceWidth-15) + "+ 'px' ;" +
-                        "body.style.height = ourH" + "+ 'px' ;" +
-                        "}" +
-                        "javascript:initialize()";
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    view.evaluateJavascript(js, null);
-                } else {
-                    view.loadUrl(js);
-                }*/
-
-
             }
 
 
@@ -358,31 +330,14 @@ public class FolioPageFragment extends Fragment {
         });
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
+        /*String epubFilePath = AppUtil.getFolioEpubFilePath(FolioActivity.EpubSourceType.RAW, null, mEpubFileName);
         String opfPath = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
-        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
-       /* htmlContent="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n" +
-                "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"bg\">"+
-                "<head>\n" +
-               "<title/>\n" +
-                "<link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\"/>\n" +
-                "<link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\"/>\n" +
-                "\n" +
-                "<link rel=\"stylesheet\" type=\"text/css\" href=\"file:///android_asset/Style.css\">\n" +
-                "<script type=\"text/javascript\" src=\"file:///android_asset/Bridge.js\">" +
-                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/jquery-1.8.3.js\">" +
-                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/jpntext.js\">" +
-                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/rangy-core.js\">" +
-                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/rangy-serializer.js\">" +
-                        "</script><script type=\"text/javascript\" src=\"file:///android_asset/android.selection.js\">" +
-                        "</script><script type=\"text/javascript\">setMediaOverlayStyleColors('#C0ED72','#C0ED72')</script>\n" +
-                "</head>\n" +
-                 "<body class=\"z\">\n" +
-                "<div class=\"title\">\n" +
-                "<p class=\"p\">Павел Светличный</p>\n" +
-                "<p class=\"p\">Киндер-сюрприз для зэка</p>\n" +
-                "</body>\n" +
-                "</html>\n";*/
+        //String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+        String baseUrl = "file://" + epubFilePath + "/" + opfPath + "//";*/
+
+        //String opfPath = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
+        //String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+        String baseUrl = "file://" + pageHref.substring(0, pageHref.lastIndexOf("/")) + "//";
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
         ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
     }
@@ -513,9 +468,16 @@ public class FolioPageFragment extends Fragment {
 
     public void reload() {
         final WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
-        String htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
+        //String htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
+        String pageHref = mActivityCallback.getPageHref(mPosition);
+        String htmlContent = getHtmlContent(EpubManipulator.readPage(pageHref));
+
+        /*String epubFilePath = AppUtil.getFolioEpubFilePath(FolioActivity.EpubSourceType.RAW, null, mEpubFileName);
         String opfPath = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
-        String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+        //String baseUrl = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+        String baseUrl = "file://" + epubFilePath + "/" + opfPath + "//";*/
+
+        String baseUrl = "file://" + pageHref.substring(0, pageHref.lastIndexOf("/")) + "//";
         webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
         updatePagesLeftTextBg();
     }
