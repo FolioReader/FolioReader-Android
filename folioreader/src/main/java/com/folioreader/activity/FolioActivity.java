@@ -40,7 +40,6 @@ import com.folioreader.smil.AudioElement;
 import com.folioreader.smil.SmilFile;
 import com.folioreader.smil.TextElement;
 import com.folioreader.util.AppUtil;
-import com.folioreader.util.EpubManipulator;
 import com.folioreader.util.ProgressDialog;
 import com.folioreader.view.AudioView;
 import com.folioreader.view.ConfigView;

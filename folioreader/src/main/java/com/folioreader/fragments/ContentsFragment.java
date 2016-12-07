@@ -38,9 +38,7 @@ public class ContentsFragment extends Fragment {
     private int mSelectedChapterPosition;
     private boolean mIsNightMode;
 
-
-
-    public static ContentsFragment newInstance(Book book,int selectedChapterPosition) {
+    public static ContentsFragment newInstance(Book book, int selectedChapterPosition) {
         ContentsFragment contentsFragment = new ContentsFragment();
         Bundle args = new Bundle();
         args.putSerializable(BOOK, book);
