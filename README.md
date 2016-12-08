@@ -74,7 +74,7 @@ For reading from SD card, just retrieve absolute path of epub file and pass that
 - Follow me on **Twitter**: [**@hebertialmeida**](https://twitter.com/hebertialmeida)
 - Contact me on **LinkedIn**: [**hebertialmeida**](http://linkedin.com/in/hebertialmeida)
 
-[**Mahavir Jain**](https://github.com/mahavir-jain)
+[**Mahavir Jain**](https://github.com/mahavir155)
 
 - Follow me on **Twitter**: [**@mahavir155**](https://twitter.com/mahavir155)
 - Contact me on **LinkedIn**: [**mahavir155**](http://linkedin.com/in/mahavir155)
