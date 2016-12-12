@@ -1,0 +1,45 @@
+<resources>
+
+    <string name="minutes_left">%1$d минуты ·&#160;</string>
+    <string name="minute_left">%1$d минута ·&#160;</string>
+    <string name="less_than_minute">Меньше минуты ·&#160;</string>
+
+    <string name="copied">Скопировано</string>
+    <string name="send_to">Отправить</string>
+
+    <string name="copy">Копировать</string>
+    <string name="share">Поделиться</string>
+    <string name="define">Определить</string>
+    <string name="highlight">Выделить</string>
+
+    <string name="pages_left">Осталось %1$d страниц</string>
+    <string name="page_left">Остался %1$d страница</string>
+    <string name="highlights">Выделенные</string>
+    <string name="style">Стиль</string>
+    <string name="titlesMeta">&lt;tr&gt;&lt;td&gt;Названии:&lt;/td&gt;</string>
+    <string name="authorsMeta">&lt;tr&gt;&lt;td&gt;Авторы:&lt;/td&gt;</string>
+    <string name="contributorsMeta">&lt;tr&gt;&lt;td&gt;Участникии:&lt;/td&gt;</string>
+    <string name="languageMeta">&lt;tr&gt;&lt;td&gt;Язык:&lt;/td&gt;&lt;td&gt;</string>
+    <string name="publishersMeta">&lt;tr&gt;&lt;td&gt;Издатели:&lt;/td&gt;</string>
+    <string name="typesMeta">&lt;tr&gt;&lt;td&gt;Типы:&lt;/td&gt;</string>
+    <string name="descriptionsMeta">&lt;tr&gt;&lt;td&gt;Описание:&lt;/td&gt;</string>
+    <string name="rightsMeta">&lt;tr&gt;&lt;td&gt;Права:&lt;/td&gt;</string>
+    <string name="tablebodyhtmlClose">&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string name="tocReference">&lt;tr&gt;&lt;td&gt;Оглавление:&lt;/td&gt;</string>
+    <string name="change_Font">Изменить шрифт</string>
+    <string name="change_Font_Color">Цвет шрифта:</string>
+    <string name="changeStyle">Изменить стиль</string>
+    <string name="error_CannotChangeStyle">Не удалось изменить стиль!</string>
+    <string name="OK">OK</string>
+    <string name="Cancel">Отмена</string>
+    <string name="SetSizeTitle">Размер верхний панели:</string>
+    <string name="LanguageChooserTitle">Выберите два языка:</string>
+    <string name="loading">Загрузка</string>
+    <string name="please_wait">пожалуйста, подождите...</string>
+    <string name="please_wait_till_audio_is_parsed">пожалуйста, подождите, пока звук будет обработан, повторите попытку через некоторое время</string>
+    <string name="edit_notes">Сохранить ваши заметки</string>
+    <string name="save_note">Сохранить заметку</string>
+    <string name="please_enter_note">пожалуйста введите заметку</string>
+    <string name="contents">Содержание</string>
+
+</resources>
