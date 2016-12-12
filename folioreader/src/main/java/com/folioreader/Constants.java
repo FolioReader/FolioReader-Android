@@ -1,5 +1,8 @@
 package com.folioreader;
 
+import com.squareup.otto.Bus;
+import com.squareup.otto.ThreadEnforcer;
+
 /**
  * Created by mobisys on 10/4/2016.
  */
@@ -14,4 +17,5 @@ public class Constants {
     public static final String VIEWPAGER_POSITION = "view_pager_position";
     public static final String BOOK_STATE = "book_state";
     public static final String CHARSET_NAME = "UTF-8";
+    public static Bus bus = new Bus(ThreadEnforcer.ANY);
 }

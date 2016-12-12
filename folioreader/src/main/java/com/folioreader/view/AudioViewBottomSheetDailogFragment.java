@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
+import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.activity.FolioActivity;
 import com.folioreader.model.Highlight;
@@ -137,7 +138,10 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                     if (currentPosition > mEnd) {
                         mAudioElement = mFolioActivity.getElement(mPosition);
                         mEnd = (int) mAudioElement.getClipEnd();
-                        mFolioActivity.setHighLight(mPosition);
+                        //if(isAdded()) {
+                            Constants.bus.post(mPosition);
+                            //mFolioActivity.setHighLight(mPosition);
+                       // }
                         mPosition++;
                     }
                     mHandler.postDelayed(mHighlightTask, 10);
@@ -239,7 +243,8 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                 mTextColorStyle.setSelected(false);
                 mHighlightStyle =
                         Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
-                mFolioActivity.setHighLightStyle(mHighlightStyle);
+                //mFolioActivity.setHighLightStyle(mHighlightStyle);
+                Constants.bus.post(mHighlightStyle);
                 mUnderlineStyleIsSelected = false;
                 mTextColorStyleIsSelected = false;
 
@@ -255,7 +260,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                 mTextColorStyle.setSelected(false);
                 mHighlightStyle =
                         Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
-                mFolioActivity.setHighLightStyle(mHighlightStyle);
+                Constants.bus.post(mHighlightStyle);
                 mUnderlineStyleIsSelected = true;
                 mTextColorStyleIsSelected = false;
             }
@@ -270,7 +275,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                 mTextColorStyle.setSelected(true);
                 mHighlightStyle =
                         Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
-                mFolioActivity.setHighLightStyle(mHighlightStyle);
+                Constants.bus.post(mHighlightStyle);
                 mTextColorStyleIsSelected = true;
                 mUnderlineStyleIsSelected = false;
             }

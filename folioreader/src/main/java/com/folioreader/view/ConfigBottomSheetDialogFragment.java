@@ -45,14 +45,6 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     private ConfigDialogCallback mConfigDialogCallback;
 
     public interface ConfigDialogCallback {
-        void onBackgroundUpdate(int color);
-
-        void changeMenuTextColor();
-
-        void onShadowAlpha(float alpha);
-
-        void showShadow();
-
         void onConfigChange();
 
         void onAudioPlayed();
@@ -97,14 +89,12 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         configSeekbar();
         selectFont(Config.getConfig().getFont());
         mIsNightMode = Config.getConfig().isNightMode();
-       /* int day = getResources().getColor(R.color.white);
-        int night = getResources().getColor(R.color.night);*/
         if (mIsNightMode) {
             mContainer.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.night));
         } else {
             mContainer.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.white));
         }
-        //setToolBarColor();
+
         if (mIsNightMode) {
             mDayButton.setSelected(false);
             mNightButton.setSelected(true);
@@ -112,7 +102,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             mDayButton.setSelected(true);
             mNightButton.setSelected(false);
         }
-        //mConfigViewCallback= (ConfigViewCallback) getActivity();
+
         mConfigDialogCallback = (ConfigDialogCallback) getActivity();
     }
 
@@ -221,9 +211,6 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             public void onAnimationUpdate(ValueAnimator animator) {
                 int value = (int) animator.getAnimatedValue();
                 mContainer.setBackgroundColor(value);
-               /* if (mConfigViewCallback != null) {
-                    mConfigViewCallback.onBackgroundUpdate(value - diffNightDark);
-                }*/
             }
         });
 
@@ -236,7 +223,6 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             public void onAnimationEnd(Animator animator) {
                 mIsNightMode = !mIsNightMode;
                 Config.getConfig().setNightMode(mIsNightMode);
-                //mConfigViewCallback.onConfigChange();
                 mConfigDialogCallback.onConfigChange();
             }
 
@@ -284,13 +270,6 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     mDayButton.setSelected(true);
                     mNightButton.setSelected(false);
                     setToolBarColor();
-                    /*((Activity) getContext()).
-                            findViewById(R.id.toolbar).
-                            setBackgroundColor(getContext().getResources().getColor(R.color.white));
-                    ((TextView) ((Activity) getContext()).
-                            findViewById(R.id.lbl_center)).
-                            setTextColor(getResources().getColor(R.color.black));*/
-                    //mConfigViewCallback.changeMenuTextColor();
                 }
                 break;
             case Tags.NIGHT_BUTTON:
@@ -300,14 +279,6 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     mDayButton.setSelected(false);
                     mNightButton.setSelected(true);
                     setToolBarColor();
-                    /*((Activity) getContext())
-                            .findViewById(R.id.toolbar)
-                            .setBackgroundColor(getContext()
-                                    .getResources().getColor(R.color.black));
-                    ((TextView) ((Activity) getContext())
-                            .findViewById(R.id.lbl_center))
-                            .setTextColor(getResources().getColor(R.color.white));*/
-                    //mConfigViewCallback.changeMenuTextColor();
                 }
                 break;
             default:
