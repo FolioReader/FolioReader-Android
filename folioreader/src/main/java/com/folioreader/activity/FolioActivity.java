@@ -42,13 +42,9 @@ import com.folioreader.smil.TextElement;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.EpubManipulator;
 import com.folioreader.util.ProgressDialog;
-import com.folioreader.view.AudioView;
+import com.folioreader.view.AudioViewBottomSheetDailogFragment;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
-import com.folioreader.view.ConfigView;
-import com.folioreader.view.ConfigViewCallback;
 import com.folioreader.view.DirectionalViewpager;
-import com.folioreader.view.FolioView;
-import com.folioreader.view.FolioViewCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,8 +59,8 @@ import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
 import static com.folioreader.Constants.SELECTED_CHAPTER_POSITION;
 import static com.folioreader.Constants.TYPE;
 
-public class FolioActivity extends AppCompatActivity implements ConfigViewCallback,
-        FolioViewCallback, FolioPageFragment.FolioPageFragmentCallback {
+public class FolioActivity extends AppCompatActivity implements
+        FolioPageFragment.FolioPageFragmentCallback, ConfigBottomSheetDialogFragment.ConfigDialogCallback {
 
     public static final String INTENT_EPUB_SOURCE_PATH = "com.folioreader.epub_asset_path";
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
@@ -80,9 +76,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     ;
 
     private DirectionalViewpager mFolioPageViewPager;
-    private FolioView mFolioView;
-    private ConfigView mConfigView;
-    private AudioView mAudioView;
+    //private FolioView mFolioView;
     private Toolbar mToolbar;
 
     private EpubSourceType mEpubSourceType;
@@ -103,6 +97,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private int mWebViewScrollPosition;
     private int mPageLoadCount = 0;
     private ConfigBottomSheetDialogFragment mConfigBottomSheetDialogFragment;
+    private AudioViewBottomSheetDailogFragment mAudioBottomSheetDialogFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,11 +119,16 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
             @Override
             public void onClick(View v) {
                 if (mIsSmilParsed) {
-                    if (mAudioView.isDragViewAboveTheLimit()) {
+                   /* if (mAudioView.isDragViewAboveTheLimit()) {
                         mAudioView.moveToOriginalPosition();
                     } else {
                         mAudioView.moveOffScreen();
+                    }*/
+                    if (mAudioBottomSheetDialogFragment == null) {
+                        mAudioBottomSheetDialogFragment = new AudioViewBottomSheetDailogFragment();
                     }
+                    mAudioBottomSheetDialogFragment.show(getSupportFragmentManager(), mAudioBottomSheetDialogFragment.getTag());
+
                 } else {
                     Toast.makeText(FolioActivity.this,
                             getString(R.string.please_wait_till_audio_is_parsed),
@@ -177,53 +177,42 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mFolioView = (FolioView) findViewById(R.id.folio_view);
-        mConfigView = (ConfigView) findViewById(R.id.config_view);
-        mAudioView = (AudioView) findViewById(R.id.audio_view);
-        mFolioView.setFolioViewCallback(FolioActivity.this);
-        mConfigView.setConfigViewCallback(FolioActivity.this);
-        mAudioView.setAudioViewCallback(FolioActivity.this);
-        mConfigView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mConfigView.moveOffScreen();
-                mAudioView.moveOffScreen();
-            }
-        }, 2);
+       /* mFolioView = (FolioView) findViewById(R.id.folio_view);
+        mFolioView.setFolioViewCallback(FolioActivity.this);*/
         configDrawerLayoutButtons();
     }
 
     @Override
     public void onBackPressed() {
-        if (mConfigView.isDragViewAboveTheLimit()) {
+       /* if (mConfigView.isDragViewAboveTheLimit()) {
             mConfigView.moveToOriginalPosition();
-        } else {
-            saveBookState();
-            super.onBackPressed();
-        }
+        } else {*/
+        saveBookState();
+        super.onBackPressed();
+        // }
     }
 
     @Override
     public void onBackgroundUpdate(int value) {
-        mFolioView.setBackgroundColor(value);
+        //mFolioView.setBackgroundColor(value);
 
     }
 
     @Override
     public void changeMenuTextColor() {
-        /*mTocAdapter.setNightMode(!Config.getConfig().isNightMode());
+       /* mTocAdapter.setNightMode(!Config.getConfig().isNightMode());
         mTocAdapter.setSelectedChapterPosition(mChapterPosition);
         mTocAdapter.notifyDataSetChanged();*/
     }
 
     @Override
     public void onShadowAlpha(float alpha) {
-        mFolioView.updateShadowAlpha(alpha);
+        //mFolioView.updateShadowAlpha(alpha);
     }
 
     @Override
     public void showShadow() {
-        mFolioView.resetView();
+        //mFolioView.resetView();
     }
 
     @Override
@@ -240,7 +229,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         ((FolioPageFragment) page).reload();
         if (position < mSpineReferences.size()) {
             page = getFragment(position + 1);
-            if(page!=null) {
+            if (page != null) {
                 ((FolioPageFragment) page).reload();
             }
 
@@ -255,9 +244,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     @Override
     public void onOrentationChange(int orentation) {
         if (orentation == 0) {
-            //mFolioPageViewPager = (DirectionalViewpager) mFolioView.findViewById(R.id.folioPageViewPager);
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
-            //mFolioPageFragmentAdapter.notifyDataSetChanged();
             if (mBook != null && mSpineReferences != null) {
                 mFolioPageFragmentAdapter =
                         new FolioPageFragmentAdapter(getSupportFragmentManager(),
@@ -266,9 +253,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 mFolioPageViewPager.setCurrentItem(mChapterPosition);
             }
         } else {
-            //mFolioPageViewPager = (DirectionalViewpager) mFolioView.findViewById(R.id.folioPageViewPager);
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
-            // mFolioPageFragmentAdapter.notifyDataSetChanged();
             if (mBook != null && mSpineReferences != null) {
                 mFolioPageFragmentAdapter =
                         new FolioPageFragmentAdapter(getSupportFragmentManager(),
@@ -284,11 +269,6 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                 findFragmentByTag("android:switcher:" + R.id.folioPageViewPager + ":" + (pos));
     }
 
-    @Override
-    public void onShadowClick() {
-        mConfigView.moveOffScreen();
-        mAudioView.moveOffScreen();
-    }
 
     public void configRecyclerViews() {
         mTocReferences = (ArrayList<TOCReference>) mBook.getTableOfContents().getTocReferences();
@@ -330,7 +310,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     }
 
     private void configFolio() {
-        mFolioPageViewPager = (DirectionalViewpager) mFolioView.findViewById(R.id.folioPageViewPager);
+        mFolioPageViewPager = (DirectionalViewpager) findViewById(R.id.folioPageViewPager);
         mFolioPageViewPager.setOnPageChangeListener(new DirectionalViewpager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position,
@@ -577,9 +557,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mAudioView != null) {
+       /* if (mAudioView != null) {
             mAudioView.playerStop();
-        }
+        }*/
     }
 
     @Override
@@ -597,7 +577,7 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     public void speakSentence(String sentance) {
-        mAudioView.speakAudio(sentance);
+        //mAudioView.speakAudio(sentance);
     }
 
     public void resetCurrentIndex() {
