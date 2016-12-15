@@ -11,19 +11,20 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.widget.ViewDragHelper;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 
 import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.activity.FolioActivity;
 import com.folioreader.model.Highlight;
+import com.folioreader.model.RewindIndex;
+import com.folioreader.model.Sentence;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.util.AppUtil;
+import com.squareup.otto.Subscribe;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -56,6 +57,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
     private int mEnd;
     private int mPosition = 0;
     private String mHighlightStyle;
+    private boolean isRegistered;
 
 
     private boolean mIsSpeaking = false;
@@ -90,7 +92,13 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
             ((BottomSheetBehavior) mBehavior).setBottomSheetCallback(mBottomSheetBehaviorCallback);
         }
         initViews();
+        if (!isRegistered) {
+            Constants.BUS.register(this);
+            isRegistered = true;
+        }
+
     }
+
 
     private void initViews() {
         mHalfSpeed = (StyleableTextView) mDialog.findViewById(R.id.btn_half_speed);
@@ -139,9 +147,9 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                         mAudioElement = mFolioActivity.getElement(mPosition);
                         mEnd = (int) mAudioElement.getClipEnd();
                         //if(isAdded()) {
-                            Constants.bus.post(mPosition);
-                            //mFolioActivity.setHighLight(mPosition);
-                       // }
+                        Constants.BUS.post(mPosition);
+                        //mFolioActivity.setHighLight(mPosition);
+                        // }
                         mPosition++;
                     }
                     mHandler.postDelayed(mHighlightTask, 10);
@@ -168,7 +176,8 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                                     @Override
                                     public void run() {
                                         if (mIsSpeaking) {
-                                            mFolioActivity.getSentance();
+                                            Constants.BUS.post(true);
+                                            //mFolioActivity.getSentance();
                                         }
                                     }
                                 });
@@ -244,7 +253,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                 mHighlightStyle =
                         Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
                 //mFolioActivity.setHighLightStyle(mHighlightStyle);
-                Constants.bus.post(mHighlightStyle);
+                Constants.BUS.post(mHighlightStyle);
                 mUnderlineStyleIsSelected = false;
                 mTextColorStyleIsSelected = false;
 
@@ -260,7 +269,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                 mTextColorStyle.setSelected(false);
                 mHighlightStyle =
                         Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
-                Constants.bus.post(mHighlightStyle);
+                Constants.BUS.post(mHighlightStyle);
                 mUnderlineStyleIsSelected = true;
                 mTextColorStyleIsSelected = false;
             }
@@ -275,7 +284,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                 mTextColorStyle.setSelected(true);
                 mHighlightStyle =
                         Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
-                Constants.bus.post(mHighlightStyle);
+                Constants.BUS.post(mHighlightStyle);
                 mTextColorStyleIsSelected = true;
                 mUnderlineStyleIsSelected = false;
             }
@@ -287,23 +296,26 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
         if (mTextToSpeech.isSpeaking()) {
             mTextToSpeech.stop();
             mIsSpeaking = false;
-            mFolioActivity.resetCurrentIndex();
+            Constants.BUS.post(new RewindIndex());
+            //mFolioActivity.resetCurrentIndex();
             AppUtil.keepScreenAwake(false, mContext);
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
         } else {
-            mIsSpeaking = true;
-            mFolioActivity.getSentance();
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
+            mIsSpeaking = true;
             AppUtil.keepScreenAwake(true, mContext);
-            // mFolioActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            if (isAdded()) {
+                Constants.BUS.post(true);
+            }
+
         }
     }
 
-
-    public void speakAudio(final String sentence) {
+    @Subscribe
+    public void speakAudio(Sentence sentence) {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
-        mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
+        mTextToSpeech.speak(sentence.getSentence(), TextToSpeech.QUEUE_FLUSH, params);
     }
 
     public void playerStop() {
@@ -373,4 +385,14 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
         }
 
     }
+
+    public void unRegisterBus() {
+        if(isRegistered) {
+            Constants.BUS.unregister(this);
+        }
+    }
 }
+
+
+
+

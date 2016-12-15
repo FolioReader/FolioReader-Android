@@ -143,7 +143,7 @@ public class FolioActivity extends AppCompatActivity implements
             }
         });
 
-        Constants.bus.register(this);
+        Constants.BUS.register(this);
     }
 
     private void initBook() {
@@ -463,14 +463,14 @@ public class FolioActivity extends AppCompatActivity implements
                     mTextElementList = smilElements.getTextElementArrayList();
                     mAudioElementArrayList = smilElements.getAudioElementArrayList();
                     mIsSmilAvailable = true;
-                    Constants.bus.post(mTextElementList);
+                    Constants.BUS.post(mTextElementList);
                 } else {
                     SmilFile smilFile = AppUtil.createSmilJson(FolioActivity.this, mEpubFileName);
                     if (smilFile != null) {
                         mAudioElementArrayList = smilFile.getAudioSegments();
                         mTextElementList = smilFile.getTextSegments();
                         mIsSmilAvailable = true;
-                        Constants.bus.post(mTextElementList);
+                        Constants.BUS.post(mTextElementList);
                     } else {
                         mIsSmilAvailable = false;
                     }
@@ -500,6 +500,9 @@ public class FolioActivity extends AppCompatActivity implements
        /* if (mAudioView != null) {
             mAudioView.playerStop();
         }*/
+        if(mAudioBottomSheetDialogFragment!=null) {
+            mAudioBottomSheetDialogFragment.unRegisterBus();
+        }
     }
 
     @Override
@@ -511,20 +514,26 @@ public class FolioActivity extends AppCompatActivity implements
         return mEpubFileName;
     }
 
-    public void getSentance() {
+   /* public void getSentance() {
         ((FolioPageFragment) getFragment(mChapterPosition)).getTextSentence();
-    }
+    }*/
 
-    @Override
-    public void speakSentence(String sentance) {
+
+ /*   public void speakSentence(Sentence sentance) {
         //mAudioView.speakAudio(sentance);
-    }
+    }*/
 
     public void resetCurrentIndex() {
-        ((FolioPageFragment) getFragment(mChapterPosition)).resetCurrentIndex();
+       // ((FolioPageFragment) getFragment(mChapterPosition)).resetCurrentIndex();
     }
 
     public boolean isSmilAvailable() {
         return mIsSmilAvailable;
     }
+
+    public int getmChapterPosition() {
+        return mChapterPosition;
+    }
+
+
 }

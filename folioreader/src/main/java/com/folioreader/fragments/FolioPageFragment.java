@@ -32,6 +32,8 @@ import com.folioreader.R;
 import com.folioreader.activity.FolioActivity;
 import com.folioreader.database.HighlightTable;
 import com.folioreader.model.Highlight;
+import com.folioreader.model.RewindIndex;
+import com.folioreader.model.Sentence;
 import com.folioreader.quickaction.ActionItem;
 import com.folioreader.quickaction.QuickAction;
 import com.folioreader.smil.TextElement;
@@ -44,13 +46,13 @@ import com.squareup.otto.Subscribe;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import nl.siegmann.epublib.domain.Book;
+
 
 /**
  * Created by mahavir on 4/2/16.
@@ -88,8 +90,6 @@ public class FolioPageFragment extends Fragment {
 
         void setPagerToPosition(String href);
 
-        void speakSentence(String sentance);
-
         void setLastWebViewPosition(int position);
     }
 
@@ -105,7 +105,7 @@ public class FolioPageFragment extends Fragment {
     private int mScrollY;
     private int mTotalMinutes;
     private String mSelectedText;
-    private boolean mIsSpeaking = false;
+    private boolean mIsSpeaking = true;
     private Map<String, String> mHighlightMap;
     private Handler mHandler = new Handler();
     private Animation mFadeInAnimation, mFadeOutAnimation;
@@ -115,6 +115,7 @@ public class FolioPageFragment extends Fragment {
     private Book mBook = null;
     private String mEpubFileName = null;
     private boolean mIsSmilAvailable;
+    private int mPos;
 
     public static FolioPageFragment newInstance(int position, Book book, String epubFileName, boolean isSmilAvailable, ArrayList<TextElement> textElements) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -153,8 +154,11 @@ public class FolioPageFragment extends Fragment {
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
         if (getActivity() instanceof FolioPageFragmentCallback)
             mActivityCallback = (FolioPageFragmentCallback) getActivity();
+        if(isCurrentFragment()) {
+            Constants.BUS.register(this);
+        }
 
-        Constants.bus.register(this);
+
         initSeekbar();
         initAnimations();
         initWebView();
@@ -162,6 +166,7 @@ public class FolioPageFragment extends Fragment {
 
         return mRootView;
     }
+
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -320,31 +325,37 @@ public class FolioPageFragment extends Fragment {
             @Override
             public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
                 Log.d("FolioPageFragment", "Message from js: " + message);
-                if (TextUtils.isDigitsOnly(message)) {
-                    mTotalMinutes = Integer.parseInt(message);
-                } else {
-                    final Pattern pattern = Pattern.compile(getString(R.string.pattern));
-                    Matcher matcher = pattern.matcher(message);
-                    if (matcher.matches()) {
-                        double left = Double.parseDouble(matcher.group(1));
-                        double top = Double.parseDouble(matcher.group(2));
-                        double width = Double.parseDouble(matcher.group(3));
-                        double height = Double.parseDouble(matcher.group(4));
-                        showTextSelectionMenu((int) (AppUtil.convertDpToPixel((float) left,
-                                getActivity())),
-                                (int) (AppUtil.convertDpToPixel((float) top,
-                                        getActivity())),
-                                (int) (AppUtil.convertDpToPixel((float) width,
-                                        getActivity())),
-                                (int) (AppUtil.convertDpToPixel((float) height,
-                                        getActivity())));
+                if (FolioPageFragment.this.isVisible()) {
+                    if (TextUtils.isDigitsOnly(message)) {
+                        mTotalMinutes = Integer.parseInt(message);
                     } else {
-                        if (mIsSpeaking && (!message.equals("undefined"))) {
-                            mActivityCallback.speakSentence(message);
+                        final Pattern pattern = Pattern.compile(getString(R.string.pattern));
+                        Matcher matcher = pattern.matcher(message);
+                        if (matcher.matches()) {
+                            double left = Double.parseDouble(matcher.group(1));
+                            double top = Double.parseDouble(matcher.group(2));
+                            double width = Double.parseDouble(matcher.group(3));
+                            double height = Double.parseDouble(matcher.group(4));
+                            showTextSelectionMenu((int) (AppUtil.convertDpToPixel((float) left,
+                                    getActivity())),
+                                    (int) (AppUtil.convertDpToPixel((float) top,
+                                            getActivity())),
+                                    (int) (AppUtil.convertDpToPixel((float) width,
+                                            getActivity())),
+                                    (int) (AppUtil.convertDpToPixel((float) height,
+                                            getActivity())));
+                        } else {
+                            if (mIsSpeaking && (!message.equals("undefined"))) {
+                                //mActivityCallback.speakSentence(message);
+                                if (((FolioActivity) getActivity()).getmChapterPosition() == mPos) {
+                                    Sentence sentence = new Sentence(message);
+                                    Constants.BUS.post(sentence);
+                                }
+                            }
                         }
                     }
+                    result.confirm();
                 }
-                result.confirm();
                 return true;
             }
         });
@@ -530,9 +541,14 @@ public class FolioPageFragment extends Fragment {
         }
     }
 
-    public void getTextSentence() {
-        mIsSpeaking = true;
-        mWebview.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))");
+    @Subscribe
+    public void getTextSentence(Boolean isSpeaking) {
+        if(isAdded()) {
+            //if (((FolioActivity) getActivity()).getmChapterPosition() == mPos) {
+                mIsSpeaking = true;
+                mWebview.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))");
+            //}
+        }
     }
 
     @Subscribe
@@ -852,11 +868,24 @@ public class FolioPageFragment extends Fragment {
         mHandler.postDelayed(mHideSeekbarRunnable, 3000);
     }
 
-    public void resetCurrentIndex() {
-        mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
+    @Subscribe
+    public void resetCurrentIndex(RewindIndex resetIndex) {
+        //if (((FolioActivity) getActivity()).getmChapterPosition() == mPos && isAdded()) {
+            mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
+        //}
     }
 
 
+    private boolean isCurrentFragment(){
+        return isAdded() && ((FolioActivity) getActivity()).getmChapterPosition() == mPos;
+    }
+
+    public void setFragmentPos(int pos) {
+        mPos =pos ;
+    }
+
+    @Subscribe
+    public void setTextElementList(ArrayList<TextElement> textElementList) {
+        mTextElementList = textElementList;
+    }
 }
-
-

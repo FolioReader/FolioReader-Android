@@ -2,7 +2,6 @@ package com.folioreader.adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.folioreader.Constants;
@@ -34,12 +33,13 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
         this.mBook = book;
         this.mEpubFileName = epubFilename;
         this.mIsSmilAvailable = isSmilAvilable;
-        Constants.bus.register(this);
+        //Constants.BUS.register(this);
     }
 
     @Override
     public Fragment getItem(int position) {
         mFolioPageFragment = FolioPageFragment.newInstance(position, mBook, mEpubFileName, mIsSmilAvailable, mTextElementList);
+        mFolioPageFragment.setFragmentPos(position);
         return mFolioPageFragment;
     }
 
@@ -49,8 +49,8 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
     }
 
 
-    @Subscribe
+    /*@Subscribe
     public void setTextElementList(ArrayList<TextElement> textElementList) {
         mTextElementList = textElementList;
-    }
+    }*/
 }
