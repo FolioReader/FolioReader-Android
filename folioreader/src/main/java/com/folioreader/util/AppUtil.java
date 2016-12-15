@@ -73,7 +73,6 @@ public class AppUtil {
     private static final String SMIL_ELEMENTS = "smil_elements";
     //private static String mFolderName = null;
     private static final String TAG = AppUtil.class.getSimpleName();
-    private static final String FOLIO_READER_ROOT = "/folioreader/";
 
     private static enum FileType {
         OPS,
@@ -88,29 +87,6 @@ public class AppUtil {
         } catch (Exception e) {
             Log.d(TAG, e.getMessage());
         }
-    }
-
-    public static void copyToClipboard(Context context, String text) {
-        ClipboardManager clipboard =
-                (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("copy", text);
-        clipboard.setPrimaryClip(clip);
-    }
-
-    public static void share(Context context, String text) {
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, text);
-        sendIntent.setType("text/plain");
-        context.startActivity(Intent.createChooser(sendIntent,
-                context.getResources().getText(R.string.send_to)));
-    }
-
-    public static float convertDpToPixel(float dp, Context context) {
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-        return px;
     }
 
     public static Map<String, String> stringToJsonMap(String string) {
@@ -130,31 +106,6 @@ public class AppUtil {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy | HH:mm");
         String date = simpleDateFormat.format(hightlightDate);
         return date;
-    }
-
-    public static void setBackColorToTextView(UnderlinedTextView textView, String type) {
-        Context context = textView.getContext();
-        if (type.equals("highlight-yellow")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context,
-                    R.color.yellow));
-            textView.setUnderlineWidth(0.0f);
-        } else if (type.equals("highlight-green")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context,
-                    R.color.green));
-            textView.setUnderlineWidth(0.0f);
-        } else if (type.equals("highlight-blue")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context,
-                    R.color.blue));
-            textView.setUnderlineWidth(0.0f);
-        } else if (type.equals("highlight-pink")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context,
-                    R.color.pink));
-            textView.setUnderlineWidth(0.0f);
-        } else if (type.equals("highlight-underline")) {
-            textView.setUnderLineColor(ContextCompat.getColor(context,
-                    android.R.color.holo_red_dark));
-            textView.setUnderlineWidth(2.0f);
-        }
     }
 
     public static int parseTimeToLong(String time) {
@@ -197,79 +148,6 @@ public class AppUtil {
     }
 
 
-    public static Book saveEpubFile(final Context context, FolioActivity.EpubSourceType epubSourceType, String epubFilePath, int epubRawId, String epubFileName) {
-        String filePath;
-        InputStream epubInputStream;
-        Book book = null;
-        boolean isFolderAvalable;
-        try {
-            isFolderAvalable = isFolderAvailable(epubFileName);
-            filePath = getFolioEpubFilePath(epubSourceType, epubFilePath, epubFileName);
-
-            if (!isFolderAvalable) {
-                if (epubSourceType.equals(FolioActivity.EpubSourceType.RAW)) {
-                    epubInputStream = context.getResources().openRawResource(epubRawId);
-                    saveTempEpubFile(filePath, epubFileName, epubInputStream);
-                } else if (epubSourceType.equals(FolioActivity.EpubSourceType.ASSESTS)) {
-                    AssetManager assetManager = context.getAssets();
-                    epubInputStream = assetManager.open(epubFilePath);
-                    saveTempEpubFile(filePath, epubFileName, epubInputStream);
-                } else {
-                    filePath = epubFilePath;
-                }
-
-                new EpubManipulator(filePath, epubFileName, context);
-                book = saveBookToDb(filePath, epubFileName, context);
-            } else {
-                BookModel bookModel = BookModelTable.getBookFromName(context, epubFileName);
-                if (bookModel != null) {
-                    book = bookModel.getBook();
-                } else {
-                    book = saveBookToDb(filePath, epubFileName, context);
-                }
-            }
-            return book;
-        } catch (Exception e) {
-            Log.d(TAG, e.getMessage());
-        }
-        return book;
-    }
-
-    public static String getFolioEpubFolderPath(String epubFileName) {
-        return Environment.getExternalStorageDirectory().getAbsolutePath()
-                + FOLIO_READER_ROOT + epubFileName;
-    }
-
-    public static String getFolioEpubFilePath(FolioActivity.EpubSourceType sourceType, String epubFilePath, String epubFileName) {
-        if (FolioActivity.EpubSourceType.SD_CARD.equals(sourceType)) {
-            return epubFilePath;
-        } else {
-            return getFolioEpubFolderPath(epubFileName) + "/" + epubFileName + ".epub";
-        }
-    }
-
-    private static boolean isFolderAvailable(String epubFileName) {
-        File file = new File(getFolioEpubFolderPath(epubFileName));
-        return file.isDirectory();
-    }
-
-    public static String getEpubFilename(Context context, FolioActivity.EpubSourceType epubSourceType,
-                                         String epubFilePath, int epubRawId) {
-        String epubFileName;
-        if (epubSourceType.equals(FolioActivity.EpubSourceType.RAW)) {
-            Resources res = context.getResources();
-            epubFileName = res.getResourceEntryName(epubRawId);
-        } else {
-            String[] temp = epubFilePath.split("/");
-            epubFileName = temp[temp.length - 1];
-            int fileMaxIndex = epubFileName.length();
-            epubFileName = epubFileName.substring(0, fileMaxIndex - 5);
-        }
-
-        return epubFileName;
-    }
-
-
     public static boolean compareUrl(String ur1, String ur2) {
         String[] s = ur1.split("//");
         String[] s1 = ur2.split("/");
@@ -303,7 +181,7 @@ public class AppUtil {
         SmilFile smilFile = null;
         List<AudioElement> audioElementArrayList;
         List<TextElement> textElementList;
-        String epubFolderPath = getFolioEpubFolderPath(epubFileName);
+        String epubFolderPath = FileUtil.getFolioEpubFolderPath(epubFileName);
 
         try {
             File f = null;
@@ -360,60 +238,6 @@ public class AppUtil {
 
         return smilElements;
     }
-
-
-    public static Boolean saveTempEpubFile(String filePath, String fileName, InputStream inputStream) {
-        OutputStream outputStream = null;
-        File file = new File(filePath);
-        try {
-            if (!file.exists()) {
-                File folder = new File(getFolioEpubFolderPath(fileName));
-                folder.mkdirs();
-
-                outputStream = new FileOutputStream(file);
-                int read = 0;
-                byte[] bytes = new byte[inputStream.available()];
-
-                while ((read = inputStream.read(bytes)) != -1) {
-                    outputStream.write(bytes, 0, read);
-                }
-            } else {
-                return true;
-            }
-            if (inputStream != null) inputStream.close();
-            if (outputStream != null) outputStream.close();
-        } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
-        }
-        return false;
-    }
-
-
-    public static ColorStateList getColorList(Context context, int selectedColor, int unselectedColor) {
-        int[][] states = new int[][]{
-                new int[]{android.R.attr.state_pressed}, // pressed
-                new int[]{android.R.attr.state_selected}, // focused
-                new int[]{}
-        };
-        int[] colors = new int[]{
-                ContextCompat.getColor(context, selectedColor), // green
-                ContextCompat.getColor(context, selectedColor), // green
-                ContextCompat.getColor(context, unselectedColor)  // white
-        };
-        ColorStateList list = new ColorStateList(states, colors);
-        return list;
-    }
-
-    public static void keepScreenAwake(boolean enable, Context context) {
-        if (enable) {
-            ((Activity) context)
-                    .getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        } else {
-            ((Activity) context)
-                    .getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        }
-    }
-
 
     public static String getPathOPF(String unzipDir, Context context) {
         String mPathOPF = "";

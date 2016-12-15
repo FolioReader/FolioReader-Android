@@ -1,4 +1,4 @@
-package com.folioreader.util;
+package com.folioreader.view;
 
 import com.folioreader.R;
 

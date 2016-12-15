@@ -42,10 +42,13 @@ import com.folioreader.smil.SmilFile;
 import com.folioreader.smil.TextElement;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.EpubManipulator;
+import com.folioreader.util.FileUtil;
 import com.folioreader.util.ProgressDialog;
 import com.folioreader.view.AudioViewBottomSheetDailogFragment;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
+import com.squareup.otto.Bus;
+import com.squareup.otto.ThreadEnforcer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,14 +70,13 @@ public class FolioActivity extends AppCompatActivity implements
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
     public static final int ACTION_CONTENT_HIGHLIGHT = 77;
     private static final String HIGHLIGHT_ITEM = "highlight_item";
+    public static final Bus BUS = new Bus(ThreadEnforcer.ANY);
 
-    public static enum EpubSourceType {
+    public enum EpubSourceType {
         RAW,
         ASSESTS,
         SD_CARD
     }
-
-    ;
 
     private DirectionalViewpager mFolioPageViewPager;
     private Toolbar mToolbar;
@@ -111,7 +113,8 @@ public class FolioActivity extends AppCompatActivity implements
             mEpubFilePath = getIntent().getExtras()
                     .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         }
-        mEpubFileName = AppUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
+
+        mEpubFileName = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
         initBook();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -143,7 +146,7 @@ public class FolioActivity extends AppCompatActivity implements
             }
         });
 
-        Constants.BUS.register(this);
+        BUS.register(this);
     }
 
     private void initBook() {
@@ -152,7 +155,7 @@ public class FolioActivity extends AppCompatActivity implements
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mBook = AppUtil.saveEpubFile(FolioActivity.this, mEpubSourceType, mEpubFilePath,
+                mBook = FileUtil.saveEpubFile(FolioActivity.this, mEpubSourceType, mEpubFilePath,
                         mEpubRawId, mEpubFileName);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -367,11 +370,11 @@ public class FolioActivity extends AppCompatActivity implements
 
     private String readHTmlString(int position) {
         String pageHref = mSpineReferences.get(position).getResource().getHref();
-        String opfpath = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), FolioActivity.this);
-        if (AppUtil.checkOPFInRootDirectory(AppUtil.getFolioEpubFolderPath(mEpubFileName), FolioActivity.this)) {
-            pageHref = AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + pageHref;
+        String opfpath = AppUtil.getPathOPF(FileUtil.getFolioEpubFolderPath(mEpubFileName), FolioActivity.this);
+        if (AppUtil.checkOPFInRootDirectory(FileUtil.getFolioEpubFolderPath(mEpubFileName), FolioActivity.this)) {
+            pageHref = FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + pageHref;
         } else {
-            pageHref = AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfpath + "/" + pageHref;
+            pageHref = FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfpath + "/" + pageHref;
         }
         String html = EpubManipulator.readPage(pageHref);
         return html;
@@ -463,14 +466,14 @@ public class FolioActivity extends AppCompatActivity implements
                     mTextElementList = smilElements.getTextElementArrayList();
                     mAudioElementArrayList = smilElements.getAudioElementArrayList();
                     mIsSmilAvailable = true;
-                    Constants.BUS.post(mTextElementList);
+                    FolioActivity.BUS.post(mTextElementList);
                 } else {
                     SmilFile smilFile = AppUtil.createSmilJson(FolioActivity.this, mEpubFileName);
                     if (smilFile != null) {
                         mAudioElementArrayList = smilFile.getAudioSegments();
                         mTextElementList = smilFile.getTextSegments();
                         mIsSmilAvailable = true;
-                        Constants.BUS.post(mTextElementList);
+                        FolioActivity.BUS.post(mTextElementList);
                     } else {
                         mIsSmilAvailable = false;
                     }

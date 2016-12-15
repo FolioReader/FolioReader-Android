@@ -14,6 +14,7 @@ import com.folioreader.R;
 import com.folioreader.fragments.ContentsFragment;
 import com.folioreader.fragments.HighlightListFragment;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.UiUtil;
 
 import nl.siegmann.epublib.domain.Book;
 
@@ -39,11 +40,11 @@ public class ContentHighlightActivity extends AppCompatActivity {
             ((TextView) findViewById(R.id.btn_contents))
                     .setBackgroundResource(R.drawable.content_highlight_back_selector_night_mode);
             ((TextView) findViewById(R.id.btn_contents))
-                    .setTextColor(AppUtil.getColorList(ContentHighlightActivity.this, R.color.black, R.color.app_green));
+                    .setTextColor(UiUtil.getColorList(ContentHighlightActivity.this, R.color.black, R.color.app_green));
             ((TextView) findViewById(R.id.btn_highlights))
                     .setBackgroundResource(R.drawable.content_highlight_back_selector_night_mode);
             ((TextView) findViewById(R.id.btn_highlights))
-                    .setTextColor(AppUtil.getColorList(ContentHighlightActivity.this, R.color.black, R.color.app_green));
+                    .setTextColor(UiUtil.getColorList(ContentHighlightActivity.this, R.color.black, R.color.app_green));
         }
 
         loadContentFragment();

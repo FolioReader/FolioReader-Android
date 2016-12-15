@@ -10,7 +10,6 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.ViewDragHelper;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -19,13 +18,15 @@ import android.widget.TextView;
 
 import com.folioreader.Config;
 import com.folioreader.R;
-import com.folioreader.util.Tags;
 
 /**
  * Created by mobisys2 on 11/16/2016.
  */
 
 public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment implements View.OnClickListener {
+
+    public static final int DAY_BUTTON = 30;
+    public static final int NIGHT_BUTTON = 31;
 
     private static final int FONT_ANDADA = 1;
     private static final int FONT_LATO = 2;
@@ -111,8 +112,8 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         mFontSizeSeekBar = (SeekBar) mDialog.findViewById(R.id.seekbar_font_size);
         mDayButton = (ImageButton) mDialog.findViewById(R.id.day_button);
         mNightButton = (ImageButton) mDialog.findViewById(R.id.night_button);
-        mDayButton.setTag(Tags.DAY_BUTTON);
-        mNightButton.setTag(Tags.NIGHT_BUTTON);
+        mDayButton.setTag(DAY_BUTTON);
+        mNightButton.setTag(NIGHT_BUTTON);
         mDayButton.setOnClickListener(this);
         mNightButton.setOnClickListener(this);
         mDialog.findViewById(R.id.btn_vertical_orentation).setSelected(true);
@@ -263,7 +264,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     @Override
     public void onClick(View v) {
         switch (((Integer) v.getTag())) {
-            case Tags.DAY_BUTTON:
+            case DAY_BUTTON:
                 if (mIsNightMode) {
                     mIsNightMode = true;
                     toggleBlackTheme();
@@ -272,7 +273,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     setToolBarColor();
                 }
                 break;
-            case Tags.NIGHT_BUTTON:
+            case NIGHT_BUTTON:
                 if (!mIsNightMode) {
                     mIsNightMode = false;
                     toggleBlackTheme();

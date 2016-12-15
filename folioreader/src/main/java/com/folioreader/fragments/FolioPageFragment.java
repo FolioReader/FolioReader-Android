@@ -38,7 +38,9 @@ import com.folioreader.quickaction.ActionItem;
 import com.folioreader.quickaction.QuickAction;
 import com.folioreader.smil.TextElement;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.FileUtil;
 import com.folioreader.util.HighlightUtil;
+import com.folioreader.util.UiUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 import com.squareup.otto.Subscribe;
@@ -155,7 +157,7 @@ public class FolioPageFragment extends Fragment {
         if (getActivity() instanceof FolioPageFragmentCallback)
             mActivityCallback = (FolioPageFragmentCallback) getActivity();
         if(isCurrentFragment()) {
-            Constants.BUS.register(this);
+            FolioActivity.BUS.register(this);
         }
 
 
@@ -280,13 +282,13 @@ public class FolioPageFragment extends Fragment {
                                 double top = Double.parseDouble(matcher.group(2));
                                 double width = Double.parseDouble(matcher.group(3));
                                 double height = Double.parseDouble(matcher.group(4));
-                                onHighlight((int) (AppUtil.convertDpToPixel((float) left,
+                                onHighlight((int) (UiUtil.convertDpToPixel((float) left,
                                         getActivity())),
-                                        (int) (AppUtil.convertDpToPixel((float) top,
+                                        (int) (UiUtil.convertDpToPixel((float) top,
                                                 getActivity())),
-                                        (int) (AppUtil.convertDpToPixel((float) width,
+                                        (int) (UiUtil.convertDpToPixel((float) width,
                                                 getActivity())),
-                                        (int) (AppUtil.convertDpToPixel((float) height,
+                                        (int) (UiUtil.convertDpToPixel((float) height,
                                                 getActivity())));
                             }
                         } catch (UnsupportedEncodingException e) {
@@ -336,20 +338,20 @@ public class FolioPageFragment extends Fragment {
                             double top = Double.parseDouble(matcher.group(2));
                             double width = Double.parseDouble(matcher.group(3));
                             double height = Double.parseDouble(matcher.group(4));
-                            showTextSelectionMenu((int) (AppUtil.convertDpToPixel((float) left,
+                            showTextSelectionMenu((int) (UiUtil.convertDpToPixel((float) left,
                                     getActivity())),
-                                    (int) (AppUtil.convertDpToPixel((float) top,
+                                    (int) (UiUtil.convertDpToPixel((float) top,
                                             getActivity())),
-                                    (int) (AppUtil.convertDpToPixel((float) width,
+                                    (int) (UiUtil.convertDpToPixel((float) width,
                                             getActivity())),
-                                    (int) (AppUtil.convertDpToPixel((float) height,
+                                    (int) (UiUtil.convertDpToPixel((float) height,
                                             getActivity())));
                         } else {
                             if (mIsSpeaking && (!message.equals("undefined"))) {
                                 //mActivityCallback.speakSentence(message);
                                 if (((FolioActivity) getActivity()).getmChapterPosition() == mPos) {
                                     Sentence sentence = new Sentence(message);
-                                    Constants.BUS.post(sentence);
+                                    FolioActivity.BUS.post(sentence);
                                 }
                             }
                         }
@@ -385,9 +387,9 @@ public class FolioPageFragment extends Fragment {
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
         String opfPath
-                = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
+                = AppUtil.getPathOPF(FileUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
         String baseUrl
-                = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+                = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
         ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
     }
@@ -520,9 +522,9 @@ public class FolioPageFragment extends Fragment {
         final WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
         String htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
         String opfPath
-                = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
+                = AppUtil.getPathOPF(FileUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
         String baseUrl
-                = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+                = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
         webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
         updatePagesLeftTextBg();
     }
@@ -700,10 +702,10 @@ public class FolioPageFragment extends Fragment {
 
     private void onTextSelectionActionItemClicked(int actionId, View view, int width, int height) {
         if (actionId == ACTION_ID_COPY) {
-            AppUtil.copyToClipboard(mContext, mSelectedText);
+            UiUtil.copyToClipboard(mContext, mSelectedText);
             Toast.makeText(mContext, getString(R.string.copied), Toast.LENGTH_SHORT).show();
         } else if (actionId == ACTION_ID_SHARE) {
-            AppUtil.share(mContext, mSelectedText);
+            UiUtil.share(mContext, mSelectedText);
         } else if (actionId == ACTION_ID_DEFINE) {
             //TODO: Check how to use define
         } else if (actionId == ACTION_ID_HIGHLIGHT) {
@@ -756,7 +758,7 @@ public class FolioPageFragment extends Fragment {
         if (actionId == ACTION_ID_HIGHLIGHT_COLOR) {
             onHighlightColors(view, isCreated);
         } else if (actionId == ACTION_ID_SHARE) {
-            AppUtil.share(mContext, mSelectedText);
+            UiUtil.share(mContext, mSelectedText);
         } else if (actionId == ACTION_ID_DELETE) {
             highlightRemove();
         }

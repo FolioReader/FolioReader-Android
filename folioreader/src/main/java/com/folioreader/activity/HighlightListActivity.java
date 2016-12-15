@@ -27,7 +27,8 @@ import com.folioreader.R;
 import com.folioreader.database.HighlightTable;
 import com.folioreader.model.Highlight;
 import com.folioreader.util.AppUtil;
-import com.folioreader.util.UnderlinedTextView;
+import com.folioreader.util.UiUtil;
+import com.folioreader.view.UnderlinedTextView;
 
 import java.util.ArrayList;
 
@@ -154,7 +155,7 @@ public class HighlightListActivity extends AppCompatActivity {
                 holder.txtHightLightNote.setText(editedNote);
             }
 
-            AppUtil.setBackColorToTextView(holder.txtHightlightText,
+            UiUtil.setBackColorToTextView(holder.txtHightlightText,
                     rowItem.getType());
             row.findViewById(R.id.txt_hightlight_text)
                         .setOnClickListener(new View.OnClickListener() {

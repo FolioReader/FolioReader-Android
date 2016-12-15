@@ -24,6 +24,8 @@ import com.folioreader.model.RewindIndex;
 import com.folioreader.model.Sentence;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.FileUtil;
+import com.folioreader.util.UiUtil;
 import com.squareup.otto.Subscribe;
 
 import java.io.IOException;
@@ -93,7 +95,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
         }
         initViews();
         if (!isRegistered) {
-            Constants.BUS.register(this);
+            FolioActivity.BUS.register(this);
             isRegistered = true;
         }
 
@@ -147,7 +149,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                         mAudioElement = mFolioActivity.getElement(mPosition);
                         mEnd = (int) mAudioElement.getClipEnd();
                         //if(isAdded()) {
-                        Constants.BUS.post(mPosition);
+                        FolioActivity.BUS.post(mPosition);
                         //mFolioActivity.setHighLight(mPosition);
                         // }
                         mPosition++;
@@ -176,7 +178,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                                     @Override
                                     public void run() {
                                         if (mIsSpeaking) {
-                                            Constants.BUS.post(true);
+                                            FolioActivity.BUS.post(true);
                                             //mFolioActivity.getSentance();
                                         }
                                     }
@@ -253,7 +255,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                 mHighlightStyle =
                         Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
                 //mFolioActivity.setHighLightStyle(mHighlightStyle);
-                Constants.BUS.post(mHighlightStyle);
+                FolioActivity.BUS.post(mHighlightStyle);
                 mUnderlineStyleIsSelected = false;
                 mTextColorStyleIsSelected = false;
 
@@ -269,7 +271,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                 mTextColorStyle.setSelected(false);
                 mHighlightStyle =
                         Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
-                Constants.BUS.post(mHighlightStyle);
+                FolioActivity.BUS.post(mHighlightStyle);
                 mUnderlineStyleIsSelected = true;
                 mTextColorStyleIsSelected = false;
             }
@@ -284,7 +286,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                 mTextColorStyle.setSelected(true);
                 mHighlightStyle =
                         Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
-                Constants.BUS.post(mHighlightStyle);
+                FolioActivity.BUS.post(mHighlightStyle);
                 mTextColorStyleIsSelected = true;
                 mUnderlineStyleIsSelected = false;
             }
@@ -296,16 +298,16 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
         if (mTextToSpeech.isSpeaking()) {
             mTextToSpeech.stop();
             mIsSpeaking = false;
-            Constants.BUS.post(new RewindIndex());
+            FolioActivity.BUS.post(new RewindIndex());
             //mFolioActivity.resetCurrentIndex();
-            AppUtil.keepScreenAwake(false, mContext);
+            UiUtil.keepScreenAwake(false, mContext);
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
         } else {
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
             mIsSpeaking = true;
-            AppUtil.keepScreenAwake(true, mContext);
+            UiUtil.keepScreenAwake(true, mContext);
             if (isAdded()) {
-                Constants.BUS.post(true);
+                FolioActivity.BUS.post(true);
             }
 
         }
@@ -347,11 +349,11 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                 mAudioElement = mFolioActivity.getElement(0);
                 String filePath = mAudioElement.getSrc();
                 String folderPath =
-                        AppUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName());
+                        FileUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName());
                 filePath = filePath.substring(2, filePath.length());
                 String opfpath
                         = AppUtil.getPathOPF(
-                        AppUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName()),
+                        FileUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName()),
                         mFolioActivity);
                 filePath = folderPath + "/" + opfpath + "/" + filePath;
                 mPlayer.setDataSource(filePath);
@@ -369,7 +371,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
             mPlayer.pause();
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
             mHandler.removeCallbacks(mHighlightTask);
-            AppUtil.keepScreenAwake(false, mContext);
+            UiUtil.keepScreenAwake(false, mContext);
             //mFolioActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
             if (mHandler == null) {
@@ -380,7 +382,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
             mPlayer.start();
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
             mHandler.post(mHighlightTask);
-            AppUtil.keepScreenAwake(true, mContext);
+            UiUtil.keepScreenAwake(true, mContext);
             //mFolioActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
 
@@ -388,7 +390,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
 
     public void unRegisterBus() {
         if(isRegistered) {
-            Constants.BUS.unregister(this);
+            FolioActivity.BUS.unregister(this);
         }
     }
 }
