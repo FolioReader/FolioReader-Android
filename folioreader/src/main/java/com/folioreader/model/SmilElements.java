@@ -6,7 +6,7 @@ import com.folioreader.smil.TextElement;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;*/
 
-import org.codehaus.jackson.annotate.JsonProperty;
+/*import org.codehaus.jackson.annotate.JsonProperty;*/
 
 import java.util.List;
 

@@ -465,14 +465,14 @@ public class FolioActivity extends AppCompatActivity implements
         new Thread(new Runnable() {
             @Override
             public void run() {
-                SmilElements smilElements = AppUtil.retrieveAndParseSmilJSON(FolioActivity.this,
+               /* SmilElements smilElements = AppUtil.retrieveAndParseSmilJSON(FolioActivity.this,
                         mEpubFileName);
                 if (smilElements != null) {
                    /* mTextElementList = smilElements.getTextElementArrayList();
-                    mAudioElementArrayList = smilElements.getAudioElementArrayList();*/
+                    mAudioElementArrayList = smilElements.getAudioElementArrayList();
                     mIsSmilAvailable = true;
                     FolioActivity.BUS.post(mTextElementList);
-                } else {
+                } else {*/
                     SmilFile smilFile = AppUtil.createSmilJson(FolioActivity.this, mEpubFileName);
                     if (smilFile != null) {
                         mAudioElementArrayList = smilFile.getAudioSegments();
@@ -482,14 +482,15 @@ public class FolioActivity extends AppCompatActivity implements
                     } else {
                         mIsSmilAvailable = false;
                     }
-                }
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         mIsSmilParsed = true;
                     }
                 });
-            }
+                }
+
+
         }).start();
 
     }

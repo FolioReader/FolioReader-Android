@@ -159,7 +159,9 @@ public class FolioPageFragment extends Fragment {
         if (getActivity() instanceof FolioPageFragmentCallback)
             mActivityCallback = (FolioPageFragmentCallback) getActivity();
 
-        FolioActivity.BUS.register(this);
+            FolioActivity.BUS.register(this);
+
+
 
 
         initSeekbar();
@@ -861,7 +863,7 @@ public class FolioPageFragment extends Fragment {
     @JavascriptInterface
     public void getUpdatedHighlightId(String id, String style) {
         if (id != null) {
-            HighLightTable.updateHighlightStyle(id, style);
+            HighLightTable.updateHighlightStyle(id,style);
             //HighlightTable.updateHighlightStyle(getActivity(), id, style);
         }
     }

@@ -3,20 +3,16 @@ package com.folioreader.smil;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
+/*import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;*/
 
 /**
  * Encapsulates the <audio> tag.
  */
 public class AudioElement implements Parcelable, MediaElement {
-    @JsonProperty
     String src;
-    @JsonProperty
     int clipBegin;
-    @JsonProperty
     int clipEnd;
-    @JsonIgnore
     SmilElement parent;
 
 

@@ -1,31 +1,23 @@
 package com.folioreader.util;
 
-import android.app.Activity;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.AssetManager;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.os.Environment;
-import android.support.v4.content.ContextCompat;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.WindowManager;
 
 import com.folioreader.R;
 import com.folioreader.activity.FolioActivity;
-import com.folioreader.database.BookModelTable;
 import com.folioreader.model.BookModel;
 import com.folioreader.model.SmilElements;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.smil.SmilFile;
 import com.folioreader.smil.TextElement;
 
-import org.codehaus.jackson.map.DeserializationConfig;
+/*import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+import org.codehaus.jackson.type.TypeReference;*/
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
@@ -33,12 +25,10 @@ import org.xml.sax.SAXException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -69,7 +59,7 @@ import static com.folioreader.util.SharedPreferenceUtil.getSharedPreferencesStri
  */
 public class AppUtil {
 
-    private static final ObjectMapper jsonMapper;
+   /*private static final ObjectMapper jsonMapper;*/
     private static String mFileName;
     private static final String SMIL_ELEMENTS = "smil_elements";
     //private static String mFolderName = null;
@@ -81,7 +71,7 @@ public class AppUtil {
         OEBPS
     }
 
-    static {
+     /*static {
         jsonMapper = new ObjectMapper();
         try {
             jsonMapper
@@ -89,10 +79,10 @@ public class AppUtil {
         } catch (Exception e) {
             Log.d(TAG, e.getMessage());
         }
-    }
+    }*/
 
     public static Map<String, String> stringToJsonMap(String string) {
-        ArrayList<HashMap<String, String>> map = new ArrayList<HashMap<String, String>>();
+       /* ArrayList<HashMap<String, String>> map = new ArrayList<HashMap<String, String>>();
         try {
             map = jsonMapper.readValue(string,
                     new TypeReference<ArrayList<HashMap<String, String>>>() {
@@ -101,7 +91,24 @@ public class AppUtil {
             Log.d(TAG, e.getMessage());
             return null;
         }
-        return map.get(0);
+        return map.get(0);*/
+        HashMap<String, String> map=new HashMap<>();
+        try {
+            JSONArray jsonArray=new JSONArray(string);
+            JSONObject jObject = jsonArray.getJSONObject(0);
+            Iterator<?> keys = jObject.keys();
+
+                keys.hasNext();
+                String key = (String)keys.next();
+                String value = jObject.getString(key);
+                map.put(key, value);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return map;
+
     }
 
     public static String formatDate(Date hightlightDate) {
@@ -305,7 +312,7 @@ public class AppUtil {
 
     }
 
-    public static SmilElements retrieveAndParseSmilJSON(Context context, String epubFileName) {
+    /*public static SmilElements retrieveAndParseSmilJSON(Context context, String epubFileName) {
         String smilElmentsJson =
                 getSharedPreferencesString(context, epubFileName, null);
         SmilElements smilElements = null;
@@ -318,7 +325,7 @@ public class AppUtil {
         }
 
         return smilElements;
-    }
+    }*/
 
     public static String getPathOPF(String unzipDir, Context context) {
         String mPathOPF = "";

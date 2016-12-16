@@ -129,11 +129,11 @@ public class Highlight implements Parcelable {
         this.note = note;
     }
 
-    public Highlight(String bookId, String content, String contentPre, String contentPost, Date date, String highlightId, int page, String type, int currentPagerPostion, int currentWebviewScrollPos, String note) {
+    public Highlight(String bookId, String content, String contentPost,String contentPre, Date date, String highlightId, int page, String type, int currentPagerPostion, int currentWebviewScrollPos, String note) {
         this.bookId = bookId;
         this.content = content;
-        this.contentPre = contentPre;
         this.contentPost = contentPost;
+        this.contentPre = contentPre;
         this.date = date;
         this.highlightId = highlightId;
         this.page = page;
