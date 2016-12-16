@@ -40,6 +40,7 @@ import com.folioreader.model.SmilElements;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.smil.SmilFile;
 import com.folioreader.smil.TextElement;
+import com.folioreader.sqlite.DbAdapter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.EpubManipulator;
 import com.folioreader.util.ProgressDialog;
@@ -136,6 +137,8 @@ public class FolioActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
+                mBook.setResources(null);
+                mBook.setNcxResource(null);
                 intent.putExtra(BOOK, mBook);
                 intent.putExtra(SELECTED_CHAPTER_POSITION, mChapterPosition);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
@@ -163,6 +166,8 @@ public class FolioActivity extends AppCompatActivity implements
                 });
             }
         }).start();
+
+        new DbAdapter(FolioActivity.this);
     }
 
     private void loadBook() {
@@ -189,7 +194,7 @@ public class FolioActivity extends AppCompatActivity implements
 
         int position = mFolioPageViewPager.getCurrentItem();
         //reload previous, current and next fragment
-        Fragment page;
+       /* Fragment page;
         if (position != 0) {
             page = getFragment(position - 1);
             ((FolioPageFragment) page).reload();
@@ -202,7 +207,7 @@ public class FolioActivity extends AppCompatActivity implements
                 ((FolioPageFragment) page).reload();
             }
 
-        }
+        }*/
     }
 
     @Override
@@ -460,8 +465,8 @@ public class FolioActivity extends AppCompatActivity implements
                 SmilElements smilElements = AppUtil.retrieveAndParseSmilJSON(FolioActivity.this,
                         mEpubFileName);
                 if (smilElements != null) {
-                    mTextElementList = smilElements.getTextElementArrayList();
-                    mAudioElementArrayList = smilElements.getAudioElementArrayList();
+                   /* mTextElementList = smilElements.getTextElementArrayList();
+                    mAudioElementArrayList = smilElements.getAudioElementArrayList();*/
                     mIsSmilAvailable = true;
                     Constants.BUS.post(mTextElementList);
                 } else {

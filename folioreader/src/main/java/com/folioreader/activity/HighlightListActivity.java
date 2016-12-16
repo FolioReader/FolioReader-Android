@@ -79,12 +79,12 @@ public class HighlightListActivity extends AppCompatActivity {
             ((ListView) findViewById(R.id.list_highligts)).setDividerHeight(1);
         }
 
-        HightlightAdpater hightlightAdpater =
+       /* HightlightAdpater hightlightAdpater =
                 new HightlightAdpater(HighlightListActivity.this, 0,
                         (ArrayList<Highlight>) HighlightTable
                                 .getAllRecords(HighlightListActivity.this));
         ListView highlightListview = (ListView) findViewById(R.id.list_highligts);
-        highlightListview.setAdapter(hightlightAdpater);
+        highlightListview.setAdapter(hightlightAdpater);*/
     }
 
 
@@ -190,7 +190,7 @@ public class HighlightListActivity extends AppCompatActivity {
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    HighlightTable.remove(rowItem.getHighlightId(), HighlightListActivity.this);
+                    //HighlightTable.remove(rowItem.getHighlightId(), HighlightListActivity.this);
                     Intent intent = new Intent();
                     intent.putExtra(ITEM_DELETED, true);
                     setResult(RESULT_OK, intent);
@@ -224,7 +224,7 @@ public class HighlightListActivity extends AppCompatActivity {
                         ((EditText) dailog.findViewById(R.id.edit_note)).getText().toString();
                 if (note != null && (!TextUtils.isEmpty(note))) {
                     highlightItem.setNote(note);
-                    HighlightTable.save(getApplicationContext(), highlightItem);
+                    //HighlightTable.save(getApplicationContext(), highlightItem);
                     dailog.dismiss();
                     initViews();
                 } else {

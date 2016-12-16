@@ -1,7 +1,7 @@
 package com.folioreader.model;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+/*import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;*/
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * Created by mahavir on 5/12/16.
  */
-@DatabaseTable(tableName = "Highlight")
+
 public class Highlight implements Parcelable {
 
     public static final String LOCAL_DB_HIGHLIGHT_CONTENT = "content";
@@ -97,29 +97,18 @@ public class Highlight implements Parcelable {
         }
     }
 
-    @DatabaseField(generatedId = true)
+
     int id;
-    @DatabaseField
     String bookId;
-    @DatabaseField
     String content;
-    @DatabaseField
     String contentPost;
-    @DatabaseField
     String contentPre;
-    @DatabaseField
     Date date;
-    @DatabaseField
     String highlightId;
-    @DatabaseField
     int page;
-    @DatabaseField
     String type;
-    @DatabaseField
     int currentPagerPostion;
-    @DatabaseField
     int currentWebviewScrollPos;
-    @DatabaseField
     String note;
 
     public Highlight() {
@@ -137,6 +126,20 @@ public class Highlight implements Parcelable {
         this.highlightId = highlightId;
         this.page = page;
         this.type = type;
+        this.note = note;
+    }
+
+    public Highlight(String bookId, String content, String contentPre, String contentPost, Date date, String highlightId, int page, String type, int currentPagerPostion, int currentWebviewScrollPos, String note) {
+        this.bookId = bookId;
+        this.content = content;
+        this.contentPre = contentPre;
+        this.contentPost = contentPost;
+        this.date = date;
+        this.highlightId = highlightId;
+        this.page = page;
+        this.type = type;
+        this.currentPagerPostion = currentPagerPostion;
+        this.currentWebviewScrollPos = currentWebviewScrollPos;
         this.note = note;
     }
 

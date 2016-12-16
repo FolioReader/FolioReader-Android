@@ -18,7 +18,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.folioreader.Config;
+import com.folioreader.Constants;
 import com.folioreader.R;
+import com.folioreader.model.ReloadData;
 import com.folioreader.util.Tags;
 
 /**
@@ -192,7 +194,10 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         }
 
         Config.getConfig().setFont(selectedFont);
-        if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
+        //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
+        if (isAdded()) {
+            Constants.BUS.post(new ReloadData());
+        }
     }
 
     private void toggleBlackTheme() {
@@ -223,7 +228,8 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             public void onAnimationEnd(Animator animator) {
                 mIsNightMode = !mIsNightMode;
                 Config.getConfig().setNightMode(mIsNightMode);
-                mConfigDialogCallback.onConfigChange();
+                Constants.BUS.post(new ReloadData());
+                ///mConfigDialogCallback.onConfigChange();
             }
 
             @Override
@@ -245,7 +251,8 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 Config.getConfig().setFontSize(progress);
                 //if (mConfigViewCallback != null) mConfigViewCallback.onConfigChange();
-                if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
+                //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
+                Constants.BUS.post(new ReloadData());
             }
 
             @Override

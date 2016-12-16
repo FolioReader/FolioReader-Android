@@ -12,7 +12,7 @@ import java.sql.SQLException;
  * Created by mobisys on 8/10/2016.
  */
 public class BookModelTable {
-    private static final String Tag = "SmilTable";
+    /*private static final String Tag = "SmilTable";
 
     public static int createEntryInTableIfNotExist(Context context, BookModel bookModel) {
         int status = -1;
@@ -35,5 +35,5 @@ public class BookModelTable {
             Log.d(Tag, e.toString());
         }
         return bookModel;
-    }
+    }*/
 }

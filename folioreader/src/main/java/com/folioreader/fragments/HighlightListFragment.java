@@ -26,8 +26,8 @@ import android.widget.Toast;
 
 import com.folioreader.Config;
 import com.folioreader.R;
-import com.folioreader.database.HighlightTable;
 import com.folioreader.model.Highlight;
+import com.folioreader.sqlite.HighLightTable;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.UnderlinedTextView;
 
@@ -44,6 +44,7 @@ public class HighlightListFragment extends Fragment {
     private View mRootView;
     private Context mContext;
     private Book mBook;
+
 
     public static HighlightListFragment newInstance(Book book) {
         HighlightListFragment fragment = new HighlightListFragment();
@@ -85,9 +86,10 @@ public class HighlightListFragment extends Fragment {
             ((ListView) mRootView.findViewById(R.id.list_highligts)).setDividerHeight(1);
         }
 
+
         HightlightAdpater hightlightAdpater =
                 new HightlightAdpater(mContext, 0,
-                        (ArrayList<Highlight>) HighlightTable.getBookHighlight(mContext, mBook));
+                        HighLightTable.getAllHighlights(mBook.getTitle()));
         ListView highlightListview = (ListView) mRootView.findViewById(R.id.list_highligts);
         highlightListview.setAdapter(hightlightAdpater);
     }
@@ -143,15 +145,18 @@ public class HighlightListFragment extends Fragment {
                 public void run() {
                     final int height = holder1.dataRelativeLayout.getHeight();
                     Log.d("height", height + "");
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ViewGroup.LayoutParams params =
-                                    holder1.swipeLinearlayout.getLayoutParams();
-                            params.height = height;
-                            holder1.swipeLinearlayout.setLayoutParams(params);
-                        }
-                    });
+
+                    if(isAdded()){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                ViewGroup.LayoutParams params =
+                                        holder1.swipeLinearlayout.getLayoutParams();
+                                params.height = height;
+                                holder1.swipeLinearlayout.setLayoutParams(params);
+                            }
+                        });
+                    }
                 }
             }, 20);
 
@@ -198,7 +203,8 @@ public class HighlightListFragment extends Fragment {
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    HighlightTable.remove(rowItem.getHighlightId(), mContext);
+                    HighLightTable.deleteHighlight(rowItem.getHighlightId());
+                    //HighlightTable.remove(rowItem.getHighlightId(), mContext);
                     initViews();
                 }
             });
@@ -229,7 +235,9 @@ public class HighlightListFragment extends Fragment {
                         ((EditText) dailog.findViewById(R.id.edit_note)).getText().toString();
                 if (note != null && (!TextUtils.isEmpty(note))) {
                     highlightItem.setNote(note);
-                    HighlightTable.save(mContext, highlightItem);
+
+                    HighLightTable.updateHighlight(highlightItem);
+                    //HighlightTable.save(mContext, highlightItem);
                     dailog.dismiss();
                     initViews();
                 } else {

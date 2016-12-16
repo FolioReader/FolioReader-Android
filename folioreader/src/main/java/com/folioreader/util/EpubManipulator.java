@@ -826,4 +826,8 @@ public class EpubManipulator {
     public static String getS(int id) {
         return mContext.getResources().getString(id);
     }
+
+    public Book getEpubBook(){
+        return this.mBook;
+    }
 }

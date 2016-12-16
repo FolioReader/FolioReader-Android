@@ -6,11 +6,11 @@ import android.util.Log;
 
 import com.folioreader.model.BookModel;
 import com.folioreader.model.Highlight;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
+/*import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.table.TableUtils;
+import com.j256.ormlite.table.TableUtils;*/
 
 import java.sql.SQLException;
 
@@ -19,9 +19,9 @@ import java.sql.SQLException;
  * Created by mobisys2 on 5/21/2016.
  */
 
-public class FolioReaderDB extends OrmLiteSqliteOpenHelper {
+public class FolioReaderDB /*extends OrmLiteSqliteOpenHelper */{
 
-    private static final int DATABASE_VERSION = 1;
+  /*  private static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "folioReader.db";
     private static final String TAG = FolioReaderDB.class.getSimpleName();
 
@@ -77,5 +77,5 @@ public class FolioReaderDB extends OrmLiteSqliteOpenHelper {
             Log.e(FolioReaderDB.class.getName(), "Can't drop databases", e);
             throw new RuntimeException(e);
         }
-    }
+    }*/
 }

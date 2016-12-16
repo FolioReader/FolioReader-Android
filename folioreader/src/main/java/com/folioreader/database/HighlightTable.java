@@ -4,10 +4,10 @@ import android.content.Context;
 import android.util.Log;
 
 import com.folioreader.model.Highlight;
-import com.j256.ormlite.dao.Dao;
+/*import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
-import com.j256.ormlite.table.TableUtils;
+import com.j256.ormlite.table.TableUtils;*/
 
 import java.sql.SQLException;
 import java.util.List;
@@ -18,7 +18,7 @@ import nl.siegmann.epublib.domain.Book;
  * Created by mobisys2 on 5/21/2016.
  */
 public class HighlightTable {
-    private static final String Tag = "HighlightTable";
+   /* private static final String Tag = "HighlightTable";
 
     public static int createEntryInTable(Context context, Highlight highlight) {
         int status = -1;
@@ -152,7 +152,7 @@ public class HighlightTable {
         }
     }
 
-    public static List<Highlight> getAllHighlight(Context context, String bookId, int pageNo) {
+    public static List<Highlight> getAllHighlights(Context context, String bookId, int pageNo) {
         List<Highlight> highlights = null;
         try {
             Dao<Highlight, Integer> dao = FolioReaderDB.getInstance(context).getHighlightDao();
@@ -191,6 +191,6 @@ public class HighlightTable {
             Log.d(Tag, e.getMessage());
         }
         return records;
-    }
+    }*/
 }
 

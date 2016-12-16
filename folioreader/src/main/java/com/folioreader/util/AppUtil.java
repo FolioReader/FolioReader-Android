@@ -218,15 +218,20 @@ public class AppUtil {
                     filePath = epubFilePath;
                 }
 
-                new EpubManipulator(filePath, epubFileName, context);
-                book = saveBookToDb(filePath, epubFileName, context);
+                EpubManipulator epubManipulator= new EpubManipulator(filePath, epubFileName, context);
+                //book = saveBookToDb(filePath, epubFileName, context);
+                book = epubManipulator.getEpubBook();
+
             } else {
-                BookModel bookModel = BookModelTable.getBookFromName(context, epubFileName);
+
+                FileInputStream fileInputStream = new FileInputStream(filePath);
+                book = (new EpubReader()).readEpub(fileInputStream);
+               /* BookModel bookModel = BookModelTable.getBookFromName(context, epubFileName);
                 if (bookModel != null) {
                     book = bookModel.getBook();
                 } else {
                     book = saveBookToDb(filePath, epubFileName, context);
-                }
+                }*/
             }
             return book;
         } catch (Exception e) {
@@ -287,11 +292,11 @@ public class AppUtil {
             fs = null;
 
             BookModel bookModel = new BookModel();
-            book.setCoverImage(null);
-            book.setResources(null);
-            bookModel.setBook(book);
-            bookModel.setBookName(epubFileName);
-            BookModelTable.createEntryInTableIfNotExist(context, bookModel);
+           /* book.setCoverImage(null);
+            book.setResources(null);*/
+           /* bookModel.setBook(book);
+            bookModel.setBookName(epubFileName);*/
+            //BookModelTable.createEntryInTableIfNotExist(context, bookModel);
 
         } catch (IOException e) {
             Log.d(TAG, e.getMessage());
@@ -335,9 +340,9 @@ public class AppUtil {
                 smilFile.load(paths[0].getPath());
                 audioElementArrayList = smilFile.getAudioSegments();
                 textElementList = smilFile.getTextSegments();
-                SmilElements smilElement = new SmilElements(audioElementArrayList, textElementList);
+                /*SmilElements smilElement = new SmilElements(audioElementArrayList, textElementList);
                 String smilElemets = jsonMapper.writeValueAsString(smilElement);
-                SharedPreferenceUtil.putSharedPreferencesString(context, epubFileName, smilElemets);
+                SharedPreferenceUtil.putSharedPreferencesString(context, epubFileName, smilElemets);*/
             }
         } catch (IOException | SAXException | ParserConfigurationException e) {
             Log.d(TAG, e.getMessage());
