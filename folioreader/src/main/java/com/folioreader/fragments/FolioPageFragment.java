@@ -39,7 +39,9 @@ import com.folioreader.quickaction.QuickAction;
 import com.folioreader.smil.TextElement;
 import com.folioreader.sqlite.HighLightTable;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.FileUtil;
 import com.folioreader.util.HighlightUtil;
+import com.folioreader.util.UiUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 import com.squareup.otto.Subscribe;
@@ -156,12 +158,8 @@ public class FolioPageFragment extends Fragment {
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
         if (getActivity() instanceof FolioPageFragmentCallback)
             mActivityCallback = (FolioPageFragmentCallback) getActivity();
-       /* if(isCurrentFragment()) {
-            if(isAdded()) {*/
-        Constants.BUS.register(this);
-         /*   }
-        }*/
 
+        FolioActivity.BUS.register(this);
 
 
         initSeekbar();
@@ -285,13 +283,13 @@ public class FolioPageFragment extends Fragment {
                                 double top = Double.parseDouble(matcher.group(2));
                                 double width = Double.parseDouble(matcher.group(3));
                                 double height = Double.parseDouble(matcher.group(4));
-                                onHighlight((int) (AppUtil.convertDpToPixel((float) left,
+                                onHighlight((int) (UiUtil.convertDpToPixel((float) left,
                                         getActivity())),
-                                        (int) (AppUtil.convertDpToPixel((float) top,
+                                        (int) (UiUtil.convertDpToPixel((float) top,
                                                 getActivity())),
-                                        (int) (AppUtil.convertDpToPixel((float) width,
+                                        (int) (UiUtil.convertDpToPixel((float) width,
                                                 getActivity())),
-                                        (int) (AppUtil.convertDpToPixel((float) height,
+                                        (int) (UiUtil.convertDpToPixel((float) height,
                                                 getActivity())));
                             }
                         } catch (UnsupportedEncodingException e) {
@@ -341,20 +339,20 @@ public class FolioPageFragment extends Fragment {
                             double top = Double.parseDouble(matcher.group(2));
                             double width = Double.parseDouble(matcher.group(3));
                             double height = Double.parseDouble(matcher.group(4));
-                            showTextSelectionMenu((int) (AppUtil.convertDpToPixel((float) left,
+                            showTextSelectionMenu((int) (UiUtil.convertDpToPixel((float) left,
                                     getActivity())),
-                                    (int) (AppUtil.convertDpToPixel((float) top,
+                                    (int) (UiUtil.convertDpToPixel((float) top,
                                             getActivity())),
-                                    (int) (AppUtil.convertDpToPixel((float) width,
+                                    (int) (UiUtil.convertDpToPixel((float) width,
                                             getActivity())),
-                                    (int) (AppUtil.convertDpToPixel((float) height,
+                                    (int) (UiUtil.convertDpToPixel((float) height,
                                             getActivity())));
                         } else {
                             if (mIsSpeaking && (!message.equals("undefined"))) {
                                 //mActivityCallback.speakSentence(message);
                                 if (isCurrentFragment()) {
                                     Sentence sentence = new Sentence(message);
-                                    Constants.BUS.post(sentence);
+                                    FolioActivity.BUS.post(sentence);
                                 }
                             }
                         }
@@ -390,9 +388,9 @@ public class FolioPageFragment extends Fragment {
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
         String opfPath
-                = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
+                = AppUtil.getPathOPF(FileUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
         String baseUrl
-                = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+                = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
         ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
     }
@@ -521,6 +519,7 @@ public class FolioPageFragment extends Fragment {
         outState.putString(KEY_FRAGMENT_EPUB_FILE_NAME, mEpubFileName);
     }
 
+
     @Subscribe
     public void reload(ReloadData reloadData) {
         if (isAdded()) {
@@ -533,6 +532,7 @@ public class FolioPageFragment extends Fragment {
             webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
             updatePagesLeftTextBg();
         }
+
     }
 
 
@@ -552,10 +552,8 @@ public class FolioPageFragment extends Fragment {
     @Subscribe
     public void getTextSentence(Boolean isSpeaking) {
         if (isCurrentFragment()) {
-            //if (((FolioActivity) getActivity()).getmChapterPosition() == mPos) {
             mIsSpeaking = true;
             mWebview.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))");
-            //}
         }
     }
 
@@ -705,10 +703,10 @@ public class FolioPageFragment extends Fragment {
 
     private void onTextSelectionActionItemClicked(int actionId, View view, int width, int height) {
         if (actionId == ACTION_ID_COPY) {
-            AppUtil.copyToClipboard(mContext, mSelectedText);
+            UiUtil.copyToClipboard(mContext, mSelectedText);
             Toast.makeText(mContext, getString(R.string.copied), Toast.LENGTH_SHORT).show();
         } else if (actionId == ACTION_ID_SHARE) {
-            AppUtil.share(mContext, mSelectedText);
+            UiUtil.share(mContext, mSelectedText);
         } else if (actionId == ACTION_ID_DEFINE) {
             //TODO: Check how to use define
         } else if (actionId == ACTION_ID_HIGHLIGHT) {
@@ -761,7 +759,7 @@ public class FolioPageFragment extends Fragment {
         if (actionId == ACTION_ID_HIGHLIGHT_COLOR) {
             onHighlightColors(view, isCreated);
         } else if (actionId == ACTION_ID_SHARE) {
-            AppUtil.share(mContext, mSelectedText);
+            UiUtil.share(mContext, mSelectedText);
         } else if (actionId == ACTION_ID_DELETE) {
             highlightRemove();
         }
@@ -863,6 +861,7 @@ public class FolioPageFragment extends Fragment {
     @JavascriptInterface
     public void getUpdatedHighlightId(String id, String style) {
         if (id != null) {
+            HighLightTable.updateHighlightStyle(id, style);
             //HighlightTable.updateHighlightStyle(getActivity(), id, style);
         }
     }
@@ -877,11 +876,9 @@ public class FolioPageFragment extends Fragment {
 
     @Subscribe
     public void resetCurrentIndex(RewindIndex resetIndex) {
-        //if (((FolioActivity) getActivity()).getmChapterPosition() == mPos && isAdded()) {
         if (isCurrentFragment()) {
             mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
         }
-        //}
     }
 
 

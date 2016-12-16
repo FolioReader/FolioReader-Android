@@ -63,7 +63,7 @@ public class ContentsFragment extends Fragment {
         if (mIsNightMode) {
             mRootView.findViewById(R.id.recycler_view_menu).
                     setBackgroundColor(ContextCompat.getColor(mContext,
-                    R.color.black));
+                            R.color.black));
         }
         configRecyclerViews();
         return mRootView;

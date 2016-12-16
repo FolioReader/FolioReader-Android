@@ -134,6 +134,16 @@ public class HighLightTable {
         }
         return date1;
     }
+
+    public static void updateHighlightStyle(String id, String style) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COL_TYPE, style);
+        if (DbAdapter.update(HighLightTable.TABLE_NAME, COL_HIGHLIGHT_ID, id, contentValues)) {
+            Log.d(TAG, "highlight updated sucessfully");
+        } else {
+            Log.d(TAG, "error while highlight updateing");
+        }
+    }
 }
 
 

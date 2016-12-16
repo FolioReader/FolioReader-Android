@@ -11,7 +11,7 @@ public class DbAdapter {
     private static final String TAG = "DBAdapter";
 
     private Context mContext;
-    public static SQLiteDatabase mDatabase ;
+    public static SQLiteDatabase mDatabase;
 
     public DbAdapter(Context ctx) {
         this.mContext = ctx;
@@ -23,9 +23,9 @@ public class DbAdapter {
         return mDatabase.insert(table, null, contentValues) > 0;
     }
 
-    public static boolean update(String table,String key, String value, ContentValues contentValues) {
+    public static boolean update(String table, String key, String value, ContentValues contentValues) {
 
-        return mDatabase.update(table, contentValues, key+"=?", new String[]{value}) > 0;
+        return mDatabase.update(table, contentValues, key + "=?", new String[]{value}) > 0;
     }
 
     public boolean deleteAll(String table) {
@@ -69,7 +69,7 @@ public class DbAdapter {
 
     public void deleteDatabase() {
     /*	mDatabase.execSQL(LeadTypesTable.SQL_DROP);
-		mDatabase.execSQL(LeadStagesTable.SQL_DROP);
+        mDatabase.execSQL(LeadStagesTable.SQL_DROP);
 		mDatabase.execSQL(LeadSourcesTable.SQL_DROP);
 		mDatabase.execSQL(ExpensesTable.SQL_DROP);*/
         mDatabase.execSQL(HighLightTable.SQL_DROP);

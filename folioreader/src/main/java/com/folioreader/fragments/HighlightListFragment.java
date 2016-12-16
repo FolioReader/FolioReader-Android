@@ -29,7 +29,8 @@ import com.folioreader.R;
 import com.folioreader.model.Highlight;
 import com.folioreader.sqlite.HighLightTable;
 import com.folioreader.util.AppUtil;
-import com.folioreader.util.UnderlinedTextView;
+import com.folioreader.util.UiUtil;
+import com.folioreader.view.UnderlinedTextView;
 
 import java.util.ArrayList;
 
@@ -122,7 +123,7 @@ public class HighlightListFragment extends Fragment {
                                  int textViewResourceId, ArrayList<Highlight> objects) {
             super(context, textViewResourceId, objects);
             mInflater = (LayoutInflater) getActivity()
-                      .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
@@ -146,7 +147,7 @@ public class HighlightListFragment extends Fragment {
                     final int height = holder1.dataRelativeLayout.getHeight();
                     Log.d("height", height + "");
 
-                    if(isAdded()){
+                    if (isAdded()) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -166,7 +167,7 @@ public class HighlightListFragment extends Fragment {
                 holder.txtHightLightNote.setText(editedNote);
             }
 
-            AppUtil.setBackColorToTextView(holder.txtHightlightText,
+            UiUtil.setBackColorToTextView(holder.txtHightlightText,
                     rowItem.getType());
             row.findViewById(R.id.txt_hightlight_text)
                     .setOnClickListener(new View.OnClickListener() {
