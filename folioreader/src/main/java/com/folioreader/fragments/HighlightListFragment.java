@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -138,7 +139,7 @@ public class HighlightListFragment extends Fragment {
                 holder = (ViewHolder) row.getTag();
             }
             final Highlight rowItem = getItem(position);
-            holder.txtHightlightText.setText(rowItem.getContent().trim());
+            holder.txtHightlightText.setText(Html.fromHtml(rowItem.getContent().trim()));
             holder.txtHightLightTime.setText(AppUtil.formatDate(rowItem.getDate()));
             final ViewHolder holder1 = holder;
             holder.dataRelativeLayout.postDelayed(new Runnable() {

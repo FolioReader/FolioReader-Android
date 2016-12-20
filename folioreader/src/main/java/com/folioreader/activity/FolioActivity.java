@@ -453,9 +453,10 @@ public class FolioActivity extends AppCompatActivity implements
                 Highlight highlight = data.getParcelableExtra(HIGHLIGHT_ITEM);
                 int position = highlight.getCurrentPagerPostion();
                 mFolioPageViewPager.setCurrentItem(position);
-                Fragment fragment = getFragment(position);
+                BUS.post(highlight.getCurrentWebviewScrollPos());
+                /*Fragment fragment = getFragment(position);
                 ((FolioPageFragment) fragment).
-                        setWebViewPosition(highlight.getCurrentWebviewScrollPos());
+                        setWebViewPosition(highlight.getCurrentWebviewScrollPos());*/
             }
         }
     }
