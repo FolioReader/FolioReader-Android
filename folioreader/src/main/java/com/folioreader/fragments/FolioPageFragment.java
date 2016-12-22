@@ -211,12 +211,19 @@ public class FolioPageFragment extends Fragment {
         mWebview.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-                view.loadUrl("javascript:alert(getReadingTime())");
-                if (!mIsSmilAvailable) {
-                    view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
-                    view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal)));
+                if (isAdded()) {
+                    view.loadUrl("javascript:alert(getReadingTime())");
+                    if (!mIsSmilAvailable) {
+                        view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
+                        view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal)));
+                        //view.loadUrl("javascript:alert(scrollAnchor(id))");
+                    }
+                    if (AppUtil.checkPreviousBookStateExist(mContext, mBook)) {
+                        setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(mContext, mBook));
+                    }
+
+                    ((FolioActivity) getActivity()).onPageLoaded();
                 }
-                ((FolioActivity) getActivity()).onPageLoaded();
             }
 
 

@@ -184,6 +184,10 @@ var getAnchorOffset = function(target, horizontal) {
     return elem.offsetTop;
 }
 
+function scrollAnchor(id) {
+    window.location.hash = id;
+}
+
 function findElementWithID(node) {
     if( !node || node.tagName == "BODY")
         return null

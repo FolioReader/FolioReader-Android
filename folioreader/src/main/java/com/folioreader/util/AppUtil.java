@@ -273,7 +273,7 @@ public class AppUtil {
     public static boolean compareUrl(String ur1, String ur2) {
         String[] s = ur1.split("//");
         String[] s1 = ur2.split("/");
-        ur1 = s[s.length - 1];
+        ur1 = s[s.length - 1].indexOf('#')==-1?s[s.length - 1]:s[s.length - 1].substring(0, s[s.length - 1].indexOf('#'));
         ur2 = s1[s1.length - 1];
         return ur1.equalsIgnoreCase(ur2);
     }

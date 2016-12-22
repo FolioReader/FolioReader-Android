@@ -115,8 +115,8 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
         }
         mEpubFileName = AppUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
         initBook();
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         findViewById(R.id.btn_speaker).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -310,10 +310,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
 
     @Override
     public void onPageLoaded() {
-        mPageLoadCount++;
+        /*mPageLoadCount++;
         if (mPageLoadCount <= 1)
-            checkAndRestoreBookState();
-        //mAudioView.startMediaPlayer();
+            checkAndRestoreBookState();*/
     }
 
     public void setPagerToPosition(String href) {
@@ -353,6 +352,12 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
                             mSpineReferences, mBook, mEpubFileName, mIsSmilParsed);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
+            if (AppUtil.checkPreviousBookStateExist(FolioActivity.this, mBook)) {
+                mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBook));
+            /*Fragment fragment = getFragment(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBook));
+            ((FolioPageFragment) fragment)
+                    .setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(FolioActivity.this, mBook));*/
+            }
         }
     }
 
@@ -401,9 +406,9 @@ public class FolioActivity extends AppCompatActivity implements ConfigViewCallba
     private void checkAndRestoreBookState() {
         if (AppUtil.checkPreviousBookStateExist(FolioActivity.this, mBook)) {
             mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBook));
-            Fragment fragment = getFragment(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBook));
+            /*Fragment fragment = getFragment(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBook));
             ((FolioPageFragment) fragment)
-                    .setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(FolioActivity.this, mBook));
+                    .setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(FolioActivity.this, mBook));*/
         }
     }
 
