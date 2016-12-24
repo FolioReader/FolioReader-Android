@@ -37,6 +37,7 @@ import com.folioreader.adapter.FolioPageFragmentAdapter;
 import com.folioreader.fragments.FolioPageFragment;
 import com.folioreader.model.Highlight;
 import com.folioreader.model.SmilElements;
+import com.folioreader.model.WebViewPosition;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.smil.SmilFile;
 import com.folioreader.smil.TextElement;
@@ -453,7 +454,9 @@ public class FolioActivity extends AppCompatActivity implements
                 Highlight highlight = data.getParcelableExtra(HIGHLIGHT_ITEM);
                 int position = highlight.getCurrentPagerPostion();
                 mFolioPageViewPager.setCurrentItem(position);
-                BUS.post(highlight.getCurrentWebviewScrollPos());
+                WebViewPosition webViewPosition=new WebViewPosition();
+                webViewPosition.setWebviewPos(highlight.getCurrentWebviewScrollPos());
+                BUS.post(webViewPosition);
                 /*Fragment fragment = getFragment(position);
                 ((FolioPageFragment) fragment).
                         setWebViewPosition(highlight.getCurrentWebviewScrollPos());*/

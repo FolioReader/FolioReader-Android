@@ -35,6 +35,7 @@ import com.folioreader.model.Highlight;
 import com.folioreader.model.ReloadData;
 import com.folioreader.model.RewindIndex;
 import com.folioreader.model.Sentence;
+import com.folioreader.model.WebViewPosition;
 import com.folioreader.quickaction.ActionItem;
 import com.folioreader.quickaction.QuickAction;
 import com.folioreader.smil.TextElement;
@@ -83,6 +84,8 @@ public class FolioPageFragment extends Fragment {
     private static final int ACTION_ID_HIGHLIGHT_PINK = 1010;
     private static final int ACTION_ID_HIGHLIGHT_UNDERLINE = 1011;
     private static final String KEY_TEXT_ELEMENTS = "text_elements";
+    private boolean isHighlightSeleceted;
+    private WebViewPosition mWebviewposition;
 
 
     public static interface FolioPageFragmentCallback {
@@ -231,12 +234,16 @@ public class FolioPageFragment extends Fragment {
                 if (isAdded()) {
                     view.loadUrl("javascript:alert(getReadingTime())");
                     if (!mIsSmilAvailable) {
-                        view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
+                       /* view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");*/
                         view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
                                 Highlight.HighlightStyle.classForStyle(
                                         Highlight.HighlightStyle.Normal)));
                     }
-                    setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(mContext, mBook));
+                    if (mWebviewposition == null) {
+                        setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(mContext, mBook));
+                    } else {
+                        setWebViewPosition(mWebviewposition.getWebviewPos());
+                    }
                 }
 
                 /*ScreenUtils screen = new ScreenUtils(getContext());
@@ -529,7 +536,7 @@ public class FolioPageFragment extends Fragment {
             final WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
             String htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
             String opfPath
-                    = AppUtil.getPathOPF(AppUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
+                    = AppUtil.getPathOPF(FileUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
             String baseUrl
                     = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
             webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
@@ -896,5 +903,10 @@ public class FolioPageFragment extends Fragment {
     @Subscribe
     public void setTextElementList(ArrayList<TextElement> textElementList) {
         mTextElementList = textElementList;
+    }
+
+    @Subscribe
+    public  void setWebviewToHighlightPos(final WebViewPosition webViewPosition) {
+        mWebviewposition = webViewPosition;
     }
 }

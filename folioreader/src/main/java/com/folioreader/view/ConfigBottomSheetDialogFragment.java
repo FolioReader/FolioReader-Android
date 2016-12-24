@@ -91,8 +91,9 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     private void initViews() {
         inflateView();
         configFonts();
+        mFontSizeSeekBar.setProgress(Config.getConfig().getFontSize());
         configSeekbar();
-        selectFont(Config.getConfig().getFont());
+        selectFont(Config.getConfig().getFont(), false);
         mIsNightMode = Config.getConfig().isNightMode();
         if (mIsNightMode) {
             mContainer.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.night));
@@ -128,28 +129,28 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         mDialog.findViewById(R.id.btn_font_andada).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectFont(FONT_ANDADA);
+                selectFont(FONT_ANDADA, true);
             }
         });
 
         mDialog.findViewById(R.id.btn_font_lato).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectFont(FONT_LATO);
+                selectFont(FONT_LATO, true);
             }
         });
 
         mDialog.findViewById(R.id.btn_font_lora).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectFont(FONT_LORA);
+                selectFont(FONT_LORA, true);
             }
         });
 
         mDialog.findViewById(R.id.btn_font_raleway).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectFont(FONT_RALEWAY);
+                selectFont(FONT_RALEWAY, true);
             }
         });
 
@@ -173,7 +174,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         });
     }
 
-    private void selectFont(int selectedFont) {
+    private void selectFont(int selectedFont, boolean isReloadNeeded) {
         if (selectedFont == FONT_ANDADA) {
             mDialog.findViewById(R.id.btn_font_andada).setSelected(true);
             mDialog.findViewById(R.id.btn_font_lato).setSelected(false);
@@ -198,7 +199,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
 
         Config.getConfig().setFont(selectedFont);
         //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
-        if (isAdded()) {
+        if (isAdded() && isReloadNeeded) {
             FolioActivity.BUS.post(new ReloadData());
         }
     }
@@ -266,7 +267,6 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        mFontSizeSeekBar.setProgress(Config.getConfig().getFontSize());
     }
 
 

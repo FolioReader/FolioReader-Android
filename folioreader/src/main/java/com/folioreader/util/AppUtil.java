@@ -203,7 +203,7 @@ public class AppUtil {
 
     public static String getFolioEpubFolderPath(String epubFileName) {
         return Environment.getExternalStorageDirectory().getAbsolutePath()
-                + FOLIO_READER_ROOT + epubFileName;
+                + "/" + FOLIO_READER_ROOT + "/" + epubFileName;
     }
 
     public static String getFolioEpubFilePath(FolioActivity.EpubSourceType sourceType, String epubFilePath, String epubFileName) {
