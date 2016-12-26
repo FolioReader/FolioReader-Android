@@ -1,22 +1,14 @@
 package com.folioreader.util;
 
 import android.content.Context;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
-import android.os.Environment;
 import android.util.Log;
 
 import com.folioreader.R;
-import com.folioreader.activity.FolioActivity;
 import com.folioreader.model.BookModel;
-import com.folioreader.model.SmilElements;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.smil.SmilFile;
 import com.folioreader.smil.TextElement;
 
-/*import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;*/
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,11 +19,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,7 +40,6 @@ import static com.folioreader.Constants.BOOK_STATE;
 import static com.folioreader.Constants.BOOK_TITLE;
 import static com.folioreader.Constants.VIEWPAGER_POSITION;
 import static com.folioreader.Constants.WEBVIEW_SCROLL_POSITION;
-import static com.folioreader.util.FileUtil.saveTempEpubFile;
 import static com.folioreader.util.SharedPreferenceUtil.getSharedPreferencesString;
 
 
@@ -71,27 +60,7 @@ public class AppUtil {
         OEBPS
     }
 
-     /*static {
-        jsonMapper = new ObjectMapper();
-        try {
-            jsonMapper
-                    .configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        } catch (Exception e) {
-            Log.d(TAG, e.getMessage());
-        }
-    }*/
-
     public static Map<String, String> stringToJsonMap(String string) {
-       /* ArrayList<HashMap<String, String>> map = new ArrayList<HashMap<String, String>>();
-        try {
-            map = jsonMapper.readValue(string,
-                    new TypeReference<ArrayList<HashMap<String, String>>>() {
-                    });
-        } catch (Exception e) {
-            Log.d(TAG, e.getMessage());
-            return null;
-        }
-        return map.get(0);*/
         HashMap<String, String> map=new HashMap<>();
         try {
             JSONArray jsonArray=new JSONArray(string);
@@ -154,85 +123,6 @@ public class AppUtil {
             }
         }
         return (int) temp;
-    }
-
-
-
-    public static Book saveEpubFile(final Context context, FolioActivity.EpubSourceType epubSourceType, String epubFilePath, int epubRawId, String epubFileName) {
-        String filePath;
-        InputStream epubInputStream;
-        Book book = null;
-        boolean isFolderAvalable;
-        try {
-            isFolderAvalable = isFolderAvailable(epubFileName);
-            filePath = getFolioEpubFilePath(epubSourceType, epubFilePath, epubFileName);
-
-            if (!isFolderAvalable) {
-                if (epubSourceType.equals(FolioActivity.EpubSourceType.RAW)) {
-                    epubInputStream = context.getResources().openRawResource(epubRawId);
-                    saveTempEpubFile(filePath, epubFileName, epubInputStream);
-                } else if (epubSourceType.equals(FolioActivity.EpubSourceType.ASSESTS)) {
-                    AssetManager assetManager = context.getAssets();
-                    epubInputStream = assetManager.open(epubFilePath);
-                    saveTempEpubFile(filePath, epubFileName, epubInputStream);
-                } else {
-                    filePath = epubFilePath;
-                }
-
-                EpubManipulator epubManipulator= new EpubManipulator(filePath, epubFileName, context);
-                //book = saveBookToDb(filePath, epubFileName, context);
-                book = epubManipulator.getEpubBook();
-
-            } else {
-
-                FileInputStream fileInputStream = new FileInputStream(filePath);
-                book = (new EpubReader()).readEpub(fileInputStream);
-               /* BookModel bookModel = BookModelTable.getBookFromName(context, epubFileName);
-                if (bookModel != null) {
-                    book = bookModel.getBook();
-                } else {
-                    book = saveBookToDb(filePath, epubFileName, context);
-                }*/
-            }
-            return book;
-        } catch (Exception e) {
-            Log.d(TAG, e.getMessage());
-        }
-        return book;
-    }
-
-    public static String getFolioEpubFolderPath(String epubFileName) {
-        return Environment.getExternalStorageDirectory().getAbsolutePath()
-                + "/" + FOLIO_READER_ROOT + "/" + epubFileName;
-    }
-
-    public static String getFolioEpubFilePath(FolioActivity.EpubSourceType sourceType, String epubFilePath, String epubFileName) {
-        if (FolioActivity.EpubSourceType.SD_CARD.equals(sourceType)) {
-            return epubFilePath;
-        } else {
-            return getFolioEpubFolderPath(epubFileName) + "/" + epubFileName + ".epub";
-        }
-    }
-
-    private static boolean isFolderAvailable(String epubFileName) {
-        File file = new File(getFolioEpubFolderPath(epubFileName));
-        return file.isDirectory();
-    }
-
-    public static String getEpubFilename(Context context, FolioActivity.EpubSourceType epubSourceType,
-                                         String epubFilePath, int epubRawId) {
-        String epubFileName;
-        if (epubSourceType.equals(FolioActivity.EpubSourceType.RAW)) {
-            Resources res = context.getResources();
-            epubFileName = res.getResourceEntryName(epubRawId);
-        } else {
-            String[] temp = epubFilePath.split("/");
-            epubFileName = temp[temp.length - 1];
-            int fileMaxIndex = epubFileName.length();
-            epubFileName = epubFileName.substring(0, fileMaxIndex - 5);
-        }
-
-        return epubFileName;
     }
 
 
@@ -311,21 +201,6 @@ public class AppUtil {
         return smilFile;
 
     }
-
-    /*public static SmilElements retrieveAndParseSmilJSON(Context context, String epubFileName) {
-        String smilElmentsJson =
-                getSharedPreferencesString(context, epubFileName, null);
-        SmilElements smilElements = null;
-        if (smilElmentsJson != null) {
-            try {
-                smilElements = jsonMapper.readValue(smilElmentsJson, SmilElements.class);
-            } catch (IOException e) {
-                Log.d(TAG, e.getMessage());
-            }
-        }
-
-        return smilElements;
-    }*/
 
     public static String getPathOPF(String unzipDir, Context context) {
         String mPathOPF = "";

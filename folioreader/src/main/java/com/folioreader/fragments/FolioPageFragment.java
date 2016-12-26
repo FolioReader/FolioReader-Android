@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,7 +27,6 @@ import android.widget.Toast;
 
 import com.bossturban.webviewmarker.TextSelectionSupport;
 import com.folioreader.Config;
-import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.activity.FolioActivity;
 import com.folioreader.model.Highlight;
@@ -125,14 +123,14 @@ public class FolioPageFragment extends Fragment {
     private boolean mIsSmilAvailable;
     private int mPos;
 
-    public static FolioPageFragment newInstance(int position, Book book, String epubFileName, boolean isSmilAvailable, ArrayList<TextElement> textElements) {
+    public static FolioPageFragment newInstance(int position, Book book, String epubFileName,ArrayList<TextElement> textElementArrayList, boolean isSmileAvailable) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
         args.putSerializable(KEY_FRAGMENT_FOLIO_BOOK, book);
         args.putString(KEY_FRAGMENT_EPUB_FILE_NAME, epubFileName);
-        args.putSerializable(KEY_IS_SMIL_AVAILABLE, isSmilAvailable);
-        args.putParcelableArrayList(KEY_TEXT_ELEMENTS, textElements);
+        args.putParcelableArrayList(KEY_TEXT_ELEMENTS, textElementArrayList);
+        args.putBoolean(KEY_IS_SMIL_AVAILABLE, isSmileAvailable);
         fragment.setArguments(args);
         return fragment;
     }
@@ -163,9 +161,7 @@ public class FolioPageFragment extends Fragment {
         if (getActivity() instanceof FolioPageFragmentCallback)
             mActivityCallback = (FolioPageFragmentCallback) getActivity();
 
-            FolioActivity.BUS.register(this);
-
-
+        FolioActivity.BUS.register(this);
 
 
         initSeekbar();
@@ -234,10 +230,10 @@ public class FolioPageFragment extends Fragment {
                 if (isAdded()) {
                     view.loadUrl("javascript:alert(getReadingTime())");
                     if (!mIsSmilAvailable) {
-                       /* view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");*/
+                        view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
                         view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
-                                Highlight.HighlightStyle.classForStyle(
-                                        Highlight.HighlightStyle.Normal)));
+                            Highlight.HighlightStyle.classForStyle(
+                                    Highlight.HighlightStyle.Normal)));
                     }
                     if (mWebviewposition == null) {
                         setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(mContext, mBook));
@@ -538,7 +534,7 @@ public class FolioPageFragment extends Fragment {
             String opfPath
                     = AppUtil.getPathOPF(FileUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
             String baseUrl
-                    = "file://" + AppUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+                    = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
             webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
             updatePagesLeftTextBg();
         }
@@ -862,8 +858,6 @@ public class FolioPageFragment extends Fragment {
     @JavascriptInterface
     public void getRemovedHighlightId(String id) {
         if (id != null) {
-            //mDbAdapter.deleteById(HighLightTable.TABLE_NAME, id);
-            //HighlightTable.remove(id, getActivity());
             HighLightTable.deleteHighlight(id);
         }
     }
@@ -871,8 +865,7 @@ public class FolioPageFragment extends Fragment {
     @JavascriptInterface
     public void getUpdatedHighlightId(String id, String style) {
         if (id != null) {
-            HighLightTable.updateHighlightStyle(id,style);
-            //HighlightTable.updateHighlightStyle(getActivity(), id, style);
+            HighLightTable.updateHighlightStyle(id, style);
         }
     }
 
@@ -902,11 +895,17 @@ public class FolioPageFragment extends Fragment {
 
     @Subscribe
     public void setTextElementList(ArrayList<TextElement> textElementList) {
-        mTextElementList = textElementList;
+        if (textElementList != null && textElementList.size() > 0) {
+            mIsSmilAvailable = true;
+            mTextElementList = textElementList;
+        }
     }
 
     @Subscribe
-    public  void setWebviewToHighlightPos(final WebViewPosition webViewPosition) {
+    public void setWebviewToHighlightPos(final WebViewPosition webViewPosition) {
         mWebviewposition = webViewPosition;
+        if(isAdded()) {
+            setWebViewPosition(mWebviewposition.getWebviewPos());
+        }
     }
 }

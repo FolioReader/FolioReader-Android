@@ -393,6 +393,14 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
             FolioActivity.BUS.unregister(this);
         }
     }
+
+    public void stopAudioIfPlaying() {
+       if(mPlayer!=null){
+           mPlayer.stop();
+       } else if(mTextToSpeech!=null){
+           mTextToSpeech.shutdown();
+       }
+    }
 }
 
 

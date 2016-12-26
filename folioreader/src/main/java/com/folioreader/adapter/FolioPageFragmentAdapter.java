@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.folioreader.Constants;
+import com.folioreader.activity.FolioActivity;
 import com.folioreader.fragments.FolioPageFragment;
 import com.folioreader.smil.TextElement;
 import com.squareup.otto.Subscribe;
@@ -22,23 +23,22 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
     private List<SpineReference> mSpineReferences;
     private Book mBook;
     private String mEpubFileName;
-    private boolean mIsSmilAvailable;
     private FolioPageFragment mFolioPageFragment;
-    private ArrayList<TextElement> mTextElementList;
+    private ArrayList<TextElement> mTextElementArrayList;
+    private boolean mIsSmileAvailable;
 
     public FolioPageFragmentAdapter(FragmentManager fm, List<SpineReference> spineReferences,
-                                    Book book, String epubFilename, boolean isSmilAvilable) {
+                                    Book book, String epubFilename) {
         super(fm);
         this.mSpineReferences = spineReferences;
         this.mBook = book;
         this.mEpubFileName = epubFilename;
-        this.mIsSmilAvailable = isSmilAvilable;
-        //Constants.BUS.register(this);
+        FolioActivity.BUS.register(this);
     }
 
     @Override
     public Fragment getItem(int position) {
-        mFolioPageFragment = FolioPageFragment.newInstance(position, mBook, mEpubFileName, mIsSmilAvailable, mTextElementList);
+        mFolioPageFragment = FolioPageFragment.newInstance(position, mBook, mEpubFileName, mTextElementArrayList, mIsSmileAvailable);
         mFolioPageFragment.setFragmentPos(position);
         return mFolioPageFragment;
     }
@@ -48,9 +48,11 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
         return mSpineReferences.size();
     }
 
-
-    /*@Subscribe
+    @Subscribe
     public void setTextElementList(ArrayList<TextElement> textElementList) {
-        mTextElementList = textElementList;
-    }*/
+        if (textElementList != null && textElementList.size() > 0) {
+            mIsSmileAvailable = true;
+            mTextElementArrayList = textElementList;
+        }
+    }
 }

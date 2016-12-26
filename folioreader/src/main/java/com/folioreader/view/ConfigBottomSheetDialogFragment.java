@@ -50,10 +50,6 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     private ConfigDialogCallback mConfigDialogCallback;
 
     public interface ConfigDialogCallback {
-        void onConfigChange();
-
-        void onAudioPlayed();
-
         void onOrentationChange(int orentation);
     }
 

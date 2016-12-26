@@ -51,14 +51,7 @@ public class FileUtil {
                 book = AppUtil.saveBookToDb(filePath, epubFileName, context);
             } else {
                 EpubManipulator epubManipulator= new EpubManipulator(filePath, epubFileName, context);
-                //book = saveBookToDb(filePath, epubFileName, context);
                 book = epubManipulator.getEpubBook();
-                /*BookModel bookModel = BookModelTable.getBookFromName(context, epubFileName);
-                if (bookModel != null) {
-                    book = bookModel.getBook();
-                } else {
-                    book = AppUtil.saveBookToDb(filePath, epubFileName, context);
-                }*/
             }
             return book;
         } catch (Exception e) {
@@ -69,7 +62,7 @@ public class FileUtil {
 
     public static String getFolioEpubFolderPath(String epubFileName) {
         return Environment.getExternalStorageDirectory().getAbsolutePath()
-                + FOLIO_READER_ROOT + epubFileName;
+                + "/" + FOLIO_READER_ROOT + "/" + epubFileName;
     }
 
     public static String getFolioEpubFilePath(FolioActivity.EpubSourceType sourceType, String epubFilePath, String epubFileName) {
