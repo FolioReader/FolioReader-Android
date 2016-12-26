@@ -24,7 +24,6 @@ import android.widget.Toast;
 
 import com.folioreader.Config;
 import com.folioreader.R;
-import com.folioreader.database.HighlightTable;
 import com.folioreader.model.Highlight;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.UiUtil;

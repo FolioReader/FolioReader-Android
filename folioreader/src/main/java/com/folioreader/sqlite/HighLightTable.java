@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
-import com.folioreader.database.HighlightTable;
 import com.folioreader.model.Highlight;
 
 import java.text.ParseException;
@@ -53,7 +52,7 @@ public class HighLightTable {
     public static String WHERE_SERVER_ID_EQUALS = COL_BOOK_ID + "=?";
 
 
-    public static String TAG = HighlightTable.class.getSimpleName();
+    public static String TAG = HighLightTable.class.getSimpleName();
 
     public static ContentValues getHighlightContentValues(Highlight hightlight) {
         ContentValues contentValues = new ContentValues();

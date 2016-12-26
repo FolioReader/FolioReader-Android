@@ -7,8 +7,6 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.folioreader.activity.FolioActivity;
-import com.folioreader.database.BookModelTable;
-import com.folioreader.model.BookModel;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -355,7 +355,6 @@ public class FolioPageFragment extends Fragment {
                                             getActivity())));
                         } else {
                             if (mIsSpeaking && (!message.equals("undefined"))) {
-                                //mActivityCallback.speakSentence(message);
                                 if (isCurrentFragment()) {
                                     Sentence sentence = new Sentence(message);
                                     FolioActivity.BUS.post(sentence);
