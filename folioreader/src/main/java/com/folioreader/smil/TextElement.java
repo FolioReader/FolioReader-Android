@@ -3,15 +3,13 @@ package com.folioreader.smil;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.codehaus.jackson.annotate.JsonProperty;
 
 
 /**
  * Encapsulates the <text> tag.
  */
 public class TextElement implements Parcelable, MediaElement {
-    @JsonProperty
-    private String src;
+    String src;
 
     public  TextElement(){}
     

@@ -10,8 +10,8 @@ import android.view.WindowManager;
  */
 public class ScreenUtils {
 
-    private Context ctx;
-    private DisplayMetrics metrics;
+    Context ctx;
+    DisplayMetrics metrics;
 
     public ScreenUtils(Context ctx) {
         this.ctx = ctx;
@@ -24,32 +24,33 @@ public class ScreenUtils {
 
     }
 
-    public int getHeight(){
+    public int getHeight() {
         return metrics.heightPixels;
     }
 
-    public int getWidth(){
+    public int getWidth() {
         return metrics.widthPixels;
     }
 
-    public int getRealHeight(){
-        return metrics.heightPixels/metrics.densityDpi;
+    public int getRealHeight() {
+        return metrics.heightPixels / metrics.densityDpi;
     }
 
-    public int getRealWidth(){
-        return metrics.widthPixels/metrics.densityDpi;
+    public int getRealWidth() {
+        return metrics.widthPixels / metrics.densityDpi;
     }
 
-    public int getDensity(){
+    public int getDensity() {
         return metrics.densityDpi;
     }
 
-    public int getScale(int PIC_WIDTH){
-        Display display = ((WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+    public int getScale(int picWidth) {
+        Display display
+                = ((WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay();
         int width = display.getWidth();
-        Double val = new Double(width)/new Double(PIC_WIDTH);
+        Double val = new Double(width) / new Double(picWidth);
         val = val * 100d;
         return val.intValue();
     }
-
 }

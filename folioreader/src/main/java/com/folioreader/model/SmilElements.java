@@ -2,20 +2,20 @@ package com.folioreader.model;
 
 import com.folioreader.smil.AudioElement;
 import com.folioreader.smil.TextElement;
-import com.j256.ormlite.field.DataType;
+/*import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import com.j256.ormlite.table.DatabaseTable;*/
 
-import org.codehaus.jackson.annotate.JsonProperty;
+/*import org.codehaus.jackson.annotate.JsonProperty;*/
 
 import java.util.List;
 
 /**
  * Created by mobisys on 8/10/2016.
  */
-@DatabaseTable(tableName = "smiltable")
+/*@DatabaseTable(tableName = "smiltable")*/
 public class SmilElements {
-    @JsonProperty
+    /*@JsonProperty
     @DatabaseField(generatedId = true)
     int id;
     @JsonProperty
@@ -58,5 +58,5 @@ public class SmilElements {
 
     public void setTextElementArrayList(List<TextElement> textElementArrayList) {
         this.textElementArrayList = textElementArrayList;
-    }
+    }*/
 }

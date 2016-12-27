@@ -100,7 +100,8 @@ public class ObservableWebView extends WebView {
                /* boolean isHorizontal = true;
                 if (isHorizontal) {
                    *//* DisplayMetrics dm = new DisplayMetrics();
-                    ((Activity)this.getContext()).getWindowManager().getDefaultDisplay().getMetrics(dm);*//*
+                    ((Activity)this.getContext()).
+                    getWindowManager().getDefaultDisplay().getMetrics(dm);*//*
                     ScreenUtils screen = new ScreenUtils(getContext());
 
                     int w = screen.getWidth();

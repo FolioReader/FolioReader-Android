@@ -1,12 +1,5 @@
 package com.folioreader.activity;
 
-import com.folioreader.Config;
-import com.folioreader.R;
-import com.folioreader.database.HighlightTable;
-import com.folioreader.model.Highlight;
-import com.folioreader.util.AppUtil;
-import com.folioreader.util.UnderlinedTextView;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +9,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +21,13 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.folioreader.Config;
+import com.folioreader.R;
+import com.folioreader.model.Highlight;
+import com.folioreader.util.AppUtil;
+import com.folioreader.util.UiUtil;
+import com.folioreader.view.UnderlinedTextView;
 
 import java.util.ArrayList;
 
@@ -80,12 +79,12 @@ public class HighlightListActivity extends AppCompatActivity {
             ((ListView) findViewById(R.id.list_highligts)).setDividerHeight(1);
         }
 
-        HightlightAdpater hightlightAdpater =
+       /* HightlightAdpater hightlightAdpater =
                 new HightlightAdpater(HighlightListActivity.this, 0,
                         (ArrayList<Highlight>) HighlightTable
                                 .getAllRecords(HighlightListActivity.this));
         ListView highlightListview = (ListView) findViewById(R.id.list_highligts);
-        highlightListview.setAdapter(hightlightAdpater);
+        highlightListview.setAdapter(hightlightAdpater);*/
     }
 
 
@@ -137,7 +136,6 @@ public class HighlightListActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     final int height = holder1.dataRelativeLayout.getHeight();
-                    Log.d("height", height + "");
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -156,7 +154,7 @@ public class HighlightListActivity extends AppCompatActivity {
                 holder.txtHightLightNote.setText(editedNote);
             }
 
-            AppUtil.setBackColorToTextView(holder.txtHightlightText,
+            UiUtil.setBackColorToTextView(holder.txtHightlightText,
                     rowItem.getType());
             row.findViewById(R.id.txt_hightlight_text)
                         .setOnClickListener(new View.OnClickListener() {
@@ -192,7 +190,7 @@ public class HighlightListActivity extends AppCompatActivity {
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    HighlightTable.remove(rowItem.getHighlightId(), HighlightListActivity.this);
+                    //HighlightTable.remove(rowItem.getHighlightId(), HighlightListActivity.this);
                     Intent intent = new Intent();
                     intent.putExtra(ITEM_DELETED, true);
                     setResult(RESULT_OK, intent);
@@ -226,7 +224,7 @@ public class HighlightListActivity extends AppCompatActivity {
                         ((EditText) dailog.findViewById(R.id.edit_note)).getText().toString();
                 if (note != null && (!TextUtils.isEmpty(note))) {
                     highlightItem.setNote(note);
-                    HighlightTable.save(getApplicationContext(), highlightItem);
+                    //HighlightTable.save(getApplicationContext(), highlightItem);
                     dailog.dismiss();
                     initViews();
                 } else {
