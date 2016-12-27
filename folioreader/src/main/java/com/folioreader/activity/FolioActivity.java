@@ -102,6 +102,7 @@ public class FolioActivity extends AppCompatActivity implements
     private int mWebViewScrollPosition;
     private ConfigBottomSheetDialogFragment mConfigBottomSheetDialogFragment;
     private AudioViewBottomSheetDailogFragment mAudioBottomSheetDialogFragment;
+    private boolean mIsbookOpened =false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -496,5 +497,11 @@ public class FolioActivity extends AppCompatActivity implements
         return mChapterPosition;
     }
 
+    public boolean isbookOpened() {
+        return mIsbookOpened;
+    }
 
+    public void setIsbookOpened(boolean mIsbookOpened) {
+        this.mIsbookOpened = mIsbookOpened;
+    }
 }

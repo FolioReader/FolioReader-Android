@@ -235,12 +235,16 @@ public class FolioPageFragment extends Fragment {
                             Highlight.HighlightStyle.classForStyle(
                                     Highlight.HighlightStyle.Normal)));
                     }
-                    if (mWebviewposition == null) {
-                        setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(mContext, mBook));
-                    } else {
+
+
+                    if (mWebviewposition != null) {
                         setWebViewPosition(mWebviewposition.getWebviewPos());
+                    } else if (!((FolioActivity) getActivity()).isbookOpened() && isCurrentFragment()) {
+                        setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(mContext, mBook));
+                        ((FolioActivity) getActivity()).setIsbookOpened(true);
                     }
                 }
+
 
                 /*ScreenUtils screen = new ScreenUtils(getContext());
 
