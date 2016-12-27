@@ -145,7 +145,8 @@ public class FolioActivity extends AppCompatActivity implements
                 mBook.setResources(null);
                 mBook.setNcxResource(null);
                 intent.putExtra(BOOK, mBook);
-                intent.putExtra(SELECTED_CHAPTER_POSITION, mChapterPosition);
+                int TOCposition=AppUtil.getTOCpos(mTocReferences,mSpineReferences.get(mChapterPosition));
+                intent.putExtra(SELECTED_CHAPTER_POSITION, TOCposition);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
                 overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
             }
@@ -423,7 +424,8 @@ public class FolioActivity extends AppCompatActivity implements
             String type = data.getStringExtra(TYPE);
             if (type.equals(CHAPTER_SELECTED)) {
                 mChapterPosition = data.getIntExtra(SELECTED_CHAPTER_POSITION, 0);
-                mFolioPageViewPager.setCurrentItem(mChapterPosition);
+                int spineRefrencesPos = AppUtil.getSpineRefrecePos(mSpineReferences, mTocReferences.get(mChapterPosition));
+                mFolioPageViewPager.setCurrentItem(spineRefrencesPos);
             } else if (type.equals(HIGHLIGHT_SELECTED)) {
                 Highlight highlight = data.getParcelableExtra(HIGHLIGHT_ITEM);
                 int position = highlight.getCurrentPagerPostion();

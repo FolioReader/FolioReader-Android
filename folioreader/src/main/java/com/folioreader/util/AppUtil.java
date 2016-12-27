@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +35,8 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 
 import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.SpineReference;
+import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.epub.EpubReader;
 
 import static com.folioreader.Constants.BOOK_STATE;
@@ -360,6 +363,27 @@ public class AppUtil {
             } catch (JSONException e) {
                 Log.e(TAG, e.getMessage());
                 return 0;
+            }
+        }
+        return 0;
+    }
+
+
+    public  static int getTOCpos(ArrayList<TOCReference> mTocReferences, SpineReference spineReferences){
+        for (int i = 0; i < mTocReferences.size(); i++) {
+            if(mTocReferences.get(i).getTitle().equalsIgnoreCase(spineReferences.getResource().getTitle())){
+              return i;
+            }
+        }
+        return -1;
+    }
+
+
+
+    public  static int getSpineRefrecePos(List<SpineReference> spineReferences, TOCReference tocReference){
+        for (int i = 0; i < spineReferences.size(); i++) {
+            if(spineReferences.get(i).getResource().getTitle().equalsIgnoreCase(tocReference.getResource().getTitle())){
+                return i;
             }
         }
         return 0;

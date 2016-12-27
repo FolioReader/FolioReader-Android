@@ -121,18 +121,21 @@ public class ContentsFragment extends Fragment {
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
             holder.tocTitleView.setText(mTOCReferences.get(position).getTitle());
-            if (!(mSelectedChapterPosition == position)) {
-                if (mIsNightMode) {
-                    holder.tocTitleView.setTextColor(Color.WHITE);
-                    holder.line.setBackgroundColor(Color.WHITE);
+
+            if(mSelectedChapterPosition!=-1) {
+                if (!(mSelectedChapterPosition == position)) {
+                    if (mIsNightMode) {
+                        holder.tocTitleView.setTextColor(Color.WHITE);
+                        holder.line.setBackgroundColor(Color.WHITE);
+                    } else {
+                        holder.tocTitleView.setTextColor(Color.BLACK);
+                        holder.line.setBackgroundColor(Color.BLACK);
+                    }
                 } else {
-                    holder.tocTitleView.setTextColor(Color.BLACK);
-                    holder.line.setBackgroundColor(Color.BLACK);
-                }
-            } else {
-                holder.tocTitleView.setTextColor(Color.GREEN);
-                if (mIsNightMode) {
-                    holder.line.setBackgroundColor(Color.WHITE);
+                    holder.tocTitleView.setTextColor(Color.GREEN);
+                    if (mIsNightMode) {
+                        holder.line.setBackgroundColor(Color.WHITE);
+                    }
                 }
             }
 
