@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,10 +27,11 @@ import android.widget.Toast;
 
 import com.folioreader.Config;
 import com.folioreader.R;
-import com.folioreader.database.HighlightTable;
 import com.folioreader.model.Highlight;
+import com.folioreader.sqlite.HighLightTable;
 import com.folioreader.util.AppUtil;
-import com.folioreader.util.UnderlinedTextView;
+import com.folioreader.util.UiUtil;
+import com.folioreader.view.UnderlinedTextView;
 
 import java.util.ArrayList;
 
@@ -44,6 +47,7 @@ public class HighlightListFragment extends Fragment {
     private Context mContext;
     private Book mBook;
 
+
     public static HighlightListFragment newInstance(Book book) {
         HighlightListFragment fragment = new HighlightListFragment();
         Bundle args = new Bundle();
@@ -53,7 +57,13 @@ public class HighlightListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_highlight_list, container, false);
         mContext = getActivity();
         mBook = (Book) getArguments().getSerializable(BOOK);
@@ -78,9 +88,10 @@ public class HighlightListFragment extends Fragment {
             ((ListView) mRootView.findViewById(R.id.list_highligts)).setDividerHeight(1);
         }
 
+
         HightlightAdpater hightlightAdpater =
                 new HightlightAdpater(mContext, 0,
-                        (ArrayList<Highlight>) HighlightTable.getBookHighlight(mContext, mBook));
+                        HighLightTable.getAllHighlights(mBook.getTitle()));
         ListView highlightListview = (ListView) mRootView.findViewById(R.id.list_highligts);
         highlightListview.setAdapter(hightlightAdpater);
     }
@@ -112,7 +123,8 @@ public class HighlightListFragment extends Fragment {
         public HightlightAdpater(Context context,
                                  int textViewResourceId, ArrayList<Highlight> objects) {
             super(context, textViewResourceId, objects);
-            mInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            mInflater = (LayoutInflater) getActivity()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
@@ -127,7 +139,7 @@ public class HighlightListFragment extends Fragment {
                 holder = (ViewHolder) row.getTag();
             }
             final Highlight rowItem = getItem(position);
-            holder.txtHightlightText.setText(rowItem.getContent().trim());
+            holder.txtHightlightText.setText(Html.fromHtml(rowItem.getContent().trim()));
             holder.txtHightLightTime.setText(AppUtil.formatDate(rowItem.getDate()));
             final ViewHolder holder1 = holder;
             holder.dataRelativeLayout.postDelayed(new Runnable() {
@@ -135,15 +147,18 @@ public class HighlightListFragment extends Fragment {
                 public void run() {
                     final int height = holder1.dataRelativeLayout.getHeight();
                     Log.d("height", height + "");
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ViewGroup.LayoutParams params =
-                                    holder1.swipeLinearlayout.getLayoutParams();
-                            params.height = height;
-                            holder1.swipeLinearlayout.setLayoutParams(params);
-                        }
-                    });
+
+                    if (isAdded()) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                ViewGroup.LayoutParams params =
+                                        holder1.swipeLinearlayout.getLayoutParams();
+                                params.height = height;
+                                holder1.swipeLinearlayout.setLayoutParams(params);
+                            }
+                        });
+                    }
                 }
             }, 20);
 
@@ -153,7 +168,7 @@ public class HighlightListFragment extends Fragment {
                 holder.txtHightLightNote.setText(editedNote);
             }
 
-            AppUtil.setBackColorToTextView(holder.txtHightlightText,
+            UiUtil.setBackColorToTextView(holder.txtHightlightText,
                     rowItem.getType());
             row.findViewById(R.id.txt_hightlight_text)
                     .setOnClickListener(new View.OnClickListener() {
@@ -190,7 +205,8 @@ public class HighlightListFragment extends Fragment {
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    HighlightTable.remove(rowItem.getHighlightId(), mContext);
+                    HighLightTable.deleteHighlight(rowItem.getHighlightId());
+                    //HighlightTable.remove(rowItem.getHighlightId(), mContext);
                     initViews();
                 }
             });
@@ -221,7 +237,9 @@ public class HighlightListFragment extends Fragment {
                         ((EditText) dailog.findViewById(R.id.edit_note)).getText().toString();
                 if (note != null && (!TextUtils.isEmpty(note))) {
                     highlightItem.setNote(note);
-                    HighlightTable.save(mContext, highlightItem);
+
+                    HighLightTable.updateHighlight(highlightItem);
+                    //HighlightTable.save(mContext, highlightItem);
                     dailog.dismiss();
                     initViews();
                 } else {

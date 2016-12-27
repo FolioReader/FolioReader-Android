@@ -4,7 +4,7 @@
 
     <application>
         <activity android:name=".activity.HighlightListActivity" />
-        <activity android:name=".activity.ContentHighlightActivity"></activity>
+        <activity android:name=".activity.ContentHighlightActivity" />
     </application>
 
 </manifest>

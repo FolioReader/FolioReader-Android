@@ -14,6 +14,7 @@ import com.folioreader.R;
 import com.folioreader.fragments.ContentsFragment;
 import com.folioreader.fragments.HighlightListFragment;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.UiUtil;
 
 import nl.siegmann.epublib.domain.Book;
 
@@ -39,11 +40,11 @@ public class ContentHighlightActivity extends AppCompatActivity {
             ((TextView) findViewById(R.id.btn_contents))
                     .setBackgroundResource(R.drawable.content_highlight_back_selector_night_mode);
             ((TextView) findViewById(R.id.btn_contents))
-                    .setTextColor(AppUtil.getColorList(this, R.color.black, R.color.app_green));
+                    .setTextColor(UiUtil.getColorList(ContentHighlightActivity.this, R.color.black, R.color.app_green));
             ((TextView) findViewById(R.id.btn_highlights))
                     .setBackgroundResource(R.drawable.content_highlight_back_selector_night_mode);
             ((TextView) findViewById(R.id.btn_highlights))
-                    .setTextColor(AppUtil.getColorList(this, R.color.black, R.color.app_green));
+                    .setTextColor(UiUtil.getColorList(ContentHighlightActivity.this, R.color.black, R.color.app_green));
         }
 
         loadContentFragment();
@@ -72,9 +73,9 @@ public class ContentHighlightActivity extends AppCompatActivity {
     private void loadContentFragment() {
         findViewById(R.id.btn_contents).setSelected(true);
         findViewById(R.id.btn_highlights).setSelected(false);
-        ContentsFragment contentFrameLayout = ContentsFragment.newInstance(mBook, mSelectedChapterPosition);
+        ContentsFragment contentFrameLayout
+                = ContentsFragment.newInstance(mBook, mSelectedChapterPosition);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        //ft.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right);
         ft.replace(R.id.parent, contentFrameLayout);
         ft.commit();
     }
@@ -84,10 +85,7 @@ public class ContentHighlightActivity extends AppCompatActivity {
         findViewById(R.id.btn_highlights).setSelected(true);
         HighlightListFragment highlightListFragment = HighlightListFragment.newInstance(mBook);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        //ft.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left);
         ft.replace(R.id.parent, highlightListFragment);
         ft.commit();
     }
-
-
 }

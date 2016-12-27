@@ -1,5 +1,8 @@
 package com.folioreader;
 
+import com.squareup.otto.Bus;
+import com.squareup.otto.ThreadEnforcer;
+
 /**
  * Created by mobisys on 10/4/2016.
  */

@@ -1,8 +1,8 @@
 package com.folioreader.model;
 
-import com.j256.ormlite.field.DataType;
+/*import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
+import com.j256.ormlite.table.DatabaseTable;*/
 
 import java.io.Serializable;
 
@@ -12,9 +12,9 @@ import nl.siegmann.epublib.domain.Book;
  * Created by mobisys on 8/11/2016.
  */
 
-@DatabaseTable(tableName = "bookTable")
+/*@DatabaseTable(tableName = "bookTable")*/
 public class BookModel implements Serializable {
-    @DatabaseField(generatedId = true)
+   /* @DatabaseField(generatedId = true)
     int localId;
     @DatabaseField(dataType = DataType.SERIALIZABLE)
     Book book;
@@ -46,5 +46,5 @@ public class BookModel implements Serializable {
 
     public void setBookName(String bookName) {
         this.bookName = bookName;
-    }
+    }*/
 }

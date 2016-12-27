@@ -240,7 +240,10 @@ public class EpubManipulator {
         // get the OPF path, directly from container.xml
         /*BufferedReader br = new BufferedReader(new FileReader(unzipDir
                 + "/META-INF/container.xml"));*/
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir + "/META-INF/container.xml"), CHARSET_NAME));
+        BufferedReader br
+                = new BufferedReader(
+                new InputStreamReader(new FileInputStream(unzipDir + "/META-INF/container.xml"),
+                CHARSET_NAME));
         String line;
         while ((line = br.readLine()) != null) {
             //if (line.indexOf(getS(R.string.full_path)) > -1)
@@ -822,5 +825,9 @@ public class EpubManipulator {
 
     public static String getS(int id) {
         return mContext.getResources().getString(id);
+    }
+
+    public Book getEpubBook(){
+        return this.mBook;
     }
 }

@@ -3,21 +3,17 @@ package com.folioreader.smil;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
+/*import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;*/
 
 /**
  * Encapsulates the <audio> tag.
  */
 public class AudioElement implements Parcelable, MediaElement {
-    @JsonProperty
-    private String src;
-    @JsonProperty
-    private int clipBegin;
-    @JsonProperty
-    private int clipEnd;
-    @JsonIgnore
-    private SmilElement parent;
+    String src;
+    int clipBegin;
+    int clipEnd;
+    SmilElement parent;
 
 
     public AudioElement() {
@@ -134,14 +130,14 @@ public class AudioElement implements Parcelable, MediaElement {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable((Parcelable) parent,flags);
+        dest.writeParcelable((Parcelable) parent, flags);
         dest.writeString(src);
         dest.writeInt(clipBegin);
         dest.writeInt(clipEnd);
     }
 
     private void readFromParcel(Parcel in) {
-        parent =in.readParcelable(SmilElement.class.getClassLoader());
+        parent = in.readParcelable(SmilElement.class.getClassLoader());
         src = in.readString();
         clipBegin = in.readInt();
         clipEnd = in.readInt();
