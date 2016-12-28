@@ -82,7 +82,6 @@ public class FolioPageFragment extends Fragment {
     private static final int ACTION_ID_HIGHLIGHT_PINK = 1010;
     private static final int ACTION_ID_HIGHLIGHT_UNDERLINE = 1011;
     private static final String KEY_TEXT_ELEMENTS = "text_elements";
-    private boolean isHighlightSeleceted;
     private WebViewPosition mWebviewposition;
 
 
@@ -122,8 +121,10 @@ public class FolioPageFragment extends Fragment {
     private String mEpubFileName = null;
     private boolean mIsSmilAvailable;
     private int mPos;
+    private boolean mIsPageReloaded;
+    private int mLastWebviewScrollpos;
 
-    public static FolioPageFragment newInstance(int position, Book book, String epubFileName,ArrayList<TextElement> textElementArrayList, boolean isSmileAvailable) {
+    public static FolioPageFragment newInstance(int position, Book book, String epubFileName, ArrayList<TextElement> textElementArrayList, boolean isSmileAvailable) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
@@ -232,8 +233,8 @@ public class FolioPageFragment extends Fragment {
                     if (!mIsSmilAvailable) {
                         view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
                         view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
-                            Highlight.HighlightStyle.classForStyle(
-                                    Highlight.HighlightStyle.Normal)));
+                                Highlight.HighlightStyle.classForStyle(
+                                        Highlight.HighlightStyle.Normal)));
                     }
 
 
@@ -242,6 +243,9 @@ public class FolioPageFragment extends Fragment {
                     } else if (!((FolioActivity) getActivity()).isbookOpened() && isCurrentFragment()) {
                         setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(mContext, mBook));
                         ((FolioActivity) getActivity()).setIsbookOpened(true);
+                    } else if (mIsPageReloaded) {
+                        setWebViewPosition(mLastWebviewScrollpos);
+                        mIsPageReloaded = false;
                     }
                 }
 
@@ -531,7 +535,9 @@ public class FolioPageFragment extends Fragment {
 
     @Subscribe
     public void reload(ReloadData reloadData) {
-        if (isAdded()) {
+        if (isCurrentFragment()) {
+            mLastWebviewScrollpos = mWebview.getScrollY();
+            mIsPageReloaded = true;
             final WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
             String htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
             String opfPath
@@ -540,6 +546,8 @@ public class FolioPageFragment extends Fragment {
                     = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
             webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
             updatePagesLeftTextBg();
+
+
         }
 
     }
@@ -907,7 +915,7 @@ public class FolioPageFragment extends Fragment {
     @Subscribe
     public void setWebviewToHighlightPos(final WebViewPosition webViewPosition) {
         mWebviewposition = webViewPosition;
-        if(isAdded()) {
+        if (isAdded()) {
             setWebViewPosition(mWebviewposition.getWebviewPos());
         }
     }
