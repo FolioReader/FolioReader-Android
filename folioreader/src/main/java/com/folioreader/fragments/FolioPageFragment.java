@@ -248,39 +248,6 @@ public class FolioPageFragment extends Fragment {
                         mIsPageReloaded = false;
                     }
                 }
-
-
-                /*ScreenUtils screen = new ScreenUtils(getContext());
-
-                int deviceHeight = screen.getRealHeight();
-                int deviceWidth = screen.getRealWidth();
-
-                String js = "javascript:function initialize() { " +
-                        "var body = document.getElementsByagTName('body')[0];" +
-                        "var ourH = window.innerHeight - 40; " +
-                        "var ourW = window.innerWidth; " +
-                        "var fullH = body.offsetHeight; " +
-                        "var pageCount = Math.floor(fullH/ourH)+1;" +
-                        "var currentPage = 0; " +
-                        "var newW = pageCount*ourW; " +
-                        "body.style.height = " + deviceHeight + "+ 'px' ;" +
-                        "body.style.width = newW+'px';" +
-                        "body.style.padding = 0; " +
-                        "body.style.margin = 0; " +
-                        "body.style.webkitColumnGap = '25px';" +
-                        "body.style.webkitColumnCount = pageCount;" +
-                        "body.style.webkitColumnWidth = " + (deviceWidth-15) + "+ 'px' ;" +
-                        "body.style.height = ourH" + "+ 'px' ;" +
-                        "}" +
-                        "javascript:initialize()";
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    view.evaluateJavascript(js, null);
-                } else {
-                    view.loadUrl(js);
-                }*/
-
-
             }
 
 
@@ -551,7 +518,6 @@ public class FolioPageFragment extends Fragment {
         }
 
     }
-
 
     @Subscribe
     public void highLightString(Integer position) {
