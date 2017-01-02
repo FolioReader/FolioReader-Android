@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.folioreader.Config;
+import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.Highlight;
 import com.folioreader.sqlite.HighLightTable;
@@ -34,8 +35,11 @@ import com.folioreader.util.UiUtil;
 import com.folioreader.view.UnderlinedTextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.domain.SpineReference;
+import nl.siegmann.epublib.domain.TOCReference;
 
 import static com.folioreader.Constants.BOOK;
 import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
@@ -45,13 +49,15 @@ public class HighlightListFragment extends Fragment {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private View mRootView;
     private Context mContext;
-    private Book mBook;
+    /*private Book mBook;*/
+    private String mBookTitle;
 
 
-    public static HighlightListFragment newInstance(Book book) {
+    public static HighlightListFragment newInstance(String bookTitle) {
         HighlightListFragment fragment = new HighlightListFragment();
         Bundle args = new Bundle();
-        args.putSerializable(BOOK, book);
+        args.putString(Constants.BOOK_TITLE, bookTitle);
+        //args.putSerializable(BOOK, book);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,7 +72,8 @@ public class HighlightListFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_highlight_list, container, false);
         mContext = getActivity();
-        mBook = (Book) getArguments().getSerializable(BOOK);
+        /*mBook = (Book) getArguments().getSerializable(BOOK);*/
+        mBookTitle = getArguments().getString(Constants.BOOK_TITLE);
         initViews();
         return mRootView;
     }
@@ -91,7 +98,7 @@ public class HighlightListFragment extends Fragment {
 
         HightlightAdpater hightlightAdpater =
                 new HightlightAdpater(mContext, 0,
-                        HighLightTable.getAllHighlights(mBook.getTitle()));
+                        HighLightTable.getAllHighlights(mBookTitle));
         ListView highlightListview = (ListView) mRootView.findViewById(R.id.list_highligts);
         highlightListview.setAdapter(hightlightAdpater);
     }

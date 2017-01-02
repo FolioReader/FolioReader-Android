@@ -53,6 +53,7 @@ import com.folioreader.view.DirectionalViewpager;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -144,7 +145,9 @@ public class FolioActivity extends AppCompatActivity implements
                 Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
                 mBook.setResources(null);
                 mBook.setNcxResource(null);
-                intent.putExtra(BOOK, mBook);
+                intent.putExtra(Constants.TOC_REFERENCES,(Serializable) mBook.getTableOfContents().getTocReferences());
+                intent.putExtra(Constants.SPINE_REFRENCES,(Serializable) mBook.getSpine().getSpineReferences());
+                intent.putExtra(Constants.BOOK_TITLE,mBook.getTitle());
                 int TOCposition=AppUtil.getTOCpos(mTocReferences,mSpineReferences.get(mChapterPosition));
                 intent.putExtra(SELECTED_CHAPTER_POSITION, TOCposition);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);

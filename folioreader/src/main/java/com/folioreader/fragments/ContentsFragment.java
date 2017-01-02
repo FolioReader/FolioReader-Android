@@ -16,8 +16,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.folioreader.Config;
+import com.folioreader.Constants;
 import com.folioreader.R;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,10 +42,11 @@ public class ContentsFragment extends Fragment {
     private boolean mIsNightMode;
 
 
-    public static ContentsFragment newInstance(Book book, int selectedChapterPosition) {
+    public static ContentsFragment newInstance(ArrayList<TOCReference> tocReferences,List<SpineReference> spineReferences, int selectedChapterPosition) {
         ContentsFragment contentsFragment = new ContentsFragment();
         Bundle args = new Bundle();
-        args.putSerializable(BOOK, book);
+        args.putSerializable(Constants.TOC_REFERENCES, tocReferences);
+        args.putSerializable(Constants.SPINE_REFRENCES, (Serializable) spineReferences);
         args.putInt(SELECTED_CHAPTER_POSITION, selectedChapterPosition);
         contentsFragment.setArguments(args);
         return contentsFragment;
@@ -71,20 +74,16 @@ public class ContentsFragment extends Fragment {
 
 
     public void configRecyclerViews() {
-        Book book = (Book) getArguments().getSerializable(BOOK);
-        if (book != null) {
-            mSelectedChapterPosition
-                    = getArguments().getInt(SELECTED_CHAPTER_POSITION);
-            mTocReferences = (ArrayList<TOCReference>) book.getTableOfContents().getTocReferences();
-            mSpineReferences
-                    = book.getSpine().getSpineReferences();
+        mTocReferences= (ArrayList<TOCReference>) getArguments().getSerializable(Constants.TOC_REFERENCES);
+        mSpineReferences= (List<SpineReference>) getArguments().getSerializable(Constants.SPINE_REFRENCES);
+        mSelectedChapterPosition = getArguments().getInt(SELECTED_CHAPTER_POSITION);
+        if (mTocReferences != null && mSpineReferences != null) {
             RecyclerView recyclerView
                     = (RecyclerView) mRootView.findViewById(R.id.recycler_view_menu);
             recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-            if (mTocReferences != null) {
                 TOCAdapter tocAdapter = new TOCAdapter(mTocReferences, mSelectedChapterPosition);
                 recyclerView.setAdapter(tocAdapter);
-            }
+
         }
     }
 

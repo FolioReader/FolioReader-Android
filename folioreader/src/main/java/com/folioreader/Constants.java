@@ -17,4 +17,6 @@ public class Constants {
     public static final String VIEWPAGER_POSITION = "view_pager_position";
     public static final String BOOK_STATE = "book_state";
     public static final String CHARSET_NAME = "UTF-8";
+    public static final String TOC_REFERENCES = "toc_refrences";
+    public static final String SPINE_REFRENCES = "spine_refrenecs";
 }
