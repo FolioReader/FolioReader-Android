@@ -76,9 +76,8 @@ For reading from SD card, just retrieve absolute path of epub file and pass that
 
 [**CodeToArt Technology**](https://github.com/codetoart)
 
-- Follow me on **Twitter**: [**@codetoart**](https://twitter.com/codetoart)
-- Contact me on **LinkedIn**: [**codetoart**](http://linkedin.com/in/codetoart)
-- Contact me on **Website**: [**codetoart**](http://www.codetoart.com)
+- Follow us on **Twitter**: [**@codetoart**](https://twitter.com/codetoart)
+- Contact us on **Website**: [**codetoart**](http://www.codetoart.com)
 
 ## Donations
 
