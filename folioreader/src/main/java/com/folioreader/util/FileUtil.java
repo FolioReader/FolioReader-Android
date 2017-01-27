@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import nl.siegmann.epublib.domain.Book;
+import nl.siegmann.epublib.epub.EpubReader;
 
 /**
  * Created by Mahavir on 12/15/16.
@@ -24,16 +25,16 @@ public class FileUtil {
     private static final String TAG = FileUtil.class.getSimpleName();
     private static final String FOLIO_READER_ROOT = "/folioreader/";
 
-    public static Book saveEpubFile(final Context context, FolioActivity.EpubSourceType epubSourceType, String epubFilePath, int epubRawId, String epubFileName) {
+    public static Book saveEpubFileAndLoadLazyBook(final Context context, FolioActivity.EpubSourceType epubSourceType, String epubFilePath, int epubRawId, String epubFileName) {
         String filePath;
         InputStream epubInputStream;
         Book book = null;
-        boolean isFolderAvalable;
+        boolean isFolderAvailable;
         try {
-            isFolderAvalable = isFolderAvailable(epubFileName);
+            isFolderAvailable = isFolderAvailable(epubFileName);
             filePath = getFolioEpubFilePath(epubSourceType, epubFilePath, epubFileName);
 
-            if (!isFolderAvalable) {
+            if (!isFolderAvailable) {
                 if (epubSourceType.equals(FolioActivity.EpubSourceType.RAW)) {
                     epubInputStream = context.getResources().openRawResource(epubRawId);
                     saveTempEpubFile(filePath, epubFileName, epubInputStream);
@@ -45,14 +46,16 @@ public class FileUtil {
                     filePath = epubFilePath;
                 }
 
-                new EpubManipulator(filePath, epubFileName, context);
-                book = AppUtil.saveBookToDb(filePath, epubFileName, context);
-            } else {
+                AppUtil.unzip(context, filePath, getFolioEpubFolderPath(epubFileName));
+                //new EpubManipulator(filePath, epubFileName, context);
+            } /*else {
                 EpubManipulator epubManipulator= new EpubManipulator(filePath, epubFileName, context);
                 book = epubManipulator.getEpubBook();
-            }
+            }*/
+
+            book = (new EpubReader()).readEpubLazy(filePath, "UTF-8");
             return book;
-        } catch (Exception e) {
+        } catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }
         return book;

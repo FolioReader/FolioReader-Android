@@ -14,9 +14,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,6 +27,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +35,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -141,21 +147,73 @@ public class AppUtil {
         FileInputStream fs = null;
         Book book = null;
         try {
-            fs = new FileInputStream(epubFilePath);
-            book = (new EpubReader()).readEpub(fs);
-            fs = null;
-
-            BookModel bookModel = new BookModel();
-           /* book.setCoverImage(null);
-            book.setResources(null);*/
-           /* bookModel.setBook(book);
-            bookModel.setBookName(epubFileName);*/
-            //BookModelTable.createEntryInTableIfNotExist(context, bookModel);
+            //fs = new FileInputStream(epubFilePath);
+            book = (new EpubReader()).readEpubLazy(epubFilePath, "UTF-8");
 
         } catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }
         return book;
+    }
+
+    // TODO: more efficient unzipping
+    public static void unzip(Context context, String inputZip, String destinationDirectory)
+            throws IOException {
+        int buffer = 2048;
+        List zipFiles = new ArrayList();
+        File sourceZipFile = new File(inputZip);
+        File unzipDestinationDirectory = new File(destinationDirectory);
+        unzipDestinationDirectory.mkdir();
+
+        ZipFile zipFile;
+        zipFile = new ZipFile(sourceZipFile, ZipFile.OPEN_READ);
+        Enumeration zipFileEntries = zipFile.entries();
+
+        // Process each entry
+        while (zipFileEntries.hasMoreElements()) {
+
+            ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
+            String currentEntry = entry.getName();
+            File destFile = new File(unzipDestinationDirectory, currentEntry);
+
+            if (currentEntry.endsWith(context.getString(R.string.zip))) {
+                zipFiles.add(destFile.getAbsolutePath());
+            }
+
+            File destinationParent = destFile.getParentFile();
+            destinationParent.mkdirs();
+
+            if (!entry.isDirectory()) {
+                BufferedInputStream is = new BufferedInputStream(
+                        zipFile.getInputStream(entry));
+                int currentByte;
+                // buffer for writing file
+                byte[] data = new byte[buffer];
+
+                FileOutputStream fos = new FileOutputStream(destFile);
+                BufferedOutputStream dest = new BufferedOutputStream(fos,
+                        buffer);
+
+                while ((currentByte = is.read(data, 0, buffer)) != -1) {
+                    dest.write(data, 0, currentByte);
+                }
+                dest.flush();
+                dest.close();
+                is.close();
+
+            }
+
+        }
+        zipFile.close();
+
+        for (Iterator iter = zipFiles.iterator(); iter.hasNext(); ) {
+            String zipName = (String) iter.next();
+            unzip(context, zipName,
+                    destinationDirectory
+                            + File.separatorChar
+                            + zipName.substring(0,
+                            zipName.lastIndexOf(context.getString(R.string.zip))));
+        }
     }
 
     public static SmilFile createSmilJson(Context context, String epubFileName) {
@@ -208,8 +266,6 @@ public class AppUtil {
     public static String getPathOPF(String unzipDir, Context context) {
         String mPathOPF = "";
         try {
-            // get the OPF path, directly from container.xml
-
             BufferedReader br
                     = new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir
                     + "/META-INF/container.xml"), "UTF-8"));
@@ -354,8 +410,8 @@ public class AppUtil {
         return 0;
     }
 
-    public static int getPreviousBookStateWebViewPosition(Context context, Book book) {
-        String json = getSharedPreferencesString(context, book.getTitle() + BOOK_STATE, null);
+    public static int getPreviousBookStateWebViewPosition(Context context, String bookTitle) {
+        String json = getSharedPreferencesString(context, bookTitle + BOOK_STATE, null);
         if (json != null) {
             try {
                 JSONObject jsonObject = new JSONObject(json);

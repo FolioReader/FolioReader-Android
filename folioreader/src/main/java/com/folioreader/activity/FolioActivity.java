@@ -36,15 +36,12 @@ import com.folioreader.R;
 import com.folioreader.adapter.FolioPageFragmentAdapter;
 import com.folioreader.fragments.FolioPageFragment;
 import com.folioreader.model.Highlight;
-import com.folioreader.model.ReloadData;
-import com.folioreader.model.SmilElements;
 import com.folioreader.model.WebViewPosition;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.smil.SmilFile;
 import com.folioreader.smil.TextElement;
 import com.folioreader.sqlite.DbAdapter;
 import com.folioreader.util.AppUtil;
-import com.folioreader.util.EpubManipulator;
 import com.folioreader.util.FileUtil;
 import com.folioreader.util.ProgressDialog;
 import com.folioreader.view.AudioViewBottomSheetDailogFragment;
@@ -53,7 +50,10 @@ import com.folioreader.view.DirectionalViewpager;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,8 +61,8 @@ import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.SpineReference;
 import nl.siegmann.epublib.domain.TOCReference;
 
-import static com.folioreader.Constants.BOOK;
 import static com.folioreader.Constants.CHAPTER_SELECTED;
+import static com.folioreader.Constants.CHARSET_NAME;
 import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
 import static com.folioreader.Constants.SELECTED_CHAPTER_POSITION;
 import static com.folioreader.Constants.TYPE;
@@ -164,7 +164,7 @@ public class FolioActivity extends AppCompatActivity implements
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mBook = FileUtil.saveEpubFile(FolioActivity.this, mEpubSourceType, mEpubFilePath,
+                mBook = FileUtil.saveEpubFileAndLoadLazyBook(FolioActivity.this, mEpubSourceType, mEpubFilePath,
                         mEpubRawId, mEpubFileName);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -360,8 +360,23 @@ public class FolioActivity extends AppCompatActivity implements
         } else {
             pageHref = FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfpath + "/" + pageHref;
         }
-        String html = EpubManipulator.readPage(pageHref);
+        String html = readPage(pageHref);
         return html;
+    }
+
+    public static String readPage(String path) {
+        try {
+            FileInputStream input = new FileInputStream(path);
+            byte[] fileData = new byte[input.available()];
+
+            input.read(fileData);
+            input.close();
+
+            String xhtml = new String(fileData, Charset.forName(CHARSET_NAME));
+            return xhtml;
+        } catch (IOException e) {
+            return "";
+        }
     }
 
     private void toolbarAnimateShow(final int verticalOffset) {

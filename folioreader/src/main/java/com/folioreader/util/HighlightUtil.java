@@ -17,7 +17,7 @@ public class HighlightUtil {
     public static final int mHighlightRange = 30;
     private static final String TAG = HighlightUtil.class.getSimpleName();
 
-    public static Highlight matchHighlight(String html, String highlightId, Book book, int pageNo) {
+    public static Highlight matchHighlight(String html, String highlightId, String bookTitle, int pageNo) {
         String contentPre = "";
         String contentPost = "";
         Highlight highlight = null;
@@ -54,7 +54,7 @@ public class HighlightUtil {
                 highlight.setContentPost(contentPost);
                 highlight.setHighlightId(highlightId);
                 highlight.setContent(matcher.group(2));
-                highlight.setBookId(book.getTitle());
+                highlight.setBookId(bookTitle);
                 highlight.setPage(pageNo);
                 highlight.setDate(Calendar.getInstance().getTime());
             }

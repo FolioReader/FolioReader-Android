@@ -63,7 +63,7 @@ import nl.siegmann.epublib.domain.Book;
 public class FolioPageFragment extends Fragment {
 
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.fragments.FolioPageFragment.POSITION";
-    public static final String KEY_FRAGMENT_FOLIO_BOOK = "com.folioreader.fragments.FolioPageFragment.BOOK";
+    public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.fragments.FolioPageFragment.BOOK_TITLE";
     public static final String KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.fragments.FolioPageFragment.EPUB_FILE_NAME";
     private static final String KEY_IS_SMIL_AVAILABLE = "com.folioreader.fragments.FolioPageFragment.IS_SMIL_AVAILABLE";
     public static final String TAG = FolioPageFragment.class.getSimpleName();
@@ -117,18 +117,19 @@ public class FolioPageFragment extends Fragment {
 
 
     private int mPosition = -1;
-    private Book mBook = null;
+    private String mBookTitle;
+    //private Book mBook = null;
     private String mEpubFileName = null;
     private boolean mIsSmilAvailable;
     private int mPos;
     private boolean mIsPageReloaded;
     private int mLastWebviewScrollpos;
 
-    public static FolioPageFragment newInstance(int position, Book book, String epubFileName, ArrayList<TextElement> textElementArrayList, boolean isSmileAvailable) {
+    public static FolioPageFragment newInstance(int position, String bookTitle, String epubFileName, ArrayList<TextElement> textElementArrayList, boolean isSmileAvailable) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
-        args.putSerializable(KEY_FRAGMENT_FOLIO_BOOK, book);
+        args.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, bookTitle);
         args.putString(KEY_FRAGMENT_EPUB_FILE_NAME, epubFileName);
         args.putParcelableArrayList(KEY_TEXT_ELEMENTS, textElementArrayList);
         args.putBoolean(KEY_IS_SMIL_AVAILABLE, isSmileAvailable);
@@ -141,15 +142,15 @@ public class FolioPageFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         if ((savedInstanceState != null)
                 && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_POSITION)
-                && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK)) {
+                && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK_TITLE)) {
             mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
-            mBook = (Book) savedInstanceState.getSerializable(KEY_FRAGMENT_FOLIO_BOOK);
+            mBookTitle = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
             mIsSmilAvailable = savedInstanceState.getBoolean(KEY_IS_SMIL_AVAILABLE);
             mTextElementList = savedInstanceState.getParcelableArrayList(KEY_TEXT_ELEMENTS);
         } else {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
-            mBook = (Book) getArguments().getSerializable(KEY_FRAGMENT_FOLIO_BOOK);
+            mBookTitle = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
             mIsSmilAvailable = getArguments().getBoolean(KEY_IS_SMIL_AVAILABLE);
             mTextElementList = getArguments().getParcelableArrayList(KEY_TEXT_ELEMENTS);
@@ -163,7 +164,6 @@ public class FolioPageFragment extends Fragment {
             mActivityCallback = (FolioPageFragmentCallback) getActivity();
 
         FolioActivity.BUS.register(this);
-
 
         initSeekbar();
         initAnimations();
@@ -241,46 +241,13 @@ public class FolioPageFragment extends Fragment {
                     if (mWebviewposition != null) {
                         setWebViewPosition(mWebviewposition.getWebviewPos());
                     } else if (!((FolioActivity) getActivity()).isbookOpened() && isCurrentFragment()) {
-                        setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(mContext, mBook));
+                        setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(mContext, mBookTitle));
                         ((FolioActivity) getActivity()).setIsbookOpened(true);
                     } else if (mIsPageReloaded) {
                         setWebViewPosition(mLastWebviewScrollpos);
                         mIsPageReloaded = false;
                     }
                 }
-
-
-                /*ScreenUtils screen = new ScreenUtils(getContext());
-
-                int deviceHeight = screen.getRealHeight();
-                int deviceWidth = screen.getRealWidth();
-
-                String js = "javascript:function initialize() { " +
-                        "var body = document.getElementsByagTName('body')[0];" +
-                        "var ourH = window.innerHeight - 40; " +
-                        "var ourW = window.innerWidth; " +
-                        "var fullH = body.offsetHeight; " +
-                        "var pageCount = Math.floor(fullH/ourH)+1;" +
-                        "var currentPage = 0; " +
-                        "var newW = pageCount*ourW; " +
-                        "body.style.height = " + deviceHeight + "+ 'px' ;" +
-                        "body.style.width = newW+'px';" +
-                        "body.style.padding = 0; " +
-                        "body.style.margin = 0; " +
-                        "body.style.webkitColumnGap = '25px';" +
-                        "body.style.webkitColumnCount = pageCount;" +
-                        "body.style.webkitColumnWidth = " + (deviceWidth-15) + "+ 'px' ;" +
-                        "body.style.height = ourH" + "+ 'px' ;" +
-                        "}" +
-                        "javascript:initialize()";
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    view.evaluateJavascript(js, null);
-                } else {
-                    view.loadUrl(js);
-                }*/
-
-
             }
 
 
@@ -528,7 +495,7 @@ public class FolioPageFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_FRAGMENT_FOLIO_POSITION, mPosition);
-        outState.putSerializable(KEY_FRAGMENT_FOLIO_BOOK, mBook);
+        outState.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, mBookTitle);
         outState.putString(KEY_FRAGMENT_EPUB_FILE_NAME, mEpubFileName);
     }
 
@@ -652,7 +619,7 @@ public class FolioPageFragment extends Fragment {
         }
 
         htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
-        ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBook.getTitle());
+        ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBookTitle);
         for (Highlight highlight : highlights) {
             String highlightStr =
                     "<highlight id=\"" + highlight.getHighlightId() +
@@ -849,7 +816,7 @@ public class FolioPageFragment extends Fragment {
     public void getHtmlAndSaveHighlight(String html) {
         if (html != null && mHighlightMap != null) {
             Highlight highlight =
-                    HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBook, mPosition);
+                    HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBookTitle, mPosition);
             highlight.setCurrentWebviewScrollPos(mWebview.getScrollY());
             highlight = ((FolioActivity) getActivity()).setCurrentPagerPostion(highlight);
             HighLightTable.insertHighlight(highlight);
