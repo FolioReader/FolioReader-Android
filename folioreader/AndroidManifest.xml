@@ -5,6 +5,7 @@
     <application>
         <activity android:name=".activity.HighlightListActivity" />
         <activity android:name=".activity.ContentHighlightActivity" />
+        <activity android:name=".activity.FolioActivity" />
     </application>
 
 </manifest>
