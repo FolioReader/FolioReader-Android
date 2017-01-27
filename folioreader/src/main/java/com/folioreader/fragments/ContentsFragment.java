@@ -144,9 +144,9 @@ public class ContentsFragment extends Fragment {
             holder.tocTitleView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String title = mSpineReferences.get(position).getResource().getTitle();
+                    String title = mSpineReferences.get(position).getResource().getId();
                     for (int i = 0; i < mSpineReferences.size(); i++) {
-                        if (mSpineReferences.get(i).getResource().getTitle().equals(title)) {
+                        if (mSpineReferences.get(i).getResource().getId().equals(title)) {
                             mSelectedChapterPosition = i;
                             Intent intent = new Intent();
                             intent.putExtra(SELECTED_CHAPTER_POSITION, mSelectedChapterPosition);
