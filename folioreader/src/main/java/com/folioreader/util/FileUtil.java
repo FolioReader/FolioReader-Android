@@ -46,7 +46,7 @@ public class FileUtil {
                 }
 
                 new EpubManipulator(filePath, epubFileName, context);
-                book = AppUtil.saveBookToDb(filePath, epubFileName, context);
+                book = AppUtil.saveBookToDb(filePath);
             } else {
                 EpubManipulator epubManipulator= new EpubManipulator(filePath, epubFileName, context);
                 book = epubManipulator.getEpubBook();

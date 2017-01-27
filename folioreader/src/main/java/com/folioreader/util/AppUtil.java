@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.folioreader.R;
-import com.folioreader.model.BookModel;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.smil.SmilFile;
 import com.folioreader.smil.TextElement;
@@ -138,21 +137,13 @@ public class AppUtil {
         return ur1.equalsIgnoreCase(ur2);
     }
 
-    public static Book saveBookToDb(String epubFilePath, String epubFileName, Context context) {
+    public static Book saveBookToDb(String epubFilePath) {
         FileInputStream fs = null;
         Book book = null;
         try {
             fs = new FileInputStream(epubFilePath);
             book = (new EpubReader()).readEpub(fs);
-            fs = null;
-
-            BookModel bookModel = new BookModel();
-           /* book.setCoverImage(null);
-            book.setResources(null);*/
-           /* bookModel.setBook(book);
-            bookModel.setBookName(epubFileName);*/
-            //BookModelTable.createEntryInTableIfNotExist(context, bookModel);
-
+            fs.close();
         } catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }
@@ -355,8 +346,8 @@ public class AppUtil {
         return 0;
     }
 
-    public static int getPreviousBookStateWebViewPosition(Context context, Book book) {
-        String json = getSharedPreferencesString(context, book.getTitle() + BOOK_STATE, null);
+    public static int getPreviousBookStateWebViewPosition(Context context, String bookTitle) {
+        String json = getSharedPreferencesString(context, bookTitle + BOOK_STATE, null);
         if (json != null) {
             try {
                 JSONObject jsonObject = new JSONObject(json);

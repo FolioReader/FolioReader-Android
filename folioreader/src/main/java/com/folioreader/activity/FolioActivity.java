@@ -36,8 +36,6 @@ import com.folioreader.R;
 import com.folioreader.adapter.FolioPageFragmentAdapter;
 import com.folioreader.fragments.FolioPageFragment;
 import com.folioreader.model.Highlight;
-import com.folioreader.model.ReloadData;
-import com.folioreader.model.SmilElements;
 import com.folioreader.model.WebViewPosition;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.smil.SmilFile;
@@ -60,7 +58,7 @@ import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.SpineReference;
 import nl.siegmann.epublib.domain.TOCReference;
 
-import static com.folioreader.Constants.BOOK;
+import static com.folioreader.Constants.BOOK_TITLE;
 import static com.folioreader.Constants.CHAPTER_SELECTED;
 import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
 import static com.folioreader.Constants.SELECTED_CHAPTER_POSITION;
@@ -74,6 +72,7 @@ public class FolioActivity extends AppCompatActivity implements
     public static final int ACTION_CONTENT_HIGHLIGHT = 77;
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     public static final Bus BUS = new Bus(ThreadEnforcer.ANY);
+    private String mBookeFilePath;
 
     public enum EpubSourceType {
         RAW,
@@ -144,7 +143,8 @@ public class FolioActivity extends AppCompatActivity implements
                 Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
                 mBook.setResources(null);
                 mBook.setNcxResource(null);
-                intent.putExtra(BOOK, mBook);
+                intent.putExtra(BOOK_TITLE, mBook.getTitle());
+                intent.putExtra(Constants.BOOK_FILE_PATH, mBookeFilePath);
                 int TOCposition=AppUtil.getTOCpos(mTocReferences,mSpineReferences.get(mChapterPosition));
                 intent.putExtra(SELECTED_CHAPTER_POSITION, TOCposition);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
@@ -163,6 +163,7 @@ public class FolioActivity extends AppCompatActivity implements
             public void run() {
                 mBook = FileUtil.saveEpubFile(FolioActivity.this, mEpubSourceType, mEpubFilePath,
                         mEpubRawId, mEpubFileName);
+                mBookeFilePath = FileUtil.getFolioEpubFilePath(mEpubSourceType, mEpubFilePath, mEpubFileName);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -202,7 +203,7 @@ public class FolioActivity extends AppCompatActivity implements
             if (mBook != null && mSpineReferences != null) {
                 mFolioPageFragmentAdapter =
                         new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                                mSpineReferences, mBook, mEpubFileName);
+                                mSpineReferences, mBook.getTitle(), mEpubFileName);
                 mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
                 mFolioPageViewPager.setOffscreenPageLimit(1);
                 mFolioPageViewPager.setCurrentItem(mChapterPosition);
@@ -212,7 +213,7 @@ public class FolioActivity extends AppCompatActivity implements
             if (mBook != null && mSpineReferences != null) {
                 mFolioPageFragmentAdapter =
                         new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                                mSpineReferences, mBook, mEpubFileName);
+                                mSpineReferences, mBook.getTitle(), mEpubFileName);
                 mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
                 mFolioPageViewPager.setCurrentItem(mChapterPosition);
             }
@@ -281,7 +282,7 @@ public class FolioActivity extends AppCompatActivity implements
 
         if (mBook != null && mSpineReferences != null) {
             mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                    mSpineReferences, mBook, mEpubFileName);
+                    mSpineReferences, mBook.getTitle(), mEpubFileName);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             if (AppUtil.checkPreviousBookStateExist(FolioActivity.this, mBook)) {
                 mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBook));

@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,32 +18,32 @@ import android.widget.TextView;
 
 import com.folioreader.Config;
 import com.folioreader.R;
+import com.folioreader.util.AppUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.SpineReference;
 import nl.siegmann.epublib.domain.TOCReference;
 
-import static com.folioreader.Constants.BOOK;
 import static com.folioreader.Constants.CHAPTER_SELECTED;
 import static com.folioreader.Constants.SELECTED_CHAPTER_POSITION;
 import static com.folioreader.Constants.TYPE;
 
 
 public class ContentsFragment extends Fragment {
+    private static String BOOK_PATH = "book_path";
     private View mRootView;
     private Context mContext;
-    private ArrayList<TOCReference> mTocReferences;
+    private List<TOCReference> mTocReferences;
     private List<SpineReference> mSpineReferences;
     private int mSelectedChapterPosition;
     private boolean mIsNightMode;
 
-    public static ContentsFragment newInstance(Book book, int selectedChapterPosition) {
+    public static ContentsFragment newInstance(String bookPath, int selectedChapterPosition) {
         ContentsFragment contentsFragment = new ContentsFragment();
         Bundle args = new Bundle();
-        args.putSerializable(BOOK, book);
+        args.putString(BOOK_PATH, bookPath);
         args.putInt(SELECTED_CHAPTER_POSITION, selectedChapterPosition);
         contentsFragment.setArguments(args);
         return contentsFragment;
@@ -70,11 +71,13 @@ public class ContentsFragment extends Fragment {
 
 
     public void configRecyclerViews() {
-        Book book = (Book) getArguments().getSerializable(BOOK);
-        if (book != null) {
+        String bookPath = getArguments().getString(BOOK_PATH);
+
+        if (!TextUtils.isEmpty(bookPath)) {
+            Book book = AppUtil.saveBookToDb(bookPath);
             mSelectedChapterPosition
                     = getArguments().getInt(SELECTED_CHAPTER_POSITION);
-            mTocReferences = (ArrayList<TOCReference>) book.getTableOfContents().getTocReferences();
+            mTocReferences = book.getTableOfContents().getTocReferences();
             mSpineReferences
                     = book.getSpine().getSpineReferences();
             RecyclerView recyclerView
