@@ -107,6 +107,10 @@ public class FolioActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
+        if (savedInstanceState == null) {
+            getSharedPreferences(FolioPageFragment.SP_FOLIO_PAGE_FRAGMENT, MODE_PRIVATE).edit().clear().apply();
+        }
+
         mEpubSourceType = (EpubSourceType)
                 getIntent().getExtras().getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
         if (mEpubSourceType.equals(EpubSourceType.RAW)) {

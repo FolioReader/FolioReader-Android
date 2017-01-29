@@ -2,6 +2,7 @@ package com.folioreader.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -9,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -64,6 +66,8 @@ public class FolioPageFragment extends Fragment {
     public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.fragments.FolioPageFragment.BOOK_TITLE";
     public static final String KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.fragments.FolioPageFragment.EPUB_FILE_NAME";
     private static final String KEY_IS_SMIL_AVAILABLE = "com.folioreader.fragments.FolioPageFragment.IS_SMIL_AVAILABLE";
+    private static final String KEY_HTML = "com.folioreader.fragments.FolioPageFragment.KEY_HTML";
+    public static final String SP_FOLIO_PAGE_FRAGMENT = "com.folioreader.fragments.FolioPageFragment.SP_FOLIO_PAGE_FRAGMENT";
     public static final String TAG = FolioPageFragment.class.getSimpleName();
 
     private static final int ACTION_ID_COPY = 1001;
@@ -82,6 +86,7 @@ public class FolioPageFragment extends Fragment {
     private static final String KEY_TEXT_ELEMENTS = "text_elements";
     private WebViewPosition mWebviewposition;
     private String mBookTitle;
+    private String mHtmlContent;
 
 
     public static interface FolioPageFragmentCallback {
@@ -165,7 +170,15 @@ public class FolioPageFragment extends Fragment {
 
         initSeekbar();
         initAnimations();
-        initWebView();
+
+        if (savedInstanceState == null) {
+            mHtmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
+        } else {
+            mHtmlContent = getCustomSharedPrefs().getString(KEY_HTML + mPosition, "");
+        }
+
+        initWebView(mHtmlContent);
+
         updatePagesLeftTextBg();
 
         return mRootView;
@@ -185,10 +198,8 @@ public class FolioPageFragment extends Fragment {
         mScrollY = positionY;
     }
 
-    private void initWebView() {
-        String htmlContent = null;
-        htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
 
+    private void initWebView(String htmlContent) {
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
         mWebview.setFragment(FolioPageFragment.this);
 
@@ -494,6 +505,12 @@ public class FolioPageFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_FRAGMENT_FOLIO_POSITION, mPosition);
         outState.putString(KEY_FRAGMENT_EPUB_FILE_NAME, mEpubFileName);
+
+        getCustomSharedPrefs().edit().putString(KEY_HTML + mPosition, mHtmlContent).apply();
+    }
+
+    private SharedPreferences getCustomSharedPrefs() {
+        return getActivity().getSharedPreferences(SP_FOLIO_PAGE_FRAGMENT, Context.MODE_PRIVATE);
     }
 
 
@@ -510,7 +527,6 @@ public class FolioPageFragment extends Fragment {
                     = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
             webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
             updatePagesLeftTextBg();
-
 
         }
 
