@@ -2,6 +2,7 @@ package com.folioreader.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -9,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,8 +56,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nl.siegmann.epublib.domain.Book;
-
 
 /**
  * Created by mahavir on 4/2/16.
@@ -63,9 +63,11 @@ import nl.siegmann.epublib.domain.Book;
 public class FolioPageFragment extends Fragment {
 
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.fragments.FolioPageFragment.POSITION";
-    public static final String KEY_FRAGMENT_FOLIO_BOOK = "com.folioreader.fragments.FolioPageFragment.BOOK";
+    public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.fragments.FolioPageFragment.BOOK_TITLE";
     public static final String KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.fragments.FolioPageFragment.EPUB_FILE_NAME";
     private static final String KEY_IS_SMIL_AVAILABLE = "com.folioreader.fragments.FolioPageFragment.IS_SMIL_AVAILABLE";
+    private static final String KEY_HTML = "com.folioreader.fragments.FolioPageFragment.KEY_HTML";
+    public static final String SP_FOLIO_PAGE_FRAGMENT = "com.folioreader.fragments.FolioPageFragment.SP_FOLIO_PAGE_FRAGMENT";
     public static final String TAG = FolioPageFragment.class.getSimpleName();
 
     private static final int ACTION_ID_COPY = 1001;
@@ -83,6 +85,8 @@ public class FolioPageFragment extends Fragment {
     private static final int ACTION_ID_HIGHLIGHT_UNDERLINE = 1011;
     private static final String KEY_TEXT_ELEMENTS = "text_elements";
     private WebViewPosition mWebviewposition;
+    private String mBookTitle;
+    private String mHtmlContent;
 
 
     public static interface FolioPageFragmentCallback {
@@ -117,18 +121,17 @@ public class FolioPageFragment extends Fragment {
 
 
     private int mPosition = -1;
-    private Book mBook = null;
     private String mEpubFileName = null;
     private boolean mIsSmilAvailable;
     private int mPos;
     private boolean mIsPageReloaded;
     private int mLastWebviewScrollpos;
 
-    public static FolioPageFragment newInstance(int position, Book book, String epubFileName, ArrayList<TextElement> textElementArrayList, boolean isSmileAvailable) {
+    public static FolioPageFragment newInstance(int position, String bookTitle, String epubFileName, ArrayList<TextElement> textElementArrayList, boolean isSmileAvailable) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
-        args.putSerializable(KEY_FRAGMENT_FOLIO_BOOK, book);
+        args.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, bookTitle);
         args.putString(KEY_FRAGMENT_EPUB_FILE_NAME, epubFileName);
         args.putParcelableArrayList(KEY_TEXT_ELEMENTS, textElementArrayList);
         args.putBoolean(KEY_IS_SMIL_AVAILABLE, isSmileAvailable);
@@ -141,15 +144,15 @@ public class FolioPageFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         if ((savedInstanceState != null)
                 && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_POSITION)
-                && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK)) {
+                && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK_TITLE)) {
             mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
-            mBook = (Book) savedInstanceState.getSerializable(KEY_FRAGMENT_FOLIO_BOOK);
+            mBookTitle = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
             mIsSmilAvailable = savedInstanceState.getBoolean(KEY_IS_SMIL_AVAILABLE);
             mTextElementList = savedInstanceState.getParcelableArrayList(KEY_TEXT_ELEMENTS);
         } else {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
-            mBook = (Book) getArguments().getSerializable(KEY_FRAGMENT_FOLIO_BOOK);
+            mBookTitle = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
             mIsSmilAvailable = getArguments().getBoolean(KEY_IS_SMIL_AVAILABLE);
             mTextElementList = getArguments().getParcelableArrayList(KEY_TEXT_ELEMENTS);
@@ -167,7 +170,15 @@ public class FolioPageFragment extends Fragment {
 
         initSeekbar();
         initAnimations();
-        initWebView();
+
+        if (savedInstanceState == null) {
+            mHtmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
+        } else {
+            mHtmlContent = getCustomSharedPrefs().getString(KEY_HTML + mPosition, "");
+        }
+
+        initWebView(mHtmlContent);
+
         updatePagesLeftTextBg();
 
         return mRootView;
@@ -187,10 +198,8 @@ public class FolioPageFragment extends Fragment {
         mScrollY = positionY;
     }
 
-    private void initWebView() {
-        String htmlContent = null;
-        htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
 
+    private void initWebView(String htmlContent) {
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
         mWebview.setFragment(FolioPageFragment.this);
 
@@ -241,7 +250,7 @@ public class FolioPageFragment extends Fragment {
                     if (mWebviewposition != null) {
                         setWebViewPosition(mWebviewposition.getWebviewPos());
                     } else if (!((FolioActivity) getActivity()).isbookOpened() && isCurrentFragment()) {
-                        setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(mContext, mBook));
+                        setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(mContext, mBookTitle));
                         ((FolioActivity) getActivity()).setIsbookOpened(true);
                     } else if (mIsPageReloaded) {
                         setWebViewPosition(mLastWebviewScrollpos);
@@ -495,8 +504,13 @@ public class FolioPageFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_FRAGMENT_FOLIO_POSITION, mPosition);
-        outState.putSerializable(KEY_FRAGMENT_FOLIO_BOOK, mBook);
         outState.putString(KEY_FRAGMENT_EPUB_FILE_NAME, mEpubFileName);
+
+        getCustomSharedPrefs().edit().putString(KEY_HTML + mPosition, mHtmlContent).apply();
+    }
+
+    private SharedPreferences getCustomSharedPrefs() {
+        return getActivity().getSharedPreferences(SP_FOLIO_PAGE_FRAGMENT, Context.MODE_PRIVATE);
     }
 
 
@@ -513,7 +527,6 @@ public class FolioPageFragment extends Fragment {
                     = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
             webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
             updatePagesLeftTextBg();
-
 
         }
 
@@ -618,7 +631,7 @@ public class FolioPageFragment extends Fragment {
         }
 
         htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
-        ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBook.getTitle());
+        ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBookTitle);
         for (Highlight highlight : highlights) {
             String highlightStr =
                     "<highlight id=\"" + highlight.getHighlightId() +
@@ -815,7 +828,7 @@ public class FolioPageFragment extends Fragment {
     public void getHtmlAndSaveHighlight(String html) {
         if (html != null && mHighlightMap != null) {
             Highlight highlight =
-                    HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBook, mPosition);
+                    HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBookTitle, mPosition);
             highlight.setCurrentWebviewScrollPos(mWebview.getScrollY());
             highlight = ((FolioActivity) getActivity()).setCurrentPagerPostion(highlight);
             HighLightTable.insertHighlight(highlight);
