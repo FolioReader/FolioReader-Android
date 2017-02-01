@@ -22,7 +22,7 @@ import nl.siegmann.epublib.domain.Book;
 
 public class FileUtil {
     private static final String TAG = FileUtil.class.getSimpleName();
-    private static final String FOLIO_READER_ROOT = "/folioreader/";
+    private static final String FOLIO_READER_ROOT = "folioreader";
 
     public static Book saveEpubFile(final Context context, FolioActivity.EpubSourceType epubSourceType, String epubFilePath, int epubRawId, String epubFileName) {
         String filePath;
