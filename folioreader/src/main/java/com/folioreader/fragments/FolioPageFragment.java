@@ -379,7 +379,7 @@ public class FolioPageFragment extends Fragment {
         String opfPath
                 = AppUtil.getPathOPF(FileUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
         String baseUrl
-                = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+                = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "/";
         mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
         ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
     }
@@ -524,7 +524,7 @@ public class FolioPageFragment extends Fragment {
             String opfPath
                     = AppUtil.getPathOPF(FileUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
             String baseUrl
-                    = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
+                    = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "/";
             webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
             updatePagesLeftTextBg();
 
