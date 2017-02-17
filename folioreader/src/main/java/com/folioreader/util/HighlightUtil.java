@@ -48,12 +48,18 @@ public class HighlightUtil {
                         contentPost = searchString;
                     }
                 }
+
+                String content = matcher.group(2);
+                content = removeSentenceSpam(content);
+                contentPost = removeSentenceSpam(contentPost);
+                contentPre = removeSentenceSpam(contentPre);
+
                 highlight = new Highlight();
                 highlight.setContentPre(contentPre);
                 highlight.setType(matcher.group(1));
                 highlight.setContentPost(contentPost);
                 highlight.setHighlightId(highlightId);
-                highlight.setContent(matcher.group(2));
+                highlight.setContent(content);
                 highlight.setBookId(bookTitle);
                 highlight.setPage(pageNo);
                 highlight.setDate(Calendar.getInstance().getTime());
@@ -62,5 +68,20 @@ public class HighlightUtil {
             Log.d(TAG, e.getMessage());
         }
         return highlight;
+    }
+
+    private static String removeSentenceSpam(String html) {
+        String pattern = "<span class=\"sentence\">((.|\\s)*?)</span>";
+        Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE
+                | Pattern.DOTALL).matcher(html);
+
+        while (matcher.find()){
+            String rangeWithoutSpan = matcher.group(1);
+            String rangeWithSpan = matcher.group(0);
+
+            html = html.replace(rangeWithSpan, rangeWithoutSpan);
+        }
+
+        return html;
     }
 }

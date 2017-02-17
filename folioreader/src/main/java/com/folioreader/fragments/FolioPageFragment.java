@@ -618,16 +618,18 @@ public class FolioPageFragment extends Fragment {
                 break;
         }
 
+        htmlContent = htmlContent.replace("<p>", "");
+        htmlContent = htmlContent.replace("</p>", "<br><br>");
         htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
         ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBookTitle);
         for (Highlight highlight : highlights) {
-            String highlightStr =
-                    "<highlight id=\"" + highlight.getHighlightId() +
+            String highlightStr = highlight.getContentPre() +
+            "<highlight id=\"" + highlight.getHighlightId() +
                             "\" onclick=\"callHighlightURL(this);\" class=\"" +
-                            highlight.getType() + "\">" + highlight.getContent() + "</highlight>";
+                            highlight.getType() + "\">" + highlight.getContent() + "</highlight>" + highlight.getContentPost();
             String searchStr = highlight.getContentPre() +
                     "" + highlight.getContent() + "" + highlight.getContentPost();
-            htmlContent = htmlContent.replaceFirst(searchStr, highlightStr);
+            htmlContent = htmlContent.replaceFirst(Pattern.quote(searchStr), highlightStr);
         }
         return htmlContent;
     }
@@ -644,8 +646,6 @@ public class FolioPageFragment extends Fragment {
             mWebview.loadUrl(String.format(getString(R.string.sethighlightstyle),
                     Highlight.HighlightStyle.classForStyle(style)));
         }
-
-
     }
 
     public void highlightRemove() {
