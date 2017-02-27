@@ -3,14 +3,14 @@ apply from: '../config/quality/quality.gradle'
 
 android {
     useLibrary 'org.apache.http.legacy'
-    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
-    buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
+    compileSdkVersion 25
+    buildToolsVersion "25.0.0"
 
     defaultConfig {
-        versionCode Integer.parseInt(project.VERSION_CODE)
-        versionName project.VERSION_NAME
-        minSdkVersion Integer.parseInt(project.ANDROID_MIN_SDK)
-        targetSdkVersion Integer.parseInt(project.ANDROID_TARGET_SDK_VERSION)
+        versionCode 1
+        versionName "1.0"
+        minSdkVersion 16
+        targetSdkVersion 25
     }
 
     sourceSets {
@@ -56,10 +56,11 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':webViewMarker-release')
-    compile 'com.android.support:appcompat-v7:25.0.1'
-    compile 'com.android.support:recyclerview-v7:25.0.1'
-    compile 'com.android.support:support-v4:25.0.1'
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:recyclerview-v7:25.1.0'
+    compile 'com.android.support:support-v4:25.1.0'
     compile 'com.daimajia.swipelayout:library:1.2.0@aar'
-    compile 'com.android.support:design:25.0.1'
+    compile 'com.android.support:design:25.1.0'
+    compile 'com.codetoart:r2streamer:0.1.1'
     compile 'com.squareup:otto:1.3.8'
 }

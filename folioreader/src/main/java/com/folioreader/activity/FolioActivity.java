@@ -20,8 +20,10 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +33,10 @@ import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.codetoart.r2_streamer.model.container.Container;
+import com.codetoart.r2_streamer.model.container.EpubContainer;
+import com.codetoart.r2_streamer.model.publication.Link;
+import com.codetoart.r2_streamer.server.EpubServer;
 import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.adapter.FolioPageFragmentAdapter;
@@ -50,9 +56,19 @@ import com.folioreader.view.DirectionalViewpager;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +77,7 @@ import nl.siegmann.epublib.domain.Book;
 import nl.siegmann.epublib.domain.SpineReference;
 import nl.siegmann.epublib.domain.TOCReference;
 
+import static com.codetoart.r2_streamer.util.Constants.JSON_STRING;
 import static com.folioreader.Constants.CHAPTER_SELECTED;
 import static com.folioreader.Constants.CHARSET_NAME;
 import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
@@ -73,18 +90,12 @@ public class FolioActivity extends AppCompatActivity implements
     public static final String INTENT_EPUB_SOURCE_PATH = "com.folioreader.epub_asset_path";
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
     public static final int ACTION_CONTENT_HIGHLIGHT = 77;
-    private static final String HIGHLIGHT_ITEM = "highlight_item";
     public static final Bus BUS = new Bus(ThreadEnforcer.ANY);
-
-    public enum EpubSourceType {
-        RAW,
-        ASSESTS,
-        SD_CARD
-    }
-
+    private static final String HIGHLIGHT_ITEM = "highlight_item";
+    public boolean mIsActionBarVisible;
+    public boolean mIsSmilParsed = false;
     private DirectionalViewpager mFolioPageViewPager;
     private Toolbar mToolbar;
-
     private EpubSourceType mEpubSourceType;
     private String mEpubFilePath;
     private String mEpubFileName;
@@ -94,22 +105,36 @@ public class FolioActivity extends AppCompatActivity implements
     private List<SpineReference> mSpineReferences;
     private List<AudioElement> mAudioElementArrayList;
     private List<TextElement> mTextElementList = new ArrayList<>();
-
-    public boolean mIsActionBarVisible;
-    public boolean mIsSmilParsed = false;
     private int mChapterPosition;
     private boolean mIsSmilAvailable;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
     private int mWebViewScrollPosition;
     private ConfigBottomSheetDialogFragment mConfigBottomSheetDialogFragment;
     private AudioViewBottomSheetDailogFragment mAudioBottomSheetDialogFragment;
-    private boolean mIsbookOpened =false;
+    private boolean mIsbookOpened = false;
+    private EpubServer mEpubServer;
+    private List<Link> mSpineReferenceList = new ArrayList<>();
+
+    public static String readPage(String path) {
+        try {
+            FileInputStream input = new FileInputStream(path);
+            byte[] fileData = new byte[input.available()];
+
+            input.read(fileData);
+            input.close();
+
+            String xhtml = new String(fileData, Charset.forName(CHARSET_NAME));
+            return xhtml;
+        } catch (IOException e) {
+            return "";
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
-        mEpubSourceType = (EpubSourceType)
+        /*mEpubSourceType = (EpubSourceType)
                 getIntent().getExtras().getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
         if (mEpubSourceType.equals(EpubSourceType.RAW)) {
             mEpubRawId = getIntent().getExtras().getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH);
@@ -118,8 +143,16 @@ public class FolioActivity extends AppCompatActivity implements
                     .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         }
 
-        mEpubFileName = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
-        initBook();
+        mEpubFileName = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);*/
+
+        try {
+            mEpubServer = new EpubServer();
+            mEpubServer.start();
+
+            initBook();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
         findViewById(R.id.btn_speaker).setOnClickListener(new View.OnClickListener() {
@@ -145,10 +178,10 @@ public class FolioActivity extends AppCompatActivity implements
                 Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
                 mBook.setResources(null);
                 mBook.setNcxResource(null);
-                intent.putExtra(Constants.TOC_REFERENCES,(Serializable) mBook.getTableOfContents().getTocReferences());
-                intent.putExtra(Constants.SPINE_REFRENCES,(Serializable) mBook.getSpine().getSpineReferences());
-                intent.putExtra(Constants.BOOK_TITLE,mBook.getTitle());
-                int TOCposition=AppUtil.getTOCpos(mTocReferences,mSpineReferences.get(mChapterPosition));
+                intent.putExtra(Constants.TOC_REFERENCES, (Serializable) mBook.getTableOfContents().getTocReferences());
+                intent.putExtra(Constants.SPINE_REFRENCES, (Serializable) mBook.getSpine().getSpineReferences());
+                intent.putExtra(Constants.BOOK_TITLE, mBook.getTitle());
+                int TOCposition = AppUtil.getTOCpos(mTocReferences, mSpineReferences.get(mChapterPosition));
                 intent.putExtra(SELECTED_CHAPTER_POSITION, TOCposition);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
                 overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
@@ -161,7 +194,7 @@ public class FolioActivity extends AppCompatActivity implements
     private void initBook() {
         final Dialog pgDailog = ProgressDialog.show(FolioActivity.this,
                 getString(R.string.please_wait));
-        new Thread(new Runnable() {
+        /*new Thread(new Runnable() {
             @Override
             public void run() {
                 mBook = FileUtil.saveEpubFileAndLoadLazyBook(FolioActivity.this, mEpubSourceType, mEpubFilePath,
@@ -174,15 +207,28 @@ public class FolioActivity extends AppCompatActivity implements
                     }
                 });
             }
-        }).start();
+        }).start();*/
+
+        try {
+            String path = Environment.getExternalStorageDirectory().getPath();
+            //DirectoryContainer directoryContainer = new DirectoryContainer(path + "/Download/moby-dick/");
+            Container epubContainer = new EpubContainer(path + "/Download/TheSilverChair.epub");
+            mEpubServer.addEpub(epubContainer, "/TheSilverChair.epub");
+
+            String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/spines";
+            new SpineReferenceTask().execute(urlString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         new DbAdapter(FolioActivity.this);
     }
 
     private void loadBook() {
+        mSpineReferenceList.size();
         configRecyclerViews();
         configFolio();
-        parseSmil();
+        //parseSmil();
     }
 
     @Override
@@ -196,7 +242,6 @@ public class FolioActivity extends AppCompatActivity implements
         saveBookState();
         super.onBackPressed();
     }
-
 
     @Override
     public void onOrentationChange(int orentation) {
@@ -227,7 +272,6 @@ public class FolioActivity extends AppCompatActivity implements
                 findFragmentByTag("android:switcher:" + R.id.folioPageViewPager + ":" + (pos));
     }
 
-
     public void configRecyclerViews() {
         mTocReferences = (ArrayList<TOCReference>) mBook.getTableOfContents().getTocReferences();
         mSpineReferences = mBook.getSpine().getSpineReferences();
@@ -248,7 +292,6 @@ public class FolioActivity extends AppCompatActivity implements
             return true;
         }
     }
-
 
     public void setPagerToPosition(String href) {
         for (int i = 0; i < mSpineReferences.size(); i++) {
@@ -362,21 +405,6 @@ public class FolioActivity extends AppCompatActivity implements
         }
         String html = readPage(pageHref);
         return html;
-    }
-
-    public static String readPage(String path) {
-        try {
-            FileInputStream input = new FileInputStream(path);
-            byte[] fileData = new byte[input.available()];
-
-            input.read(fileData);
-            input.close();
-
-            String xhtml = new String(fileData, Charset.forName(CHARSET_NAME));
-            return xhtml;
-        } catch (IOException e) {
-            return "";
-        }
     }
 
     private void toolbarAnimateShow(final int verticalOffset) {
@@ -523,5 +551,48 @@ public class FolioActivity extends AppCompatActivity implements
 
     public void setIsbookOpened(boolean mIsbookOpened) {
         this.mIsbookOpened = mIsbookOpened;
+    }
+
+    public enum EpubSourceType {
+        RAW,
+        ASSESTS,
+        SD_CARD
+    }
+
+    class SpineReferenceTask extends AsyncTask<String, Void, JSONArray> {
+        @Override
+        protected JSONArray doInBackground(String... urls) {
+            String strUrl = urls[0];
+
+            try {
+                URL url = new URL(strUrl);
+                URLConnection urlConnection = url.openConnection();
+                InputStream inputStream = urlConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                JSONArray jsonArray = new JSONArray(stringBuilder.toString());
+
+                for (int index = 0; index < jsonArray.length(); index++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(index);
+                    Object object = jsonObject.get(JSON_STRING);
+
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    Link link = objectMapper.readValue(object.toString(), Link.class);
+                    mSpineReferenceList.add(link);
+                }
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(JSONArray jsonArray) {
+            loadBook();
+        }
     }
 }
