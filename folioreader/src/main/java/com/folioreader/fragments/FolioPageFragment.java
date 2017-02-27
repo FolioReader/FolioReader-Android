@@ -54,8 +54,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nl.siegmann.epublib.domain.Book;
-
 
 /**
  * Created by mahavir on 4/2/16.
@@ -120,7 +118,7 @@ public class FolioPageFragment extends Fragment {
     private int mPosition = -1;
     private String mBookTitle;
     //private Book mBook = null;
-    private String mUrl;
+    private String mChapterPath;
     private String mEpubFileName = null;
     private boolean mIsSmilAvailable;
     private int mPos;
@@ -158,18 +156,19 @@ public class FolioPageFragment extends Fragment {
             mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBookTitle = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
-            mUrl = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_URL);
+            mChapterPath = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_URL);
             /*mIsSmilAvailable = savedInstanceState.getBoolean(KEY_IS_SMIL_AVAILABLE);
             mTextElementList = savedInstanceState.getParcelableArrayList(KEY_TEXT_ELEMENTS);*/
         } else {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBookTitle = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
-            mUrl = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_URL);
+            mChapterPath = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_URL);
        /*     mIsSmilAvailable = getArguments().getBoolean(KEY_IS_SMIL_AVAILABLE);
             mTextElementList = getArguments().getParcelableArrayList(KEY_TEXT_ELEMENTS);*/
         }
-        mUrl = "http://127.0.0.1:8080/" + mBookTitle + "/" + mUrl;
+        //mChapterPath = "http://127.0.0.1:8080/" + mBookTitle + "/" + mChapterPath;
+
         mContext = getActivity();
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
@@ -187,6 +186,9 @@ public class FolioPageFragment extends Fragment {
         return mRootView;
     }
 
+    private String getWebviewUrl(){
+        return "http://127.0.0.1:8080/" + mBookTitle + "/" + mChapterPath;
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -386,7 +388,7 @@ public class FolioPageFragment extends Fragment {
         String baseUrl
                 = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
         // mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
-        mWebview.loadUrl(mUrl);
+        mWebview.loadUrl(getWebviewUrl());
         ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
     }
 
@@ -512,7 +514,7 @@ public class FolioPageFragment extends Fragment {
         outState.putInt(KEY_FRAGMENT_FOLIO_POSITION, mPosition);
         outState.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, mBookTitle);
         outState.putString(KEY_FRAGMENT_EPUB_FILE_NAME, mEpubFileName);
-        outState.putString(KEY_FRAGMENT_FOLIO_BOOK_URL, mUrl);
+        outState.putString(KEY_FRAGMENT_FOLIO_BOOK_URL, mChapterPath);
     }
 
 
