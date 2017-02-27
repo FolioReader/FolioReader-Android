@@ -101,6 +101,7 @@ public class FolioActivity extends AppCompatActivity implements
     private String mEpubFileName;
     private int mEpubRawId;
     private Book mBook;
+    private String mUrlPath;
     private ArrayList<TOCReference> mTocReferences;
     private List<SpineReference> mSpineReferences;
     private List<AudioElement> mAudioElementArrayList;
@@ -213,10 +214,10 @@ public class FolioActivity extends AppCompatActivity implements
 
         try {
             Container epubContainer = new EpubContainer(mEpubFilePath);
-            String urlPath = mEpubFilePath.substring(mEpubFilePath.lastIndexOf('/')+1);
-            mEpubServer.addEpub(epubContainer, "/"+urlPath);
+            mUrlPath = mEpubFilePath.substring(mEpubFilePath.lastIndexOf('/') + 1);
+            mEpubServer.addEpub(epubContainer, "/" + mUrlPath);
 
-            String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/spines";
+            String urlString = "http://127.0.0.1:8080/" + mUrlPath + "/spines";
             new SpineReferenceTask().execute(urlString);
         } catch (IOException e) {
             e.printStackTrace();
@@ -336,8 +337,8 @@ public class FolioActivity extends AppCompatActivity implements
                 mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBook));
             }
         }*/
-        if(mSpineReferenceList!=null){
-            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, mEpubFileName);
+        if (mSpineReferenceList != null) {
+            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, mUrlPath);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         }
     }
@@ -388,7 +389,8 @@ public class FolioActivity extends AppCompatActivity implements
 
     @Override
     public String getChapterHtmlContent(int position) {
-        return readHTmlString(position);
+        // return readHTmlString(position);
+        return "";
     }
 
     @Override

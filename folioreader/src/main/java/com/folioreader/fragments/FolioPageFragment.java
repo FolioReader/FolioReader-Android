@@ -82,6 +82,7 @@ public class FolioPageFragment extends Fragment {
     private static final int ACTION_ID_HIGHLIGHT_PINK = 1010;
     private static final int ACTION_ID_HIGHLIGHT_UNDERLINE = 1011;
     private static final String KEY_TEXT_ELEMENTS = "text_elements";
+    private static final String KEY_FRAGMENT_FOLIO_BOOK_URL = "book_url";
     private WebViewPosition mWebviewposition;
 
 
@@ -119,6 +120,7 @@ public class FolioPageFragment extends Fragment {
     private int mPosition = -1;
     private String mBookTitle;
     //private Book mBook = null;
+    private String mUrl;
     private String mEpubFileName = null;
     private boolean mIsSmilAvailable;
     private int mPos;
@@ -137,11 +139,12 @@ public class FolioPageFragment extends Fragment {
         return fragment;
     }*/
 
-    public static FolioPageFragment newInstance(int position, String bookTitle, String epubFilename){
+    public static FolioPageFragment newInstance(int position, String bookTitle, String bookUrl) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
         args.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, bookTitle);
+        args.putString(KEY_FRAGMENT_FOLIO_BOOK_URL, bookUrl);
         fragment.setArguments(args);
         return fragment;
     }
@@ -155,16 +158,18 @@ public class FolioPageFragment extends Fragment {
             mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBookTitle = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
-            mIsSmilAvailable = savedInstanceState.getBoolean(KEY_IS_SMIL_AVAILABLE);
-            mTextElementList = savedInstanceState.getParcelableArrayList(KEY_TEXT_ELEMENTS);
+            mUrl = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_URL);
+            /*mIsSmilAvailable = savedInstanceState.getBoolean(KEY_IS_SMIL_AVAILABLE);
+            mTextElementList = savedInstanceState.getParcelableArrayList(KEY_TEXT_ELEMENTS);*/
         } else {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBookTitle = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
-            mIsSmilAvailable = getArguments().getBoolean(KEY_IS_SMIL_AVAILABLE);
-            mTextElementList = getArguments().getParcelableArrayList(KEY_TEXT_ELEMENTS);
+            mUrl = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_URL);
+       /*     mIsSmilAvailable = getArguments().getBoolean(KEY_IS_SMIL_AVAILABLE);
+            mTextElementList = getArguments().getParcelableArrayList(KEY_TEXT_ELEMENTS);*/
         }
-
+        mUrl = "http://127.0.0.1:8080/" + mBookTitle + "/" + mUrl;
         mContext = getActivity();
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
@@ -380,7 +385,8 @@ public class FolioPageFragment extends Fragment {
                 = AppUtil.getPathOPF(FileUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
         String baseUrl
                 = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
-        mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
+        // mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
+        mWebview.loadUrl(mUrl);
         ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
     }
 
@@ -506,6 +512,7 @@ public class FolioPageFragment extends Fragment {
         outState.putInt(KEY_FRAGMENT_FOLIO_POSITION, mPosition);
         outState.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, mBookTitle);
         outState.putString(KEY_FRAGMENT_EPUB_FILE_NAME, mEpubFileName);
+        outState.putString(KEY_FRAGMENT_FOLIO_BOOK_URL, mUrl);
     }
 
 
@@ -633,9 +640,9 @@ public class FolioPageFragment extends Fragment {
         ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBookTitle);
         for (Highlight highlight : highlights) {
             String highlightStr = highlight.getContentPre() +
-            "<highlight id=\"" + highlight.getHighlightId() +
-                            "\" onclick=\"callHighlightURL(this);\" class=\"" +
-                            highlight.getType() + "\">" + highlight.getContent() + "</highlight>" + highlight.getContentPost();
+                    "<highlight id=\"" + highlight.getHighlightId() +
+                    "\" onclick=\"callHighlightURL(this);\" class=\"" +
+                    highlight.getType() + "\">" + highlight.getContent() + "</highlight>" + highlight.getContentPost();
             String searchStr = highlight.getContentPre() +
                     "" + highlight.getContent() + "" + highlight.getContentPost();
             htmlContent = htmlContent.replaceFirst(Pattern.quote(searchStr), highlightStr);
