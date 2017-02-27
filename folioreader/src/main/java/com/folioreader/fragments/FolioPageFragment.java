@@ -125,7 +125,7 @@ public class FolioPageFragment extends Fragment {
     private boolean mIsPageReloaded;
     private int mLastWebviewScrollpos;
 
-    public static FolioPageFragment newInstance(int position, String bookTitle, String epubFileName, ArrayList<TextElement> textElementArrayList, boolean isSmileAvailable) {
+    /*public static FolioPageFragment newInstance(int position, String bookTitle, String epubFileName, ArrayList<TextElement> textElementArrayList, boolean isSmileAvailable) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
@@ -135,7 +135,9 @@ public class FolioPageFragment extends Fragment {
         args.putBoolean(KEY_IS_SMIL_AVAILABLE, isSmileAvailable);
         fragment.setArguments(args);
         return fragment;
-    }
+    }*/
+
+    public static FolioPageFragment newInstance(int position, String bookTitle, String )
 
     @Override
     public View onCreateView(LayoutInflater inflater,

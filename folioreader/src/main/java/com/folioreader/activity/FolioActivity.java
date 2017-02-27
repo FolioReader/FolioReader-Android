@@ -273,8 +273,8 @@ public class FolioActivity extends AppCompatActivity implements
     }
 
     public void configRecyclerViews() {
-        mTocReferences = (ArrayList<TOCReference>) mBook.getTableOfContents().getTocReferences();
-        mSpineReferences = mBook.getSpine().getSpineReferences();
+        //mTocReferences = (ArrayList<TOCReference>) mBook.getTableOfContents().getTocReferences();
+        //mSpineReferences = mBook.getSpine().getSpineReferences();
         setSpineReferenceTitle();
     }
 
@@ -315,8 +315,10 @@ public class FolioActivity extends AppCompatActivity implements
             @Override
             public void onPageSelected(int position) {
                 mChapterPosition = position;
+                /*((TextView) findViewById(R.id.lbl_center)).
+                        setText(mSpineReferences.get(position).getResource().getTitle());*/
                 ((TextView) findViewById(R.id.lbl_center)).
-                        setText(mSpineReferences.get(position).getResource().getTitle());
+                        setText(mSpineReferenceList.get(position).getChapterTitle());
             }
 
             @Override
@@ -325,18 +327,21 @@ public class FolioActivity extends AppCompatActivity implements
             }
         });
 
-        if (mBook != null && mSpineReferences != null) {
+        /*if (mBook != null && mSpineReferences != null) {
             mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),
                     mSpineReferences, mBook, mEpubFileName);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             if (AppUtil.checkPreviousBookStateExist(FolioActivity.this, mBook)) {
                 mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBook));
             }
+        }*/
+        if(mSpineReferenceList!=null){
+            //mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),)
         }
     }
 
     private void setSpineReferenceTitle() {
-        for (int j = 0; j < mSpineReferences.size(); j++) {
+        /*for (int j = 0; j < mSpineReferences.size(); j++) {
             String href = mSpineReferences.get(j).getResource().getHref();
             for (int i = 0; i < mTocReferences.size(); i++) {
                 if (mTocReferences.get(i).getResource().getHref().equalsIgnoreCase(href)) {
@@ -349,7 +354,12 @@ public class FolioActivity extends AppCompatActivity implements
             }
         }
         ((TextView) findViewById(R.id.lbl_center))
-                .setText(mSpineReferences.get(0).getResource().getTitle());
+                .setText(mSpineReferences.get(0).getResource().getTitle());*/
+
+        for (int i = 0; i < mSpineReferenceList.size(); i++) {
+            String chapterTitle = mSpineReferenceList.get(i).getChapterTitle();
+        }
+        ((TextView) findViewById(R.id.lbl_center)).setText(mSpineReferenceList.get(0).getChapterTitle());
     }
 
     private void configDrawerLayoutButtons() {
