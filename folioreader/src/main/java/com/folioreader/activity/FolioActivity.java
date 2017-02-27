@@ -96,7 +96,7 @@ public class FolioActivity extends AppCompatActivity implements
     public boolean mIsSmilParsed = false;
     private DirectionalViewpager mFolioPageViewPager;
     private Toolbar mToolbar;
-    private EpubSourceType mEpubSourceType;
+    //private EpubSourceType mEpubSourceType;
     private String mEpubFilePath;
     private String mEpubFileName;
     private int mEpubRawId;
@@ -134,6 +134,8 @@ public class FolioActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
+        mEpubFilePath = getIntent().getExtras()
+                .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         /*mEpubSourceType = (EpubSourceType)
                 getIntent().getExtras().getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
         if (mEpubSourceType.equals(EpubSourceType.RAW)) {
@@ -192,9 +194,9 @@ public class FolioActivity extends AppCompatActivity implements
     }
 
     private void initBook() {
-        final Dialog pgDailog = ProgressDialog.show(FolioActivity.this,
+        /*final Dialog pgDailog = ProgressDialog.show(FolioActivity.this,
                 getString(R.string.please_wait));
-        /*new Thread(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 mBook = FileUtil.saveEpubFileAndLoadLazyBook(FolioActivity.this, mEpubSourceType, mEpubFilePath,
@@ -210,10 +212,9 @@ public class FolioActivity extends AppCompatActivity implements
         }).start();*/
 
         try {
-            String path = Environment.getExternalStorageDirectory().getPath();
-            //DirectoryContainer directoryContainer = new DirectoryContainer(path + "/Download/moby-dick/");
-            Container epubContainer = new EpubContainer(path + "/Download/TheSilverChair.epub");
-            mEpubServer.addEpub(epubContainer, "/TheSilverChair.epub");
+            Container epubContainer = new EpubContainer(mEpubFilePath);
+            String urlPath = mEpubFilePath.substring(mEpubFilePath.lastIndexOf('/')+1);
+            mEpubServer.addEpub(epubContainer, "/"+urlPath);
 
             String urlString = "http://127.0.0.1:8080/TheSilverChair.epub/spines";
             new SpineReferenceTask().execute(urlString);
@@ -225,7 +226,7 @@ public class FolioActivity extends AppCompatActivity implements
     }
 
     private void loadBook() {
-        mSpineReferenceList.size();
+        //mSpineReferenceList.size();
         configRecyclerViews();
         configFolio();
         //parseSmil();
@@ -250,7 +251,7 @@ public class FolioActivity extends AppCompatActivity implements
             if (mBook != null && mSpineReferences != null) {
                 mFolioPageFragmentAdapter =
                         new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                                mSpineReferences, mBook, mEpubFileName);
+                                mSpineReferenceList, mEpubFileName);
                 mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
                 mFolioPageViewPager.setOffscreenPageLimit(1);
                 mFolioPageViewPager.setCurrentItem(mChapterPosition);
@@ -260,7 +261,7 @@ public class FolioActivity extends AppCompatActivity implements
             if (mBook != null && mSpineReferences != null) {
                 mFolioPageFragmentAdapter =
                         new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                                mSpineReferences, mBook, mEpubFileName);
+                                mSpineReferenceList, mEpubFileName);
                 mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
                 mFolioPageViewPager.setCurrentItem(mChapterPosition);
             }
@@ -336,7 +337,8 @@ public class FolioActivity extends AppCompatActivity implements
             }
         }*/
         if(mSpineReferenceList!=null){
-            //mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),)
+            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, mEpubFileName);
+            mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         }
     }
 
@@ -356,9 +358,9 @@ public class FolioActivity extends AppCompatActivity implements
         ((TextView) findViewById(R.id.lbl_center))
                 .setText(mSpineReferences.get(0).getResource().getTitle());*/
 
-        for (int i = 0; i < mSpineReferenceList.size(); i++) {
+        /*for (int i = 0; i < mSpineReferenceList.size(); i++) {
             String chapterTitle = mSpineReferenceList.get(i).getChapterTitle();
-        }
+        }*/
         ((TextView) findViewById(R.id.lbl_center)).setText(mSpineReferenceList.get(0).getChapterTitle());
     }
 
@@ -584,6 +586,7 @@ public class FolioActivity extends AppCompatActivity implements
                 while ((line = bufferedReader.readLine()) != null) {
                     stringBuilder.append(line);
                 }
+
                 JSONArray jsonArray = new JSONArray(stringBuilder.toString());
 
                 for (int index = 0; index < jsonArray.length(); index++) {

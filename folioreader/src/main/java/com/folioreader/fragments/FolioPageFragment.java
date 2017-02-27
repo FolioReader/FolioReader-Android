@@ -137,7 +137,14 @@ public class FolioPageFragment extends Fragment {
         return fragment;
     }*/
 
-    public static FolioPageFragment newInstance(int position, String bookTitle, String )
+    public static FolioPageFragment newInstance(int position, String bookTitle, String epubFilename){
+        FolioPageFragment fragment = new FolioPageFragment();
+        Bundle args = new Bundle();
+        args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
+        args.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, bookTitle);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater,

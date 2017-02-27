@@ -19,6 +19,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -29,9 +30,14 @@ import android.widget.Toast;
 
 import com.folioreader.activity.FolioActivity;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class HomeActivity extends AppCompatActivity {
     private static final int GALLERY_REQUEST = 102;
-
+    private static final String ROOT_EPUB_PATH = Environment.getExternalStorageDirectory().getPath()+"/FolioReaderSample/";
 
     public static final String[] WRITE_EXTERNAL_STORAGE_PERMS = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -42,6 +48,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        copyEpubFromAssetsToSdCard("TheSilverChair.epub");
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,7 +56,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
                 } else {
-                    openEpub(FolioActivity.EpubSourceType.ASSESTS,"The Silver Chair.epub",0);
+                    openEpub(FolioActivity.EpubSourceType.ASSESTS, getEpubFilePath("TheSilverChair.epub"));
                 }
             }
         });
@@ -61,20 +68,21 @@ public class HomeActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
                 } else {
-                    openEpub(FolioActivity.EpubSourceType.RAW,null,R.raw.adventures);
+                    openEpub(FolioActivity.EpubSourceType.RAW, getEpubFilePath("TheSilverChair.epub"));
                 }
             }
         });
     }
 
 
-    private void openEpub(FolioActivity.EpubSourceType sourceType,String path,int rawID) {
+    private void openEpub(FolioActivity.EpubSourceType sourceType, String path) {
         Intent intent = new Intent(HomeActivity.this, FolioActivity.class);
-        if(rawID!=0) {
+        /*if(rawID!=0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawID);
         } else {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, path);
-        }
+        }*/
+        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, path);
         intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, sourceType);
         startActivity(intent);
     }
@@ -93,6 +101,31 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    public void copyEpubFromAssetsToSdCard(String epubFileName){
+        try {
+            File dir = new File(ROOT_EPUB_PATH);
+            if (!dir.exists()) dir.mkdirs();
+            File file = new File(dir, epubFileName);
+            file.createNewFile();
+
+            FileOutputStream fos = new FileOutputStream(file);
+            InputStream fis = getAssets().open("TheSilverChair.epub");
+            byte[] b = new byte[1024];
+            int i;
+            while ((i = fis.read(b)) != -1) {
+                fos.write(b, 0, i);
+            }
+            fos.flush();
+            fos.close();
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getEpubFilePath(String fileName){
+        return ROOT_EPUB_PATH + fileName;
+    }
     /*private static class TestFragmentAdapter extends FragmentPagerAdapter {
 
         protected static final String[] CONTENT = new String[] { "This", "Is Is", "A A A", "Test", };

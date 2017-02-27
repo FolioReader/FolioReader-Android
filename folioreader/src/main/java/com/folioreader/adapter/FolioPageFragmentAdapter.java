@@ -48,7 +48,7 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         //mFolioPageFragment = FolioPageFragment.newInstance(position, mBook.getTitle(), mEpubFileName, mTextElementArrayList, mIsSmileAvailable);
-        mFolioPageFragment = FolioPageFragment.newInstance(position,mSpineReferences.get(0).getBookTitle(),mEpubFileName,mTextElementArrayList,mIsSmileAvailable);
+        mFolioPageFragment = FolioPageFragment.newInstance(position,mSpineReferences.get(0).getBookTitle(),mEpubFileName);
         mFolioPageFragment.setFragmentPos(position);
         return mFolioPageFragment;
     }
