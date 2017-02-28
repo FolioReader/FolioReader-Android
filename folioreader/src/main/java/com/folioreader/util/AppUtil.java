@@ -359,31 +359,31 @@ public class AppUtil {
         return "";
     }
 
-    public static void saveBookState(Context context, Book book, int folioPageViewPagerPosition, int webViewScrollPosition) {
-        SharedPreferenceUtil.removeSharedPreferencesKey(context, book.getTitle() + BOOK_STATE);
+    public static void saveBookState(Context context, String bookTitle, int folioPageViewPagerPosition, int webViewScrollPosition) {
+        SharedPreferenceUtil.removeSharedPreferencesKey(context, bookTitle + BOOK_STATE);
         JSONObject obj = new JSONObject();
         try {
-            obj.put(BOOK_TITLE, book.getTitle());
+            obj.put(BOOK_TITLE, bookTitle);
             obj.put(WEBVIEW_SCROLL_POSITION, webViewScrollPosition);
             obj.put(VIEWPAGER_POSITION, folioPageViewPagerPosition);
             SharedPreferenceUtil.
                     putSharedPreferencesString(
-                    context, book.getTitle() + BOOK_STATE, obj.toString());
+                    context, bookTitle + BOOK_STATE, obj.toString());
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage());
         }
     }
 
-    public static boolean checkPreviousBookStateExist(Context context, Book book) {
+    public static boolean checkPreviousBookStateExist(Context context, String bookName) {
         String json
                 = getSharedPreferencesString(
-                context, book.getTitle() + BOOK_STATE,
+                context, bookName+ BOOK_STATE,
                 null);
         if (json != null) {
             try {
                 JSONObject jsonObject = new JSONObject(json);
                 String bookTitle = jsonObject.getString(BOOK_TITLE);
-                if (bookTitle.equals(book.getTitle()))
+                if (bookTitle.equals(bookName))
                     return true;
             } catch (JSONException e) {
                 Log.e(TAG, e.getMessage());
@@ -393,10 +393,10 @@ public class AppUtil {
         return false;
     }
 
-    public static int getPreviousBookStatePosition(Context context, Book book) {
+    public static int getPreviousBookStatePosition(Context context, String bookName) {
         String json
                 = getSharedPreferencesString(context,
-                book.getTitle() + BOOK_STATE,
+                bookName + BOOK_STATE,
                 null);
         if (json != null) {
             try {

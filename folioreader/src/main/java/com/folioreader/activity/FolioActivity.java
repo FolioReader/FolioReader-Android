@@ -93,7 +93,7 @@ public class FolioActivity extends AppCompatActivity implements
     public static final Bus BUS = new Bus(ThreadEnforcer.ANY);
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     public boolean mIsActionBarVisible;
-    public boolean mIsSmilParsed = false;
+    public boolean mIsSmilParsed = true;
     private DirectionalViewpager mFolioPageViewPager;
     private Toolbar mToolbar;
     //private EpubSourceType mEpubSourceType;
@@ -337,9 +337,15 @@ public class FolioActivity extends AppCompatActivity implements
                 mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBook));
             }
         }*/
+
+
         if (mSpineReferenceList != null) {
             mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, mUrlPath);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
+        }
+
+        if (AppUtil.checkPreviousBookStateExist(FolioActivity.this, mUrlPath)) {
+            mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mUrlPath));
         }
     }
 
@@ -384,7 +390,9 @@ public class FolioActivity extends AppCompatActivity implements
     }
 
     private void saveBookState() {
-        AppUtil.saveBookState(FolioActivity.this, mBook, mFolioPageViewPager.getCurrentItem(), mWebViewScrollPosition);
+        if (mSpineReferenceList.size() > 0) {
+            AppUtil.saveBookState(FolioActivity.this, mUrlPath, mFolioPageViewPager.getCurrentItem(), mWebViewScrollPosition);
+        }
     }
 
     @Override
@@ -539,6 +547,9 @@ public class FolioActivity extends AppCompatActivity implements
             mAudioBottomSheetDialogFragment.unRegisterBus();
             mAudioBottomSheetDialogFragment.stopAudioIfPlaying();
             mAudioBottomSheetDialogFragment = null;
+        }
+        if(mEpubServer!=null){
+            mEpubServer.stop();
         }
     }
 

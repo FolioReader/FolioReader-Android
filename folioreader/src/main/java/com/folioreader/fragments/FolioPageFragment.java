@@ -98,6 +98,8 @@ public class FolioPageFragment extends Fragment {
     private static final String KEY_TEXT_ELEMENTS = "text_elements";
     private static final String KEY_FRAGMENT_FOLIO_BOOK_URL = "book_url";
     private WebViewPosition mWebviewposition;
+    private String mHtmlString;
+    private String mBaseUrl;
 
 
     public static interface FolioPageFragmentCallback {
@@ -554,10 +556,9 @@ public class FolioPageFragment extends Fragment {
                     = AppUtil.getPathOPF(FileUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
             String baseUrl
                     = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
-            webView.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
+            ;
+            webView.loadDataWithBaseURL(mBaseUrl, getHtmlContent(mHtmlString), "text/html", "UTF-8", null);
             updatePagesLeftTextBg();
-
-
         }
 
     }
@@ -662,8 +663,7 @@ public class FolioPageFragment extends Fragment {
                 break;
         }
 
-        htmlContent = htmlContent.replace("<p>", "");
-        htmlContent = htmlContent.replace("</p>", "<br><br>");
+
         htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
         ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBookTitle);
         for (Highlight highlight : highlights) {
@@ -1005,13 +1005,19 @@ public class FolioPageFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            mHtmlString =htmltext;
             return getHtmlContent(htmltext);
         }
 
         @Override
-        protected void onPostExecute(String htmlText) {
-            String baseUrl = "http://127.0.0.1:8080/" + mEpubFileName + "/";
-            mWebview.loadDataWithBaseURL(baseUrl, htmlText, "text/html", "UTF-8", null);
+        protected void onPostExecute(String htmlString) {
+            String strArr[] = mChapterPath.split("/");
+            String folderName = "";
+            if (strArr.length > 0) {
+                folderName = strArr[0];
+            }
+            mBaseUrl = "http://127.0.0.1:8080/" + mBookTitle + "/" + folderName + "/";
+            mWebview.loadDataWithBaseURL(mBaseUrl, htmlString, "text/html", "UTF-8", null);
             //loadBook();
         }
     }
