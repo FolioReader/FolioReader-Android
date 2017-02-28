@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,8 +27,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bossturban.webviewmarker.TextSelectionSupport;
-import com.codetoart.r2_streamer.model.publication.Link;
 import com.folioreader.Config;
+import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.activity.FolioActivity;
 import com.folioreader.model.Highlight;
@@ -42,17 +41,11 @@ import com.folioreader.quickaction.QuickAction;
 import com.folioreader.smil.TextElement;
 import com.folioreader.sqlite.HighLightTable;
 import com.folioreader.util.AppUtil;
-import com.folioreader.util.FileUtil;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 import com.squareup.otto.Subscribe;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,8 +60,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.codetoart.r2_streamer.util.Constants.JSON_STRING;
 
 
 /**
@@ -103,7 +94,6 @@ public class FolioPageFragment extends Fragment {
 
 
     public static interface FolioPageFragmentCallback {
-        String getChapterHtmlContent(int position);
 
         void hideOrshowToolBar();
 
@@ -111,7 +101,6 @@ public class FolioPageFragment extends Fragment {
 
         void setPagerToPosition(String href);
 
-        void setLastWebViewPosition(int position);
     }
 
     private View mRootView;
@@ -135,7 +124,6 @@ public class FolioPageFragment extends Fragment {
 
     private int mPosition = -1;
     private String mBookTitle;
-    //private Book mBook = null;
     private String mChapterPath;
     private String mEpubFileName = null;
     private boolean mIsSmilAvailable;
@@ -143,17 +131,6 @@ public class FolioPageFragment extends Fragment {
     private boolean mIsPageReloaded;
     private int mLastWebviewScrollpos;
 
-    /*public static FolioPageFragment newInstance(int position, String bookTitle, String epubFileName, ArrayList<TextElement> textElementArrayList, boolean isSmileAvailable) {
-        FolioPageFragment fragment = new FolioPageFragment();
-        Bundle args = new Bundle();
-        args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
-        args.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, bookTitle);
-        args.putString(KEY_FRAGMENT_EPUB_FILE_NAME, epubFileName);
-        args.putParcelableArrayList(KEY_TEXT_ELEMENTS, textElementArrayList);
-        args.putBoolean(KEY_IS_SMIL_AVAILABLE, isSmileAvailable);
-        fragment.setArguments(args);
-        return fragment;
-    }*/
 
     public static FolioPageFragment newInstance(int position, String bookTitle, String bookUrl) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -175,17 +152,12 @@ public class FolioPageFragment extends Fragment {
             mBookTitle = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
             mChapterPath = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_URL);
-            /*mIsSmilAvailable = savedInstanceState.getBoolean(KEY_IS_SMIL_AVAILABLE);
-            mTextElementList = savedInstanceState.getParcelableArrayList(KEY_TEXT_ELEMENTS);*/
         } else {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBookTitle = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
             mChapterPath = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_URL);
-       /*     mIsSmilAvailable = getArguments().getBoolean(KEY_IS_SMIL_AVAILABLE);
-            mTextElementList = getArguments().getParcelableArrayList(KEY_TEXT_ELEMENTS);*/
         }
-        //mChapterPath = "http://127.0.0.1:8080/" + mBookTitle + "/" + mChapterPath;
 
         mContext = getActivity();
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
@@ -205,7 +177,7 @@ public class FolioPageFragment extends Fragment {
     }
 
     private String getWebviewUrl() {
-        return "http://127.0.0.1:8080/" + mBookTitle + "/" + mChapterPath;
+        return Constants.LOCALHOST+ mBookTitle + "/" + mChapterPath;
     }
 
     @Override
@@ -222,8 +194,7 @@ public class FolioPageFragment extends Fragment {
     }
 
     private void initWebView() {
-        String htmlContent = null;
-        htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
+
 
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
         mWebview.setFragment(FolioPageFragment.this);
@@ -251,7 +222,6 @@ public class FolioPageFragment extends Fragment {
             public void onScrollChange(int percent) {
                 if (mWebview.getScrollY() != 0) {
                     mScrollY = mWebview.getScrollY();
-                    ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
                 }
                 mScrollSeekbar.setProgressAndThumb(percent);
                 updatePagesLeftText(percent);
@@ -262,13 +232,6 @@ public class FolioPageFragment extends Fragment {
         mWebview.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-
-              /*  injectCSS("Style.css");
-                injectJS("jquery-1.8.3.js");
-                injectJS("jpntext.js");
-                injectJS("rangy-core.js");
-                injectJS("rangy-serializer.js");
-                injectJS("android.selection.js");*/
                 if (isAdded()) {
                     view.loadUrl("javascript:alert(getReadingTime())");
                     if (!mIsSmilAvailable) {
@@ -408,15 +371,7 @@ public class FolioPageFragment extends Fragment {
         });
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
-        String opfPath
-                = AppUtil.getPathOPF(FileUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
-        String baseUrl
-                = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
-        // mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
-        //String urlString = "http://127.0.0.1:8080/" + getWebviewUrl();
         new HtmlTask().execute(getWebviewUrl());
-        //mWebview.loadUrl(getWebviewUrl());
-        ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
     }
 
     private void initSeekbar() {
@@ -551,12 +506,6 @@ public class FolioPageFragment extends Fragment {
             mLastWebviewScrollpos = mWebview.getScrollY();
             mIsPageReloaded = true;
             final WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
-            String htmlContent = getHtmlContent(mActivityCallback.getChapterHtmlContent(mPosition));
-            String opfPath
-                    = AppUtil.getPathOPF(FileUtil.getFolioEpubFolderPath(mEpubFileName), mContext);
-            String baseUrl
-                    = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
-            ;
             webView.loadDataWithBaseURL(mBaseUrl, getHtmlContent(mHtmlString), "text/html", "UTF-8", null);
             updatePagesLeftTextBg();
         }
@@ -925,56 +874,17 @@ public class FolioPageFragment extends Fragment {
 
     @Subscribe
     public void setWebviewToHighlightPos(final WebViewPosition webViewPosition) {
-        mWebviewposition = webViewPosition;
+       /* mWebviewposition = webViewPosition;
         if (isAdded()) {
             setWebViewPosition(mWebviewposition.getWebviewPos());
         }
-    }
-
-
-    private void injectCSS(String cssName) {
-        try {
-            InputStream inputStream = mContext.getAssets().open(cssName);
-            byte[] buffer = new byte[inputStream.available()];
-            inputStream.read(buffer);
-            inputStream.close();
-            String encoded = Base64.encodeToString(buffer, Base64.NO_WRAP);
-            mWebview.loadUrl("javascript:(function() {" +
-                    "var parent = document.getElementsByTagName('head').item(0);" +
-                    "var style = document.createElement('style');" +
-                    "style.type = 'text/css';" +
-                    // Tell the browser to BASE64-decode the string into your script !!!
-                    "style.innerHTML = window.atob('" + encoded + "');" +
-                    "parent.appendChild(style)" +
-                    "})()");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void injectJS(String jsName) {
-        try {
-            InputStream inputStream = mContext.getAssets().open(jsName);
-            byte[] buffer = new byte[inputStream.available()];
-            inputStream.read(buffer);
-            inputStream.close();
-            String encoded = Base64.encodeToString(buffer, Base64.NO_WRAP);
-            mWebview.loadUrl("javascript:(function() {" +
-                    "var parent = document.getElementsByTagName('head').item(0);" +
-                    "var script = document.createElement('script');" +
-                    "script.type = 'text/javascript';" +
-                    "script.innerHTML = window.atob('" + encoded + "');" +
-                    "parent.appendChild(script)" +
-                    "})()");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+     }*/
     }
 
 
     class HtmlTask extends AsyncTask<String, Void, String> {
         String htmltext;
+
         @Override
         protected String doInBackground(String... urls) {
             String strUrl = urls[0];
@@ -990,22 +900,11 @@ public class FolioPageFragment extends Fragment {
                     stringBuilder.append(line);
                 }
 
-
-                 htmltext = stringBuilder.toString();
-                /*JSONArray jsonArray = new JSONArray(stringBuilder.toString());
-
-                for (int index = 0; index < jsonArray.length(); index++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(index);
-                    Object object = jsonObject.get(JSON_STRING);
-
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    Link link = objectMapper.readValue(object.toString(), Link.class);
-                    // mSpineReferenceList.add(link);
-                }*/
+                htmltext = stringBuilder.toString();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            mHtmlString =htmltext;
+            mHtmlString = htmltext;
             return getHtmlContent(htmltext);
         }
 
@@ -1016,9 +915,9 @@ public class FolioPageFragment extends Fragment {
             if (strArr.length > 0) {
                 folderName = strArr[0];
             }
-            mBaseUrl = "http://127.0.0.1:8080/" + mBookTitle + "/" + folderName + "/";
+
+            mBaseUrl = Constants.LOCALHOST + mBookTitle + "/" + folderName + "/";
             mWebview.loadDataWithBaseURL(mBaseUrl, htmlString, "text/html", "UTF-8", null);
-            //loadBook();
         }
     }
 }

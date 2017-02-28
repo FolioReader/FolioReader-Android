@@ -348,14 +348,14 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
             try {
                 mAudioElement = mFolioActivity.getElement(0);
                 String filePath = mAudioElement.getSrc();
-                String folderPath =
-                        FileUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName());
+                /*String folderPath =
+                        FileUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName());*/
                 filePath = filePath.substring(2, filePath.length());
-                String opfpath
+               /* String opfpath
                         = AppUtil.getPathOPF(
                         FileUtil.getFolioEpubFolderPath(mFolioActivity.getEpubFileName()),
                         mFolioActivity);
-                filePath = folderPath + "/" + opfpath + "/" + filePath;
+                filePath = folderPath + "/" + opfpath + "/" + filePath;*/
                 mPlayer.setDataSource(filePath);
                 mPlayer.prepare();
             } catch (IOException e) {
@@ -378,7 +378,7 @@ public class AudioViewBottomSheetDailogFragment extends BottomSheetDialogFragmen
                 mHandler = new Handler();
             }
 
-            mFolioActivity.setPagerToPosition(mPosition);
+            //mFolioActivity.setPagerToPosition(mPosition);
             mPlayer.start();
             mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
             mHandler.post(mHighlightTask);

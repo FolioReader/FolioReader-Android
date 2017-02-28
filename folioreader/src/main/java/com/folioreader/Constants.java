@@ -19,4 +19,5 @@ public class Constants {
     public static final String CHARSET_NAME = "UTF-8";
     public static final String TOC_REFERENCES = "toc_refrences";
     public static final String SPINE_REFRENCES = "spine_refrenecs";
+    public static final String LOCALHOST = "http://127.0.0.1:8080/";
 }

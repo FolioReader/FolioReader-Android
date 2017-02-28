@@ -21,22 +21,10 @@ import nl.siegmann.epublib.domain.SpineReference;
  * Created by mahavir on 4/2/16.
  */
 public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
-    //private List<SpineReference> mSpineReferences;
-    //private Book mBook;
     private List<Link> mSpineReferences;
     private String mEpubFileName;
     private FolioPageFragment mFolioPageFragment;
-    private ArrayList<TextElement> mTextElementArrayList;
-    private boolean mIsSmileAvailable;
 
-    /*public FolioPageFragmentAdapter(FragmentManager fm, List<SpineReference> spineReferences,
-                                    Book book, String epubFilename) {
-        super(fm);
-        this.mSpineReferences = spineReferences;
-        this.mBook = book;
-        this.mEpubFileName = epubFilename;
-        FolioActivity.BUS.register(this);
-    }*/
 
     public FolioPageFragmentAdapter(FragmentManager fm, List<Link> spineReferences, String epubFileName) {
         super(fm);
@@ -47,7 +35,6 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        //mFolioPageFragment = FolioPageFragment.newInstance(position, mBook.getTitle(), mEpubFileName, mTextElementArrayList, mIsSmileAvailable);
         mFolioPageFragment = FolioPageFragment.newInstance(position, mEpubFileName, mSpineReferences.get(position).getHref());
         mFolioPageFragment.setFragmentPos(position);
         return mFolioPageFragment;
@@ -58,11 +45,4 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
         return mSpineReferences.size();
     }
 
-    @Subscribe
-    public void setTextElementList(ArrayList<TextElement> textElementList) {
-        if (textElementList != null && textElementList.size() > 0) {
-            mIsSmileAvailable = true;
-            mTextElementArrayList = textElementList;
-        }
-    }
 }

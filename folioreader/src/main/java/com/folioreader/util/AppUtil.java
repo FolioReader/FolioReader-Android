@@ -57,10 +57,8 @@ import static com.folioreader.util.SharedPreferenceUtil.getSharedPreferencesStri
  */
 public class AppUtil {
 
-   /*private static final ObjectMapper jsonMapper;*/
-    private static String mFileName;
+
     private static final String SMIL_ELEMENTS = "smil_elements";
-    //private static String mFolderName = null;
     private static final String TAG = AppUtil.class.getSimpleName();
     private static String FOLIO_READER_ROOT="folioreader";
 
@@ -419,27 +417,6 @@ public class AppUtil {
             } catch (JSONException e) {
                 Log.e(TAG, e.getMessage());
                 return 0;
-            }
-        }
-        return 0;
-    }
-
-
-    public  static int getTOCpos(ArrayList<TOCReference> mTocReferences, SpineReference spineReferences){
-        for (int i = 0; i < mTocReferences.size(); i++) {
-            if(mTocReferences.get(i).getTitle().equalsIgnoreCase(spineReferences.getResource().getTitle())){
-              return i;
-            }
-        }
-        return -1;
-    }
-
-
-
-    public  static int getSpineRefrecePos(List<SpineReference> spineReferences, TOCReference tocReference){
-        for (int i = 0; i < spineReferences.size(); i++) {
-            if(spineReferences.get(i).getResource().getTitle().equalsIgnoreCase(tocReference.getResource().getTitle())){
-                return i;
             }
         }
         return 0;

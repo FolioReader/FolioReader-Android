@@ -27,16 +27,13 @@ public class ContentHighlightActivity extends AppCompatActivity {
     private String mBookTitle;
     private int mSelectedChapterPosition;
     private boolean mIsNightMode;
-    private ArrayList<TOCReference> mTocReferences;
-    private List<SpineReference> mSpineReferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_highlight);
         getSupportActionBar().hide();
-        mTocReferences= (ArrayList<TOCReference>) getIntent().getSerializableExtra(Constants.TOC_REFERENCES);
-        mSpineReferences= (ArrayList<SpineReference>) getIntent().getSerializableExtra(Constants.SPINE_REFRENCES);
         mBookTitle=getIntent().getStringExtra(Constants.BOOK_TITLE);
         mSelectedChapterPosition = getIntent().getIntExtra(Constants.SELECTED_CHAPTER_POSITION, 0);
         mIsNightMode = Config.getConfig().isNightMode();
@@ -83,7 +80,7 @@ public class ContentHighlightActivity extends AppCompatActivity {
         findViewById(R.id.btn_contents).setSelected(true);
         findViewById(R.id.btn_highlights).setSelected(false);
         ContentsFragment contentFrameLayout
-                = ContentsFragment.newInstance(mTocReferences,mSpineReferences, mSelectedChapterPosition);
+                = ContentsFragment.newInstance(mSelectedChapterPosition);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.parent, contentFrameLayout);
         ft.commit();

@@ -49,7 +49,6 @@ public class HighlightListFragment extends Fragment {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private View mRootView;
     private Context mContext;
-    /*private Book mBook;*/
     private String mBookTitle;
 
 
@@ -57,7 +56,6 @@ public class HighlightListFragment extends Fragment {
         HighlightListFragment fragment = new HighlightListFragment();
         Bundle args = new Bundle();
         args.putString(Constants.BOOK_TITLE, bookTitle);
-        //args.putSerializable(BOOK, book);
         fragment.setArguments(args);
         return fragment;
     }
@@ -72,7 +70,6 @@ public class HighlightListFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_highlight_list, container, false);
         mContext = getActivity();
-        /*mBook = (Book) getArguments().getSerializable(BOOK);*/
         mBookTitle = getArguments().getString(Constants.BOOK_TITLE);
         initViews();
         return mRootView;
@@ -83,12 +80,6 @@ public class HighlightListFragment extends Fragment {
             ((RelativeLayout) mRootView.findViewById(R.id.main))
                     .setBackgroundColor(ContextCompat.getColor(mContext,
                             R.color.black));
-            /*((TextView) mRootView.findViewById(R.id.lbl_center))
-                    .setTextColor(ContextCompat.getColor(mContext,
-                            R.color.white));
-            ((View) mRootView.findViewById(R.id.view))
-                    .setBackgroundColor(ContextCompat.getColor(mContext,
-                            R.color.white));*/
             ((ListView) mRootView.findViewById(R.id.list_highligts))
                     .setDivider(new ColorDrawable(ContextCompat.
                             getColor(mContext, R.color.white)));
@@ -96,11 +87,11 @@ public class HighlightListFragment extends Fragment {
         }
 
 
-        HightlightAdpater hightlightAdpater =
+        /*HightlightAdpater hightlightAdpater =
                 new HightlightAdpater(mContext, 0,
                         HighLightTable.getAllHighlights(mBookTitle));
         ListView highlightListview = (ListView) mRootView.findViewById(R.id.list_highligts);
-        highlightListview.setAdapter(hightlightAdpater);
+        highlightListview.setAdapter(hightlightAdpater);*/
     }
 
 
@@ -213,7 +204,6 @@ public class HighlightListFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     HighLightTable.deleteHighlight(rowItem.getHighlightId());
-                    //HighlightTable.remove(rowItem.getHighlightId(), mContext);
                     initViews();
                 }
             });
@@ -246,7 +236,6 @@ public class HighlightListFragment extends Fragment {
                     highlightItem.setNote(note);
 
                     HighLightTable.updateHighlight(highlightItem);
-                    //HighlightTable.save(mContext, highlightItem);
                     dailog.dismiss();
                     initViews();
                 } else {

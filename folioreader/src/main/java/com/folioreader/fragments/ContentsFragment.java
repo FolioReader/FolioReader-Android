@@ -42,11 +42,9 @@ public class ContentsFragment extends Fragment {
     private boolean mIsNightMode;
 
 
-    public static ContentsFragment newInstance(ArrayList<TOCReference> tocReferences,List<SpineReference> spineReferences, int selectedChapterPosition) {
+    public static ContentsFragment newInstance(int selectedChapterPosition) {
         ContentsFragment contentsFragment = new ContentsFragment();
         Bundle args = new Bundle();
-        args.putSerializable(Constants.TOC_REFERENCES, tocReferences);
-        args.putSerializable(Constants.SPINE_REFRENCES, (Serializable) spineReferences);
         args.putInt(SELECTED_CHAPTER_POSITION, selectedChapterPosition);
         contentsFragment.setArguments(args);
         return contentsFragment;
