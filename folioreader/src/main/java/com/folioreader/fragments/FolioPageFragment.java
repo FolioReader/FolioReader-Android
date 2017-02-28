@@ -6,10 +6,12 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bossturban.webviewmarker.TextSelectionSupport;
+import com.codetoart.r2_streamer.model.publication.Link;
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.activity.FolioActivity;
@@ -46,13 +49,26 @@ import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 import com.squareup.otto.Subscribe;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.codetoart.r2_streamer.util.Constants.JSON_STRING;
 
 
 /**
@@ -186,7 +202,7 @@ public class FolioPageFragment extends Fragment {
         return mRootView;
     }
 
-    private String getWebviewUrl(){
+    private String getWebviewUrl() {
         return "http://127.0.0.1:8080/" + mBookTitle + "/" + mChapterPath;
     }
 
@@ -244,6 +260,13 @@ public class FolioPageFragment extends Fragment {
         mWebview.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
+
+              /*  injectCSS("Style.css");
+                injectJS("jquery-1.8.3.js");
+                injectJS("jpntext.js");
+                injectJS("rangy-core.js");
+                injectJS("rangy-serializer.js");
+                injectJS("android.selection.js");*/
                 if (isAdded()) {
                     view.loadUrl("javascript:alert(getReadingTime())");
                     if (!mIsSmilAvailable) {
@@ -388,7 +411,9 @@ public class FolioPageFragment extends Fragment {
         String baseUrl
                 = "file://" + FileUtil.getFolioEpubFolderPath(mEpubFileName) + "/" + opfPath + "//";
         // mWebview.loadDataWithBaseURL(baseUrl, htmlContent, "text/html", "UTF-8", null);
-        mWebview.loadUrl(getWebviewUrl());
+        //String urlString = "http://127.0.0.1:8080/" + getWebviewUrl();
+        new HtmlTask().execute(getWebviewUrl());
+        //mWebview.loadUrl(getWebviewUrl());
         ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
     }
 
@@ -565,6 +590,7 @@ public class FolioPageFragment extends Fragment {
             mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), style));
         }
     }
+
 
     private String getHtmlContent(String htmlContent) {
         String cssPath =
@@ -902,6 +928,91 @@ public class FolioPageFragment extends Fragment {
         mWebviewposition = webViewPosition;
         if (isAdded()) {
             setWebViewPosition(mWebviewposition.getWebviewPos());
+        }
+    }
+
+
+    private void injectCSS(String cssName) {
+        try {
+            InputStream inputStream = mContext.getAssets().open(cssName);
+            byte[] buffer = new byte[inputStream.available()];
+            inputStream.read(buffer);
+            inputStream.close();
+            String encoded = Base64.encodeToString(buffer, Base64.NO_WRAP);
+            mWebview.loadUrl("javascript:(function() {" +
+                    "var parent = document.getElementsByTagName('head').item(0);" +
+                    "var style = document.createElement('style');" +
+                    "style.type = 'text/css';" +
+                    // Tell the browser to BASE64-decode the string into your script !!!
+                    "style.innerHTML = window.atob('" + encoded + "');" +
+                    "parent.appendChild(style)" +
+                    "})()");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void injectJS(String jsName) {
+        try {
+            InputStream inputStream = mContext.getAssets().open(jsName);
+            byte[] buffer = new byte[inputStream.available()];
+            inputStream.read(buffer);
+            inputStream.close();
+            String encoded = Base64.encodeToString(buffer, Base64.NO_WRAP);
+            mWebview.loadUrl("javascript:(function() {" +
+                    "var parent = document.getElementsByTagName('head').item(0);" +
+                    "var script = document.createElement('script');" +
+                    "script.type = 'text/javascript';" +
+                    "script.innerHTML = window.atob('" + encoded + "');" +
+                    "parent.appendChild(script)" +
+                    "})()");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    class HtmlTask extends AsyncTask<String, Void, String> {
+        String htmltext;
+        @Override
+        protected String doInBackground(String... urls) {
+            String strUrl = urls[0];
+
+            try {
+                URL url = new URL(strUrl);
+                URLConnection urlConnection = url.openConnection();
+                InputStream inputStream = urlConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+
+
+                 htmltext = stringBuilder.toString();
+                /*JSONArray jsonArray = new JSONArray(stringBuilder.toString());
+
+                for (int index = 0; index < jsonArray.length(); index++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(index);
+                    Object object = jsonObject.get(JSON_STRING);
+
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    Link link = objectMapper.readValue(object.toString(), Link.class);
+                    // mSpineReferenceList.add(link);
+                }*/
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return getHtmlContent(htmltext);
+        }
+
+        @Override
+        protected void onPostExecute(String htmlText) {
+            String baseUrl = "http://127.0.0.1:8080/" + mEpubFileName + "/";
+            mWebview.loadDataWithBaseURL(baseUrl, htmlText, "text/html", "UTF-8", null);
+            //loadBook();
         }
     }
 }
