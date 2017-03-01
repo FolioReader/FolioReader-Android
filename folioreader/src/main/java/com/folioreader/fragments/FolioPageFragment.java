@@ -234,12 +234,12 @@ public class FolioPageFragment extends Fragment {
             public void onPageFinished(WebView view, String url) {
                 if (isAdded()) {
                     view.loadUrl("javascript:alert(getReadingTime())");
-                    if (!mIsSmilAvailable) {
+                    /*if (!mIsSmilAvailable) {
                         view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
                         view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
                                 Highlight.HighlightStyle.classForStyle(
                                         Highlight.HighlightStyle.Normal)));
-                    }
+                    }*/
 
 
                     if (mWebviewposition != null) {
@@ -616,10 +616,22 @@ public class FolioPageFragment extends Fragment {
         htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
         ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBookTitle);
         for (Highlight highlight : highlights) {
-            String highlightStr = highlight.getContentPre() +
+
+            String content = getHighlightText(highlight);
+           /* content = content.replaceAll("<p>","<p><highlight id=\"" + highlight.getHighlightId() +
+                    "\" onclick=\"callHighlightURL(this);\" class=\"" +
+                    highlight.getType() + "\">");
+            content =content.replaceAll("</p>","</p></highlight>");*/
+            /*String highlightStr = highlight.getContentPre() +
                     "<highlight id=\"" + highlight.getHighlightId() +
                     "\" onclick=\"callHighlightURL(this);\" class=\"" +
-                    highlight.getType() + "\">" + highlight.getContent() + "</highlight>" + highlight.getContentPost();
+                    highlight.getType() + "\">" + highlight.getContent() + "</highlight>" + highlight.getContentPost();*/
+
+            String highlightStr = highlight.getContentPre() +content + highlight.getContentPost();
+            /*String highlightStr = getHighlightText(highlight, "this is ptag1");
+            highlightStr = highlightStr + getHighlightText(highlight, "this is ptag2");
+            highlightStr = highlightStr + getHighlightText(highlight, "this is ptag3");*/
+
             String searchStr = highlight.getContentPre() +
                     "" + highlight.getContent() + "" + highlight.getContentPost();
             htmlContent = htmlContent.replaceFirst(Pattern.quote(searchStr), highlightStr);
@@ -919,5 +931,16 @@ public class FolioPageFragment extends Fragment {
             mBaseUrl = Constants.LOCALHOST + mBookTitle + "/" + folderName + "/";
             mWebview.loadDataWithBaseURL(mBaseUrl, htmlString, "text/html", "UTF-8", null);
         }
+
+    }
+
+    private String getHighlightText(Highlight highlight){
+        String content = highlight.getContent();
+        content = content.replaceAll("<p>", "<p><highlight id=\"" + highlight.getHighlightId() +
+                "\" onclick=\"callHighlightURL(this);\" class=\"" +
+                highlight.getType() + "\">");
+        content = content.replaceAll("</p>", "</p></highlight>");
+        return content;
+
     }
 }

@@ -28,7 +28,7 @@ function guid() {
 
 // Get All HTML
 function getHTML() {
-    var ps = document.getElementsByTagName('p');
+    /*var ps = document.getElementsByTagName('p');
     while (ps.length) {
         var p = ps[0];
         while (p.firstChild) {
@@ -38,7 +38,7 @@ function getHTML() {
         p.parentNode.insertBefore(document.createElement('br'), p);
         p.parentNode.insertBefore(document.createElement('br'), p);
         p.parentNode.removeChild(p);
-    }
+    }*/
 
     Highlight.getHtmlAndSaveHighlight(document.documentElement.innerHTML);
     //return document.documentElement.outerHTML;
@@ -640,8 +640,16 @@ function getHighlightString(style) {
     var selectionContents = range.extractContents();
     var elm = document.createElement("highlight");
     var id = guid();
+    var selectionData = getSelectionHtml();
+    var regex = new RegExp("<p>", 'g');
+    selectionData = selectionData.replace(regex, '<p><highlight id= '+ id +' onclick=callHighlightURL(this); class = '+
+                                                style + '>)');
+    var regex2 = new RegExp("</p>", 'g');
+    selectionData = selectionData.replace(regex2, "</p></highlight>");
 
-    elm.appendChild(selectionContents);
+    /*elm.innerText=selectionData;*/
+    elm.appendChild(fragmentFromString(selectionData));
+
     elm.setAttribute("id", id);
     elm.setAttribute("onclick","callHighlightURL(this);");
     elm.setAttribute("class", style);
@@ -650,6 +658,32 @@ function getHighlightString(style) {
     thisHighlight = elm;
 
     var params = [];
-    params.push({id: id, rect: getRectForSelectedText(elm)});
+    params.push({id: id, rect: getRectForSelectedText(elm),selection:selectionData,selectionContent:selectionContents.toString()});
     Highlight.getHighlightJson(JSON.stringify(params));
+}
+
+
+function getSelectionHtml() {
+    var html = "";
+    if (typeof window.getSelection != "undefined") {
+        var sel = window.getSelection();
+        if (sel.rangeCount) {
+            var container = document.createElement("div");
+            for (var i = 0, len = sel.rangeCount; i < len; ++i) {
+                container.appendChild(sel.getRangeAt(i).cloneContents());
+            }
+            html = container.innerHTML;
+        }
+    } else if (typeof document.selection != "undefined") {
+        if (document.selection.type == "Text") {
+            html = document.selection.createRange().htmlText;
+        }
+    }
+    return html;
+}
+
+function fragmentFromString(strHTML) {
+    var temp = document.createElement('template');
+    temp.innerHTML = strHTML;
+    return temp.content;
 }
