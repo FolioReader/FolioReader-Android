@@ -1,4 +1,4 @@
-package com.folioreader.fragments;
+package com.folioreader.ui.folio.fragment;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -35,25 +35,19 @@ import com.folioreader.util.UiUtil;
 import com.folioreader.view.UnderlinedTextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.SpineReference;
-import nl.siegmann.epublib.domain.TOCReference;
-
-import static com.folioreader.Constants.BOOK;
 import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
 import static com.folioreader.Constants.TYPE;
 
-public class HighlightListFragment extends Fragment {
+public class HighlightFragment extends Fragment {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private View mRootView;
     private Context mContext;
     private String mBookTitle;
 
 
-    public static HighlightListFragment newInstance(String bookTitle) {
-        HighlightListFragment fragment = new HighlightListFragment();
+    public static HighlightFragment newInstance(String bookTitle) {
+        HighlightFragment fragment = new HighlightFragment();
         Bundle args = new Bundle();
         args.putString(Constants.BOOK_TITLE, bookTitle);
         fragment.setArguments(args);

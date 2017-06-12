@@ -1,4 +1,4 @@
-package com.folioreader.activity;
+package com.folioreader.ui.folio.activity;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -11,30 +11,21 @@ import android.widget.TextView;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
-import com.folioreader.fragments.ContentsFragment;
-import com.folioreader.fragments.HighlightListFragment;
-import com.folioreader.util.AppUtil;
+import com.folioreader.ui.tableofcontents.view.TableOfContentFragment;
+import com.folioreader.ui.folio.fragment.HighlightFragment;
 import com.folioreader.util.UiUtil;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.SpineReference;
-import nl.siegmann.epublib.domain.TOCReference;
 
 public class ContentHighlightActivity extends AppCompatActivity {
     private String mBookTitle;
     private int mSelectedChapterPosition;
     private boolean mIsNightMode;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_highlight);
         getSupportActionBar().hide();
-        mBookTitle=getIntent().getStringExtra(Constants.BOOK_TITLE);
+        mBookTitle = getIntent().getStringExtra(Constants.BOOK_TITLE);
         mSelectedChapterPosition = getIntent().getIntExtra(Constants.SELECTED_CHAPTER_POSITION, 0);
         mIsNightMode = Config.getConfig().isNightMode();
         initViews();
@@ -79,8 +70,8 @@ public class ContentHighlightActivity extends AppCompatActivity {
     private void loadContentFragment() {
         findViewById(R.id.btn_contents).setSelected(true);
         findViewById(R.id.btn_highlights).setSelected(false);
-        ContentsFragment contentFrameLayout
-                = ContentsFragment.newInstance(mSelectedChapterPosition);
+        TableOfContentFragment contentFrameLayout
+                = TableOfContentFragment.newInstance(mSelectedChapterPosition);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.parent, contentFrameLayout);
         ft.commit();
@@ -89,9 +80,9 @@ public class ContentHighlightActivity extends AppCompatActivity {
     private void loadHighlightsFragment() {
         findViewById(R.id.btn_contents).setSelected(false);
         findViewById(R.id.btn_highlights).setSelected(true);
-        HighlightListFragment highlightListFragment = HighlightListFragment.newInstance(mBookTitle);
+        HighlightFragment highlightFragment = HighlightFragment.newInstance(mBookTitle);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.parent, highlightListFragment);
+        ft.replace(R.id.parent, highlightFragment);
         ft.commit();
     }
 }

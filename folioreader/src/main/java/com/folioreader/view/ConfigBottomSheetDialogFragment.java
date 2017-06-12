@@ -17,9 +17,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.folioreader.Config;
-import com.folioreader.Constants;
 import com.folioreader.R;
-import com.folioreader.activity.FolioActivity;
+import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.model.ReloadData;
 
 

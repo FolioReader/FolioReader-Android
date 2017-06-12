@@ -37,7 +37,7 @@ public class UiUtil {
         a.recycle();
     }
 
-    private static boolean setCustomFont(View view, Context ctx, String asset) {
+    public static boolean setCustomFont(View view, Context ctx, String asset) {
         if (TextUtils.isEmpty(asset))
             return false;
         Typeface tf = null;

@@ -5,17 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <RelativeLayout
+
+    <com.folioreader.view.DirectionalViewpager
+        android:id="@+id/folioPageViewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible">
-        <com.folioreader.view.DirectionalViewpager
-            android:id="@+id/folioPageViewPager"
-            android:layout_width="match_parent"
-            app:direction="vertical"
-            android:layout_height="match_parent">
-        </com.folioreader.view.DirectionalViewpager>
-    </RelativeLayout>
+        app:direction="vertical" />
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -33,95 +29,68 @@
         app:contentInsetLeft="0dp"
         app:contentInsetRight="0dp"
         app:contentInsetStart="0dp">
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:weightSum="1">
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.20"
-                    android:weightSum="1">
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.5"
-                        android:gravity="center">
-                        <ImageView
-                            android:id="@+id/btn_close"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_close_green" />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.5"
-                        android:gravity="center">
-                        <ImageView
-                            android:id="@+id/btn_drawer"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_drawer" />
-                    </LinearLayout>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.60"
-                    android:gravity="center">
-                    <TextView
-                        android:id="@+id/lbl_center"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:ellipsize="end"
-                        android:gravity="center"
-                        android:maxLines="1"
-                        android:text="Folio Reader"
-                        android:textColor="@android:color/black"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.20"
-                    android:weightSum="1">
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.5"
-                        android:gravity="center">
-                        <ImageView
-                            android:id="@+id/btn_config"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:src="@drawable/icon_font" />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="0.5"
-                        android:gravity="center">
 
-                        <ImageView
-                            android:id="@+id/btn_speaker"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/man_speech_icon" />
-                    </LinearLayout>
-                </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/btn_close"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:src="@drawable/ic_close_green_24dp" />
+
+                <ImageView
+                    android:id="@+id/btn_drawer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginTop="16dp"
+                    android:src="@drawable/ic_drawer_green_24dp" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/lbl_center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:text="Folio Reader"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/btn_config"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/icon_font" />
+
+                <ImageView
+                    android:id="@+id/btn_speaker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:src="@drawable/man_speech_icon" />
+            </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"

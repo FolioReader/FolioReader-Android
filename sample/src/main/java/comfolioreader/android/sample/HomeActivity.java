@@ -28,7 +28,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
-import com.folioreader.activity.FolioActivity;
+import com.folioreader.ui.folio.activity.FolioActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,6 +37,7 @@ import java.io.InputStream;
 
 public class HomeActivity extends AppCompatActivity {
     private static final int GALLERY_REQUEST = 102;
+    private final String EPUB = "test.epub";
     private static final String ROOT_EPUB_PATH = Environment.getExternalStorageDirectory().getPath()+"/FolioReaderSample/";
 
     public static final String[] WRITE_EXTERNAL_STORAGE_PERMS = {
@@ -48,7 +49,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        copyEpubFromAssetsToSdCard("TheSilverChair.epub");
+        copyEpubFromAssetsToSdCard(EPUB);
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,7 +57,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
                 } else {
-                    openEpub(FolioActivity.EpubSourceType.ASSESTS, getEpubFilePath("TheSilverChair.epub"));
+                    openEpub(FolioActivity.EpubSourceType.ASSESTS, getEpubFilePath(EPUB));
                 }
             }
         });
@@ -68,7 +69,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
                 } else {
-                    openEpub(FolioActivity.EpubSourceType.RAW, getEpubFilePath("TheSilverChair.epub"));
+                    openEpub(FolioActivity.EpubSourceType.RAW, getEpubFilePath(EPUB));
                 }
             }
         });
@@ -109,7 +110,7 @@ public class HomeActivity extends AppCompatActivity {
             file.createNewFile();
 
             FileOutputStream fos = new FileOutputStream(file);
-            InputStream fis = getAssets().open("TheSilverChair.epub");
+            InputStream fis = getAssets().open(EPUB);
             byte[] b = new byte[1024];
             int i;
             while ((i = fis.read(b)) != -1) {

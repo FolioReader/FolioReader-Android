@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.folioreader.R;
-import com.folioreader.model.BookModel;
 import com.folioreader.smil.AudioElement;
 import com.folioreader.smil.SmilFile;
 import com.folioreader.smil.TextElement;
@@ -41,8 +40,6 @@ import java.util.zip.ZipFile;
 import javax.xml.parsers.ParserConfigurationException;
 
 import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.SpineReference;
-import nl.siegmann.epublib.domain.TOCReference;
 import nl.siegmann.epublib.epub.EpubReader;
 
 import static com.folioreader.Constants.BOOK_STATE;

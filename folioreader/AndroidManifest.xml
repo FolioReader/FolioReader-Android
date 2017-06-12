@@ -3,7 +3,7 @@
     package="com.folioreader">
 
     <application>
-        <activity android:name=".activity.ContentHighlightActivity" />
+        <activity android:name=".ui.folio.activity.ContentHighlightActivity" />
     </application>
 
 </manifest>

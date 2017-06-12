@@ -1,0 +1,63 @@
+package com.folioreader.ui.base;
+
+import android.os.AsyncTask;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.readium.r2_streamer.model.publication.EpubPublication;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+
+/**
+ * Background async task which makes API call to get Epub publication
+ * manifest from server
+ *
+ * @author by gautam on 12/6/17.
+ */
+
+public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
+
+    private ManifestCallBack manifestCallBack;
+
+    public ManifestTask(ManifestCallBack manifestCallBack) {
+        this.manifestCallBack = manifestCallBack;
+    }
+
+    @Override
+    protected EpubPublication doInBackground(String... urls) {
+        String strUrl = urls[0];
+
+        try {
+            URL url = new URL(strUrl);
+            URLConnection urlConnection = url.openConnection();
+            InputStream inputStream = urlConnection.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder stringBuilder = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(stringBuilder.toString(), EpubPublication.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(EpubPublication publication) {
+        cancel(true);
+        if (publication != null) {
+            manifestCallBack.onReceivePublication(publication);
+        } else {
+            manifestCallBack.onError();
+        }
+    }
+}

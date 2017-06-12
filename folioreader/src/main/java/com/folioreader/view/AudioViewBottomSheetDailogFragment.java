@@ -16,15 +16,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
-import com.folioreader.Constants;
 import com.folioreader.R;
-import com.folioreader.activity.FolioActivity;
+import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.model.Highlight;
 import com.folioreader.model.RewindIndex;
 import com.folioreader.model.Sentence;
 import com.folioreader.smil.AudioElement;
-import com.folioreader.util.AppUtil;
-import com.folioreader.util.FileUtil;
 import com.folioreader.util.UiUtil;
 import com.squareup.otto.Subscribe;
 

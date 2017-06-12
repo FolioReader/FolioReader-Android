@@ -56,11 +56,21 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':webViewMarker-release')
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.android.support:recyclerview-v7:25.1.0'
-    compile 'com.android.support:support-v4:25.1.0'
+
+    final ANDROID_LIB_VERSION = '25.1.0'
+
+    compile "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
+    compile "com.android.support:recyclerview-v7:$ANDROID_LIB_VERSION"
+    compile "com.android.support:support-v4:$ANDROID_LIB_VERSION"
+    compile "com.android.support:design:$ANDROID_LIB_VERSION"
+
     compile 'com.daimajia.swipelayout:library:1.2.0@aar'
-    compile 'com.android.support:design:25.1.0'
-    compile 'com.codetoart:r2streamer:0.1.1'
+    // r2-streamer
+    final R2_STREAMER_VERSION = '0.1.0'
+
+    compile "org.readium:r2-fetcher:$R2_STREAMER_VERSION"
+    compile "org.readium:r2-parser:$R2_STREAMER_VERSION"
+    compile "org.readium:r2-server:$R2_STREAMER_VERSION"
+
     compile 'com.squareup:otto:1.3.8'
 }

@@ -4,6 +4,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -20,6 +21,7 @@
         app:contentInsetLeft="0dp"
         app:contentInsetRight="0dp"
         app:contentInsetStart="0dp">
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -42,9 +44,10 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerInParent="true"
-                android:padding="20dp"
+                android:padding="16dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_close_green" />
+                android:src="@drawable/ic_close_green_24dp" />
+
             <View
                 android:id="@+id/view"
                 android:layout_width="match_parent"
@@ -60,5 +63,5 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
         android:divider="@android:color/black"
-        android:dividerHeight="0.5dp"></ListView>
+        android:dividerHeight="0.5dp"/>
 </RelativeLayout>

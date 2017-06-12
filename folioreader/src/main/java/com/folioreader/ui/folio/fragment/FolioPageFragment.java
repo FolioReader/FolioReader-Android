@@ -1,4 +1,4 @@
-package com.folioreader.fragments;
+package com.folioreader.ui.folio.fragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -30,7 +30,7 @@ import com.bossturban.webviewmarker.TextSelectionSupport;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
-import com.folioreader.activity.FolioActivity;
+import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.model.Highlight;
 import com.folioreader.model.ReloadData;
 import com.folioreader.model.RewindIndex;
@@ -46,6 +46,12 @@ import com.folioreader.util.UiUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 import com.squareup.otto.Subscribe;
+
+import org.readium.r2_streamer.model.publication.link.Link;
+import org.readium.r2_streamer.parser.EpubParser;
+import org.readium.r2_streamer.parser.EpubParserException;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,10 +73,10 @@ import java.util.regex.Pattern;
  */
 public class FolioPageFragment extends Fragment {
 
-    public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.fragments.FolioPageFragment.POSITION";
-    public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.fragments.FolioPageFragment.BOOK_TITLE";
-    public static final String KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.fragments.FolioPageFragment.EPUB_FILE_NAME";
-    private static final String KEY_IS_SMIL_AVAILABLE = "com.folioreader.fragments.FolioPageFragment.IS_SMIL_AVAILABLE";
+    public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.ui.folio.fragment.FolioPageFragment.POSITION";
+    public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.BOOK_TITLE";
+    public static final String KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.ui.folio.fragment.FolioPageFragment.EPUB_FILE_NAME";
+    private static final String KEY_IS_SMIL_AVAILABLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.IS_SMIL_AVAILABLE";
     public static final String TAG = FolioPageFragment.class.getSimpleName();
 
     private static final int ACTION_ID_COPY = 1001;
@@ -88,6 +94,7 @@ public class FolioPageFragment extends Fragment {
     private static final int ACTION_ID_HIGHLIGHT_UNDERLINE = 1011;
     private static final String KEY_TEXT_ELEMENTS = "text_elements";
     private static final String KEY_FRAGMENT_FOLIO_BOOK_URL = "book_url";
+    private static final String SPINE_ITEM = "spine_item";
     private WebViewPosition mWebviewposition;
     private String mHtmlString;
     private String mBaseUrl;
@@ -122,6 +129,7 @@ public class FolioPageFragment extends Fragment {
     private ArrayList<TextElement> mTextElementList;
 
 
+    private Link spineItem;
     private int mPosition = -1;
     private String mBookTitle;
     private String mChapterPath;
@@ -132,12 +140,13 @@ public class FolioPageFragment extends Fragment {
     private int mLastWebviewScrollpos;
 
 
-    public static FolioPageFragment newInstance(int position, String bookTitle, String bookUrl) {
+    public static FolioPageFragment newInstance(int position, String bookTitle, String bookUrl, Link spineRef) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
         args.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, bookTitle);
         args.putString(KEY_FRAGMENT_FOLIO_BOOK_URL, bookUrl);
+        args.putSerializable(SPINE_ITEM, spineRef);
         fragment.setArguments(args);
         return fragment;
     }
@@ -152,11 +161,13 @@ public class FolioPageFragment extends Fragment {
             mBookTitle = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
             mChapterPath = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_URL);
+            spineItem = (Link) savedInstanceState.getSerializable(SPINE_ITEM);
         } else {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBookTitle = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
             mChapterPath = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_URL);
+            spineItem = (Link) getArguments().getSerializable(SPINE_ITEM);
         }
 
         mContext = getActivity();
@@ -172,12 +183,16 @@ public class FolioPageFragment extends Fragment {
         initAnimations();
         initWebView();
         updatePagesLeftTextBg();
-
+        if (spineItem.properties.contains("media-overlay")) {
+            Log.i("FolioPageFragment", spineItem.properties.toString());
+            Log.i("FolioPageFragment", spineItem.mediaOverlay.toString());
+            mIsSmilAvailable = true;
+        }
         return mRootView;
     }
 
     private String getWebviewUrl() {
-        return Constants.LOCALHOST+ mBookTitle + "/" + mChapterPath;
+        return Constants.LOCALHOST + mBookTitle + "/" + mChapterPath;
     }
 
     @Override
@@ -627,7 +642,7 @@ public class FolioPageFragment extends Fragment {
                     "\" onclick=\"callHighlightURL(this);\" class=\"" +
                     highlight.getType() + "\">" + highlight.getContent() + "</highlight>" + highlight.getContentPost();*/
 
-            String highlightStr = highlight.getContentPre() +content + highlight.getContentPost();
+            String highlightStr = highlight.getContentPre() + content + highlight.getContentPost();
             /*String highlightStr = getHighlightText(highlight, "this is ptag1");
             highlightStr = highlightStr + getHighlightText(highlight, "this is ptag2");
             highlightStr = highlightStr + getHighlightText(highlight, "this is ptag3");*/
@@ -917,6 +932,14 @@ public class FolioPageFragment extends Fragment {
                 e.printStackTrace();
             }
             mHtmlString = htmltext;
+            if(mIsSmilAvailable) {
+                try {
+                    Document document = EpubParser.xmlParser(htmltext);
+                    NodeList list = document.getElementsByTagName("section");
+                } catch (EpubParserException e) {
+                    e.printStackTrace();
+                }
+            }
             return getHtmlContent(htmltext);
         }
 
@@ -928,13 +951,14 @@ public class FolioPageFragment extends Fragment {
                 folderName = strArr[0];
             }
 
+
             mBaseUrl = Constants.LOCALHOST + mBookTitle + "/" + folderName + "/";
             mWebview.loadDataWithBaseURL(mBaseUrl, htmlString, "text/html", "UTF-8", null);
         }
 
     }
 
-    private String getHighlightText(Highlight highlight){
+    private String getHighlightText(Highlight highlight) {
         String content = highlight.getContent();
         content = content.replaceAll("<p>", "<p><highlight id=\"" + highlight.getHighlightId() +
                 "\" onclick=\"callHighlightURL(this);\" class=\"" +

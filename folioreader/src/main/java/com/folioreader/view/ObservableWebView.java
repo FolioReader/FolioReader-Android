@@ -11,8 +11,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
 
-import com.folioreader.activity.FolioActivity;
-import com.folioreader.fragments.FolioPageFragment;
+import com.folioreader.ui.folio.activity.FolioActivity;
+import com.folioreader.ui.folio.fragment.FolioPageFragment;
 
 /**
  * Created by mahavir on 3/31/16.

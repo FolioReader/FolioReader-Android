@@ -1,21 +1,15 @@
-package com.folioreader.adapter;
+package com.folioreader.ui.folio.adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.codetoart.r2_streamer.model.publication.Link;
-import com.folioreader.Constants;
-import com.folioreader.activity.FolioActivity;
-import com.folioreader.fragments.FolioPageFragment;
-import com.folioreader.smil.TextElement;
-import com.squareup.otto.Subscribe;
+import com.folioreader.ui.folio.activity.FolioActivity;
+import com.folioreader.ui.folio.fragment.FolioPageFragment;
 
-import java.util.ArrayList;
+import org.readium.r2_streamer.model.publication.link.Link;
+
 import java.util.List;
-
-import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.SpineReference;
 
 /**
  * Created by mahavir on 4/2/16.
@@ -23,8 +17,6 @@ import nl.siegmann.epublib.domain.SpineReference;
 public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
     private List<Link> mSpineReferences;
     private String mEpubFileName;
-    private FolioPageFragment mFolioPageFragment;
-
 
     public FolioPageFragmentAdapter(FragmentManager fm, List<Link> spineReferences, String epubFileName) {
         super(fm);
@@ -35,7 +27,7 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        mFolioPageFragment = FolioPageFragment.newInstance(position, mEpubFileName, mSpineReferences.get(position).getHref());
+        FolioPageFragment mFolioPageFragment = FolioPageFragment.newInstance(position, mEpubFileName, mSpineReferences.get(position).getHref(),mSpineReferences.get(position));
         mFolioPageFragment.setFragmentPos(position);
         return mFolioPageFragment;
     }
@@ -44,5 +36,4 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
     public int getCount() {
         return mSpineReferences.size();
     }
-
 }

@@ -1,8 +1,5 @@
 package com.folioreader;
 
-import com.squareup.otto.Bus;
-import com.squareup.otto.ThreadEnforcer;
-
 /**
  * Created by mobisys on 10/4/2016.
  */
@@ -19,5 +16,6 @@ public class Constants {
     public static final String CHARSET_NAME = "UTF-8";
     public static final String TOC_REFERENCES = "toc_refrences";
     public static final String SPINE_REFRENCES = "spine_refrenecs";
-    public static final String LOCALHOST = "http://127.0.0.1:8080/";
+    public static final int PORT_NUMBER = 8080;
+    public static final String LOCALHOST = "http://127.0.0.1:" + PORT_NUMBER + "/";
 }

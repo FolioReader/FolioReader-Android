@@ -7,11 +7,16 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
     }
 }
 
 allprojects {
     repositories {
         jcenter()
+        maven {
+            url  "http://dl.bintray.com/mobisystech/maven"
+        }
     }
 }

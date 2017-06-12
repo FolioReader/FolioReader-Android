@@ -6,7 +6,7 @@ import android.content.res.Resources;
 import android.os.Environment;
 import android.util.Log;
 
-import com.folioreader.activity.FolioActivity;
+import com.folioreader.ui.folio.activity.FolioActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
