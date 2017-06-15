@@ -12,7 +12,7 @@ import org.readium.r2_streamer.model.publication.link.Link;
 import java.util.List;
 
 /**
- * Created by mahavir on 4/2/16.
+ * @author mahavir on 4/2/16.
  */
 public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
     private List<Link> mSpineReferences;
@@ -27,7 +27,7 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        FolioPageFragment mFolioPageFragment = FolioPageFragment.newInstance(position, mEpubFileName, mSpineReferences.get(position).getHref(),mSpineReferences.get(position));
+        FolioPageFragment mFolioPageFragment = FolioPageFragment.newInstance(position, mEpubFileName, mSpineReferences.get(position));
         mFolioPageFragment.setFragmentPos(position);
         return mFolioPageFragment;
     }

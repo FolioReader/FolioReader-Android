@@ -1,13 +1,17 @@
 package com.folioreader.ui.tableofcontents.presenter;
 
+import android.util.Log;
+
 import com.folioreader.model.TOCLinkWrapper;
 import com.folioreader.ui.base.ManifestCallBack;
 import com.folioreader.ui.base.ManifestTask;
 
 import org.readium.r2_streamer.model.publication.EpubPublication;
+import org.readium.r2_streamer.model.publication.link.Link;
 import org.readium.r2_streamer.model.tableofcontents.TOCLink;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author gautam chibde on 8/6/17.
@@ -47,15 +51,31 @@ public class TableOfContentsPresenter implements ManifestCallBack {
         return tocLinkWrapper;
     }
 
+    private static ArrayList<TOCLinkWrapper> createTOCFromSpine(List<Link> spine) {
+        ArrayList<TOCLinkWrapper> tocLinkWrappers = new ArrayList<>();
+        for (Link link : spine) {
+            TOCLink tocLink = new TOCLink();
+            Log.i("TableOfPresenter", link.toString());
+            tocLink.bookTitle = link.bookTitle;
+            tocLink.href = link.href;
+            tocLinkWrappers.add(new TOCLinkWrapper(tocLink, 0));
+        }
+        return tocLinkWrappers;
+    }
+
     @Override
     public void onReceivePublication(EpubPublication publication) {
-        if (publication != null && publication.tableOfContents != null) {
-            ArrayList<TOCLinkWrapper> tocLinkWrappers = new ArrayList<>();
-            for (TOCLink tocLink : publication.tableOfContents) {
-                TOCLinkWrapper tocLinkWrapper = createTocLinkWrapper(tocLink, 0);
-                tocLinkWrappers.add(tocLinkWrapper);
+        if (publication != null) {
+            if (publication.tableOfContents != null) {
+                ArrayList<TOCLinkWrapper> tocLinkWrappers = new ArrayList<>();
+                for (TOCLink tocLink : publication.tableOfContents) {
+                    TOCLinkWrapper tocLinkWrapper = createTocLinkWrapper(tocLink, 0);
+                    tocLinkWrappers.add(tocLinkWrapper);
+                }
+                tocMvpView.onLoadTOC(tocLinkWrappers);
+            } else {
+                tocMvpView.onLoadTOC(createTOCFromSpine(publication.spines));
             }
-            tocMvpView.onLoadTOC(tocLinkWrappers);
         } else {
             tocMvpView.onError();
         }

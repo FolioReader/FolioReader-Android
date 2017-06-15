@@ -53,11 +53,11 @@ public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
 
     @Override
     protected void onPostExecute(EpubPublication publication) {
-        cancel(true);
         if (publication != null) {
             manifestCallBack.onReceivePublication(publication);
         } else {
             manifestCallBack.onError();
         }
+        cancel(true);
     }
 }

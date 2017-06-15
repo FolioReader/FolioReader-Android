@@ -1,14 +1,17 @@
 package com.folioreader.ui.folio.fragment;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,16 +33,20 @@ import com.bossturban.webviewmarker.TextSelectionSupport;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
-import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.model.Highlight;
 import com.folioreader.model.ReloadData;
 import com.folioreader.model.RewindIndex;
-import com.folioreader.model.Sentence;
 import com.folioreader.model.WebViewPosition;
 import com.folioreader.quickaction.ActionItem;
 import com.folioreader.quickaction.QuickAction;
-import com.folioreader.smil.TextElement;
 import com.folioreader.sqlite.HighLightTable;
+import com.folioreader.ui.base.HtmlTask;
+import com.folioreader.ui.base.HtmlTaskCallback;
+import com.folioreader.ui.base.HtmlUtil;
+import com.folioreader.ui.folio.activity.FolioActivity;
+import com.folioreader.ui.media_overlay.OverlayItems;
+import com.folioreader.ui.media_overlay.event.MediaOverlayPlayPauseEvent;
+import com.folioreader.ui.media_overlay.event.MediaOverlaySpeedEvent;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.util.UiUtil;
@@ -47,21 +54,21 @@ import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 import com.squareup.otto.Subscribe;
 
+import org.readium.r2_streamer.model.publication.SMIL.Clip;
+import org.readium.r2_streamer.model.publication.SMIL.MediaOverlays;
 import org.readium.r2_streamer.model.publication.link.Link;
 import org.readium.r2_streamer.parser.EpubParser;
 import org.readium.r2_streamer.parser.EpubParserException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -71,7 +78,7 @@ import java.util.regex.Pattern;
 /**
  * Created by mahavir on 4/2/16.
  */
-public class FolioPageFragment extends Fragment {
+public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
 
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.ui.folio.fragment.FolioPageFragment.POSITION";
     public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.BOOK_TITLE";
@@ -93,14 +100,14 @@ public class FolioPageFragment extends Fragment {
     private static final int ACTION_ID_HIGHLIGHT_PINK = 1010;
     private static final int ACTION_ID_HIGHLIGHT_UNDERLINE = 1011;
     private static final String KEY_TEXT_ELEMENTS = "text_elements";
-    private static final String KEY_FRAGMENT_FOLIO_BOOK_URL = "book_url";
     private static final String SPINE_ITEM = "spine_item";
     private WebViewPosition mWebviewposition;
-    private String mHtmlString;
+    private String mHtmlString = null;
     private String mBaseUrl;
+    private boolean http = false;
+    private boolean hasMediaOverlay = false;
 
-
-    public static interface FolioPageFragmentCallback {
+    public interface FolioPageFragmentCallback {
 
         void hideOrshowToolBar();
 
@@ -124,28 +131,40 @@ public class FolioPageFragment extends Fragment {
     private String mSelectedText;
     private boolean mIsSpeaking = true;
     private Map<String, String> mHighlightMap;
-    private Handler mHandler = new Handler();
     private Animation mFadeInAnimation, mFadeOutAnimation;
-    private ArrayList<TextElement> mTextElementList;
-
 
     private Link spineItem;
     private int mPosition = -1;
     private String mBookTitle;
-    private String mChapterPath;
     private String mEpubFileName = null;
     private boolean mIsSmilAvailable;
     private int mPos;
     private boolean mIsPageReloaded;
     private int mLastWebviewScrollpos;
 
+    //**********************************//
+    //          MEDIA OVERLAY           //
+    //**********************************//
+    private MediaOverlays mediaOverlays;
+    private List<OverlayItems> mediaItems;
+    private int mediaItemPosition = 0;
+    private MediaPlayer mediaPlayer;
 
-    public static FolioPageFragment newInstance(int position, String bookTitle, String bookUrl, Link spineRef) {
+    private Clip currentClip;
+
+    private boolean isMediaPlayerReady;
+    private Handler mediaHandler;
+
+    //*********************************//
+    //              TTL                //
+    //*********************************//
+    private TextToSpeech mTextToSpeech;
+
+    public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
         args.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, bookTitle);
-        args.putString(KEY_FRAGMENT_FOLIO_BOOK_URL, bookUrl);
         args.putSerializable(SPINE_ITEM, spineRef);
         fragment.setArguments(args);
         return fragment;
@@ -160,16 +179,21 @@ public class FolioPageFragment extends Fragment {
             mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBookTitle = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
-            mChapterPath = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_URL);
             spineItem = (Link) savedInstanceState.getSerializable(SPINE_ITEM);
         } else {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBookTitle = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
-            mChapterPath = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_URL);
             spineItem = (Link) getArguments().getSerializable(SPINE_ITEM);
         }
-
+        mediaItems = new ArrayList<>();
+        isMediaPlayerReady = false;
+        if (spineItem != null) {
+            if (spineItem.properties.contains("media-overlay")) {
+                mediaOverlays = spineItem.mediaOverlay;
+                hasMediaOverlay = true;
+            }
+        }
         mContext = getActivity();
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
@@ -183,16 +207,11 @@ public class FolioPageFragment extends Fragment {
         initAnimations();
         initWebView();
         updatePagesLeftTextBg();
-        if (spineItem.properties.contains("media-overlay")) {
-            Log.i("FolioPageFragment", spineItem.properties.toString());
-            Log.i("FolioPageFragment", spineItem.mediaOverlay.toString());
-            mIsSmilAvailable = true;
-        }
         return mRootView;
     }
 
     private String getWebviewUrl() {
-        return Constants.LOCALHOST + mBookTitle + "/" + mChapterPath;
+        return Constants.LOCALHOST + mBookTitle + "/" + spineItem.href;
     }
 
     @Override
@@ -208,12 +227,205 @@ public class FolioPageFragment extends Fragment {
         mScrollY = positionY;
     }
 
+    @SuppressWarnings("unused")
+    @Subscribe
+    public void pauseButtonClicked(MediaOverlayPlayPauseEvent event) {
+        if (isAdded()) {
+            if (spineItem.href.equals(event.getHref())) {
+                if (event.isStateChanged()) {
+                    if (mediaPlayer != null) {
+                        mediaPlayer.pause();
+                    }
+                } else {
+                    if (hasMediaOverlay) {
+                        if (event.isPlay()) {
+                            startPlaying();
+                        } else {
+                            pausePlaying();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @TargetApi(Build.VERSION_CODES.M)
+    @Subscribe
+    public void speedChanged(MediaOverlaySpeedEvent event) {
+        if (mediaPlayer != null) {
+            switch (event.getSpeed()) {
+                case HALF:
+                    //TODO mediaPlayer.getPlaybackParams().setSpeed(0.5f);
+                    break;
+                case ONE:
+                    //TODO mediaPlayer.getPlaybackParams().setSpeed(1.0f);
+                    break;
+                case ONE_HALF:
+                    //TODO mediaPlayer.getPlaybackParams().setSpeed(1.5f);
+                    break;
+                case TWO:
+                    //TODO mediaPlayer.getPlaybackParams().setSpeed(2.0f);
+                    break;
+            }
+        }
+    }
+
+    private void pausePlaying() {
+        if (isMediaPlayerReady && mediaPlayer != null) {
+            mediaPlayer.pause();
+        }
+    }
+
+    private void startPlaying() {
+        if (isMediaPlayerReady && mediaPlayer != null) {
+            currentClip = mediaOverlays.clip(mediaItems.get(mediaItemPosition).getId());
+            if (currentClip != null) {
+                mediaPlayer.start();
+                mediaHandler.post(mHighlightTask);
+            } else {
+                mediaItemPosition++;
+                mediaPlayer.start();
+                mediaHandler.post(mHighlightTask);
+            }
+        }
+    }
+
+    private void playAudioWithoutSmil() {
+        if (mTextToSpeech.isSpeaking()) {
+            mTextToSpeech.stop();
+            mIsSpeaking = false;
+            resetCurrentIndex(new RewindIndex());
+            //mFolioActivity.resetCurrentIndex();
+            UiUtil.keepScreenAwake(false, mContext);
+            //mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
+        } else {
+            //mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
+            mIsSpeaking = true;
+            UiUtil.keepScreenAwake(true, mContext);
+            if (isAdded()) {
+                FolioActivity.BUS.post(true);
+            }
+
+        }
+    }
+
+    @Override
+    public void onReceiveHtml(String html) {
+        if (isAdded()) {
+            if (spineItem != null) {
+                String ref = spineItem.href;
+                if (spineItem.properties.contains("media-overlay")) {
+                    parseSMIL(html);
+                }
+                String path = ref.substring(0, ref.lastIndexOf("/"));
+                mBaseUrl = Constants.LOCALHOST + mBookTitle + "/" + path + "/";
+                mWebview.loadDataWithBaseURL(
+                        mBaseUrl,
+                        HtmlUtil.getHtmlContent(getActivity(), html, mBookTitle),
+                        "text/html",
+                        "UTF-8",
+                        null);
+            }
+        }
+    }
+
+    private Runnable mHighlightTask = new Runnable() {
+        @Override
+        public void run() {
+            int currentPosition = mediaPlayer.getCurrentPosition();
+            if (mediaPlayer.getDuration() != currentPosition) {
+                if (mediaItemPosition < mediaItems.size()) {
+                    int end = (int) currentClip.end * 1000;
+                    if (currentPosition > end) {
+                        mediaItemPosition++;
+                        currentClip = mediaOverlays.clip(mediaItems.get(mediaItemPosition).getId());
+                        if (currentClip != null) {
+                            highLightText(mediaItems.get(mediaItemPosition).getId());
+                        } else {
+                            mediaItemPosition++;
+                        }
+                    }
+                    mediaHandler.postDelayed(mHighlightTask, 10);
+                } else {
+                    mediaHandler.removeCallbacks(mHighlightTask);
+                }
+            }
+        }
+    };
+
+    public void speakAudio(String sentence) {
+//        HashMap<String, String> params = new HashMap<String, String>();
+//        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
+//        mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
+    }
+
+    private void highLightText(String fragmentId) {
+        mWebview.loadUrl(String.format(getString(R.string.audio_mark_id), fragmentId));
+    }
+
+    public void parseSMIL(String html) {
+        try {
+            mediaItems.clear();
+            mediaItemPosition = 0;
+            Document document = EpubParser.xmlParser(html);
+            NodeList sections = document.getDocumentElement().getElementsByTagName("section");
+            for (int i = 0; i < sections.getLength(); i++) {
+                parseNodes(mediaItems, (Element) sections.item(i));
+            }
+            String audioFile = mediaOverlays.getAudioPath(spineItem.href);
+            setUpPlayer(audioFile);
+        } catch (EpubParserException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void parseNodes(List<OverlayItems> names, Element section) {
+        for (Node n = section.getFirstChild(); n != null; n = n.getNextSibling()) {
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                Element e = (Element) n;
+                if (e.hasAttribute("id")) {
+                    names.add(new OverlayItems(e.getAttribute("id"), e.getTagName()));
+                } else {
+                    parseNodes(names, e);
+                }
+            }
+        }
+    }
+
+    private void setUpPlayer(String path) {
+        mediaHandler = new Handler();
+        try {
+            mediaItemPosition = 0;
+            String uri = Constants.LOCALHOST + mBookTitle + "/" + path;
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(uri);
+            mediaPlayer.prepare();
+            isMediaPlayerReady = true;
+        } catch (IOException e) {
+            Log.d(TAG, e.getMessage());
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+                mediaPlayer.release();
+                mediaPlayer = null;
+                mediaHandler.removeCallbacks(mHighlightTask);
+            }
+        }
+    }
+
     private void initWebView() {
-
-
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
         mWebview.setFragment(FolioPageFragment.this);
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
         mWebview.getViewTreeObserver().
                 addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
@@ -249,26 +461,21 @@ public class FolioPageFragment extends Fragment {
             public void onPageFinished(WebView view, String url) {
                 if (isAdded()) {
                     view.loadUrl("javascript:alert(getReadingTime())");
-                    /*if (!mIsSmilAvailable) {
-                        view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
-                        view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
-                                Highlight.HighlightStyle.classForStyle(
-                                        Highlight.HighlightStyle.Normal)));
-                    }*/
-
+                    view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
+                    view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
+                            Highlight.HighlightStyle.classForStyle(
+                                    Highlight.HighlightStyle.Normal)));
 
                     if (mWebviewposition != null) {
                         setWebViewPosition(mWebviewposition.getWebviewPos());
-                    } else if (!((FolioActivity) getActivity()).isbookOpened() && isCurrentFragment()) {
+                    } else if (isCurrentFragment()) {
                         setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(mContext, mBookTitle));
-                        ((FolioActivity) getActivity()).setIsbookOpened(true);
                     } else if (mIsPageReloaded) {
                         setWebViewPosition(mLastWebviewScrollpos);
                         mIsPageReloaded = false;
                     }
                 }
             }
-
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -309,7 +516,6 @@ public class FolioPageFragment extends Fragment {
             }
         });
 
-
         mWebview.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int progress) {
@@ -327,7 +533,6 @@ public class FolioPageFragment extends Fragment {
 
             @Override
             public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-                Log.d("FolioPageFragment", "Message from js: " + message);
                 if (FolioPageFragment.this.isVisible()) {
                     if (TextUtils.isDigitsOnly(message)) {
                         mTotalMinutes = Integer.parseInt(message);
@@ -350,8 +555,8 @@ public class FolioPageFragment extends Fragment {
                         } else {
                             if (mIsSpeaking && (!message.equals("undefined"))) {
                                 if (isCurrentFragment()) {
-                                    Sentence sentence = new Sentence(message);
-                                    FolioActivity.BUS.post(sentence);
+                                    Log.d("FolioPageFragment", "Message from js: " + message);
+                                    speakAudio(message);
                                 }
                             }
                         }
@@ -386,7 +591,7 @@ public class FolioPageFragment extends Fragment {
         });
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
-        new HtmlTask().execute(getWebviewUrl());
+        new HtmlTask(this).execute(getWebviewUrl());
     }
 
     private void initSeekbar() {
@@ -511,7 +716,7 @@ public class FolioPageFragment extends Fragment {
         outState.putInt(KEY_FRAGMENT_FOLIO_POSITION, mPosition);
         outState.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, mBookTitle);
         outState.putString(KEY_FRAGMENT_EPUB_FILE_NAME, mEpubFileName);
-        outState.putString(KEY_FRAGMENT_FOLIO_BOOK_URL, mChapterPath);
+        outState.putSerializable(SPINE_ITEM, spineItem);
     }
 
 
@@ -521,27 +726,11 @@ public class FolioPageFragment extends Fragment {
             mLastWebviewScrollpos = mWebview.getScrollY();
             mIsPageReloaded = true;
             final WebView webView = (WebView) mRootView.findViewById(R.id.contentWebView);
-            webView.loadDataWithBaseURL(mBaseUrl, getHtmlContent(mHtmlString), "text/html", "UTF-8", null);
+            webView.loadDataWithBaseURL(mBaseUrl, HtmlUtil.getHtmlContent(getActivity(), mHtmlString, mBookTitle), "text/html", "UTF-8", null);
             updatePagesLeftTextBg();
         }
-
     }
 
-
-    @Subscribe
-    public void highLightString(Integer position) {
-        if (isAdded()) {
-            if (mTextElementList != null) {
-                String src = mTextElementList.get(position.intValue()).getSrc();
-                String[] temp = src.split("#");
-                String textId = temp[1];
-                mWebview.loadUrl(String.format(getString(R.string.audio_mark_id), textId));
-            }
-
-        }
-    }
-
-    @Subscribe
     public void getTextSentence(Boolean isSpeaking) {
         if (isCurrentFragment()) {
             mIsSpeaking = true;
@@ -554,104 +743,6 @@ public class FolioPageFragment extends Fragment {
         if (isAdded()) {
             mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), style));
         }
-    }
-
-
-    private String getHtmlContent(String htmlContent) {
-        String cssPath =
-                String.format(getString(R.string.css_tag), "file:///android_asset/Style.css");
-        String jsPath =
-                String.format(getString(R.string.script_tag),
-                        "file:///android_asset/Bridge.js");
-        jsPath =
-                jsPath + String.format(getString(R.string.script_tag),
-                        "file:///android_asset/jquery-1.8.3.js");
-        jsPath =
-                jsPath + String.format(getString(R.string.script_tag),
-                        "file:///android_asset/jpntext.js");
-        jsPath =
-                jsPath + String.format(getString(R.string.script_tag),
-                        "file:///android_asset/rangy-core.js");
-        jsPath =
-                jsPath + String.format(getString(R.string.script_tag),
-                        "file:///android_asset/rangy-serializer.js");
-        jsPath =
-                jsPath + String.format(getString(R.string.script_tag),
-                        "file:///android_asset/android.selection.js");
-        jsPath =
-                jsPath + String.format(getString(R.string.script_tag_method_call),
-                        "setMediaOverlayStyleColors('#C0ED72','#C0ED72')");
-        String toInject = "\n" + cssPath + "\n" + jsPath + "\n</head>";
-        htmlContent = htmlContent.replace("</head>", toInject);
-
-        String classes = "";
-        Config config = Config.getConfig();
-        switch (config.getFont()) {
-            case 0:
-                classes = "andada";
-                break;
-            case 1:
-                classes = "lato";
-                break;
-            case 2:
-                classes = "lora";
-                break;
-            case 3:
-                classes = "raleway";
-                break;
-            default:
-                break;
-        }
-
-        if (config.isNightMode()) {
-            classes += " nightMode";
-        }
-
-        switch (config.getFontSize()) {
-            case 0:
-                classes += " textSizeOne";
-                break;
-            case 1:
-                classes += " textSizeTwo";
-                break;
-            case 2:
-                classes += " textSizeThree";
-                break;
-            case 3:
-                classes += " textSizeFour";
-                break;
-            case 4:
-                classes += " textSizeFive";
-                break;
-            default:
-                break;
-        }
-
-
-        htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
-        ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBookTitle);
-        for (Highlight highlight : highlights) {
-
-            String content = getHighlightText(highlight);
-           /* content = content.replaceAll("<p>","<p><highlight id=\"" + highlight.getHighlightId() +
-                    "\" onclick=\"callHighlightURL(this);\" class=\"" +
-                    highlight.getType() + "\">");
-            content =content.replaceAll("</p>","</p></highlight>");*/
-            /*String highlightStr = highlight.getContentPre() +
-                    "<highlight id=\"" + highlight.getHighlightId() +
-                    "\" onclick=\"callHighlightURL(this);\" class=\"" +
-                    highlight.getType() + "\">" + highlight.getContent() + "</highlight>" + highlight.getContentPost();*/
-
-            String highlightStr = highlight.getContentPre() + content + highlight.getContentPost();
-            /*String highlightStr = getHighlightText(highlight, "this is ptag1");
-            highlightStr = highlightStr + getHighlightText(highlight, "this is ptag2");
-            highlightStr = highlightStr + getHighlightText(highlight, "this is ptag3");*/
-
-            String searchStr = highlight.getContentPre() +
-                    "" + highlight.getContent() + "" + highlight.getContentPost();
-            htmlContent = htmlContent.replaceFirst(Pattern.quote(searchStr), highlightStr);
-        }
-        return htmlContent;
     }
 
     public String getSelectedText() {
@@ -850,7 +941,6 @@ public class FolioPageFragment extends Fragment {
                 mWebview.scrollTo(0, position);
             }
         });
-
     }
 
     @JavascriptInterface
@@ -868,11 +958,11 @@ public class FolioPageFragment extends Fragment {
     }
 
     public void removeCallback() {
-        mHandler.removeCallbacks(mHideSeekbarRunnable);
+        // mHandler.removeCallbacks(mHideSeekbarRunnable);
     }
 
     public void startCallback() {
-        mHandler.postDelayed(mHideSeekbarRunnable, 3000);
+        // mHandler.postDelayed(mHideSeekbarRunnable, 3000);
     }
 
     @Subscribe
@@ -882,7 +972,6 @@ public class FolioPageFragment extends Fragment {
         }
     }
 
-
     private boolean isCurrentFragment() {
         return isAdded() && ((FolioActivity) getActivity()).getmChapterPosition() == mPos;
     }
@@ -891,80 +980,7 @@ public class FolioPageFragment extends Fragment {
         mPos = pos;
     }
 
-    @Subscribe
-    public void setTextElementList(ArrayList<TextElement> textElementList) {
-        if (textElementList != null && textElementList.size() > 0) {
-            mIsSmilAvailable = true;
-            mTextElementList = textElementList;
-        }
-    }
-
-    @Subscribe
-    public void setWebviewToHighlightPos(final WebViewPosition webViewPosition) {
-       /* mWebviewposition = webViewPosition;
-        if (isAdded()) {
-            setWebViewPosition(mWebviewposition.getWebviewPos());
-        }
-     }*/
-    }
-
-
-    class HtmlTask extends AsyncTask<String, Void, String> {
-        String htmltext;
-
-        @Override
-        protected String doInBackground(String... urls) {
-            String strUrl = urls[0];
-
-            try {
-                URL url = new URL(strUrl);
-                URLConnection urlConnection = url.openConnection();
-                InputStream inputStream = urlConnection.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                StringBuilder stringBuilder = new StringBuilder();
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-
-                htmltext = stringBuilder.toString();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            mHtmlString = htmltext;
-            if(mIsSmilAvailable) {
-                try {
-                    Document document = EpubParser.xmlParser(htmltext);
-                    NodeList list = document.getElementsByTagName("section");
-                } catch (EpubParserException e) {
-                    e.printStackTrace();
-                }
-            }
-            return getHtmlContent(htmltext);
-        }
-
-        @Override
-        protected void onPostExecute(String htmlString) {
-            String strArr[] = mChapterPath.split("/");
-            String folderName = "";
-            if (strArr.length > 0) {
-                folderName = strArr[0];
-            }
-
-
-            mBaseUrl = Constants.LOCALHOST + mBookTitle + "/" + folderName + "/";
-            mWebview.loadDataWithBaseURL(mBaseUrl, htmlString, "text/html", "UTF-8", null);
-        }
-
-    }
-
-    private String getHighlightText(Highlight highlight) {
-        String content = highlight.getContent();
-        content = content.replaceAll("<p>", "<p><highlight id=\"" + highlight.getHighlightId() +
-                "\" onclick=\"callHighlightURL(this);\" class=\"" +
-                highlight.getType() + "\">");
-        content = content.replaceAll("</p>", "</p></highlight>");
-        return content;
-
+    @Override
+    public void onError() {
     }
 }

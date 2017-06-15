@@ -28,7 +28,7 @@ function guid() {
 
 // Get All HTML
 function getHTML() {
-    /*var ps = document.getElementsByTagName('p');
+    var ps = document.getElementsByTagName('p');
     while (ps.length) {
         var p = ps[0];
         while (p.firstChild) {
@@ -38,7 +38,7 @@ function getHTML() {
         p.parentNode.insertBefore(document.createElement('br'), p);
         p.parentNode.insertBefore(document.createElement('br'), p);
         p.parentNode.removeChild(p);
-    }*/
+    }
 
     Highlight.getHtmlAndSaveHighlight(document.documentElement.innerHTML);
     //return document.documentElement.outerHTML;
@@ -101,18 +101,18 @@ function highlightString(style) {
     var selectionContents = range.extractContents();
     var elm = document.createElement("highlight");
     var id = guid();
-    
+
     elm.appendChild(selectionContents);
     elm.setAttribute("id", id);
     elm.setAttribute("onclick","callHighlightURL(this);");
     elm.setAttribute("class", style);
-    
+
     range.insertNode(elm);
     thisHighlight = elm;
-    
+
     var params = [];
     params.push({id: id, rect: getRectForSelectedText(elm), startOffset: startOffset.toString(), endOffset: endOffset.toString()});
-    
+
     return JSON.stringify(params);
 }
 
@@ -152,7 +152,7 @@ var getSelectedText = function() {
 // and returns in a JSON format
 var getRectForSelectedText = function(elm) {
     if (typeof elm === "undefined") elm = window.getSelection().getRangeAt(0);
-    
+
     var rect = elm.getBoundingClientRect();
     return "{{" + rect.left + "," + rect.top + "}, {" + rect.width + "," + rect.height + "}}";
 }
@@ -164,7 +164,7 @@ var callHighlightURL = function(elm) {
 	var URLBase = "highlight://";
     var currentHighlightRect = getRectForSelectedText(elm);
     thisHighlight = elm;
-    
+
     window.location = URLBase + encodeURIComponent(currentHighlightRect);
 }
 
@@ -184,15 +184,15 @@ function getReadingTime() {
  */
 var getAnchorOffset = function(target, horizontal) {
     var elem = document.getElementById(target);
-    
+
     if (!elem) {
         elem = document.getElementsByName(target)[0];
     }
-    
+
     if (horizontal) {
         return document.body.clientWidth * Math.floor(elem.offsetTop / window.innerHeight);
     }
-    
+
     return elem.offsetTop;
 }
 
@@ -281,9 +281,9 @@ function goToEl(el) {
     if(elBottom > bottom || elTop < top) {
         document.body.scrollTop = el.offsetTop - 20
     }
-    
+
     /* Set scroll left in case horz scroll is activated.
-    
+
         The following works because el.offsetTop accounts for each page turned
         as if the document was scrolling vertical. We then divide by the window
         height to figure out what page the element should appear on and set scroll left
@@ -358,7 +358,7 @@ function findSentenceWithIDInView(els) {
             return element;
         }
     }
-    
+
     return null
 }
 
@@ -367,7 +367,7 @@ function findNextSentenceInArray(els) {
         currentIndex ++;
         return els[currentIndex];
     }
-    
+
     return null
 }
 
@@ -409,13 +409,13 @@ function getSentenceWithIndex(className) {
     }
 
     var text = sentence.innerText || sentence.textContent;
-    
+
     goToEl(sentence);
-    
+
     if (audioMarkClass){
         removeAllClasses(audioMarkClass);
     }
-    
+
     audioMarkClass = className;
     sentence.classList.add(className)
     return text;
@@ -424,14 +424,14 @@ function getSentenceWithIndex(className) {
 function wrappingSentencesWithinPTags(){
     currentIndex = -1;
     "use strict";
-    
+
     var rxOpen = new RegExp("<[^\\/].+?>"),
     rxClose = new RegExp("<\\/.+?>"),
     rxSupStart = new RegExp("^<sup\\b[^>]*>"),
     rxSupEnd = new RegExp("<\/sup>"),
     sentenceEnd = [],
     rxIndex;
-    
+
     sentenceEnd.push(new RegExp("[^\\d][\\.!\\?]+"));
     sentenceEnd.push(new RegExp("(?=([^\\\"]*\\\"[^\\\"]*\\\")*[^\\\"]*?$)"));
     sentenceEnd.push(new RegExp("(?![^\\(]*?\\))"));
@@ -440,18 +440,18 @@ function wrappingSentencesWithinPTags(){
     sentenceEnd.push(new RegExp("(?![^\\|]*?\\|)"));
     sentenceEnd.push(new RegExp("(?![^\\\\]*?\\\\)"));
     //sentenceEnd.push(new RegExp("(?![^\\/.]*\\/)")); // all could be a problem, but this one is problematic
-    
+
     rxIndex = new RegExp(sentenceEnd.reduce(function (previousValue, currentValue) {
                                             return previousValue + currentValue.source;
                                             }, ""));
-    
+
     function indexSentenceEnd(html) {
         var index = html.search(rxIndex);
-        
+
         if (index !== -1) {
             index += html.match(rxIndex)[0].length - 1;
         }
-        
+
         return index;
     }
 
@@ -462,12 +462,12 @@ function wrappingSentencesWithinPTags(){
             array.push('<span class="' + className + '">' + string + '</span>');
         }
     }
-    
+
     function addSupToPrevious(html, array) {
         var sup = html.search(rxSupStart),
         end = 0,
         last;
-        
+
         if (sup !== -1) {
             end = html.search(rxSupEnd);
             if (end !== -1) {
@@ -476,48 +476,48 @@ function wrappingSentencesWithinPTags(){
                 array.push(last.slice(0, -7) + html.slice(0, end) + last.slice(-7));
             }
         }
-        
+
         return html.slice(end);
     }
-    
+
     function paragraphIsSentence(html, array) {
         var index = indexSentenceEnd(html);
-        
+
         if (index === -1 || index === html.length) {
             pushSpan(array, "sentence", html, "paragraphIsSentence");
             html = "";
         }
-        
+
         return html;
     }
-    
+
     function paragraphNoMarkup(html, array) {
         var open = html.search(rxOpen),
         index = 0;
-        
+
         if (open === -1) {
             index = indexSentenceEnd(html);
             if (index === -1) {
                 index = html.length;
             }
-            
+
             pushSpan(array, "sentence", html.slice(0, index += 1), "paragraphNoMarkup");
         }
-        
+
         return html.slice(index);
     }
-    
+
     function sentenceUncontained(html, array) {
         var open = html.search(rxOpen),
         index = 0,
         close;
-        
+
         if (open !== -1) {
             index = indexSentenceEnd(html);
             if (index === -1) {
                 index = html.length;
             }
-            
+
             close = html.search(rxClose);
             if (index < open || index > close) {
                 pushSpan(array, "sentence", html.slice(0, index += 1), "sentenceUncontained");
@@ -525,22 +525,22 @@ function wrappingSentencesWithinPTags(){
                 index = 0;
             }
         }
-        
+
         return html.slice(index);
     }
-    
+
     function sentenceContained(html, array) {
         var open = html.search(rxOpen),
         index = 0,
         close,
         count;
-        
+
         if (open !== -1) {
             index = indexSentenceEnd(html);
             if (index === -1) {
                 index = html.length;
             }
-            
+
             close = html.search(rxClose);
             if (index > open && index < close) {
                 count = html.match(rxClose)[0].length;
@@ -550,16 +550,16 @@ function wrappingSentencesWithinPTags(){
                 index = 0;
             }
         }
-        
+
         return html.slice(index);
     }
-    
+
     function anythingElse(html, array) {
         pushSpan(array, "sentence", html, "anythingElse");
-        
+
         return "";
     }
-    
+
     function guessSenetences() {
         var paragraphs = document.getElementsByTagName("p");
 
@@ -596,7 +596,7 @@ function wrappingSentencesWithinPTags(){
             paragraph.innerHTML = array.join("");
         });
     }
-    
+
     guessSenetences();
 }
 
@@ -640,16 +640,8 @@ function getHighlightString(style) {
     var selectionContents = range.extractContents();
     var elm = document.createElement("highlight");
     var id = guid();
-    var selectionData = getSelectionHtml();
-    var regex = new RegExp("<p>", 'g');
-    selectionData = selectionData.replace(regex, '<p><highlight id= '+ id +' onclick=callHighlightURL(this); class = '+
-                                                style + '>)');
-    var regex2 = new RegExp("</p>", 'g');
-    selectionData = selectionData.replace(regex2, "</p></highlight>");
 
-    /*elm.innerText=selectionData;*/
-    elm.appendChild(fragmentFromString(selectionData));
-
+    elm.appendChild(selectionContents);
     elm.setAttribute("id", id);
     elm.setAttribute("onclick","callHighlightURL(this);");
     elm.setAttribute("class", style);
@@ -658,32 +650,6 @@ function getHighlightString(style) {
     thisHighlight = elm;
 
     var params = [];
-    params.push({id: id, rect: getRectForSelectedText(elm),selection:selectionData,selectionContent:selectionContents.toString()});
+    params.push({id: id, rect: getRectForSelectedText(elm)});
     Highlight.getHighlightJson(JSON.stringify(params));
-}
-
-
-function getSelectionHtml() {
-    var html = "";
-    if (typeof window.getSelection != "undefined") {
-        var sel = window.getSelection();
-        if (sel.rangeCount) {
-            var container = document.createElement("div");
-            for (var i = 0, len = sel.rangeCount; i < len; ++i) {
-                container.appendChild(sel.getRangeAt(i).cloneContents());
-            }
-            html = container.innerHTML;
-        }
-    } else if (typeof document.selection != "undefined") {
-        if (document.selection.type == "Text") {
-            html = document.selection.createRange().htmlText;
-        }
-    }
-    return html;
-}
-
-function fragmentFromString(strHTML) {
-    var temp = document.createElement('template');
-    temp.innerHTML = strHTML;
-    return temp.content;
 }

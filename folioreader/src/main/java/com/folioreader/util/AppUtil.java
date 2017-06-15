@@ -3,10 +3,7 @@ package com.folioreader.util;
 import android.content.Context;
 import android.util.Log;
 
-import com.folioreader.R;
-import com.folioreader.smil.AudioElement;
-import com.folioreader.smil.SmilFile;
-import com.folioreader.smil.TextElement;
+import com.folioreader.R;;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -90,67 +87,6 @@ public class AppUtil {
         return date;
     }
 
-    public static int parseTimeToLong(String time) {
-        double temp = 0.0;
-        Log.d("time", "time to parse" + time);
-        Map<String, String> timeFormats = new HashMap<>();
-        timeFormats.put("HH:mm:ss.SSS", "^\\d{1,2}:\\d{2}:\\d{2}\\.\\d{1,3}$");
-        timeFormats.put("HH:mm:ss", "^\\d{1,2}:\\d{2}:\\d{2}$");
-        timeFormats.put("mm:ss.SSS", "^\\d{1,2}:\\d{2}\\.\\d{1,3}$");
-        timeFormats.put("mm:ss", "^\\d{1,2}:\\d{2}$");
-        timeFormats.put("ss.SSS", "^\\d{1,2}\\.\\d{1,3}$");
-
-        Set keys = timeFormats.keySet();
-        for (Iterator i = keys.iterator(); i.hasNext(); ) {
-            String key = (String) i.next();
-            String value = (String) timeFormats.get(key);
-            String p = value;
-            Pattern pattern = Pattern.compile(p);
-            Matcher matcher = pattern.matcher(time);
-            if (matcher.matches()) {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(key);
-                try {
-                    Date date = simpleDateFormat.parse(time);
-                    simpleDateFormat = new SimpleDateFormat("ss.SSS");
-                    double sec = Double.valueOf(simpleDateFormat.format(date));
-
-                    simpleDateFormat = new SimpleDateFormat("mm");
-                    double mm = Double.valueOf(simpleDateFormat.format(date));
-
-                    simpleDateFormat = new SimpleDateFormat("HH");
-                    double hh = Double.valueOf(simpleDateFormat.format(date));
-                    temp = (sec * 1000) + ((mm * 60) * 1000) + ((hh * 60 * 60) * 1000);
-                    return (int) temp;
-                } catch (ParseException e) {
-                    Log.d(TAG, e.getMessage());
-                }
-            }
-        }
-        return (int) temp;
-    }
-
-
-    public static boolean compareUrl(String ur1, String ur2) {
-        String[] s = ur1.split("//");
-        String[] s1 = ur2.split("/");
-        ur1 = s[s.length - 1];
-        ur2 = s1[s1.length - 1];
-        return ur1.equalsIgnoreCase(ur2);
-    }
-
-    public static Book saveBookToDb(String epubFilePath, String epubFileName, Context context) {
-        FileInputStream fs = null;
-        Book book = null;
-        try {
-            //fs = new FileInputStream(epubFilePath);
-            book = (new EpubReader()).readEpubLazy(epubFilePath, "UTF-8");
-
-        } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
-        }
-        return book;
-    }
-
     // TODO: more efficient unzipping
     public static void unzip(Context context, String inputZip, String destinationDirectory)
             throws IOException {
@@ -209,133 +145,6 @@ public class AppUtil {
                             + zipName.substring(0,
                             zipName.lastIndexOf(context.getString(R.string.zip))));
         }
-    }
-
-    public static SmilFile createSmilJson(Context context, String epubFileName) {
-        SmilFile smilFile = null;
-        List<AudioElement> audioElementArrayList;
-        List<TextElement> textElementList;
-        String epubFolderPath = FileUtil.getFolioEpubFolderPath(epubFileName);
-
-        try {
-            File f = null;
-            File[] paths;
-            // create new file
-            f = new File(epubFolderPath + "/OEBPS/text");
-            // create new filename filter
-            FilenameFilter fileNameFilter = new FilenameFilter() {
-
-                @Override
-                public boolean accept(File dir, String name) {
-                    if (name.lastIndexOf('.') > 0) {
-                        // get last index for '.' char
-                        int lastIndex = name.lastIndexOf('.');
-                        // get extension
-                        String str = name.substring(lastIndex);
-                        // match path name extension
-                        if (str.equals(".smil")) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-            };
-            // returns pathnames for files and directory
-            paths = f.listFiles(fileNameFilter);
-            if (paths != null && paths.length > 0) {
-                smilFile = new SmilFile();
-                smilFile.load(paths[0].getPath());
-                audioElementArrayList = smilFile.getAudioSegments();
-                textElementList = smilFile.getTextSegments();
-                /*SmilElements smilElement = new SmilElements(audioElementArrayList, textElementList);
-                String smilElemets = jsonMapper.writeValueAsString(smilElement);
-                SharedPreferenceUtil.putSharedPreferencesString(context, epubFileName, smilElemets);*/
-            }
-        } catch (IOException | SAXException | ParserConfigurationException e) {
-            Log.d(TAG, e.getMessage());
-        }
-        return smilFile;
-
-    }
-
-    public static String getPathOPF(String unzipDir, Context context) {
-        String mPathOPF = "";
-        try {
-            BufferedReader br
-                    = new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir
-                    + "/META-INF/container.xml"), "UTF-8"));
-            String line;
-            while ((line = br.readLine()) != null) {
-                //if (line.indexOf(getS(R.string.full_path)) > -1)
-                if (line.contains(context.getString(R.string.full_path))) {
-                    int start = line.indexOf(context.getString((R.string.full_path)));
-                    //int start2 = line.indexOf("\"", start);
-                    int start2 = line.indexOf('\"', start);
-                    int stop2 = line.indexOf('\"', start2 + 1);
-                    if (start2 > -1 && stop2 > start2) {
-                        mPathOPF = line.substring(start2 + 1, stop2).trim();
-                        break;
-                    }
-                }
-            }
-            br.close();
-
-            // in case the OPF file is in the root directory
-            if (!mPathOPF.contains("/")) {
-                mPathOPF = AppUtil.getTypeOfOPF(unzipDir);
-            }
-
-            // remove the OPF file name and the preceding '/'
-            int last = mPathOPF.lastIndexOf('/');
-            if (last > -1) {
-                mPathOPF = mPathOPF.substring(0, last);
-            }
-
-            return mPathOPF;
-        } catch (NullPointerException | IOException e) {
-            Log.e(TAG, e.getMessage());
-        }
-        return mPathOPF;
-    }
-
-    public static boolean checkOPFInRootDirectory(String unzipDir, Context context) {
-        String mPathOPF = "";
-        boolean status = false;
-        try {
-            // get the OPF path, directly from container.xml
-           /* BufferedReader br = new BufferedReader(new FileReader(unzipDir
-                    + "/META-INF/container.xml"));*/
-            BufferedReader br =
-                    new BufferedReader(new InputStreamReader(new FileInputStream(unzipDir
-                    + "/META-INF/container.xml"), "UTF-8"));
-            String line;
-            while ((line = br.readLine()) != null) {
-                //if (line.indexOf(getS(R.string.full_path)) > -1)
-                if (line.contains(context.getString(R.string.full_path))) {
-                    int start = line.indexOf(context.getString((R.string.full_path)));
-                    //int start2 = line.indexOf("\"", start);
-                    int start2 = line.indexOf('\"', start);
-                    int stop2 = line.indexOf('\"', start2 + 1);
-                    if (start2 > -1 && stop2 > start2) {
-                        mPathOPF = line.substring(start2 + 1, stop2).trim();
-                        break;
-                    }
-                }
-            }
-            br.close();
-
-            // check the OPF file is in the root directory
-            if (!mPathOPF.contains("/")) {
-                status = true;
-            } else {
-                status = false;
-            }
-
-
-        } catch (NullPointerException | IOException e) {
-            Log.e(TAG, e.getMessage());
-        }
-        return status;
     }
 
     private static String getTypeOfOPF(String unzipDir) {
