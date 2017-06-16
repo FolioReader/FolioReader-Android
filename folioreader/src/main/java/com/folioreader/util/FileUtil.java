@@ -101,8 +101,8 @@ public class FileUtil {
             } else {
                 return true;
             }
-            if (inputStream != null) inputStream.close();
-            if (outputStream != null) outputStream.close();
+            inputStream.close();
+            outputStream.close();
         } catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }

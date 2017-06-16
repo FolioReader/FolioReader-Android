@@ -23,7 +23,7 @@ public class Highlight implements Parcelable {
     public static final String LOCAL_DB_HIGHLIGHT_TYPE = "type";
     public static final String MEDIA_OVERLAY_STYLE = "epub-media-overlay-playing";
 
-    public static enum HighlightStyle {
+    public enum HighlightStyle {
         Yellow,
         Green,
         Blue,
@@ -98,18 +98,18 @@ public class Highlight implements Parcelable {
     }
 
 
-    int id;
-    String bookId;
-    String content;
-    String contentPost;
-    String contentPre;
-    Date date;
-    String highlightId;
-    int page;
-    String type;
-    int currentPagerPostion;
-    int currentWebviewScrollPos;
-    String note;
+    private int id;
+    private String bookId;
+    private String content;
+    private String contentPost;
+    private String contentPre;
+    private Date date;
+    private String highlightId;
+    private int page;
+    private String type;
+    private int currentPagerPostion;
+    private int currentWebviewScrollPos;
+    private String note;
 
     public Highlight() {
     }

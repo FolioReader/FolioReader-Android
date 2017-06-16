@@ -5,7 +5,7 @@ import android.content.Context;
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.model.Highlight;
-import com.folioreader.sqlite.HighLightTable;
+import com.folioreader.model.sqlite.HighLightTable;
 
 import java.util.ArrayList;
 import java.util.regex.Pattern;

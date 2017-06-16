@@ -1,4 +1,4 @@
-package com.folioreader.quickaction;
+package com.folioreader.model.quickaction;
 
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;

@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.readium.r2_streamer.model.publication.EpubPublication;
+import org.readium.r2_streamer.model.publication.link.Link;
+import org.readium.r2_streamer.model.tableofcontents.TOCLink;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 
 /**
  * Background async task which makes API call to get Epub publication
@@ -54,10 +57,25 @@ public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
     @Override
     protected void onPostExecute(EpubPublication publication) {
         if (publication != null) {
+            //TODO can be implemented in r2-streamer?
+            if (publication.tableOfContents != null) {
+                for (TOCLink link : publication.tableOfContents) {
+                    setBookTitle(link, publication);
+                }
+            }
             manifestCallBack.onReceivePublication(publication);
         } else {
             manifestCallBack.onError();
         }
         cancel(true);
+    }
+
+    private void setBookTitle(TOCLink link, EpubPublication publication) {
+        for (int i = 0; i < publication.spines.size(); i++) {
+            if (publication.spines.get(i).href.equals(link.href)) {
+                publication.spines.get(i).bookTitle = link.bookTitle;
+                return;
+            }
+        }
     }
 }

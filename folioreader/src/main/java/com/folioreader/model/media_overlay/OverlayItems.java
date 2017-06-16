@@ -1,4 +1,4 @@
-package com.folioreader.ui.media_overlay;
+package com.folioreader.model.media_overlay;
 
 import android.os.Parcel;
 import android.os.Parcelable;

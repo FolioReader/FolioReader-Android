@@ -7,7 +7,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-
 public class StyleableTextView extends TextView {
 
     public StyleableTextView(Context context) {

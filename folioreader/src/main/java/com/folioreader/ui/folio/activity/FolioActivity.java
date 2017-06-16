@@ -27,6 +27,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -38,16 +39,15 @@ import android.widget.TextView;
 import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.Highlight;
-import com.folioreader.model.WebViewPosition;
-import com.folioreader.sqlite.DbAdapter;
+import com.folioreader.model.event.WebViewPosition;
+import com.folioreader.model.sqlite.DbAdapter;
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
 import com.folioreader.ui.folio.presenter.MainMvpView;
 import com.folioreader.ui.folio.presenter.MainPresenter;
-import com.folioreader.ui.media_overlay.OverlayItems;
-import com.folioreader.ui.media_overlay.event.MediaOverlayHighlightStyleEvent;
-import com.folioreader.ui.media_overlay.event.MediaOverlayPlayPauseEvent;
-import com.folioreader.ui.media_overlay.event.MediaOverlaySpeedEvent;
+import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
+import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
+import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
@@ -109,10 +109,8 @@ public class FolioActivity
     private List<Link> mSpineReferenceList = new ArrayList<>();
     private EpubServer mEpubServer;
 
-    //public ImageView speaker;
-    Animation slide_down;
-
-    Animation slide_up;
+    private Animation slide_down;
+    private Animation slide_up;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,7 +213,7 @@ public class FolioActivity
     }
 
     @Override
-    public void onOrentationChange(int orentation) {
+    public void onOrientationChange(int orentation) {
         if (orentation == 0) {
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
             mFolioPageFragmentAdapter =
@@ -252,7 +250,7 @@ public class FolioActivity
             @Override
             public void onPageScrollStateChanged(int state) {
                 if (state == DirectionalViewpager.SCROLL_STATE_IDLE) {
-                    title.setText(mSpineReferenceList.get(mChapterPosition).getChapterTitle());
+                    title.setText(mSpineReferenceList.get(mChapterPosition).bookTitle);
                 }
             }
         });
@@ -309,6 +307,11 @@ public class FolioActivity
 
     @Override
     public void setPagerToPosition(String href) {
+    }
+
+    @Override
+    public void setLastWebViewPosition(int position) {
+        this.mWebViewScrollPosition = position;
     }
 
     private void toolbarAnimateShow(final int verticalOffset) {
@@ -377,19 +380,24 @@ public class FolioActivity
                     if (spine.href.contains(data.getStringExtra(SELECTED_CHAPTER_POSITION))) {
                         mChapterPosition = mSpineReferenceList.indexOf(spine);
                         mFolioPageViewPager.setCurrentItem(mChapterPosition);
-                        if (data.getStringExtra(BOOK_TITLE) != null) {
-                            title.setText(data.getStringExtra(BOOK_TITLE));
-                        }
+                        Log.i("Test", "title = " + data.getStringExtra(BOOK_TITLE));
+                        title.setText(data.getStringExtra(BOOK_TITLE));
                         break;
                     }
                 }
             } else if (type.equals(HIGHLIGHT_SELECTED)) {
                 Highlight highlight = data.getParcelableExtra(HIGHLIGHT_ITEM);
+                mWebViewScrollPosition = highlight.getCurrentWebviewScrollPos();
                 int position = highlight.getCurrentPagerPostion();
-                mFolioPageViewPager.setCurrentItem(position);
-                WebViewPosition webViewPosition = new WebViewPosition();
-                webViewPosition.setWebviewPos(highlight.getCurrentWebviewScrollPos());
-                BUS.post(webViewPosition);
+                if (position != mChapterPosition) {
+                    if ((mChapterPosition == (position - 1)) || (mChapterPosition == (position + 1))) {
+                        mFolioPageViewPager.setCurrentItem(position);
+                        BUS.post(new WebViewPosition(position, mSpineReferenceList.get(mChapterPosition).href));
+                    } else {
+                        mWebViewScrollPosition = highlight.getCurrentWebviewScrollPos();
+                        mFolioPageViewPager.setCurrentItem(position);
+                    }
+                }
             }
         }
     }

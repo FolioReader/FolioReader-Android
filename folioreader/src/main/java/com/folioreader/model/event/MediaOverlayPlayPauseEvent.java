@@ -1,4 +1,4 @@
-package com.folioreader.ui.media_overlay.event;
+package com.folioreader.model.event;
 
 /**
  * @author gautam chibde on 13/6/17.

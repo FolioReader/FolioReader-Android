@@ -1,4 +1,4 @@
-package com.folioreader.sqlite;
+package com.folioreader.model.sqlite;
 
 
 import android.content.Context;

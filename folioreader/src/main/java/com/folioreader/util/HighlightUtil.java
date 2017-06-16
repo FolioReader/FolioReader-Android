@@ -8,8 +8,6 @@ import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nl.siegmann.epublib.domain.Book;
-
 /**
  * Created by priyank on 5/12/16.
  */

@@ -19,7 +19,7 @@ import android.widget.TextView;
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.ui.folio.activity.FolioActivity;
-import com.folioreader.model.ReloadData;
+import com.folioreader.model.event.ReloadDataEvent;
 
 
 /**
@@ -49,7 +49,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     private ConfigDialogCallback mConfigDialogCallback;
 
     public interface ConfigDialogCallback {
-        void onOrentationChange(int orentation);
+        void onOrientationChange(int orentation);
     }
 
     private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
@@ -59,7 +59,6 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                 dismiss();
             }
-
         }
 
         @Override
@@ -153,7 +152,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         mDialog.findViewById(R.id.btn_horizontal_orentation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mConfigDialogCallback.onOrentationChange(1);
+                mConfigDialogCallback.onOrientationChange(1);
                 mDialog.findViewById(R.id.btn_horizontal_orentation).setSelected(true);
                 mDialog.findViewById(R.id.btn_vertical_orentation).setSelected(false);
             }
@@ -162,7 +161,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         mDialog.findViewById(R.id.btn_vertical_orentation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mConfigDialogCallback.onOrentationChange(0);
+                mConfigDialogCallback.onOrientationChange(0);
                 mDialog.findViewById(R.id.btn_horizontal_orentation).setSelected(false);
                 mDialog.findViewById(R.id.btn_vertical_orentation).setSelected(true);
             }
@@ -195,7 +194,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         Config.getConfig().setFont(selectedFont);
         //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
         if (isAdded() && isReloadNeeded) {
-            FolioActivity.BUS.post(new ReloadData());
+            FolioActivity.BUS.post(new ReloadDataEvent());
         }
     }
 
@@ -227,7 +226,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             public void onAnimationEnd(Animator animator) {
                 mIsNightMode = !mIsNightMode;
                 Config.getConfig().setNightMode(mIsNightMode);
-                FolioActivity.BUS.post(new ReloadData());
+                FolioActivity.BUS.post(new ReloadDataEvent());
                 ///mConfigDialogCallback.onConfigChange();
             }
 
@@ -251,7 +250,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                 Config.getConfig().setFontSize(progress);
                 //if (mConfigViewCallback != null) mConfigViewCallback.onConfigChange();
                 //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
-                FolioActivity.BUS.post(new ReloadData());
+                FolioActivity.BUS.post(new ReloadDataEvent());
             }
 
             @Override

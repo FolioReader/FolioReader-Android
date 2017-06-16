@@ -24,8 +24,8 @@ public class ObservableWebView extends WebView {
     private FolioPageFragment.FolioPageFragmentCallback mActivityCallback;
 
 
-    public static interface ScrollListener {
-        public void onScrollChange(int percent);
+    public interface ScrollListener {
+        void onScrollChange(int percent);
     }
 
     private ScrollListener mScrollListener;
@@ -80,7 +80,7 @@ public class ObservableWebView extends WebView {
         final boolean[] mMoveOccured = new boolean[1];
         final float[] mDownPosX = new float[1];
         final float[] mDownPosY = new float[1];
-        // Log.d("dispatchTouchEvent","dispatch touch event");
+
         final float MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
         mActivityCallback = (FolioActivity) getContext();
         final int action = event.getAction();
@@ -90,7 +90,6 @@ public class ObservableWebView extends WebView {
                 mMoveOccured[0] = false;
                 mDownPosX[0] = event.getX();
                 mDownPosY[0] = event.getY();
-                mFolioPageFragment.removeCallback();
                 break;
             case MotionEvent.ACTION_UP:
                 if (!mMoveOccured[0]) {
@@ -136,7 +135,6 @@ public class ObservableWebView extends WebView {
 
                 }*/
 
-                mFolioPageFragment.startCallback();
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (Math.abs(event.getX() - mDownPosX[0]) > MOVE_THRESHOLD_DP
