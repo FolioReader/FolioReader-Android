@@ -182,7 +182,7 @@ html .highlight-yellow, html .highlight-green, html .highlight-blue, html .highl
     border-bottom: dotted 2px transparent;
     border-radius: 0;
 }
-
+.highlightedTTS { background:yellow }
 
 
 /*

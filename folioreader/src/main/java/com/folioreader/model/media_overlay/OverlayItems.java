@@ -12,6 +12,7 @@ public class OverlayItems implements Parcelable {
     private String tag;
     private String classType;
     private String spineHref;
+    private String text;
 
     public OverlayItems() {
     }
@@ -21,10 +22,17 @@ public class OverlayItems implements Parcelable {
         this.tag = tag;
     }
 
-    public OverlayItems(String id, String tag,String spineHref) {
+    public OverlayItems(String id, String tag, String spineHref) {
         this.id = id;
         this.tag = tag;
         this.spineHref = spineHref;
+    }
+
+    public OverlayItems(String id, String tag, String spineHref, String text) {
+        this.id = id;
+        this.tag = tag;
+        this.spineHref = spineHref;
+        this.text = text;
     }
 
     protected OverlayItems(Parcel in) {
@@ -32,6 +40,7 @@ public class OverlayItems implements Parcelable {
         tag = in.readString();
         classType = in.readString();
         spineHref = in.readString();
+        text = in.readString();
     }
 
     public static final Creator<OverlayItems> CREATOR = new Creator<OverlayItems>() {
@@ -53,6 +62,7 @@ public class OverlayItems implements Parcelable {
                 ", tag='" + tag + '\'' +
                 ", classType='" + classType + '\'' +
                 ", spineHref='" + spineHref + '\'' +
+                ", text='" + text + '\'' +
                 '}';
     }
 
@@ -68,6 +78,18 @@ public class OverlayItems implements Parcelable {
         return spineHref;
     }
 
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setSpineHref(String spineHref) {
+        this.spineHref = spineHref;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -79,5 +101,6 @@ public class OverlayItems implements Parcelable {
         dest.writeString(tag);
         dest.writeString(classType);
         dest.writeString(spineHref);
+        dest.writeString(text);
     }
 }

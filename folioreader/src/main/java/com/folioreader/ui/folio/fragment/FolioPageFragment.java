@@ -67,6 +67,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -152,9 +153,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     private Handler mediaHandler;
 
     //*********************************//
-    //              TTL                //
+    //              TTS                //
     //*********************************//
     private TextToSpeech mTextToSpeech;
+    private boolean isSpeaking = false;
 
     public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -198,6 +200,34 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
 
         FolioActivity.BUS.register(this);
 
+        mTextToSpeech = new TextToSpeech(getActivity(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    mTextToSpeech.setLanguage(Locale.UK);
+                    mTextToSpeech.setSpeechRate(0.70f);
+                }
+
+                mTextToSpeech.setOnUtteranceCompletedListener(
+                        new TextToSpeech.OnUtteranceCompletedListener() {
+                            @Override
+                            public void onUtteranceCompleted(String utteranceId) {
+                                getActivity().runOnUiThread(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        if (isSpeaking) {
+                                            //removeTTS
+                                            mWebview.loadUrl("javascript:alert(removeTTS())");
+                                            speakAudio();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+            }
+        });
+
         initSeekbar();
         initAnimations();
         initWebView();
@@ -207,6 +237,23 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
 
     private String getWebviewUrl() {
         return Constants.LOCALHOST + mBookTitle + "/" + spineItem.href;
+    }
+
+    public void speakAudio() {
+        if (mediaItemPosition < mediaItems.size()) {
+            isSpeaking = true;
+            HashMap<String, String> params = new HashMap<>();
+            OverlayItems items = mediaItems.get(mediaItemPosition);
+            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
+            mWebview.loadUrl((String.format("javascript:alert(highlightTTS('%s'))", escape(items.getText()))));
+            mTextToSpeech.speak(items.getText(), TextToSpeech.QUEUE_FLUSH, params);
+            mediaItemPosition++;
+        }
+    }
+
+    private String escape(String str) {
+        String a = str.replace("\"", "\\\"");
+        return a.replace("\'", "\\'");
     }
 
     @Override
@@ -231,15 +278,33 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
                     if (mediaPlayer != null) {
                         mediaPlayer.pause();
                     }
-                } else {
-                    if (hasMediaOverlay) {
-                        if (event.isPlay()) {
-                            UiUtil.keepScreenAwake(true, getActivity());
-                            startPlaying();
-                        } else {
-                            UiUtil.keepScreenAwake(false, getActivity());
-                            pausePlaying();
+                    if (mTextToSpeech != null) {
+                        if (mTextToSpeech.isSpeaking()) {
+                            mTextToSpeech.stop();
                         }
+                    }
+                } else {
+                    if (spineItem.typeLink.equals("application/xhtml+xml")) {
+                        if (hasMediaOverlay) {
+                            if (event.isPlay()) {
+                                UiUtil.keepScreenAwake(true, getActivity());
+                                startPlaying();
+                            } else {
+                                UiUtil.keepScreenAwake(false, getActivity());
+                                pausePlaying();
+                            }
+                        } else {
+                            if (event.isPlay()) {
+                                UiUtil.keepScreenAwake(true, getActivity());
+                                speakAudio();
+                            } else {
+                                UiUtil.keepScreenAwake(false, getActivity());
+                                isSpeaking = false;
+                                mTextToSpeech.stop();
+                            }
+                        }
+                    } else {
+                        Toast.makeText(getActivity(), "Audio not available for this page", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -272,6 +337,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
         if (isMediaPlayerReady && mediaPlayer != null) {
             mediaPlayer.pause();
         }
+        if (mTextToSpeech != null && mTextToSpeech.isSpeaking()) {
+            mTextToSpeech.stop();
+        }
     }
 
     private void startPlaying() {
@@ -285,25 +353,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
                 mediaPlayer.start();
                 mediaHandler.post(mHighlightTask);
             }
-        }
-    }
-
-    private void playAudioWithoutSmil() {
-        if (mTextToSpeech.isSpeaking()) {
-            mTextToSpeech.stop();
-            mIsSpeaking = false;
-            resetCurrentIndex(new RewindIndexEvent());
-            //mFolioActivity.resetCurrentIndex();
-            UiUtil.keepScreenAwake(false, getActivity());
-            //mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.play_icon));
-        } else {
-            //mPlayPauseBtn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
-            mIsSpeaking = true;
-            UiUtil.keepScreenAwake(true, getActivity());
-            if (isAdded()) {
-                FolioActivity.BUS.post(true);
-            }
-
         }
     }
 
@@ -330,6 +379,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
             if (!reloaded) {
                 if (spineItem.properties.contains("media-overlay")) {
                     parseSMIL(mHtmlString);
+                } else {
+                    parseSMILForTTS(mHtmlString);
                 }
             }
             String path = ref.substring(0, ref.lastIndexOf("/"));
@@ -391,13 +442,40 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
             if (n.getNodeType() == Node.ELEMENT_NODE) {
                 Element e = (Element) n;
                 if (e.hasAttribute("id")) {
-                    if (e.getTextContent() != null) {
-                        Log.i("Testt", "id = " + e.getAttribute("id") + " text = " + e.getTextContent());
-                    }
                     names.add(new OverlayItems(e.getAttribute("id"), e.getTagName()));
                 } else {
                     parseNodes(names, e);
                 }
+            }
+        }
+    }
+
+    public void parseSMILForTTS(String html) {
+        try {
+            Document document = EpubParser.xmlParser(html);
+            NodeList sections = document.getDocumentElement().getElementsByTagName("body");
+            for (int i = 0; i < sections.getLength(); i++) {
+                parseNodesTTS(mediaItems, (Element) sections.item(i));
+            }
+            Log.i("TTStest", "nodes = " + mediaItems.toString());
+        } catch (EpubParserException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void parseNodesTTS(List<OverlayItems> names, Element section) {
+        for (Node n = section.getFirstChild(); n != null; n = n.getNextSibling()) {
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                Element e = (Element) n;
+                for (Node n1 = e.getFirstChild(); n1 != null; n1 = n1.getNextSibling()) {
+                    if (n1.getTextContent() != null) {
+                        OverlayItems i = new OverlayItems();
+                        i.setText(n1.getTextContent());
+                        i.setSpineHref(spineItem.href);
+                        names.add(i);
+                    }
+                }
+                parseNodesTTS(names, e);
             }
         }
     }
@@ -425,6 +503,11 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mTextToSpeech != null) {
+            if (mTextToSpeech.isSpeaking()) {
+                mTextToSpeech.stop();
+            }
+        }
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
@@ -572,7 +655,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
                             if (mIsSpeaking && (!message.equals("undefined"))) {
                                 if (isCurrentFragment()) {
                                     Log.d("FolioPageFragment", "Message from js: " + message);
-                                    speakAudio(message);
+                                    //speakAudio();
                                 }
                             }
                         }
@@ -608,13 +691,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
         new HtmlTask(this).execute(getWebviewUrl());
-    }
-
-    public void speakAudio(String sentence) {
-        //TODO
-//        HashMap<String, String> params = new HashMap<String, String>();
-//        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
-//        mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
     }
 
     private void initSeekbar() {

@@ -60,6 +60,52 @@ function removeClass(ele,cls) {
   }
 }
 
+function highlightTTS(word){
+  //removeHighlights(root);
+  highlightWord(document.body,word);
+  var el = document.getElementById('ttlid');
+  goToEl(el);
+}
+
+function escapeQuotes(str){
+    str = str.replace(/\\/g, '\\\\'); // escape backslashes
+    str = str.replace(/"/g, '\\"');   // escape quotes
+    return str;
+}
+
+function highlightWord(root,word){
+  textNodesUnder(root).forEach(highlightWords);
+
+  function textNodesUnder(root){
+    var n,a=[],w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null,false);
+    while(n=w.nextNode()) a.push(n);
+    return a;
+  }
+
+  function highlightWords(n){
+      var after;
+      for (var i; (i=n.nodeValue.indexOf(word,i)) > -1; n=after){
+        after = n.splitText(i+word.length);
+        var highlighted = n.splitText(i);
+        var span = document.createElement('span');
+        span.className = 'highlightedTTS'
+        span.setAttribute("id", "ttlid");
+        span.appendChild(highlighted);
+        after.parentNode.insertBefore(span,after);
+      }
+    }
+}
+
+function removeTTS(){
+    removeHighlights(document.body);
+}
+
+function removeHighlights(root){
+    [].forEach.call(root.querySelectorAll('span.highlightedTTS'),function(el){
+        el.parentNode.replaceChild(el.firstChild,el);
+      });
+    }
+
 // Font name class
 function setFontName(cls) {
     var elm = document.documentElement;
