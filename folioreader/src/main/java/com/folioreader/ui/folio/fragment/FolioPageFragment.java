@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -33,6 +34,7 @@ import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.Highlight;
+import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.event.ReloadDataEvent;
@@ -48,6 +50,7 @@ import com.folioreader.ui.base.HtmlUtil;
 import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.HighlightUtil;
+import com.folioreader.util.SMILParser;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
@@ -143,7 +146,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     //          MEDIA OVERLAY           //
     //**********************************//
     private MediaOverlays mediaOverlays;
-    private List<OverlayItems> mediaItems;
+    private List<OverlayItems> mediaItems = new ArrayList<>();
     private int mediaItemPosition = 0;
     private MediaPlayer mediaPlayer;
 
@@ -157,6 +160,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     //*********************************//
     private TextToSpeech mTextToSpeech;
     private boolean isSpeaking = false;
+    private String highlightStyle = "highlightedTTSBackground";
 
     public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -184,7 +188,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
             mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
             spineItem = (Link) getArguments().getSerializable(SPINE_ITEM);
         }
-        mediaItems = new ArrayList<>();
         isMediaPlayerReady = false;
         if (spineItem != null) {
             if (spineItem.properties.contains("media-overlay")) {
@@ -245,7 +248,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
             HashMap<String, String> params = new HashMap<>();
             OverlayItems items = mediaItems.get(mediaItemPosition);
             params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
-            mWebview.loadUrl((String.format("javascript:alert(highlightTTS('%s'))", escape(items.getText()))));
+            mWebview.loadUrl((String.format("javascript:alert(highlightTTS('%s','%s'))", escape(items.getText()), highlightStyle)));
             mTextToSpeech.speak(items.getText(), TextToSpeech.QUEUE_FLUSH, params);
             mediaItemPosition++;
         }
@@ -269,6 +272,13 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
         mScrollY = positionY;
     }
 
+    /**
+     * [EVENT BUS FUNCTION]
+     * Function triggered from {@link FolioActivity#initAudioView()} when pause/play
+     * button is clicked
+     *
+     * @param event of type {@link MediaOverlayPlayPauseEvent} contains if paused/played
+     */
     @SuppressWarnings("unused")
     @Subscribe
     public void pauseButtonClicked(MediaOverlayPlayPauseEvent event) {
@@ -311,25 +321,79 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
         }
     }
 
+    /**
+     * [EVENT BUS FUNCTION]
+     * Function triggered from {@link FolioActivity#initAudioView()} when speed
+     * change buttons are clicked
+     *
+     * @param event of type {@link MediaOverlaySpeedEvent} contains selected speed
+     *              type HALF,ONE,ONE_HALF and TWO.
+     */
     @SuppressWarnings("unused")
     @TargetApi(Build.VERSION_CODES.M)
     @Subscribe
     public void speedChanged(MediaOverlaySpeedEvent event) {
-        if (mediaPlayer != null) {
-            switch (event.getSpeed()) {
-                case HALF:
-                    //TODO mediaPlayer.getPlaybackParams().setSpeed(0.5f);
-                    break;
-                case ONE:
-                    //TODO mediaPlayer.getPlaybackParams().setSpeed(1.0f);
-                    break;
-                case ONE_HALF:
-                    //TODO mediaPlayer.getPlaybackParams().setSpeed(1.5f);
-                    break;
-                case TWO:
-                    //TODO mediaPlayer.getPlaybackParams().setSpeed(2.0f);
-                    break;
-            }
+        switch (event.getSpeed()) {
+            case HALF:
+                setPlaybackSpeed(0.5f);
+                break;
+            case ONE:
+                setPlaybackSpeed(1.0f);
+                break;
+            case ONE_HALF:
+                setPlaybackSpeed(1.5f);
+                break;
+            case TWO:
+                setPlaybackSpeed(2.0f);
+                break;
+        }
+    }
+
+    /**
+     * [EVENT BUS FUNCTION]
+     * TODO change the highlight style in real time
+     * Function triggered from {@link FolioActivity#initAudioView()} when new
+     * style is selected on button click.
+     *
+     * @param event of type {@link MediaOverlaySpeedEvent} contains selected style
+     *              of type DEFAULT,UNDERLINE and BACKGROUND.
+     */
+    @SuppressWarnings("unused")
+    @Subscribe
+    public void styleChanged(MediaOverlayHighlightStyleEvent event) {
+        switch (event.getStyle()) {
+            case DEFAULT:
+                highlightStyle = "highlightedTTSBackground";
+                break;
+            case UNDERLINE:
+                highlightStyle = "highlightedTTSUnderline";
+                break;
+            case BACKGROUND:
+                highlightStyle = "highlightedTTSText";
+                break;
+        }
+    }
+
+    /**
+     * [EVENT BUS FUNCTION]
+     * Function triggered when any EBook configuration is changed.
+     *
+     * @param reloadDataEvent empty POJO.
+     */
+    @Subscribe
+    public void reload(ReloadDataEvent reloadDataEvent) {
+        if (isAdded()) {
+            mLastWebviewScrollpos = mWebview.getScrollY();
+            mIsPageReloaded = true;
+            setHtml(true);
+        }
+    }
+
+    private void setPlaybackSpeed(float speed) {
+        if (hasMediaOverlay) {
+            //TODO media Player
+        } else {
+            mTextToSpeech.setSpeechRate(speed);
         }
     }
 
@@ -356,15 +420,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
         }
     }
 
-    @Subscribe
-    public void reload(ReloadDataEvent reloadDataEvent) {
-        if (isAdded()) {
-            mLastWebviewScrollpos = mWebview.getScrollY();
-            mIsPageReloaded = true;
-            setHtml(true);
-        }
-    }
-
     @Override
     public void onReceiveHtml(String html) {
         if (isAdded()) {
@@ -378,10 +433,15 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
             String ref = spineItem.href;
             if (!reloaded) {
                 if (spineItem.properties.contains("media-overlay")) {
-                    parseSMIL(mHtmlString);
+                    mediaItems.clear();
+                    mediaItems.addAll(SMILParser.parseSMIL(mHtmlString));
+                    String audioFile = mediaOverlays.getAudioPath(spineItem.href);
+                    setUpPlayer(audioFile);
                 } else {
-                    parseSMILForTTS(mHtmlString);
+                    mediaItems.clear();
+                    mediaItems.addAll(SMILParser.parseSMILForTTS(mHtmlString));
                 }
+                mediaItemPosition = 0;
             }
             String path = ref.substring(0, ref.lastIndexOf("/"));
             mWebview.loadDataWithBaseURL(
@@ -418,66 +478,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     };
 
     private void highLightText(String fragmentId) {
-        mWebview.loadUrl(String.format(getString(R.string.audio_mark_id), fragmentId));
-    }
-
-    public void parseSMIL(String html) {
-        try {
-            mediaItems.clear();
-            mediaItemPosition = 0;
-            Document document = EpubParser.xmlParser(html);
-            NodeList sections = document.getDocumentElement().getElementsByTagName("section");
-            for (int i = 0; i < sections.getLength(); i++) {
-                parseNodes(mediaItems, (Element) sections.item(i));
-            }
-            String audioFile = mediaOverlays.getAudioPath(spineItem.href);
-            setUpPlayer(audioFile);
-        } catch (EpubParserException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void parseNodes(List<OverlayItems> names, Element section) {
-        for (Node n = section.getFirstChild(); n != null; n = n.getNextSibling()) {
-            if (n.getNodeType() == Node.ELEMENT_NODE) {
-                Element e = (Element) n;
-                if (e.hasAttribute("id")) {
-                    names.add(new OverlayItems(e.getAttribute("id"), e.getTagName()));
-                } else {
-                    parseNodes(names, e);
-                }
-            }
-        }
-    }
-
-    public void parseSMILForTTS(String html) {
-        try {
-            Document document = EpubParser.xmlParser(html);
-            NodeList sections = document.getDocumentElement().getElementsByTagName("body");
-            for (int i = 0; i < sections.getLength(); i++) {
-                parseNodesTTS(mediaItems, (Element) sections.item(i));
-            }
-            Log.i("TTStest", "nodes = " + mediaItems.toString());
-        } catch (EpubParserException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void parseNodesTTS(List<OverlayItems> names, Element section) {
-        for (Node n = section.getFirstChild(); n != null; n = n.getNextSibling()) {
-            if (n.getNodeType() == Node.ELEMENT_NODE) {
-                Element e = (Element) n;
-                for (Node n1 = e.getFirstChild(); n1 != null; n1 = n1.getNextSibling()) {
-                    if (n1.getTextContent() != null) {
-                        OverlayItems i = new OverlayItems();
-                        i.setText(n1.getTextContent());
-                        i.setSpineHref(spineItem.href);
-                        names.add(i);
-                    }
-                }
-                parseNodesTTS(names, e);
-            }
-        }
+        mWebview.loadUrl(String.format("javascript:alert(audioMarkID('%s','%s'))", highlightStyle, fragmentId));
     }
 
     private void setUpPlayer(String path) {
@@ -498,24 +499,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     public void onStop() {
         super.onStop();
         //TODO save last media overlay item
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mTextToSpeech != null) {
-            if (mTextToSpeech.isSpeaking()) {
-                mTextToSpeech.stop();
-            }
-        }
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-                mediaPlayer.release();
-                mediaPlayer = null;
-                mediaHandler.removeCallbacks(mHighlightTask);
-            }
-        }
     }
 
     private void initWebView() {
@@ -818,24 +801,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
         outState.putSerializable(SPINE_ITEM, spineItem);
     }
 
-    public void getTextSentence(Boolean isSpeaking) {
-        if (isCurrentFragment()) {
-            mIsSpeaking = true;
-            mWebview.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))");
-        }
-    }
-
-    @Subscribe
-    public void setStyle(String style) {
-        if (isAdded()) {
-            mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), style));
-        }
-    }
-
-    public String getSelectedText() {
-        return mSelectedText;
-    }
-
     public void highlight(Highlight.HighlightStyle style, boolean isCreated) {
         if (isCreated) {
             mWebview.loadUrl(String.format(getString(R.string.getHighlightString),
@@ -1068,5 +1033,23 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
 
     @Override
     public void onError() {
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mTextToSpeech != null) {
+            if (mTextToSpeech.isSpeaking()) {
+                mTextToSpeech.stop();
+            }
+        }
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+                mediaPlayer.release();
+                mediaPlayer = null;
+                mediaHandler.removeCallbacks(mHighlightTask);
+            }
+        }
     }
 }

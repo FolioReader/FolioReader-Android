@@ -60,20 +60,13 @@ function removeClass(ele,cls) {
   }
 }
 
-function highlightTTS(word){
-  //removeHighlights(root);
-  highlightWord(document.body,word);
+function highlightTTS(word,style){
+  highlightWord(document.body,word,style);
   var el = document.getElementById('ttlid');
   goToEl(el);
 }
 
-function escapeQuotes(str){
-    str = str.replace(/\\/g, '\\\\'); // escape backslashes
-    str = str.replace(/"/g, '\\"');   // escape quotes
-    return str;
-}
-
-function highlightWord(root,word){
+function highlightWord(root,word,style){
   textNodesUnder(root).forEach(highlightWords);
 
   function textNodesUnder(root){
@@ -88,7 +81,7 @@ function highlightWord(root,word){
         after = n.splitText(i+word.length);
         var highlighted = n.splitText(i);
         var span = document.createElement('span');
-        span.className = 'highlightedTTS'
+        span.className = style
         span.setAttribute("id", "ttlid");
         span.appendChild(highlighted);
         after.parentNode.insertBefore(span,after);
@@ -97,11 +90,25 @@ function highlightWord(root,word){
 }
 
 function removeTTS(){
-    removeHighlights(document.body);
+    removeHighlightsUnderline(document.body);
+    removeHighlightsText(document.body);
+    removeHighlightsBackground(document.body);
 }
 
-function removeHighlights(root){
-    [].forEach.call(root.querySelectorAll('span.highlightedTTS'),function(el){
+function removeHighlightsUnderline(root){
+    [].forEach.call(root.querySelectorAll('span.highlightedTTSUnderline'),function(el){
+        el.parentNode.replaceChild(el.firstChild,el);
+      });
+    }
+
+function removeHighlightsText(root){
+    [].forEach.call(root.querySelectorAll('span.highlightedTTSText'),function(el){
+        el.parentNode.replaceChild(el.firstChild,el);
+      });
+    }
+
+function removeHighlightsBackground(root){
+    [].forEach.call(root.querySelectorAll('span.highlightedTTSBackground'),function(el){
         el.parentNode.replaceChild(el.firstChild,el);
       });
     }
@@ -359,7 +366,7 @@ function removeAllClasses(className) {
  */
 function audioMarkID(className, id) {
     if (audioMarkClass)
-        removeAllClasses(audioMarkClass);
+        removeTTS();
 
     audioMarkClass = className
     var el = document.getElementById(id);

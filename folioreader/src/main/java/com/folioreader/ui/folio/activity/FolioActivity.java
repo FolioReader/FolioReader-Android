@@ -543,7 +543,7 @@ public class FolioActivity
                 mHighlightStyle =
                         Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
                 //mFolioActivity.setHighLightStyle(mHighlightStyle);
-                FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(mHighlightStyle));
+                FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.DEFAULT));
             }
         });
 
@@ -556,7 +556,7 @@ public class FolioActivity
                 mTextColorStyle.setSelected(false);
                 mHighlightStyle =
                         Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
-                FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(mHighlightStyle));
+                FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.UNDERLINE));
 
             }
         });
@@ -570,7 +570,7 @@ public class FolioActivity
                 mTextColorStyle.setSelected(true);
                 mHighlightStyle =
                         Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
-                FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(mHighlightStyle));
+                FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.BACKGROUND));
             }
         });
     }
