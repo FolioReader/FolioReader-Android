@@ -28,19 +28,7 @@ function guid() {
 
 // Get All HTML
 function getHTML() {
-    var ps = document.getElementsByTagName('p');
-    while (ps.length) {
-        var p = ps[0];
-        while (p.firstChild) {
-            p.parentNode.insertBefore(p.firstChild, p);
-        }
-
-        p.parentNode.insertBefore(document.createElement('br'), p);
-        p.parentNode.insertBefore(document.createElement('br'), p);
-        p.parentNode.removeChild(p);
-    }
-
-    Highlight.getHtmlAndSaveHighlight(document.documentElement.innerHTML);
+    Highlight.getHtmlAndSaveHighlight(document.documentElement.outerHTML);
     //return document.documentElement.outerHTML;
 }
 
@@ -59,59 +47,6 @@ function removeClass(ele,cls) {
     ele.className=ele.className.replace(reg,' ');
   }
 }
-
-function highlightTTS(word,style){
-  highlightWord(document.body,word,style);
-  var el = document.getElementById('ttlid');
-  goToEl(el);
-}
-
-function highlightWord(root,word,style){
-  textNodesUnder(root).forEach(highlightWords);
-
-  function textNodesUnder(root){
-    var n,a=[],w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null,false);
-    while(n=w.nextNode()) a.push(n);
-    return a;
-  }
-
-  function highlightWords(n){
-      var after;
-      for (var i; (i=n.nodeValue.indexOf(word,i)) > -1; n=after){
-        after = n.splitText(i+word.length);
-        var highlighted = n.splitText(i);
-        var span = document.createElement('span');
-        span.className = style
-        span.setAttribute("id", "ttlid");
-        span.appendChild(highlighted);
-        after.parentNode.insertBefore(span,after);
-      }
-    }
-}
-
-function removeTTS(){
-    removeHighlightsUnderline(document.body);
-    removeHighlightsText(document.body);
-    removeHighlightsBackground(document.body);
-}
-
-function removeHighlightsUnderline(root){
-    [].forEach.call(root.querySelectorAll('span.highlightedTTSUnderline'),function(el){
-        el.parentNode.replaceChild(el.firstChild,el);
-      });
-    }
-
-function removeHighlightsText(root){
-    [].forEach.call(root.querySelectorAll('span.highlightedTTSText'),function(el){
-        el.parentNode.replaceChild(el.firstChild,el);
-      });
-    }
-
-function removeHighlightsBackground(root){
-    [].forEach.call(root.querySelectorAll('span.highlightedTTSBackground'),function(el){
-        el.parentNode.replaceChild(el.firstChild,el);
-      });
-    }
 
 // Font name class
 function setFontName(cls) {
@@ -249,6 +184,10 @@ var getAnchorOffset = function(target, horizontal) {
     return elem.offsetTop;
 }
 
+function scrollAnchor(id) {
+    window.location.hash = id;
+}
+
 function findElementWithID(node) {
     if( !node || node.tagName == "BODY")
         return null
@@ -366,7 +305,7 @@ function removeAllClasses(className) {
  */
 function audioMarkID(className, id) {
     if (audioMarkClass)
-        removeTTS();
+        removeAllClasses(audioMarkClass);
 
     audioMarkClass = className
     var el = document.getElementById(id);

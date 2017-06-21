@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -59,12 +58,6 @@ import com.squareup.otto.Subscribe;
 import org.readium.r2_streamer.model.publication.SMIL.Clip;
 import org.readium.r2_streamer.model.publication.SMIL.MediaOverlays;
 import org.readium.r2_streamer.model.publication.link.Link;
-import org.readium.r2_streamer.parser.EpubParser;
-import org.readium.r2_streamer.parser.EpubParserException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -129,7 +122,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     private int mScrollY;
     private int mTotalMinutes;
     private String mSelectedText;
-    private boolean mIsSpeaking = true;
+    private boolean mIsSpeaking = false;
     private Map<String, String> mHighlightMap;
     private Animation mFadeInAnimation, mFadeOutAnimation;
 
@@ -159,8 +152,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     //              TTS                //
     //*********************************//
     private TextToSpeech mTextToSpeech;
-    private boolean isSpeaking = false;
-    private String highlightStyle = "highlightedTTSBackground";
+    private String highlightStyle;
 
     public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -195,6 +187,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
                 hasMediaOverlay = true;
             }
         }
+        highlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
@@ -216,13 +209,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
                             @Override
                             public void onUtteranceCompleted(String utteranceId) {
                                 getActivity().runOnUiThread(new Runnable() {
-
                                     @Override
                                     public void run() {
-                                        if (isSpeaking) {
-                                            //removeTTS
-                                            mWebview.loadUrl("javascript:alert(removeTTS())");
-                                            speakAudio();
+                                        if (mIsSpeaking) {
+                                            mWebview.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))");
                                         }
                                     }
                                 });
@@ -242,16 +232,11 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
         return Constants.LOCALHOST + mBookTitle + "/" + spineItem.href;
     }
 
-    public void speakAudio() {
-        if (mediaItemPosition < mediaItems.size()) {
-            isSpeaking = true;
-            HashMap<String, String> params = new HashMap<>();
-            OverlayItems items = mediaItems.get(mediaItemPosition);
-            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
-            mWebview.loadUrl((String.format("javascript:alert(highlightTTS('%s','%s'))", escape(items.getText()), highlightStyle)));
-            mTextToSpeech.speak(items.getText(), TextToSpeech.QUEUE_FLUSH, params);
-            mediaItemPosition++;
-        }
+    public void speakAudio(String sentence) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
+        mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
+        mediaItemPosition++;
     }
 
     private String escape(String str) {
@@ -294,27 +279,29 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
                         }
                     }
                 } else {
-                    if (spineItem.typeLink.equals("application/xhtml+xml")) {
-                        if (hasMediaOverlay) {
-                            if (event.isPlay()) {
-                                UiUtil.keepScreenAwake(true, getActivity());
-                                startPlaying();
-                            } else {
-                                UiUtil.keepScreenAwake(false, getActivity());
-                                pausePlaying();
-                            }
+                    if (event.isPlay()) {
+                        UiUtil.keepScreenAwake(true, getActivity());
+                    } else {
+                        UiUtil.keepScreenAwake(false, getActivity());
+                    }
+                    if (hasMediaOverlay) {
+                        if (event.isPlay()) {
+                            startPlaying();
                         } else {
-                            if (event.isPlay()) {
-                                UiUtil.keepScreenAwake(true, getActivity());
-                                speakAudio();
-                            } else {
-                                UiUtil.keepScreenAwake(false, getActivity());
-                                isSpeaking = false;
-                                mTextToSpeech.stop();
-                            }
+                            pausePlaying();
                         }
                     } else {
-                        Toast.makeText(getActivity(), "Audio not available for this page", Toast.LENGTH_SHORT).show();
+                        if (mTextToSpeech.isSpeaking()) {
+                            mTextToSpeech.stop();
+                            mIsSpeaking = false;
+                            resetCurrentIndex();
+                            //mFolioActivity.resetCurrentIndex();
+                        } else {
+                            mIsSpeaking = true;
+                            if (isAdded()) {
+                                mWebview.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))");
+                            }
+                        }
                     }
                 }
             }
@@ -351,7 +338,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
 
     /**
      * [EVENT BUS FUNCTION]
-     * TODO change the highlight style in real time
      * Function triggered from {@link FolioActivity#initAudioView()} when new
      * style is selected on button click.
      *
@@ -361,16 +347,24 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     @SuppressWarnings("unused")
     @Subscribe
     public void styleChanged(MediaOverlayHighlightStyleEvent event) {
-        switch (event.getStyle()) {
-            case DEFAULT:
-                highlightStyle = "highlightedTTSBackground";
-                break;
-            case UNDERLINE:
-                highlightStyle = "highlightedTTSUnderline";
-                break;
-            case BACKGROUND:
-                highlightStyle = "highlightedTTSText";
-                break;
+        if (isAdded()) {
+            switch (event.getStyle()) {
+                case DEFAULT:
+                    highlightStyle =
+                            Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
+                    mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), highlightStyle));
+                    break;
+                case UNDERLINE:
+                    highlightStyle =
+                            Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
+                    mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), highlightStyle));
+                    break;
+                case BACKGROUND:
+                    highlightStyle =
+                            Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
+                    mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), highlightStyle));
+                    break;
+            }
         }
     }
 
@@ -437,9 +431,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
                     mediaItems.addAll(SMILParser.parseSMIL(mHtmlString));
                     String audioFile = mediaOverlays.getAudioPath(spineItem.href);
                     setUpPlayer(audioFile);
-                } else {
-                    mediaItems.clear();
-                    mediaItems.addAll(SMILParser.parseSMILForTTS(mHtmlString));
                 }
                 mediaItemPosition = 0;
             }
@@ -478,7 +469,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     };
 
     private void highLightText(String fragmentId) {
-        mWebview.loadUrl(String.format("javascript:alert(audioMarkID('%s','%s'))", highlightStyle, fragmentId));
+        mWebview.loadUrl(String.format(getString(R.string.audio_mark_id), fragmentId));
     }
 
     private void setUpPlayer(String path) {
@@ -498,6 +489,11 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     @Override
     public void onStop() {
         super.onStop();
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+        } else if (mTextToSpeech != null) {
+            mTextToSpeech.shutdown();
+        }
         //TODO save last media overlay item
     }
 
@@ -543,11 +539,12 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
             public void onPageFinished(WebView view, String url) {
                 if (isAdded()) {
                     view.loadUrl("javascript:alert(getReadingTime())");
-                    view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
+                    if (!hasMediaOverlay) {
+                        view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
+                    }
                     view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
                             Highlight.HighlightStyle.classForStyle(
                                     Highlight.HighlightStyle.Normal)));
-
                     if (mWebviewposition != null) {
                         setWebViewPosition(mWebviewposition.getWebviewPos());
                     } else if (isCurrentFragment()) {
@@ -637,8 +634,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
                         } else {
                             if (mIsSpeaking && (!message.equals("undefined"))) {
                                 if (isCurrentFragment()) {
-                                    Log.d("FolioPageFragment", "Message from js: " + message);
-                                    //speakAudio();
+                                    speakAudio(message);
                                 }
                             }
                         }
@@ -959,6 +955,12 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
             highlight(Highlight.HighlightStyle.Pink, isCreated);
         } else if (actionId == ACTION_ID_HIGHLIGHT_UNDERLINE) {
             highlight(Highlight.HighlightStyle.Underline, isCreated);
+        }
+    }
+
+    public void resetCurrentIndex() {
+        if (isCurrentFragment()) {
+            mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
         }
     }
 

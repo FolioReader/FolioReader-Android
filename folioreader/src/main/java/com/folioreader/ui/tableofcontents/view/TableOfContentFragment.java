@@ -36,10 +36,10 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
     private TableOfContentsPresenter presenter;
     private TextView errorView;
 
-    public static TableOfContentFragment newInstance(int selectedChapterPosition) {
+    public static TableOfContentFragment newInstance(String selectedChapterHref) {
         TableOfContentFragment tableOfContentFragment = new TableOfContentFragment();
         Bundle args = new Bundle();
-        args.putInt(SELECTED_CHAPTER_POSITION, selectedChapterPosition);
+        args.putString(SELECTED_CHAPTER_POSITION, selectedChapterHref);
         tableOfContentFragment.setArguments(args);
         return tableOfContentFragment;
     }
@@ -81,7 +81,7 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
 
     @Override
     public void onLoadTOC(ArrayList<TOCLinkWrapper> tocLinkWrapperList) {
-        mTOCAdapter = new TOCAdapter(getActivity(), tocLinkWrapperList);
+        mTOCAdapter = new TOCAdapter(getActivity(), tocLinkWrapperList,getArguments().getString(SELECTED_CHAPTER_POSITION));
         mTOCAdapter.setCallback(this);
         mTableOfContentsRecyclerView.setAdapter(mTOCAdapter);
     }

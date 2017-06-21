@@ -183,18 +183,7 @@ html .highlight-yellow, html .highlight-green, html .highlight-blue, html .highl
     border-radius: 0;
 }
 
-.highlightedTTSUnderline {
-    border-bottom: 2px dotted #C0ED72;
-    text-decoration: none;
-}
 
-.highlightedTTSText {
-    color: #C0ED72
-}
-
-.highlightedTTSBackground {
-    background: #C0ED72
-}
 
 /*
  *

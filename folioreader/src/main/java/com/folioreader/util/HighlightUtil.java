@@ -16,8 +16,8 @@ public class HighlightUtil {
     private static final String TAG = HighlightUtil.class.getSimpleName();
 
     public static Highlight matchHighlight(String html, String highlightId, String bookTitle, int pageNo) {
-        String contentPre = "";
-        String contentPost = "";
+        String contentPre;
+        String contentPost;
         Highlight highlight = null;
         try {
             String pattern = "<highlight id=\"" + highlightId
@@ -27,23 +27,20 @@ public class HighlightUtil {
             if (matcher.find()) {
                 contentPre = html.substring(matcher.start() - mHighlightRange, matcher.start());
                 contentPost = html.substring(matcher.end(), matcher.end() + mHighlightRange);
-                if (contentPre != null && contentPre.contains(">")) {
+                if (contentPre.contains(">")) {
                     Matcher preMatcher = Pattern.compile("((?=[^>]*$)(.|\\s)*$)",
                             Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(contentPre);
                     if (preMatcher.find()) {
-                        String searchString =
-                                contentPre.substring(contentPre.lastIndexOf('>') + 1,
-                                        contentPre.length());
-                        contentPre = searchString;
+                        contentPre = contentPre.substring(contentPre.lastIndexOf('>') + 1,
+                                contentPre.length());
                     }
                 }
-                if (contentPost != null && contentPost.contains("<")) {
+                if (contentPost.contains("<")) {
                     Matcher postMatcher = Pattern.compile("^((.|\\s)*?)(?=<)",
                             Pattern.CASE_INSENSITIVE
                             | Pattern.DOTALL).matcher(contentPost);
                     if (postMatcher.find()) {
-                        String searchString = contentPost.substring(0, contentPost.indexOf('<'));
-                        contentPost = searchString;
+                        contentPost = contentPost.substring(0, contentPost.indexOf('<'));
                     }
                 }
 
@@ -79,7 +76,6 @@ public class HighlightUtil {
 
             html = html.replace(rangeWithSpan, rangeWithoutSpan);
         }
-
         return html;
     }
 }

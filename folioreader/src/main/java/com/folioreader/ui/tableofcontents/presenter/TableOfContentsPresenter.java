@@ -55,7 +55,6 @@ public class TableOfContentsPresenter implements ManifestCallBack {
         ArrayList<TOCLinkWrapper> tocLinkWrappers = new ArrayList<>();
         for (Link link : spine) {
             TOCLink tocLink = new TOCLink();
-            Log.i("TableOfPresenter", link.toString());
             tocLink.bookTitle = link.bookTitle;
             tocLink.href = link.href;
             tocLinkWrappers.add(new TOCLinkWrapper(tocLink, 0));

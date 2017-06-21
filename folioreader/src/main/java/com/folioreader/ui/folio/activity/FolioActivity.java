@@ -33,6 +33,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -144,7 +145,7 @@ public class FolioActivity
         findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
+                Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class).putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
                 overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
             }
@@ -429,7 +430,6 @@ public class FolioActivity
     //*************************************************************************//
     private StyleableTextView mHalfSpeed, mOneSpeed, mTwoSpeed, mOneAndHalfSpeed;
     private StyleableTextView mBackgroundColorStyle, mUnderlineStyle, mTextColorStyle;
-    private String mHighlightStyle;
     private RelativeLayout audioContainer;
     private boolean mIsSpeaking;
     private ImageButton mPlayPauseBtn;
@@ -464,7 +464,6 @@ public class FolioActivity
         mIsSpeaking = false;
 
         Context mContext = mHalfSpeed.getContext();
-        mHighlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
         mOneAndHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.one_and_half_speed)));
         mHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.half_speed_text)));
         String styleUnderline =
@@ -540,13 +539,9 @@ public class FolioActivity
                 mBackgroundColorStyle.setSelected(true);
                 mUnderlineStyle.setSelected(false);
                 mTextColorStyle.setSelected(false);
-                mHighlightStyle =
-                        Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
-                //mFolioActivity.setHighLightStyle(mHighlightStyle);
                 FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.DEFAULT));
             }
         });
-
 
         mUnderlineStyle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -554,13 +549,10 @@ public class FolioActivity
                 mBackgroundColorStyle.setSelected(false);
                 mUnderlineStyle.setSelected(true);
                 mTextColorStyle.setSelected(false);
-                mHighlightStyle =
-                        Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
                 FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.UNDERLINE));
 
             }
         });
-
 
         mTextColorStyle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -568,8 +560,6 @@ public class FolioActivity
                 mBackgroundColorStyle.setSelected(false);
                 mUnderlineStyle.setSelected(false);
                 mTextColorStyle.setSelected(true);
-                mHighlightStyle =
-                        Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
                 FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.BACKGROUND));
             }
         });

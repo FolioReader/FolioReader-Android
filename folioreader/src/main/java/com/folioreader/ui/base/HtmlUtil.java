@@ -94,18 +94,16 @@ public final class HtmlUtil {
                 break;
         }
 
-        htmlContent = htmlContent.replace("<p>", "");
-        htmlContent = htmlContent.replace("</p>", "<br><br>");
         htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
         ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBookTitle);
         for (Highlight highlight : highlights) {
-            String highlightStr = highlight.getContentPre() +
+            String highlightStr =
                     "<highlight id=\"" + highlight.getHighlightId() +
-                    "\" onclick=\"callHighlightURL(this);\" class=\"" +
-                    highlight.getType() + "\">" + highlight.getContent() + "</highlight>" + highlight.getContentPost();
+                            "\" onclick=\"callHighlightURL(this);\" class=\"" +
+                            highlight.getType() + "\">" + highlight.getContent() + "</highlight>";
             String searchStr = highlight.getContentPre() +
                     "" + highlight.getContent() + "" + highlight.getContentPost();
-            htmlContent = htmlContent.replaceFirst(Pattern.quote(searchStr), highlightStr);
+            htmlContent = htmlContent.replaceFirst(searchStr, highlightStr);
         }
         return htmlContent;
     }

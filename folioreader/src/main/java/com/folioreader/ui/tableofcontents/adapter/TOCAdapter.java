@@ -3,6 +3,7 @@ package com.folioreader.ui.tableofcontents.adapter;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,10 +26,12 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
 
     private static TOCCallback callback;
     private final Context mContext;
+    private String selectedHref;
 
-    public TOCAdapter(Context context, ArrayList<TOCLinkWrapper> tocLinkWrappers) {
+    public TOCAdapter(Context context, ArrayList<TOCLinkWrapper> tocLinkWrappers, String selectedHref) {
         super(tocLinkWrappers);
         mContext = context;
+        this.selectedHref = selectedHref;
     }
 
     public void setCallback(TOCCallback callback) {
@@ -80,6 +83,9 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
             viewHolder.children.setVisibility(View.INVISIBLE);
         } else {
             viewHolder.children.setVisibility(View.VISIBLE);
+        }
+        if (tocLinkWrapper.getTocLink().href.equals(selectedHref)) {
+            viewHolder.sectionTitle.setTextColor(Color.GREEN);
         }
     }
 
