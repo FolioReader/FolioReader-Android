@@ -1,16 +1,12 @@
 package com.folioreader.ui.folio.fragment;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -39,14 +35,15 @@ import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.event.RewindIndexEvent;
 import com.folioreader.model.event.WebViewPosition;
-import com.folioreader.model.media_overlay.OverlayItems;
 import com.folioreader.model.quickaction.ActionItem;
 import com.folioreader.model.quickaction.QuickAction;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.base.HtmlTask;
 import com.folioreader.ui.base.HtmlTaskCallback;
 import com.folioreader.ui.base.HtmlUtil;
+import com.folioreader.ui.folio.mediaoverlay.MediaController;
 import com.folioreader.ui.folio.activity.FolioActivity;
+import com.folioreader.ui.folio.mediaoverlay.MediaControllerCallbacks;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.util.SMILParser;
@@ -55,16 +52,11 @@ import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 import com.squareup.otto.Subscribe;
 
-import org.readium.r2_streamer.model.publication.SMIL.Clip;
 import org.readium.r2_streamer.model.publication.SMIL.MediaOverlays;
 import org.readium.r2_streamer.model.publication.link.Link;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -73,7 +65,7 @@ import java.util.regex.Pattern;
 /**
  * Created by mahavir on 4/2/16.
  */
-public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
+public class FolioPageFragment extends Fragment implements HtmlTaskCallback, MediaControllerCallbacks {
 
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.ui.folio.fragment.FolioPageFragment.POSITION";
     public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.BOOK_TITLE";
@@ -122,7 +114,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     private int mScrollY;
     private int mTotalMinutes;
     private String mSelectedText;
-    private boolean mIsSpeaking = false;
     private Map<String, String> mHighlightMap;
     private Animation mFadeInAnimation, mFadeOutAnimation;
 
@@ -130,29 +121,13 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     private int mPosition = -1;
     private String mBookTitle;
     private String mEpubFileName = null;
-    private boolean mIsSmilAvailable;
     private int mPos;
     private boolean mIsPageReloaded;
     private int mLastWebviewScrollpos;
 
-    //**********************************//
-    //          MEDIA OVERLAY           //
-    //**********************************//
-    private MediaOverlays mediaOverlays;
-    private List<OverlayItems> mediaItems = new ArrayList<>();
-    private int mediaItemPosition = 0;
-    private MediaPlayer mediaPlayer;
-
-    private Clip currentClip;
-
-    private boolean isMediaPlayerReady;
-    private Handler mediaHandler;
-
-    //*********************************//
-    //              TTS                //
-    //*********************************//
-    private TextToSpeech mTextToSpeech;
     private String highlightStyle;
+
+    private MediaController mediaController;
 
     public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -180,11 +155,13 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
             mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
             spineItem = (Link) getArguments().getSerializable(SPINE_ITEM);
         }
-        isMediaPlayerReady = false;
         if (spineItem != null) {
             if (spineItem.properties.contains("media-overlay")) {
-                mediaOverlays = spineItem.mediaOverlay;
+                mediaController = new MediaController(getActivity(), MediaController.MediaType.SMIL, this);
                 hasMediaOverlay = true;
+            } else {
+                mediaController = new MediaController(getActivity(), MediaController.MediaType.TTS, this);
+                mediaController.setTextToSpeech(getActivity());
             }
         }
         highlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
@@ -196,31 +173,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
 
         FolioActivity.BUS.register(this);
 
-        mTextToSpeech = new TextToSpeech(getActivity(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status != TextToSpeech.ERROR) {
-                    mTextToSpeech.setLanguage(Locale.UK);
-                    mTextToSpeech.setSpeechRate(0.70f);
-                }
-
-                mTextToSpeech.setOnUtteranceCompletedListener(
-                        new TextToSpeech.OnUtteranceCompletedListener() {
-                            @Override
-                            public void onUtteranceCompleted(String utteranceId) {
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (mIsSpeaking) {
-                                            mWebview.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))");
-                                        }
-                                    }
-                                });
-                            }
-                        });
-            }
-        });
-
         initSeekbar();
         initAnimations();
         initWebView();
@@ -230,18 +182,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
 
     private String getWebviewUrl() {
         return Constants.LOCALHOST + mBookTitle + "/" + spineItem.href;
-    }
-
-    public void speakAudio(String sentence) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
-        mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
-        mediaItemPosition++;
-    }
-
-    private String escape(String str) {
-        String a = str.replace("\"", "\\\"");
-        return a.replace("\'", "\\'");
     }
 
     @Override
@@ -269,41 +209,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
     public void pauseButtonClicked(MediaOverlayPlayPauseEvent event) {
         if (isAdded()) {
             if (spineItem.href.equals(event.getHref())) {
-                if (event.isStateChanged()) {
-                    if (mediaPlayer != null) {
-                        mediaPlayer.pause();
-                    }
-                    if (mTextToSpeech != null) {
-                        if (mTextToSpeech.isSpeaking()) {
-                            mTextToSpeech.stop();
-                        }
-                    }
-                } else {
-                    if (event.isPlay()) {
-                        UiUtil.keepScreenAwake(true, getActivity());
-                    } else {
-                        UiUtil.keepScreenAwake(false, getActivity());
-                    }
-                    if (hasMediaOverlay) {
-                        if (event.isPlay()) {
-                            startPlaying();
-                        } else {
-                            pausePlaying();
-                        }
-                    } else {
-                        if (mTextToSpeech.isSpeaking()) {
-                            mTextToSpeech.stop();
-                            mIsSpeaking = false;
-                            resetCurrentIndex();
-                            //mFolioActivity.resetCurrentIndex();
-                        } else {
-                            mIsSpeaking = true;
-                            if (isAdded()) {
-                                mWebview.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))");
-                            }
-                        }
-                    }
-                }
+                mediaController.stateChanged(event);
             }
         }
     }
@@ -317,23 +223,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
      *              type HALF,ONE,ONE_HALF and TWO.
      */
     @SuppressWarnings("unused")
-    @TargetApi(Build.VERSION_CODES.M)
     @Subscribe
     public void speedChanged(MediaOverlaySpeedEvent event) {
-        switch (event.getSpeed()) {
-            case HALF:
-                setPlaybackSpeed(0.5f);
-                break;
-            case ONE:
-                setPlaybackSpeed(1.0f);
-                break;
-            case ONE_HALF:
-                setPlaybackSpeed(1.5f);
-                break;
-            case TWO:
-                setPlaybackSpeed(2.0f);
-                break;
-        }
+        mediaController.setSpeed(event.getSpeed());
     }
 
     /**
@@ -383,37 +275,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
         }
     }
 
-    private void setPlaybackSpeed(float speed) {
-        if (hasMediaOverlay) {
-            //TODO media Player
-        } else {
-            mTextToSpeech.setSpeechRate(speed);
-        }
-    }
-
-    private void pausePlaying() {
-        if (isMediaPlayerReady && mediaPlayer != null) {
-            mediaPlayer.pause();
-        }
-        if (mTextToSpeech != null && mTextToSpeech.isSpeaking()) {
-            mTextToSpeech.stop();
-        }
-    }
-
-    private void startPlaying() {
-        if (isMediaPlayerReady && mediaPlayer != null) {
-            currentClip = mediaOverlays.clip(mediaItems.get(mediaItemPosition).getId());
-            if (currentClip != null) {
-                mediaPlayer.start();
-                mediaHandler.post(mHighlightTask);
-            } else {
-                mediaItemPosition++;
-                mediaPlayer.start();
-                mediaHandler.post(mHighlightTask);
-            }
-        }
-    }
-
     @Override
     public void onReceiveHtml(String html) {
         if (isAdded()) {
@@ -427,12 +288,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
             String ref = spineItem.href;
             if (!reloaded) {
                 if (spineItem.properties.contains("media-overlay")) {
-                    mediaItems.clear();
-                    mediaItems.addAll(SMILParser.parseSMIL(mHtmlString));
-                    String audioFile = mediaOverlays.getAudioPath(spineItem.href);
-                    setUpPlayer(audioFile);
+                    mediaController.setSMILItems(SMILParser.parseSMIL(mHtmlString));
+                    mediaController.setUpMediaPlayer(spineItem.mediaOverlay, spineItem.mediaOverlay.getAudioPath(spineItem.href), mBookTitle);
                 }
-                mediaItemPosition = 0;
             }
             String path = ref.substring(0, ref.lastIndexOf("/"));
             mWebview.loadDataWithBaseURL(
@@ -444,56 +302,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
         }
     }
 
-    private Runnable mHighlightTask = new Runnable() {
-        @Override
-        public void run() {
-            int currentPosition = mediaPlayer.getCurrentPosition();
-            if (mediaPlayer.getDuration() != currentPosition) {
-                if (mediaItemPosition < mediaItems.size()) {
-                    int end = (int) currentClip.end * 1000;
-                    if (currentPosition > end) {
-                        mediaItemPosition++;
-                        currentClip = mediaOverlays.clip(mediaItems.get(mediaItemPosition).getId());
-                        if (currentClip != null) {
-                            highLightText(mediaItems.get(mediaItemPosition).getId());
-                        } else {
-                            mediaItemPosition++;
-                        }
-                    }
-                    mediaHandler.postDelayed(mHighlightTask, 10);
-                } else {
-                    mediaHandler.removeCallbacks(mHighlightTask);
-                }
-            }
-        }
-    };
-
-    private void highLightText(String fragmentId) {
-        mWebview.loadUrl(String.format(getString(R.string.audio_mark_id), fragmentId));
-    }
-
-    private void setUpPlayer(String path) {
-        mediaHandler = new Handler();
-        try {
-            mediaItemPosition = 0;
-            String uri = Constants.LOCALHOST + mBookTitle + "/" + path;
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource(uri);
-            mediaPlayer.prepare();
-            isMediaPlayerReady = true;
-        } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
-        }
-    }
-
     @Override
     public void onStop() {
         super.onStop();
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-        } else if (mTextToSpeech != null) {
-            mTextToSpeech.shutdown();
-        }
+        mediaController.stop();
         //TODO save last media overlay item
     }
 
@@ -612,6 +424,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
 
             @Override
             public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+                Log.i("FolioActivity", "message = " + message);
                 if (FolioPageFragment.this.isVisible()) {
                     if (TextUtils.isDigitsOnly(message)) {
                         mTotalMinutes = Integer.parseInt(message);
@@ -632,9 +445,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
                                     (int) (UiUtil.convertDpToPixel((float) height,
                                             getActivity())));
                         } else {
-                            if (mIsSpeaking && (!message.equals("undefined"))) {
+                            if ((!message.equals("undefined"))) {
                                 if (isCurrentFragment()) {
-                                    speakAudio(message);
+                                    mediaController.speakAudio(message);
                                 }
                             }
                         }
@@ -958,6 +771,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
         }
     }
 
+    @Override
     public void resetCurrentIndex() {
         if (isCurrentFragment()) {
             mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
@@ -1004,6 +818,16 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
         });
     }
 
+    @Override
+    public void highLightText(String fragmentId) {
+        mWebview.loadUrl(String.format(getString(R.string.audio_mark_id), fragmentId));
+    }
+
+    @Override
+    public void highLightTTS() {
+        mWebview.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))");
+    }
+
     @JavascriptInterface
     public void getRemovedHighlightId(String id) {
         if (id != null) {
@@ -1035,23 +859,5 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback {
 
     @Override
     public void onError() {
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mTextToSpeech != null) {
-            if (mTextToSpeech.isSpeaking()) {
-                mTextToSpeech.stop();
-            }
-        }
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-                mediaPlayer.release();
-                mediaPlayer = null;
-                mediaHandler.removeCallbacks(mHighlightTask);
-            }
-        }
     }
 }
