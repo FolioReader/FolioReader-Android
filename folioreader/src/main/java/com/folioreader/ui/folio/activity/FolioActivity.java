@@ -381,7 +381,6 @@ public class FolioActivity
                     if (spine.href.contains(data.getStringExtra(SELECTED_CHAPTER_POSITION))) {
                         mChapterPosition = mSpineReferenceList.indexOf(spine);
                         mFolioPageViewPager.setCurrentItem(mChapterPosition);
-                        Log.i("Test", "title = " + data.getStringExtra(BOOK_TITLE));
                         title.setText(data.getStringExtra(BOOK_TITLE));
                         break;
                     }
@@ -390,15 +389,8 @@ public class FolioActivity
                 Highlight highlight = data.getParcelableExtra(HIGHLIGHT_ITEM);
                 mWebViewScrollPosition = highlight.getCurrentWebviewScrollPos();
                 int position = highlight.getCurrentPagerPostion();
-                if (position != mChapterPosition) {
-                    if ((mChapterPosition == (position - 1)) || (mChapterPosition == (position + 1))) {
-                        mFolioPageViewPager.setCurrentItem(position);
-                        BUS.post(new WebViewPosition(position, mSpineReferenceList.get(mChapterPosition).href));
-                    } else {
-                        mWebViewScrollPosition = highlight.getCurrentWebviewScrollPos();
-                        mFolioPageViewPager.setCurrentItem(position);
-                    }
-                }
+                mFolioPageViewPager.setCurrentItem(position);
+                BUS.post(new WebViewPosition(mWebViewScrollPosition, mSpineReferenceList.get(mChapterPosition).href));
             }
         }
     }

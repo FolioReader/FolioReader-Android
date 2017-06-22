@@ -1,7 +1,7 @@
 package com.folioreader.ui.folio.mediaoverlay;
 
 /**
- * Created by gautam on 21/6/17.
+ * @author gautam chibde on 21/6/17.
  */
 
 public interface MediaControllerCallbacks {

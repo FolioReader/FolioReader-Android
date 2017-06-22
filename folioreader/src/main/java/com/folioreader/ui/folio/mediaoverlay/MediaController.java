@@ -220,7 +220,6 @@ public class MediaController {
 
     public void speakAudio(String sentence) {
         if (mediaType == MediaType.TTS) {
-            Log.i("FolioActivity", ",speakAudio js = " + sentence);
             HashMap<String, String> params = new HashMap<>();
             params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
             mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);

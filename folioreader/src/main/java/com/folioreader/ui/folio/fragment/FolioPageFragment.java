@@ -41,8 +41,8 @@ import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.base.HtmlTask;
 import com.folioreader.ui.base.HtmlTaskCallback;
 import com.folioreader.ui.base.HtmlUtil;
-import com.folioreader.ui.folio.mediaoverlay.MediaController;
 import com.folioreader.ui.folio.activity.FolioActivity;
+import com.folioreader.ui.folio.mediaoverlay.MediaController;
 import com.folioreader.ui.folio.mediaoverlay.MediaControllerCallbacks;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.HighlightUtil;
@@ -52,7 +52,6 @@ import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 import com.squareup.otto.Subscribe;
 
-import org.readium.r2_streamer.model.publication.SMIL.MediaOverlays;
 import org.readium.r2_streamer.model.publication.link.Link;
 
 import java.io.UnsupportedEncodingException;
@@ -244,19 +243,17 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                 case DEFAULT:
                     highlightStyle =
                             Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
-                    mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), highlightStyle));
                     break;
                 case UNDERLINE:
                     highlightStyle =
                             Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
-                    mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), highlightStyle));
                     break;
                 case BACKGROUND:
                     highlightStyle =
                             Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
-                    mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), highlightStyle));
                     break;
             }
+            mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), highlightStyle));
         }
     }
 
@@ -424,7 +421,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
             @Override
             public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-                Log.i("FolioActivity", "message = " + message);
+                Log.i("FolioActivityREG", "message = " + message);
                 if (FolioPageFragment.this.isVisible()) {
                     if (TextUtils.isDigitsOnly(message)) {
                         mTotalMinutes = Integer.parseInt(message);
@@ -432,6 +429,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         final Pattern pattern = Pattern.compile(getString(R.string.pattern));
                         Matcher matcher = pattern.matcher(message);
                         if (matcher.matches()) {
+                            Log.i("FolioActivityREG", "mateches = " + message);
                             double left = Double.parseDouble(matcher.group(1));
                             double top = Double.parseDouble(matcher.group(2));
                             double width = Double.parseDouble(matcher.group(3));
@@ -445,7 +443,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                                     (int) (UiUtil.convertDpToPixel((float) height,
                                             getActivity())));
                         } else {
-                            if ((!message.equals("undefined"))) {
+                            // to handle TTS playback when highlight is deleted.
+                            Pattern p = Pattern.compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}");
+                            if (!p.matcher(message).matches() && (!message.equals("undefined"))) {
                                 if (isCurrentFragment()) {
                                     mediaController.speakAudio(message);
                                 }
