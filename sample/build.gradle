@@ -55,8 +55,6 @@ android {
   }
 }
 
-
-
 dependencies {
   compile project(':folioreader')
   compile 'com.android.support:appcompat-v7:25.1.0'

@@ -1,6 +1,5 @@
 package com.folioreader.model.sqlite;
 
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;

@@ -58,10 +58,6 @@ dependencies {
     compile project(':webViewMarker-release')
 
     final ANDROID_LIB_VERSION = '25.1.0'
-//
-//    compile project(':r2-fetcher')
-//    compile project(':r2-parser')
-//    compile project(':r2-server')
 
     compile "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
     compile "com.android.support:recyclerview-v7:$ANDROID_LIB_VERSION"

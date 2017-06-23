@@ -47,7 +47,7 @@ public class HighlightFragment extends Fragment implements HightlightAdapter.Hig
         }
 
         highlightsView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        HightlightAdapter adapter = new HightlightAdapter(HighLightTable.getAllHighlights(FolioActivity.EPUB_TITLE), this);
+        HightlightAdapter adapter = new HightlightAdapter(getActivity(), HighLightTable.getAllHighlights(FolioActivity.EPUB_TITLE), this);
         highlightsView.setAdapter(adapter);
     }
 

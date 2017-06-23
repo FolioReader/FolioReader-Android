@@ -1,7 +1,5 @@
 package com.folioreader.ui.tableofcontents.presenter;
 
-import android.util.Log;
-
 import com.folioreader.model.TOCLinkWrapper;
 import com.folioreader.ui.base.ManifestCallBack;
 import com.folioreader.ui.base.ManifestTask;

@@ -1,5 +1,7 @@
 package com.folioreader.ui.folio.adapter;
 
+import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,8 +24,10 @@ import java.util.List;
 public class HightlightAdapter extends RecyclerView.Adapter<HightlightAdapter.HighlightHolder> {
     private List<Highlight> highlights;
     private HighLightAdapterCallback callback;
+    private Context context;
 
-    public HightlightAdapter(List<Highlight> highlights, HighLightAdapterCallback callback) {
+    public HightlightAdapter(Context context, List<Highlight> highlights, HighLightAdapterCallback callback) {
+        this.context = context;
         this.highlights = highlights;
         this.callback = callback;
     }
@@ -37,6 +41,8 @@ public class HightlightAdapter extends RecyclerView.Adapter<HightlightAdapter.Hi
     @Override
     public void onBindViewHolder(HighlightHolder holder, final int position) {
         holder.content.setText(getItem(position).getContent());
+        Highlight.HighlightStyle style = Highlight.HighlightStyle.styleForClass(getItem(position).getType());
+        holder.content.setTextColor(ContextCompat.getColor(context, Highlight.HighlightStyle.colorForStyle(style, false)));
         holder.date.setText(AppUtil.formatDate(getItem(position).getDate()));
         holder.container.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,12 +77,12 @@ public class HightlightAdapter extends RecyclerView.Adapter<HightlightAdapter.Hi
 
     static class HighlightHolder extends RecyclerView.ViewHolder {
         public UnderlinedTextView content;
-        public ImageView delete;
-        public ImageView editNote;
+        private ImageView delete;
+        private ImageView editNote;
         TextView date;
         LinearLayout container;
 
-        public HighlightHolder(View itemView) {
+        HighlightHolder(View itemView) {
             super(itemView);
             container = (LinearLayout) itemView.findViewById(R.id.container);
             content = (UnderlinedTextView) itemView.findViewById(R.id.utv_highlight_content);

@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 import static com.folioreader.Constants.BOOK_STATE;
@@ -51,9 +52,8 @@ public class AppUtil {
     }
 
     public static String formatDate(Date hightlightDate) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy | HH:mm");
-        String date = simpleDateFormat.format(hightlightDate);
-        return date;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy | HH:mm", Locale.getDefault());
+        return simpleDateFormat.format(hightlightDate);
     }
 
     public static void saveBookState(Context context, String bookTitle, int folioPageViewPagerPosition, int webViewScrollPosition) {

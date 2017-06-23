@@ -8,7 +8,6 @@ import com.folioreader.model.Highlight;
 import com.folioreader.model.sqlite.HighLightTable;
 
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 /**
  * @author gautam chibde on 14/6/17.

@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.readium.r2_streamer.model.publication.EpubPublication;
-import org.readium.r2_streamer.model.publication.link.Link;
 import org.readium.r2_streamer.model.tableofcontents.TOCLink;
 
 import java.io.BufferedReader;
@@ -14,7 +13,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
 
 /**
  * Background async task which makes API call to get Epub publication
