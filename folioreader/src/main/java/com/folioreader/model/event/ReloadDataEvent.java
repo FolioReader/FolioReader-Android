@@ -1,8 +1,8 @@
 package com.folioreader.model.event;
 
 /**
- * Created by PC on 12/15/2016.
+ * This event is used when web page in {@link com.folioreader.ui.folio.fragment.FolioPageFragment}
+ * is to reloaded.
  */
-
 public class ReloadDataEvent {
 }

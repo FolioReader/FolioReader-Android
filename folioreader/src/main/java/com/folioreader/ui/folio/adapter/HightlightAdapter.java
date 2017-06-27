@@ -2,12 +2,14 @@ package com.folioreader.ui.folio.adapter;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.folioreader.R;
@@ -39,7 +41,7 @@ public class HightlightAdapter extends RecyclerView.Adapter<HightlightAdapter.Hi
     }
 
     @Override
-    public void onBindViewHolder(HighlightHolder holder, final int position) {
+    public void onBindViewHolder(final HighlightHolder holder, final int position) {
         holder.content.setText(getItem(position).getContent());
         Highlight.HighlightStyle style = Highlight.HighlightStyle.styleForClass(getItem(position).getType());
         holder.content.setTextColor(ContextCompat.getColor(context, Highlight.HighlightStyle.colorForStyle(style, false)));
@@ -47,7 +49,7 @@ public class HightlightAdapter extends RecyclerView.Adapter<HightlightAdapter.Hi
         holder.container.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.activityForResults(getItem(position));
+                callback.onItemClick(getItem(position));
             }
         });
         holder.delete.setOnClickListener(new View.OnClickListener() {
@@ -61,9 +63,34 @@ public class HightlightAdapter extends RecyclerView.Adapter<HightlightAdapter.Hi
         holder.editNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.editHighlight(getItem(position));
+                callback.editNote(getItem(position), position);
             }
         });
+        if (getItem(position).getNote() != null) {
+            if (getItem(position).getNote().isEmpty()) {
+                holder.note.setVisibility(View.GONE);
+            } else {
+                holder.note.setVisibility(View.VISIBLE);
+                holder.note.setText(getItem(position).getNote());
+            }
+        } else {
+            holder.note.setVisibility(View.GONE);
+        }
+        holder.container.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                final int height = holder.container.getHeight();
+                ((AppCompatActivity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ViewGroup.LayoutParams params =
+                                holder.swipeLinearlayout.getLayoutParams();
+                        params.height = height;
+                        holder.swipeLinearlayout.setLayoutParams(params);
+                    }
+                });
+            }
+        }, 20);
     }
 
     private Highlight getItem(int position) {
@@ -75,28 +102,36 @@ public class HightlightAdapter extends RecyclerView.Adapter<HightlightAdapter.Hi
         return highlights.size();
     }
 
+    public void editNote(String note, int position) {
+        highlights.get(position).setNote(note);
+        notifyItemChanged(position);
+    }
+
     static class HighlightHolder extends RecyclerView.ViewHolder {
-        public UnderlinedTextView content;
-        private ImageView delete;
-        private ImageView editNote;
-        TextView date;
-        LinearLayout container;
+        private UnderlinedTextView content;
+        private ImageView delete, editNote;
+        private TextView date;
+        private RelativeLayout container;
+        private TextView note;
+        private LinearLayout swipeLinearlayout;
 
         HighlightHolder(View itemView) {
             super(itemView);
-            container = (LinearLayout) itemView.findViewById(R.id.container);
+            container = (RelativeLayout) itemView.findViewById(R.id.container);
+            swipeLinearlayout = (LinearLayout) itemView.findViewById(R.id.swipe_linear_layout);
             content = (UnderlinedTextView) itemView.findViewById(R.id.utv_highlight_content);
             delete = (ImageView) itemView.findViewById(R.id.iv_delete);
             editNote = (ImageView) itemView.findViewById(R.id.iv_edit_note);
             date = (TextView) itemView.findViewById(R.id.tv_highlight_date);
+            note = (TextView) itemView.findViewById(R.id.tv_note);
         }
     }
 
     public interface HighLightAdapterCallback {
-        void activityForResults(Highlight highlight);
+        void onItemClick(Highlight highlight);
 
         void deleteHighlight(String id);
 
-        void editHighlight(Highlight highlight);
+        void editNote(Highlight highlight, int position);
     }
 }

@@ -8,6 +8,7 @@ import com.folioreader.model.Highlight;
 import com.folioreader.model.sqlite.HighLightTable;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 /**
  * @author gautam chibde on 14/6/17.
@@ -96,13 +97,13 @@ public final class HtmlUtil {
         htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
         ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBookTitle);
         for (Highlight highlight : highlights) {
-            String highlightStr =
+            String highlightStr = highlight.getContentPre() +
                     "<highlight id=\"" + highlight.getHighlightId() +
-                            "\" onclick=\"callHighlightURL(this);\" class=\"" +
-                            highlight.getType() + "\">" + highlight.getContent() + "</highlight>";
+                    "\" onclick=\"callHighlightURL(this);\" class=\"" +
+                    highlight.getType() + "\">" + highlight.getContent() + "</highlight>" + highlight.getContentPost();
             String searchStr = highlight.getContentPre() +
                     "" + highlight.getContent() + "" + highlight.getContentPost();
-            htmlContent = htmlContent.replaceFirst(searchStr, highlightStr);
+            htmlContent = htmlContent.replaceFirst(Pattern.quote(searchStr), highlightStr);
         }
         return htmlContent;
     }
