@@ -5,15 +5,17 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Created by gautam on 28/6/17.
+ * @author gautam chibde on 28/6/17.
  */
 
 public class DictionaryTable {
 
-    public static String TABLE_NAME = "highlight_table";
+    public static String TABLE_NAME = "dictionary_table";
 
     public static String ID = "_id";
     public static String WORD = "word";
@@ -48,10 +50,10 @@ public class DictionaryTable {
         database.endTransaction();
     }
 
-    public String getMeaning(String word) {
+    public String getMeaningForWord(String word) {
         Cursor c = database.rawQuery("SELECT * FROM "
                 + TABLE_NAME +
-                " WHERE " + WORD + " = '" + word.trim()+"'", null);
+                " WHERE " + WORD + " = '" + word.trim() + "'", null);
         if (c.moveToFirst()) {
             String toRetuen = c.getString(2);
             c.close();
@@ -59,5 +61,27 @@ public class DictionaryTable {
         }
         c.close();
         return null;
+    }
+
+    public List<String> getMeaning(String word) {
+        List<String> words = new ArrayList<>();
+        String meaning = getMeaningForWord(word);
+        if (meaning != null) {
+            words.add(meaning);
+            return words;
+        } else {
+            return getProbableCombinations(word);
+        }
+    }
+
+    private List<String> getProbableCombinations(String word) {
+        List<String> combinations = new ArrayList<>();
+        for (int i = 1; i <= 3; i++) {
+            String m = getMeaningForWord(word.substring(0, word.length() - i));
+            if (m != null) {
+                combinations.add(m);
+            }
+        }
+        return combinations;
     }
 }
