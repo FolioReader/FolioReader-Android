@@ -18,4 +18,6 @@ public class Constants {
     public static final String SPINE_REFRENCES = "spine_refrenecs";
     public static final int PORT_NUMBER = 8080;
     public static final String LOCALHOST = "http://127.0.0.1:" + PORT_NUMBER + "/";
+    public static final String SELECTED_WORD = "selected_word";
+    public static final String DICTIONARY_BASE_URL = "http://api.pearson.com/v2/dictionaries/entries?headword=";
 }

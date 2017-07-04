@@ -421,7 +421,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
             @Override
             public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-                Log.i("FolioActivityREG", "message = " + message);
                 if (FolioPageFragment.this.isVisible()) {
                     if (TextUtils.isDigitsOnly(message)) {
                         mTotalMinutes = Integer.parseInt(message);
@@ -429,7 +428,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         final Pattern pattern = Pattern.compile(getString(R.string.pattern));
                         Matcher matcher = pattern.matcher(message);
                         if (matcher.matches()) {
-                            Log.i("FolioActivityREG", "mateches = " + message);
                             double left = Double.parseDouble(matcher.group(1));
                             double top = Double.parseDouble(matcher.group(2));
                             double width = Double.parseDouble(matcher.group(3));
@@ -642,8 +640,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                 getString(R.string.copy)));
         quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT,
                 getString(R.string.highlight)));
-        quickAction.addActionItem(new ActionItem(ACTION_ID_DEFINE,
-                getString(R.string.define)));
+        if (!mSelectedText.trim().contains(" ")) {
+            quickAction.addActionItem(new ActionItem(ACTION_ID_DEFINE,
+                    getString(R.string.define)));
+        }
         quickAction.addActionItem(new ActionItem(ACTION_ID_SHARE,
                 getString(R.string.share)));
         quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
@@ -664,10 +664,18 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         } else if (actionId == ACTION_ID_SHARE) {
             UiUtil.share(getActivity(), mSelectedText);
         } else if (actionId == ACTION_ID_DEFINE) {
-            //TODO: Check how to use define
+            showDictDialog(mSelectedText);
         } else if (actionId == ACTION_ID_HIGHLIGHT) {
             onHighlight(view, width, height, true);
         }
+    }
+
+    private void showDictDialog(String mSelectedText) {
+        DictionaryFragment dictionaryFragment = new DictionaryFragment();
+        Bundle b = new Bundle();
+        b.putString(Constants.SELECTED_WORD, mSelectedText);
+        dictionaryFragment.setArguments(b);
+        dictionaryFragment.show(getFragmentManager(), DictionaryFragment.class.getName());
     }
 
     private void onHighlight(int x, int y, int width, int height) {

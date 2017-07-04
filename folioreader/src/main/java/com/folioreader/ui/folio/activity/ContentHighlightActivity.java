@@ -15,7 +15,6 @@ import com.folioreader.ui.tableofcontents.view.TableOfContentFragment;
 import com.folioreader.util.UiUtil;
 
 public class ContentHighlightActivity extends AppCompatActivity {
-    private int mSelectedChapterPosition;
     private boolean mIsNightMode;
 
     @Override
@@ -23,7 +22,6 @@ public class ContentHighlightActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_highlight);
         getSupportActionBar().hide();
-        mSelectedChapterPosition = getIntent().getIntExtra(Constants.SELECTED_CHAPTER_POSITION, 0);
         mIsNightMode = Config.getConfig().isNightMode();
         initViews();
     }
