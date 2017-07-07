@@ -18,6 +18,7 @@ package com.folioreader.ui.folio.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -49,6 +50,7 @@ import com.folioreader.ui.folio.presenter.MainMvpView;
 import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
+import com.folioreader.util.ProgressDialog;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
 import com.folioreader.view.StyleableTextView;
@@ -412,7 +414,21 @@ public class FolioActivity
         if (publication.metadata.title != null) {
             title.setText(publication.metadata.title);
         }
-        loadBook();
+
+        final Dialog pgDailog = ProgressDialog.show(FolioActivity.this,
+                getString(R.string.please_wait));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadBook();
+                        if (pgDailog != null && pgDailog.isShowing()) pgDailog.dismiss();
+                    }
+                });
+            }
+        }).start();
     }
 
     //*************************************************************************//

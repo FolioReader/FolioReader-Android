@@ -20,4 +20,5 @@ public class Constants {
     public static final String LOCALHOST = "http://127.0.0.1:" + PORT_NUMBER + "/";
     public static final String SELECTED_WORD = "selected_word";
     public static final String DICTIONARY_BASE_URL = "http://api.pearson.com/v2/dictionaries/entries?headword=";
+    public static final String WIKIPEDIA_API_URL = "https://en.wikipedia.org/w/api.php?action=opensearch&namespace=0&format=json&search=";
 }

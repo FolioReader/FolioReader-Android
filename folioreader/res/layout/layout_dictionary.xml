@@ -79,6 +79,8 @@
             android:layout_height="match_parent"
             android:scrollbars="vertical" />
 
+        <include layout="@layout/layout_wikipedia" />
+
         <ProgressBar
             android:id="@+id/progress"
             android:layout_width="wrap_content"

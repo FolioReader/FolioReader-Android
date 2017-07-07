@@ -9,19 +9,24 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.dictionary.Dictionary;
+import com.folioreader.model.dictionary.Wikipedia;
 import com.folioreader.ui.base.DictionaryCallBack;
 import com.folioreader.ui.base.DictionaryTask;
+import com.folioreader.ui.base.WikipediaCallBack;
+import com.folioreader.ui.base.WikipediaTask;
 import com.folioreader.ui.folio.adapter.DictionaryAdapter;
 
 import java.io.IOException;
@@ -30,15 +35,17 @@ import java.io.IOException;
  * @author gautam chibde on 4/7/17.
  */
 
-public class DictionaryFragment extends DialogFragment implements DictionaryCallBack {
+public class DictionaryFragment extends DialogFragment implements DictionaryCallBack, WikipediaCallBack {
 
     private String word;
 
     private MediaPlayer mediaPlayer;
     private RecyclerView dictResults;
-    private TextView noNetwork, dictionary, wikipedia;
+    private TextView noNetwork, dictionary, wikipedia, wikiWord, def;
     private ProgressBar progressBar;
     private Button googleSearch;
+    private LinearLayout wikiLayout;
+    private WebView wikiWebView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,6 +77,15 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
         googleSearch = (Button) view.findViewById(R.id.btn_google_search);
         dictionary = (TextView) view.findViewById(R.id.btn_dictionary);
         wikipedia = (TextView) view.findViewById(R.id.btn_wikipedia);
+
+        wikiLayout = (LinearLayout) view.findViewById(R.id.ll_wiki);
+        wikiWord = (TextView) view.findViewById(R.id.tv_word);
+        def = (TextView) view.findViewById(R.id.tv_def);
+        wikiWebView = (WebView) view.findViewById(R.id.wv_wiki);
+        wikiWebView.getSettings().setLoadsImagesAutomatically(true);
+        wikiWebView.setWebViewClient(new WebViewClient());
+        wikiWebView.getSettings().setJavaScriptEnabled(true);
+        wikiWebView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 
         dictionary.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,14 +123,20 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
     private void loadDictionary() {
         dictionary.setSelected(true);
         wikipedia.setSelected(false);
+        wikiLayout.setVisibility(View.GONE);
+        dictResults.setVisibility(View.VISIBLE);
         DictionaryTask task = new DictionaryTask(this);
         String baseUrl = Constants.DICTIONARY_BASE_URL + word.trim();
         task.execute(baseUrl);
     }
 
     private void loadWikipedia() {
+        wikiLayout.setVisibility(View.VISIBLE);
+        dictResults.setVisibility(View.GONE);
         dictionary.setSelected(false);
         wikipedia.setSelected(true);
+        WikipediaTask task = new WikipediaTask(this);
+        task.execute(Constants.WIKIPEDIA_API_URL + word.trim());
     }
 
     @Override
@@ -133,6 +155,20 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
         } else {
             dictResults.setAdapter(new DictionaryAdapter(dictionary.getResults(), getActivity(), this));
         }
+    }
+
+    @Override
+    public void onWikipediaDataReceived(Wikipedia wikipedia) {
+        wikiWord.setText(wikipedia.getWord());
+        if (wikipedia.getDefinition().trim().isEmpty()) {
+            def.setVisibility(View.GONE);
+        } else {
+            String definition = "\"" +
+                    wikipedia.getDefinition() +
+                    "\"";
+            def.setText(definition);
+        }
+        wikiWebView.loadUrl(wikipedia.getLink());
     }
 
     //TODO
