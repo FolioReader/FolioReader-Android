@@ -46,6 +46,7 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
     private Button googleSearch;
     private LinearLayout wikiLayout;
     private WebView wikiWebView;
+    private DictionaryAdapter mAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -117,10 +118,17 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
             }
         });
         dictResults.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mAdapter = new DictionaryAdapter(getActivity(), this);
         loadDictionary();
     }
 
     private void loadDictionary() {
+        if(noNetwork.getVisibility() == View.VISIBLE || googleSearch.getVisibility() == View.VISIBLE) {
+            noNetwork.setVisibility(View.GONE);
+            googleSearch.setVisibility(View.GONE);
+        }
+        wikiWebView.loadUrl("about:blank");
+        mAdapter.clear();
         dictionary.setSelected(true);
         wikipedia.setSelected(false);
         wikiLayout.setVisibility(View.GONE);
@@ -131,6 +139,12 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
     }
 
     private void loadWikipedia() {
+        if(noNetwork.getVisibility() == View.VISIBLE || googleSearch.getVisibility() == View.VISIBLE) {
+            noNetwork.setVisibility(View.GONE);
+            googleSearch.setVisibility(View.GONE);
+        }
+        wikiWebView.loadUrl("about:blank");
+        mAdapter.clear();
         wikiLayout.setVisibility(View.VISIBLE);
         dictResults.setVisibility(View.GONE);
         dictionary.setSelected(false);
@@ -143,6 +157,8 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
     public void onError() {
         noNetwork.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.GONE);
+        noNetwork.setText("offline");
+        googleSearch.setVisibility(View.GONE);
     }
 
     @Override
@@ -153,7 +169,8 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
             googleSearch.setVisibility(View.VISIBLE);
             noNetwork.setText("Word not found");
         } else {
-            dictResults.setAdapter(new DictionaryAdapter(dictionary.getResults(), getActivity(), this));
+            mAdapter.setResults(dictionary.getResults());
+            dictResults.setAdapter(mAdapter);
         }
     }
 

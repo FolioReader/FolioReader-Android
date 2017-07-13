@@ -18,6 +18,7 @@ import com.folioreader.model.dictionary.Pronunciations;
 import com.folioreader.model.dictionary.Senses;
 import com.folioreader.ui.base.DictionaryCallBack;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,8 +31,8 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
     private Context context;
     private DictionaryCallBack callBack;
 
-    public DictionaryAdapter(List<DictionaryResults> results, Context context, DictionaryCallBack callBack) {
-        this.results = results;
+    public DictionaryAdapter(Context context, DictionaryCallBack callBack) {
+        this.results = new ArrayList<>();
         this.context = context;
         this.callBack = callBack;
     }
@@ -119,6 +120,18 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
             }
         }
         return null;
+    }
+
+    public void setResults(List<DictionaryResults> resultsList) {
+        if(resultsList != null && !resultsList.isEmpty()) {
+            results.addAll(resultsList);
+            notifyDataSetChanged();
+        }
+    }
+
+    public void clear() {
+        results.clear();
+        notifyItemRangeRemoved(0, results.size());
     }
 
     @Override
