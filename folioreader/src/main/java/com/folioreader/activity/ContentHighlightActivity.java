@@ -25,7 +25,9 @@ public class ContentHighlightActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_highlight);
-        getSupportActionBar().hide();
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
         mBookTitle = getIntent().getStringExtra(Constants.BOOK_TITLE);
         mBookPath = getIntent().getStringExtra(Constants.BOOK_FILE_PATH);
         mSelectedChapterPosition = getIntent().getIntExtra(Constants.SELECTED_CHAPTER_POSITION, 0);
