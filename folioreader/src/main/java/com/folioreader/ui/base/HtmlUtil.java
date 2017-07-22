@@ -3,6 +3,7 @@ package com.folioreader.ui.base;
 import android.content.Context;
 
 import com.folioreader.Config;
+import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.Highlight;
 import com.folioreader.model.sqlite.HighLightTable;
@@ -54,16 +55,16 @@ public final class HtmlUtil {
         String classes = "";
         Config config = Config.getConfig();
         switch (config.getFont()) {
-            case 0:
+            case Constants.FONT_ANDADA:
                 classes = "andada";
                 break;
-            case 1:
+            case Constants.FONT_LATO:
                 classes = "lato";
                 break;
-            case 2:
+            case Constants.FONT_LORA:
                 classes = "lora";
                 break;
-            case 3:
+            case Constants.FONT_RALEWAY:
                 classes = "raleway";
                 break;
             default:

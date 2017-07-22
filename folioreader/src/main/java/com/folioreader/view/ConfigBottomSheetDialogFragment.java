@@ -17,6 +17,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.folioreader.Config;
+import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.model.event.ReloadDataEvent;
@@ -30,11 +31,6 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
 
     public static final int DAY_BUTTON = 30;
     public static final int NIGHT_BUTTON = 31;
-
-    private static final int FONT_ANDADA = 1;
-    private static final int FONT_LATO = 2;
-    private static final int FONT_LORA = 3;
-    private static final int FONT_RALEWAY = 4;
     private static final int FADE_DAY_NIGHT_MODE = 500;
 
     private CoordinatorLayout.Behavior mBehavior;
@@ -123,28 +119,28 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         mDialog.findViewById(R.id.btn_font_andada).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectFont(FONT_ANDADA, true);
+                selectFont(Constants.FONT_ANDADA, true);
             }
         });
 
         mDialog.findViewById(R.id.btn_font_lato).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectFont(FONT_LATO, true);
+                selectFont(Constants.FONT_LATO, true);
             }
         });
 
         mDialog.findViewById(R.id.btn_font_lora).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectFont(FONT_LORA, true);
+                selectFont(Constants.FONT_LORA, true);
             }
         });
 
         mDialog.findViewById(R.id.btn_font_raleway).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectFont(FONT_RALEWAY, true);
+                selectFont(Constants.FONT_RALEWAY, true);
             }
         });
 
@@ -169,22 +165,22 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     }
 
     private void selectFont(int selectedFont, boolean isReloadNeeded) {
-        if (selectedFont == FONT_ANDADA) {
+        if (selectedFont == Constants.FONT_ANDADA) {
             mDialog.findViewById(R.id.btn_font_andada).setSelected(true);
             mDialog.findViewById(R.id.btn_font_lato).setSelected(false);
             mDialog.findViewById(R.id.btn_font_lora).setSelected(false);
             mDialog.findViewById(R.id.btn_font_raleway).setSelected(false);
-        } else if (selectedFont == FONT_LATO) {
+        } else if (selectedFont == Constants.FONT_LATO) {
             mDialog.findViewById(R.id.btn_font_andada).setSelected(false);
             mDialog.findViewById(R.id.btn_font_lato).setSelected(true);
             mDialog.findViewById(R.id.btn_font_lora).setSelected(false);
             mDialog.findViewById(R.id.btn_font_raleway).setSelected(false);
-        } else if (selectedFont == FONT_LORA) {
+        } else if (selectedFont == Constants.FONT_LORA) {
             mDialog.findViewById(R.id.btn_font_andada).setSelected(false);
             mDialog.findViewById(R.id.btn_font_lato).setSelected(false);
             mDialog.findViewById(R.id.btn_font_lora).setSelected(true);
             mDialog.findViewById(R.id.btn_font_raleway).setSelected(false);
-        } else if (selectedFont == FONT_RALEWAY) {
+        } else if (selectedFont == Constants.FONT_RALEWAY) {
             mDialog.findViewById(R.id.btn_font_andada).setSelected(false);
             mDialog.findViewById(R.id.btn_font_lato).setSelected(false);
             mDialog.findViewById(R.id.btn_font_lora).setSelected(false);
