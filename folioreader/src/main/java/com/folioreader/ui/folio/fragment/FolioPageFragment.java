@@ -269,6 +269,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             mLastWebviewScrollpos = mWebview.getScrollY();
             mIsPageReloaded = true;
             setHtml(true);
+            updatePagesLeftTextBg();
         }
     }
 
