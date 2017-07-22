@@ -25,12 +25,12 @@ import com.folioreader.model.Highlight;
 import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.folio.activity.FolioActivity;
-import com.folioreader.ui.folio.adapter.HightlightAdapter;
+import com.folioreader.ui.folio.adapter.HighlightAdapter;
 
-public class HighlightFragment extends Fragment implements HightlightAdapter.HighLightAdapterCallback {
+public class HighlightFragment extends Fragment implements HighlightAdapter.HighLightAdapterCallback {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private View mRootView;
-    private HightlightAdapter adapter;
+    private HighlightAdapter adapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,13 +49,13 @@ public class HighlightFragment extends Fragment implements HightlightAdapter.Hig
         super.onViewCreated(view, savedInstanceState);
         RecyclerView highlightsView = (RecyclerView) mRootView.findViewById(R.id.rv_highlights);
         if (Config.getConfig().isNightMode()) {
-            mRootView.findViewById(R.id.main)
-                    .setBackgroundColor(ContextCompat.getColor(getActivity(),
+            mRootView.findViewById(R.id.rv_highlights).
+                    setBackgroundColor(ContextCompat.getColor(getActivity(),
                             R.color.black));
         }
         highlightsView.setLayoutManager(new LinearLayoutManager(getActivity()));
         highlightsView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
-        adapter = new HightlightAdapter(getActivity(), HighLightTable.getAllHighlights(FolioActivity.EPUB_TITLE), this);
+        adapter = new HighlightAdapter(getActivity(), HighLightTable.getAllHighlights(FolioActivity.EPUB_TITLE), this);
         highlightsView.setAdapter(adapter);
     }
 

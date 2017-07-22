@@ -2,13 +2,16 @@ package com.folioreader.ui.tableofcontents.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.model.TOCLinkWrapper;
 import com.folioreader.util.MultiLevelExpIndListAdapter;
@@ -47,6 +50,7 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         TOCRowViewHolder viewHolder = (TOCRowViewHolder) holder;
         TOCLinkWrapper tocLinkWrapper = (TOCLinkWrapper) getItemAt(position);
+
         if (tocLinkWrapper.getChildren() == null || tocLinkWrapper.getChildren().isEmpty()) {
             viewHolder.children.setVisibility(View.INVISIBLE);
         } else {
@@ -83,6 +87,22 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
         } else {
             viewHolder.children.setVisibility(View.VISIBLE);
         }
+
+        if(Config.getConfig().isNightMode()){
+            viewHolder.container.setBackgroundColor(ContextCompat.getColor(mContext,
+                    R.color.black));
+            viewHolder.children.setBackgroundColor(ContextCompat.getColor(mContext,
+                    R.color.white));
+            viewHolder.sectionTitle.setTextColor(ContextCompat.getColor(mContext,
+                    R.color.white));
+        } else {
+            viewHolder.container.setBackgroundColor(ContextCompat.getColor(mContext,
+                    R.color.white));
+            viewHolder.children.setBackgroundColor(ContextCompat.getColor(mContext,
+                    R.color.black));
+            viewHolder.sectionTitle.setTextColor(ContextCompat.getColor(mContext,
+                    R.color.black));
+        }
         if (tocLinkWrapper.getTocLink().href.equals(selectedHref)) {
             viewHolder.sectionTitle.setTextColor(Color.GREEN);
         }
@@ -97,12 +117,14 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
     public static class TOCRowViewHolder extends RecyclerView.ViewHolder {
         public ImageView children;
         TextView sectionTitle;
+        private LinearLayout container;
         private View view;
 
         TOCRowViewHolder(View itemView) {
             super(itemView);
             view = itemView;
             children = (ImageView) itemView.findViewById(R.id.children);
+            container = (LinearLayout) itemView.findViewById(R.id.container);
             children.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

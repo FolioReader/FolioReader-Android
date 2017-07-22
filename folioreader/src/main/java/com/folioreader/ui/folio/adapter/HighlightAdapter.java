@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.model.Highlight;
 import com.folioreader.util.AppUtil;
@@ -23,12 +24,12 @@ import java.util.List;
  * @author gautam chibde on 16/6/17.
  */
 
-public class HightlightAdapter extends RecyclerView.Adapter<HightlightAdapter.HighlightHolder> {
+public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.HighlightHolder> {
     private List<Highlight> highlights;
     private HighLightAdapterCallback callback;
     private Context context;
 
-    public HightlightAdapter(Context context, List<Highlight> highlights, HighLightAdapterCallback callback) {
+    public HighlightAdapter(Context context, List<Highlight> highlights, HighLightAdapterCallback callback) {
         this.context = context;
         this.highlights = highlights;
         this.callback = callback;
@@ -91,6 +92,21 @@ public class HightlightAdapter extends RecyclerView.Adapter<HightlightAdapter.Hi
                 });
             }
         }, 20);
+        if(Config.getConfig().isNightMode()){
+            holder.container.setBackgroundColor(ContextCompat.getColor(context,
+                    R.color.black));
+            holder.note.setTextColor(ContextCompat.getColor(context,
+                    R.color.white));
+            holder.date.setTextColor(ContextCompat.getColor(context,
+                    R.color.white));
+        } else {
+            holder.container.setBackgroundColor(ContextCompat.getColor(context,
+                    R.color.white));
+            holder.note.setTextColor(ContextCompat.getColor(context,
+                    R.color.black));
+            holder.date.setTextColor(ContextCompat.getColor(context,
+                    R.color.black));
+        }
     }
 
     private Highlight getItem(int position) {
