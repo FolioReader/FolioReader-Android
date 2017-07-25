@@ -270,6 +270,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     mDayButton.setSelected(true);
                     mNightButton.setSelected(false);
                     setToolBarColor();
+                    setAudioPlayerBackground();
                 }
                 break;
             case NIGHT_BUTTON:
@@ -279,6 +280,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     mDayButton.setSelected(false);
                     mNightButton.setSelected(true);
                     setToolBarColor();
+                    setAudioPlayerBackground();
                 }
                 break;
             default:
@@ -303,5 +305,17 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     setTextColor(getResources().getColor(R.color.white));
         }
 
+    }
+
+    private void setAudioPlayerBackground() {
+        if(mIsNightMode) {
+            ((Activity) getContext()).
+                    findViewById(R.id.container).
+                    setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
+        } else {
+            ((Activity) getContext()).
+                    findViewById(R.id.container).
+                    setBackgroundColor(ContextCompat.getColor(getContext(), R.color.night));
+        }
     }
 }
