@@ -18,6 +18,7 @@ package com.folioreader.ui.folio.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +37,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.Highlight;
@@ -112,6 +114,7 @@ public class FolioActivity
 
     private Animation slide_down;
     private Animation slide_up;
+    private boolean mIsNightMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,6 +170,13 @@ public class FolioActivity
                 isOpen = !isOpen;
             }
         });
+
+        mIsNightMode = Config.getConfig().isNightMode();
+        if (mIsNightMode) {
+            mToolbar.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.black));
+            title.setTextColor(ContextCompat.getColor(FolioActivity.this, R.color.white));
+            audioContainer.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.night));
+        }
     }
 
     private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
