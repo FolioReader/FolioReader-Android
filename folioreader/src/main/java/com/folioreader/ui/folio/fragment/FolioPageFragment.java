@@ -858,6 +858,12 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(mWebview != null) mWebview.destroy();
+    }
+
     private boolean isCurrentFragment() {
         return isAdded() && ((FolioActivity) getActivity()).getmChapterPosition() == mPos;
     }
