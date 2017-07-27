@@ -18,7 +18,6 @@ package com.folioreader.ui.folio.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -323,6 +322,19 @@ public class FolioActivity
     @Override
     public void setLastWebViewPosition(int position) {
         this.mWebViewScrollPosition = position;
+    }
+
+    @Override
+    public void goToChapter(String href) {
+        href = href.substring(href.indexOf(EPUB_TITLE + "/") + EPUB_TITLE.length() + 1);
+        for (Link spine : mSpineReferenceList) {
+            if (spine.href.contains(href)) {
+                mChapterPosition = mSpineReferenceList.indexOf(spine);
+                mFolioPageViewPager.setCurrentItem(mChapterPosition);
+                title.setText(spine.getChapterTitle());
+                break;
+            }
+        }
     }
 
     private void toolbarAnimateShow(final int verticalOffset) {

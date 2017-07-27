@@ -100,6 +100,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         void setPagerToPosition(String href);
 
         void setLastWebViewPosition(int position);
+
+        void goToChapter(String href);
     }
 
     private View mRootView;
@@ -394,6 +396,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     } else {
                         if (url.contains("storage")) {
                             mActivityCallback.setPagerToPosition(url);
+                        } else if (url.endsWith(".xhtml") || url.endsWith(".html")){
+                            mActivityCallback.goToChapter(url);
                         } else {
                             // Otherwise, give the default behavior (open in browser)
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
