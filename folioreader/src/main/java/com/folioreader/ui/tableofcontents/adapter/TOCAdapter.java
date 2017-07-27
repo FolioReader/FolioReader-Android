@@ -58,10 +58,18 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
         }
         viewHolder.sectionTitle.setText(tocLinkWrapper.getTocLink().bookTitle);
 
-        if (tocLinkWrapper.isGroup()) {
-            viewHolder.children.setImageResource(R.drawable.ic_plus_black_24dp);
+        if(Config.getConfig().isNightMode()) {
+            if (tocLinkWrapper.isGroup()) {
+                viewHolder.children.setImageResource(R.drawable.ic_plus_white_24dp);
+            } else {
+                viewHolder.children.setImageResource(R.drawable.ic_minus_white_24dp);
+            }
         } else {
-            viewHolder.children.setImageResource(R.drawable.ic_minus_black_24dp);
+            if (tocLinkWrapper.isGroup()) {
+                viewHolder.children.setImageResource(R.drawable.ic_plus_black_24dp);
+            } else {
+                viewHolder.children.setImageResource(R.drawable.ic_minus_black_24dp);
+            }
         }
 
         int leftPadding = getPaddingPixels(mContext, LEVEL_ONE_PADDING_PIXEL) * (tocLinkWrapper.getIndentation());
@@ -92,14 +100,14 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
             viewHolder.container.setBackgroundColor(ContextCompat.getColor(mContext,
                     R.color.black));
             viewHolder.children.setBackgroundColor(ContextCompat.getColor(mContext,
-                    R.color.white));
+                    R.color.black));
             viewHolder.sectionTitle.setTextColor(ContextCompat.getColor(mContext,
                     R.color.white));
         } else {
             viewHolder.container.setBackgroundColor(ContextCompat.getColor(mContext,
                     R.color.white));
             viewHolder.children.setBackgroundColor(ContextCompat.getColor(mContext,
-                    R.color.black));
+                    R.color.white));
             viewHolder.sectionTitle.setTextColor(ContextCompat.getColor(mContext,
                     R.color.black));
         }
