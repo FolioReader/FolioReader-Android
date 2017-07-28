@@ -508,10 +508,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     private void updatePagesLeftText(int scrollY) {
         try {
-            int currentPage = (int) (Math.ceil((double) scrollY / mWebview.getWebviewHeight()) + 1);
+            int currentPage = (int) (Math.ceil((double) scrollY / mWebview.getWebViewHeight()) + 1);
             int totalPages =
                     (int) Math.ceil((double) mWebview.getContentHeightVal()
-                            / mWebview.getWebviewHeight());
+                            / mWebview.getWebViewHeight());
             int pagesRemaining = totalPages - currentPage;
             String pagesRemainingStrFormat =
                     pagesRemaining > 1 ?
@@ -577,21 +577,14 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         });
     }
 
-    private Runnable mHideSeekbarRunnable = new Runnable() {
-        @Override
-        public void run() {
-            fadeoutSeekbarIfVisible();
-        }
-    };
-
-    public void fadeInSeekbarIfInvisible() {
+    public void fadeInSeekBarIfInvisible() {
         if (mScrollSeekbar.getVisibility() == View.INVISIBLE ||
                 mScrollSeekbar.getVisibility() == View.GONE) {
             mScrollSeekbar.startAnimation(mFadeInAnimation);
         }
     }
 
-    private void fadeoutSeekbarIfVisible() {
+    public void fadeOutSeekBarIfVisible() {
         if (mScrollSeekbar.getVisibility() == View.VISIBLE) {
             mScrollSeekbar.startAnimation(mFadeOutAnimation);
         }

@@ -29,8 +29,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -304,7 +306,7 @@ public class FolioActivity
         if (mIsActionBarVisible) {
             toolbarAnimateHide();
         } else {
-            toolbarAnimateShow(1);
+            toolbarAnimateShow();
         }
     }
 
@@ -337,48 +339,16 @@ public class FolioActivity
         }
     }
 
-    private void toolbarAnimateShow(final int verticalOffset) {
-        mToolbar.animate()
-                .translationY(0)
-                .setInterpolator(new LinearInterpolator())
-                .setDuration(180)
-                .setListener(new AnimatorListenerAdapter() {
-
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        toolbarSetElevation(verticalOffset == 0 ? 0 : 1);
-                    }
-                });
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mIsActionBarVisible) {
-                            toolbarAnimateHide();
-                        }
-                    }
-                });
-            }
-        }, 10000);
-
-        mIsActionBarVisible = true;
+    private void toolbarAnimateShow() {
+        if (!mIsActionBarVisible) {
+            mToolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
+            mIsActionBarVisible = true;
+        }
     }
 
     private void toolbarAnimateHide() {
-        mToolbar.animate()
-                .translationY(-mToolbar.getHeight())
-                .setInterpolator(new LinearInterpolator())
-                .setDuration(180)
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        toolbarSetElevation(0);
-                    }
-                });
         mIsActionBarVisible = false;
+        mToolbar.animate().translationY(-mToolbar.getHeight()).setInterpolator(new AccelerateInterpolator(2)).start();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
