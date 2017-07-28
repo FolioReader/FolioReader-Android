@@ -40,6 +40,7 @@ import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.Highlight;
+import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
@@ -399,11 +400,13 @@ public class FolioActivity
 
             String type = data.getStringExtra(TYPE);
             if (type.equals(CHAPTER_SELECTED)) {
+                String selectedChapterHref = data.getStringExtra(SELECTED_CHAPTER_POSITION);
                 for (Link spine : mSpineReferenceList) {
-                    if (spine.href.contains(data.getStringExtra(SELECTED_CHAPTER_POSITION))) {
+                    if (selectedChapterHref.contains(spine.href)) {
                         mChapterPosition = mSpineReferenceList.indexOf(spine);
                         mFolioPageViewPager.setCurrentItem(mChapterPosition);
                         title.setText(data.getStringExtra(BOOK_TITLE));
+                        BUS.post(new AnchorIdEvent(selectedChapterHref));
                         break;
                     }
                 }

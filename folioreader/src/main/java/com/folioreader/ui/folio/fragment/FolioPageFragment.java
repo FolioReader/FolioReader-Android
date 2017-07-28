@@ -29,6 +29,7 @@ import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.Highlight;
+import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
@@ -90,6 +91,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private WebViewPosition mWebviewposition;
     private String mHtmlString = null;
     private boolean hasMediaOverlay = false;
+    private String mAnchorId;
 
     public interface FolioPageFragmentCallback {
 
@@ -275,6 +277,26 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         }
     }
 
+    /**
+     * [EVENT BUS FUNCTION]
+     * Function triggered from {@link FolioActivity#onActivityResult(int, int, Intent)} when any item in toc clicked.
+     *
+     * @param event of type {@link AnchorIdEvent} contains selected chapter href.
+     */
+    @Subscribe
+    public void jumpToAnchorPoint(AnchorIdEvent event) {
+        if(isAdded()) {
+            if(event != null && event.getHref() != null) {
+                String href = event.getHref();
+                if (href != null && href.indexOf('#') != -1) {
+                    if (spineItem.href.equals(href.substring(0, href.lastIndexOf('#')))) {
+                        mAnchorId = href.substring(href.lastIndexOf('#') + 1);
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void onReceiveHtml(String html) {
         if (isAdded()) {
@@ -350,6 +372,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             @Override
             public void onPageFinished(WebView view, String url) {
                 if (isAdded()) {
+                    if(mAnchorId != null)
+                        view.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
                     view.loadUrl("javascript:alert(getReadingTime())");
                     if (!hasMediaOverlay) {
                         view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
