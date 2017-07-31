@@ -21,7 +21,8 @@ public class ObservableWebView extends WebView {
 
     private FolioPageFragment mFolioPageFragment;
     private FolioPageFragment.FolioPageFragmentCallback mActivityCallback;
-    private boolean isScrolling = false;
+    private float mDownPosX = 0;
+    private float mDownPosY = 0;
 
     public interface ScrollListener {
         void onScrollChange(int percent);
@@ -54,19 +55,20 @@ public class ObservableWebView extends WebView {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         mActivityCallback = (FolioActivity) getContext();
+
         final int action = event.getAction();
+        float MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
+
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                if (!isScrolling) {
-                    mFolioPageFragment.fadeInSeekBarIfInvisible();
-                    isScrolling = true;
-                }
+                mDownPosX = event.getX();
+                mDownPosY = event.getY();
+                mFolioPageFragment.fadeInSeekBarIfInvisible();
                 break;
             case MotionEvent.ACTION_UP:
-                mActivityCallback.hideOrshowToolBar();
-                if (isScrolling) {
-                    mFolioPageFragment.fadeOutSeekBarIfVisible();
-                    isScrolling = false;
+                if (Math.abs(event.getX() - mDownPosX) < MOVE_THRESHOLD_DP
+                        || Math.abs(event.getY() - mDownPosY) < MOVE_THRESHOLD_DP) {
+                    mActivityCallback.hideOrshowToolBar();
                 }
                 break;
         }

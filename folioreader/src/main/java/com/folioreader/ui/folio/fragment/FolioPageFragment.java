@@ -575,6 +575,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
             @Override
             public void onAnimationEnd(Animation animation) {
+                fadeOutSeekBarIfVisible();
             }
 
             @Override
