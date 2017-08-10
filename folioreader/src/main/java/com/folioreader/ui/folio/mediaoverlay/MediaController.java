@@ -163,7 +163,9 @@ public class MediaController {
     @TargetApi(Build.VERSION_CODES.M)
     private void setPlaybackSpeed(float speed) {
         if (mediaType == MediaType.SMIL) {
-            mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(speed));
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(speed));
+            }
         } else {
             mTextToSpeech.setSpeechRate(speed);
         }
