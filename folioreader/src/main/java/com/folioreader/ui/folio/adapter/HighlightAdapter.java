@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.model.Highlight;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.UiUtil;
 import com.folioreader.view.UnderlinedTextView;
 
 import java.util.List;
@@ -43,9 +45,9 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
 
     @Override
     public void onBindViewHolder(final HighlightHolder holder, final int position) {
-        holder.content.setText(getItem(position).getContent());
-        Highlight.HighlightStyle style = Highlight.HighlightStyle.styleForClass(getItem(position).getType());
-        holder.content.setTextColor(ContextCompat.getColor(context, Highlight.HighlightStyle.colorForStyle(style, false)));
+        holder.content.setText(Html.fromHtml(getItem(position).getContent()));
+        UiUtil.setBackColorToTextView(holder.content,
+                getItem(position).getType());
         holder.date.setText(AppUtil.formatDate(getItem(position).getDate()));
         holder.container.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,14 +87,14 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
                     @Override
                     public void run() {
                         ViewGroup.LayoutParams params =
-                                holder.swipeLinearlayout.getLayoutParams();
+                                holder.swipeLinearLayout.getLayoutParams();
                         params.height = height;
-                        holder.swipeLinearlayout.setLayoutParams(params);
+                        holder.swipeLinearLayout.setLayoutParams(params);
                     }
                 });
             }
         }, 20);
-        if(Config.getConfig().isNightMode()){
+        if (Config.getConfig().isNightMode()) {
             holder.container.setBackgroundColor(ContextCompat.getColor(context,
                     R.color.black));
             holder.note.setTextColor(ContextCompat.getColor(context,
@@ -129,12 +131,12 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
         private TextView date;
         private RelativeLayout container;
         private TextView note;
-        private LinearLayout swipeLinearlayout;
+        private LinearLayout swipeLinearLayout;
 
         HighlightHolder(View itemView) {
             super(itemView);
             container = (RelativeLayout) itemView.findViewById(R.id.container);
-            swipeLinearlayout = (LinearLayout) itemView.findViewById(R.id.swipe_linear_layout);
+            swipeLinearLayout = (LinearLayout) itemView.findViewById(R.id.swipe_linear_layout);
             content = (UnderlinedTextView) itemView.findViewById(R.id.utv_highlight_content);
             delete = (ImageView) itemView.findViewById(R.id.iv_delete);
             editNote = (ImageView) itemView.findViewById(R.id.iv_edit_note);
