@@ -8,10 +8,9 @@ import android.os.Parcelable;
  */
 public class Config implements Parcelable {
     private static Config mConfig;
-
-    int font;
-    int fontSize;
-    boolean nightMode;
+    private int font;
+    private int fontSize;
+    private boolean nightMode;
 
     public Config(int font, int fontSize, boolean nightMode) {
         this.font = font;
@@ -19,13 +18,13 @@ public class Config implements Parcelable {
         this.nightMode = nightMode;
     }
 
-    public Config() {
+    private Config() {
         fontSize = 2;
         font = 3;
         nightMode = false;
     }
 
-    protected Config(Parcel in) {
+    private Config(Parcel in) {
         readFromParcel(in);
     }
 
@@ -66,10 +65,7 @@ public class Config implements Parcelable {
 
         Config config = (Config) o;
 
-        if (font != config.font) return false;
-        if (fontSize != config.fontSize) return false;
-        return nightMode == config.nightMode;
-
+        return font == config.font && fontSize == config.fontSize && nightMode == config.nightMode;
     }
 
     @Override
@@ -104,7 +100,7 @@ public class Config implements Parcelable {
         dest.writeInt(nightMode ? 1 : 0);
     }
 
-    public void readFromParcel(Parcel in) {
+    private void readFromParcel(Parcel in) {
         font = in.readInt();
         fontSize = in.readInt();
         nightMode = in.readInt() == 1;

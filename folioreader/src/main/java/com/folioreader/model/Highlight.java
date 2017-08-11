@@ -1,10 +1,9 @@
 package com.folioreader.model;
 
-/*import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;*/
-
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.folioreader.R;
 
 import java.util.Date;
 
@@ -23,7 +22,7 @@ public class Highlight implements Parcelable {
     public static final String LOCAL_DB_HIGHLIGHT_TYPE = "type";
     public static final String MEDIA_OVERLAY_STYLE = "epub-media-overlay-playing";
 
-    public static enum HighlightStyle {
+    public enum HighlightStyle {
         Yellow,
         Green,
         Blue,
@@ -79,37 +78,37 @@ public class Highlight implements Parcelable {
             }
         }
 
-        static String colorForStyle(HighlightStyle style, boolean nightMode) {
+        public static int colorForStyle(HighlightStyle style, boolean nightMode) {
             switch (style) {
                 case Yellow:
-                    return "#FFEB6B";
+                    return R.color.yellow;
                 case Green:
-                    return "#C0ED72";
+                    return R.color.green;
                 case Blue:
-                    return "#ADD8FF";
+                    return R.color.blue;
                 case Pink:
-                    return "#FFB0CA";
+                    return R.color.pink;
                 case Underline:
-                    return "#F02814";
+                    return R.color.underline;
                 default:
-                    return "#FFEB6B";
+                    return R.color.yellow;
             }
         }
     }
 
 
-    int id;
-    String bookId;
-    String content;
-    String contentPost;
-    String contentPre;
-    Date date;
-    String highlightId;
-    int page;
-    String type;
-    int currentPagerPostion;
-    int currentWebviewScrollPos;
-    String note;
+    private int id;
+    private String bookId;
+    private String content;
+    private String contentPost;
+    private String contentPre;
+    private Date date;
+    private String highlightId;
+    private int page;
+    private String type;
+    private int currentPagerPostion;
+    private int currentWebviewScrollPos;
+    private String note;
 
     public Highlight() {
     }
@@ -129,7 +128,7 @@ public class Highlight implements Parcelable {
         this.note = note;
     }
 
-    public Highlight(String bookId, String content, String contentPost,String contentPre, Date date, String highlightId, int page, String type, int currentPagerPostion, int currentWebviewScrollPos, String note) {
+    public Highlight(String bookId, String content, String contentPost, String contentPre, Date date, String highlightId, int page, String type, int currentPagerPostion, int currentWebviewScrollPos, String note) {
         this.bookId = bookId;
         this.content = content;
         this.contentPost = contentPost;

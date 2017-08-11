@@ -2,15 +2,15 @@ package com.folioreader.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.support.v7.widget.AppCompatSeekBar;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.SeekBar;
 
 /**
  * Created by priyank on 4/19/16.
  */
 
-public class VerticalSeekbar extends SeekBar {
+public class VerticalSeekbar extends AppCompatSeekBar {
 
     public VerticalSeekbar(Context context) {
         super(context);

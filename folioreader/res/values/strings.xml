@@ -87,4 +87,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="debug_start_drag">Starting drag!</string>
     <string name="debug_start_unable_drag">Starting unable to drag!</string>
+    <string name="dictionary">Dictionary</string>
+    <string name="wikipedia">Wikipedia</string>
 </resources>

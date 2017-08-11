@@ -6,15 +6,13 @@ import android.content.res.Resources;
 import android.os.Environment;
 import android.util.Log;
 
-import com.folioreader.activity.FolioActivity;
+import com.folioreader.ui.folio.activity.FolioActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import nl.siegmann.epublib.domain.Book;
 
 /**
  * Created by Mahavir on 12/15/16.
@@ -24,38 +22,31 @@ public class FileUtil {
     private static final String TAG = FileUtil.class.getSimpleName();
     private static final String FOLIO_READER_ROOT = "/folioreader/";
 
-    public static Book saveEpubFile(final Context context, FolioActivity.EpubSourceType epubSourceType, String epubFilePath, int epubRawId, String epubFileName) {
+    public static String saveEpubFileAndLoadLazyBook(final Context context, FolioActivity.EpubSourceType epubSourceType, String epubFilePath, int epubRawId, String epubFileName) {
         String filePath;
         InputStream epubInputStream;
-        Book book = null;
-        boolean isFolderAvalable;
+        boolean isFolderAvailable;
         try {
-            isFolderAvalable = isFolderAvailable(epubFileName);
+            isFolderAvailable = isFolderAvailable(epubFileName);
             filePath = getFolioEpubFilePath(epubSourceType, epubFilePath, epubFileName);
 
-            if (!isFolderAvalable) {
+            if (!isFolderAvailable) {
                 if (epubSourceType.equals(FolioActivity.EpubSourceType.RAW)) {
                     epubInputStream = context.getResources().openRawResource(epubRawId);
                     saveTempEpubFile(filePath, epubFileName, epubInputStream);
-                } else if (epubSourceType.equals(FolioActivity.EpubSourceType.ASSESTS)) {
+                } else if (epubSourceType.equals(FolioActivity.EpubSourceType.ASSETS)) {
                     AssetManager assetManager = context.getAssets();
                     epubInputStream = assetManager.open(epubFilePath);
                     saveTempEpubFile(filePath, epubFileName, epubInputStream);
                 } else {
                     filePath = epubFilePath;
                 }
-
-                new EpubManipulator(filePath, epubFileName, context);
-                book = AppUtil.saveBookToDb(filePath);
-            } else {
-                EpubManipulator epubManipulator= new EpubManipulator(filePath, epubFileName, context);
-                book = epubManipulator.getEpubBook();
             }
-            return book;
-        } catch (Exception e) {
+            return filePath;
+        } catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }
-        return book;
+        return null;
     }
 
     public static String getFolioEpubFolderPath(String epubFileName) {
@@ -110,8 +101,8 @@ public class FileUtil {
             } else {
                 return true;
             }
-            if (inputStream != null) inputStream.close();
-            if (outputStream != null) outputStream.close();
+            inputStream.close();
+            outputStream.close();
         } catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }
