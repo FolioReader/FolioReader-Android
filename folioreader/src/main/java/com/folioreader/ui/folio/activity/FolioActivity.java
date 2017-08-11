@@ -530,7 +530,7 @@ public class FolioActivity
                 mOneSpeed.setSelected(false);
                 mOneAndHalfSpeed.setSelected(false);
                 mTwoSpeed.setSelected(true);
-                FolioActivity.BUS.post(MediaOverlaySpeedEvent.Speed.TWO);
+                FolioActivity.BUS.post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.TWO));
             }
         });
 
