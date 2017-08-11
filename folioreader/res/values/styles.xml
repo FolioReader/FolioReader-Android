@@ -6,10 +6,10 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Animations"/>
+    <style name="Animations" />
 
     <!-- PopDownMenu -->
-    <style name="Animations.PopDownMenu"/>
+    <style name="Animations.PopDownMenu" />
 
     <style name="Animations.PopDownMenu.Center">
         <item name="@android:windowEnterAnimation">@anim/grow_from_top</item>
@@ -32,7 +32,7 @@
     </style>
 
     <!-- PopUpMenu -->
-    <style name="Animations.PopUpMenu"/>
+    <style name="Animations.PopUpMenu" />
 
     <style name="Animations.PopUpMenu.Center">
         <item name="@android:windowEnterAnimation">@anim/grow_from_bottom</item>
@@ -55,8 +55,8 @@
     </style>
 
     <declare-styleable name="UnderlinedTextView">
-        <attr name="underlineWidth" format="dimension"/>
-        <attr name="underlineColor" format="color"/>
+        <attr name="underlineWidth" format="dimension" />
+        <attr name="underlineColor" format="color" />
     </declare-styleable>
 
     <style name="full_screen_dialog" parent="@style/Theme.AppCompat">
@@ -70,8 +70,14 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
     </style>
+
     <style name="DialogCustomTheme" parent="android:Theme.Holo.Dialog.NoActionBar">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
+    </style>
+
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_up</item>
+        <item name="android:windowExitAnimation">@anim/slide_down</item>
     </style>
 </resources>

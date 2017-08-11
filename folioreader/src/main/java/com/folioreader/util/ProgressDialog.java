@@ -1,12 +1,10 @@
 package com.folioreader.util;
 
-
 import android.app.Dialog;
 import android.content.Context;
 import android.widget.TextView;
 
 import com.folioreader.R;
-
 
 public class ProgressDialog {
 

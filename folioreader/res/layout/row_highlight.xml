@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <LinearLayout android:id="@+id/swipe_linear_layout"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/swipe_linear_layout"
         android:layout_width="160dp"
         android:layout_height="0dp">
+
         <ImageView
-            android:id="@+id/edit_note"
+            android:id="@+id/iv_edit_note"
             android:layout_width="80dp"
             android:layout_height="match_parent"
             android:background="#8A2BE2"
             android:paddingLeft="25dp"
             android:paddingRight="25dp"
             android:src="@drawable/edit_note" />
+
         <ImageView
-            android:id="@+id/delete"
+            android:id="@+id/iv_delete"
             android:layout_width="80dp"
             android:layout_height="match_parent"
             android:background="#FF3B30"
@@ -22,61 +26,44 @@
             android:paddingRight="25dp"
             android:src="@drawable/trash" />
     </LinearLayout>
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/main_data"
+
+    <RelativeLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="8dp">
+
         <TextView
-            android:id="@+id/txt_hightlight_time"
+            android:id="@+id/tv_highlight_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
             android:text="20 sep 2016"
-            android:textColor="@color/gray_text"
-            android:textSize="14sp" />
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
         <com.folioreader.view.UnderlinedTextView
-            android:id="@+id/txt_hightlight_text"
+            android:id="@+id/utv_highlight_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/txt_hightlight_time"
-            android:layout_margin="4dp"
+            android:layout_below="@+id/tv_highlight_date"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
             android:ellipsize="end"
             android:maxLines="3"
             android:minLines="1"
-            android:padding="2dp"
-            android:text="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatu"
             android:textColor="@color/black"
-            android:textSize="16sp" />
+            android:textSize="17sp" />
+
         <TextView
-            android:id="@+id/txt_hightlight_note"
+            android:id="@+id/tv_note"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/txt_hightlight_text"
-            android:layout_margin="4dp"
+            android:layout_below="@+id/utv_highlight_content"
             android:ellipsize="end"
-            android:padding="5dp"
             android:text=""
             android:textColor="@color/black"
             android:textSize="14sp" />
-
-        <!-- <com.folioreader.view.UnderlinedTextView
-             android:id="@+id/txt_hightlight_text_underline"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:layout_below="@+id/txt_hightlight_text"
-             android:layout_margin="4dp"
-             android:textColor="@color/black"
-             android:text="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatu"
-             android:maxLines="3"
-             android:minLines="1"
-             android:visibility="gone"
-             app:underlineColor="#ffc112ef"
-             app:underlineWidth="2dp"
-             android:padding="2dp"
-             android:ellipsize="end"/>-->
-
     </RelativeLayout>
-
 </com.daimajia.swipe.SwipeLayout>

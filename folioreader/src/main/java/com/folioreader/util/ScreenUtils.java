@@ -10,8 +10,8 @@ import android.view.WindowManager;
  */
 public class ScreenUtils {
 
-    Context ctx;
-    DisplayMetrics metrics;
+    private Context ctx;
+    private DisplayMetrics metrics;
 
     public ScreenUtils(Context ctx) {
         this.ctx = ctx;

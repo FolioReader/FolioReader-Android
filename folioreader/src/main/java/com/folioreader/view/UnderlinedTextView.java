@@ -1,20 +1,20 @@
 package com.folioreader.view;
 
-import com.folioreader.R;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.Layout;
 import android.util.AttributeSet;
-import android.widget.TextView;
+
+import com.folioreader.R;
 
 /**
  * Created by mobisys on 7/4/2016.
  */
-public class UnderlinedTextView extends TextView {
+public class UnderlinedTextView extends AppCompatTextView {
 
     private Rect mRect;
     private Paint mPaint;

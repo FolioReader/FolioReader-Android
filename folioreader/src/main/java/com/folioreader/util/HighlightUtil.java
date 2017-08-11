@@ -16,8 +16,8 @@ public class HighlightUtil {
     private static final String TAG = HighlightUtil.class.getSimpleName();
 
     public static Highlight matchHighlight(String html, String highlightId, String bookTitle, int pageNo) {
-        String contentPre = "";
-        String contentPost = "";
+        String contentPre;
+        String contentPost;
         Highlight highlight = null;
         try {
             String pattern = "<highlight id=\"" + highlightId
@@ -27,31 +27,34 @@ public class HighlightUtil {
             if (matcher.find()) {
                 contentPre = html.substring(matcher.start() - mHighlightRange, matcher.start());
                 contentPost = html.substring(matcher.end(), matcher.end() + mHighlightRange);
-                if (contentPre != null && contentPre.contains(">")) {
+                if (contentPre.contains(">")) {
                     Matcher preMatcher = Pattern.compile("((?=[^>]*$)(.|\\s)*$)",
                             Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(contentPre);
                     if (preMatcher.find()) {
-                        String searchString =
-                                contentPre.substring(contentPre.lastIndexOf('>') + 1,
-                                        contentPre.length());
-                        contentPre = searchString;
+                        contentPre = contentPre.substring(contentPre.lastIndexOf('>') + 1,
+                                contentPre.length());
                     }
                 }
-                if (contentPost != null && contentPost.contains("<")) {
+                if (contentPost.contains("<")) {
                     Matcher postMatcher = Pattern.compile("^((.|\\s)*?)(?=<)",
                             Pattern.CASE_INSENSITIVE
                             | Pattern.DOTALL).matcher(contentPost);
                     if (postMatcher.find()) {
-                        String searchString = contentPost.substring(0, contentPost.indexOf('<'));
-                        contentPost = searchString;
+                        contentPost = contentPost.substring(0, contentPost.indexOf('<'));
                     }
                 }
+
+                String content = matcher.group(2);
+                content = removeSentenceSpam(content);
+                contentPost = removeSentenceSpam(contentPost);
+                contentPre = removeSentenceSpam(contentPre);
+
                 highlight = new Highlight();
                 highlight.setContentPre(contentPre);
                 highlight.setType(matcher.group(1));
                 highlight.setContentPost(contentPost);
                 highlight.setHighlightId(highlightId);
-                highlight.setContent(matcher.group(2));
+                highlight.setContent(content);
                 highlight.setBookId(bookTitle);
                 highlight.setPage(pageNo);
                 highlight.setDate(Calendar.getInstance().getTime());
@@ -60,5 +63,19 @@ public class HighlightUtil {
             Log.d(TAG, e.getMessage());
         }
         return highlight;
+    }
+
+    private static String removeSentenceSpam(String html) {
+        String pattern = "<span class=\"sentence\">((.|\\s)*?)</span>";
+        Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE
+                | Pattern.DOTALL).matcher(html);
+
+        while (matcher.find()){
+            String rangeWithoutSpan = matcher.group(1);
+            String rangeWithSpan = matcher.group(0);
+
+            html = html.replace(rangeWithSpan, rangeWithoutSpan);
+        }
+        return html;
     }
 }
