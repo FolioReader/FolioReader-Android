@@ -5,12 +5,16 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.res.Configuration;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -21,6 +25,7 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.model.event.ReloadDataEvent;
+import com.folioreader.util.UiUtil;
 
 
 /**
@@ -66,6 +71,17 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     public void setupDialog(Dialog dialog, int style) {
         super.setupDialog(dialog, style);
         View contentView = View.inflate(getContext(), R.layout.view_config, null);
+        contentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                BottomSheetDialog dialog = (BottomSheetDialog) getDialog();
+                FrameLayout bottomSheet = (FrameLayout)
+                        dialog.findViewById(android.support.design.R.id.design_bottom_sheet);
+                BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheet);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                behavior.setPeekHeight(0);
+            }
+        });
         dialog.setContentView(contentView);
         mDialog = dialog;
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
@@ -77,6 +93,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
         initViews();
     }
+
 
     private void initViews() {
         inflateView();
