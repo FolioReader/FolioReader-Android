@@ -101,12 +101,16 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
                     R.color.white));
             holder.date.setTextColor(ContextCompat.getColor(context,
                     R.color.white));
+            holder.content.setTextColor(ContextCompat.getColor(context,
+                    R.color.white));
         } else {
             holder.container.setBackgroundColor(ContextCompat.getColor(context,
                     R.color.white));
             holder.note.setTextColor(ContextCompat.getColor(context,
                     R.color.black));
             holder.date.setTextColor(ContextCompat.getColor(context,
+                    R.color.black));
+            holder.content.setTextColor(ContextCompat.getColor(context,
                     R.color.black));
         }
     }
