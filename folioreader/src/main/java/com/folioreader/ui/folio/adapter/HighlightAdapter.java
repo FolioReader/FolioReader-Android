@@ -60,7 +60,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
             public void onClick(View v) {
                 callback.deleteHighlight(getItem(position).getHighlightId());
                 highlights.remove(position);
-                notifyItemRemoved(position);
+                notifyDataSetChanged();
             }
         });
         holder.editNote.setOnClickListener(new View.OnClickListener() {
@@ -126,7 +126,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
 
     public void editNote(String note, int position) {
         highlights.get(position).setNote(note);
-        notifyItemChanged(position);
+        notifyDataSetChanged();
     }
 
     static class HighlightHolder extends RecyclerView.ViewHolder {
