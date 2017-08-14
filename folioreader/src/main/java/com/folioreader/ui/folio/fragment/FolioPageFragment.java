@@ -812,7 +812,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @JavascriptInterface
     public void getHighlightJson(String mJsonResponse) {
         if (mJsonResponse != null) {
-            mHighlightMap = AppUtil.stringToJsonMap(mJsonResponse);
+            mHighlightMap = AppUtil.toMap(mJsonResponse);
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
