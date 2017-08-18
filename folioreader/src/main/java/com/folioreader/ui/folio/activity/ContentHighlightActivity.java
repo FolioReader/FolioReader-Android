@@ -16,6 +16,7 @@ import com.folioreader.util.UiUtil;
 
 public class ContentHighlightActivity extends AppCompatActivity {
     private boolean mIsNightMode;
+    private String mBookPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

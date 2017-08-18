@@ -12,11 +12,20 @@ android {
   buildToolsVersion "25.0.0"
 
   defaultConfig {
+    applicationId "com.folioreader.android.sample"
+    versionCode Integer.parseInt(project.VERSION_CODE)
+    versionName project.VERSION_NAME
+    minSdkVersion Integer.parseInt(project.ANDROID_MIN_SDK)
+    targetSdkVersion Integer.parseInt(project.ANDROID_TARGET_SDK_VERSION)
+/*
+=======
     applicationId "comfolioreader.android.sample"
     versionCode 1
     versionName "1.0"
     minSdkVersion 16
     targetSdkVersion 25
+>>>>>>> 9b94e7613b9edc8ba39655236775c3bca53064d6
+*/
   }
 
   sourceSets {

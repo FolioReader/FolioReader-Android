@@ -9,7 +9,7 @@ android {
     defaultConfig {
         versionCode 1
         versionName "1.0"
-        minSdkVersion 16
+        minSdkVersion 14
         targetSdkVersion 25
     }
 
@@ -55,7 +55,7 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':webViewMarker-release')
+    compile project(':webViewMarker')
 
     final ANDROID_LIB_VERSION = '25.1.0'
 

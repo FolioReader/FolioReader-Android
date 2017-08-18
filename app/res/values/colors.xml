@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="shadowIndexMenuAndSeparator">#D7D7D7</color>
-    <color name="itemIndex">#575757</color>
-    <color name="folioreader_panel_buttons">#FF7900</color>
-    <color name="folioreader_list_index">#FFFFFF</color>
-    <color name="folioreader_list_item_index">#f6f7fa</color>
-</resources>

@@ -33,7 +33,8 @@ public class AppUtil {
 
     private enum FileType {
         OPS,
-        OEBPS
+        OEBPS,
+        NONE
     }
 
     public static Map<String, String> toMap(String jsonString) {

@@ -1,1 +1,1 @@
-include ':folioreader', ':sample', ':webViewMarker-release'
+include ':folioreader', ':sample', ':webViewMarker'

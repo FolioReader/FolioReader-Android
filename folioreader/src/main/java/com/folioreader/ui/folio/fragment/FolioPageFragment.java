@@ -1,6 +1,7 @@
 package com.folioreader.ui.folio.fragment;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -8,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -180,6 +182,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         initAnimations();
         initWebView();
         updatePagesLeftTextBg();
+
         return mRootView;
     }
 
