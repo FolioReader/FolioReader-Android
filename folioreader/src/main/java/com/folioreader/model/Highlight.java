@@ -13,14 +13,14 @@ import java.util.Date;
 
 public class Highlight implements Parcelable {
 
-    public static final String LOCAL_DB_HIGHLIGHT_CONTENT = "content";
-    public static final String LOCAL_DB_HIGHLIGHT_CONTENT_PRE = "contentPre";
-    public static final String LOCAL_DB_HIGHLIGHT_CONTENT_POST = "contentPost";
-    public static final String LOCAL_DB_HIGHLIGHT_BOOK_ID = "bookId";
-    public static final String LOCAL_DB_HIGHLIGHT_PAGE = "page";
-    public static final String LOCAL_DB_HIGHLIGHT_ID = "highlightId";
-    public static final String LOCAL_DB_HIGHLIGHT_TYPE = "type";
-    public static final String MEDIA_OVERLAY_STYLE = "epub-media-overlay-playing";
+    private int id;
+    private String bookId;
+    private String content;
+    private Date date;
+    private String type;
+    private int scrollPosition;
+    private int pageNumber;
+    private String note;
 
     public enum HighlightStyle {
         Yellow,
@@ -38,15 +38,15 @@ public class Highlight implements Parcelable {
          */
         public static HighlightStyle styleForClass(String className) {
             switch (className) {
-                case "highlight-yellow":
+                case "yellow":
                     return Yellow;
-                case "highlight-green":
+                case "green":
                     return Green;
-                case "highlight-blue":
+                case "blue":
                     return Blue;
-                case "highlight-pink":
+                case "pink":
                     return Pink;
-                case "highlight-underline":
+                case "underline":
                     return Underline;
                 default:
                     return Yellow;
@@ -59,15 +59,15 @@ public class Highlight implements Parcelable {
         public static String classForStyle(HighlightStyle style) {
             switch (style) {
                 case Yellow:
-                    return "highlight-yellow";
+                    return "yellow";
                 case Green:
-                    return "highlight-green";
+                    return "green";
                 case Blue:
-                    return "highlight-blue";
+                    return "blue";
                 case Pink:
-                    return "highlight-pink";
+                    return "pink";
                 case Underline:
-                    return "highlight-underline";
+                    return "underline";
                 case DottetUnderline:
                     return "mediaOverlayStyle1";
                 case TextColor:
@@ -96,50 +96,20 @@ public class Highlight implements Parcelable {
         }
     }
 
-
-    private int id;
-    private String bookId;
-    private String content;
-    private String contentPost;
-    private String contentPre;
-    private Date date;
-    private String highlightId;
-    private int page;
-    private String type;
-    private int currentPagerPostion;
-    private int currentWebviewScrollPos;
-    private String note;
-
-    public Highlight() {
-    }
-
-    public Highlight(int id, String bookId, String content, String contentPost,
-                     String contentPre, Date date, String highlightId, int page,
-                     String type, String note) {
+    public Highlight(int id, String bookId, String content, Date date,
+                     String type, int scrollPosition, int pageNumber,
+                     String note) {
         this.id = id;
         this.bookId = bookId;
         this.content = content;
-        this.contentPost = contentPost;
-        this.contentPre = contentPre;
         this.date = date;
-        this.highlightId = highlightId;
-        this.page = page;
         this.type = type;
+        this.scrollPosition = scrollPosition;
+        this.pageNumber = pageNumber;
         this.note = note;
     }
 
-    public Highlight(String bookId, String content, String contentPost, String contentPre, Date date, String highlightId, int page, String type, int currentPagerPostion, int currentWebviewScrollPos, String note) {
-        this.bookId = bookId;
-        this.content = content;
-        this.contentPost = contentPost;
-        this.contentPre = contentPre;
-        this.date = date;
-        this.highlightId = highlightId;
-        this.page = page;
-        this.type = type;
-        this.currentPagerPostion = currentPagerPostion;
-        this.currentWebviewScrollPos = currentWebviewScrollPos;
-        this.note = note;
+    public Highlight() {
     }
 
     protected Highlight(Parcel in) {
@@ -170,44 +140,12 @@ public class Highlight implements Parcelable {
         this.content = content;
     }
 
-    public String getContentPost() {
-        return contentPost;
-    }
-
-    public void setContentPost(String contentPost) {
-        this.contentPost = contentPost;
-    }
-
-    public String getContentPre() {
-        return contentPre;
-    }
-
-    public void setContentPre(String contentPre) {
-        this.contentPre = contentPre;
-    }
-
     public Date getDate() {
         return date;
     }
 
     public void setDate(Date date) {
         this.date = date;
-    }
-
-    public String getHighlightId() {
-        return highlightId;
-    }
-
-    public void setHighlightId(String highlightId) {
-        this.highlightId = highlightId;
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
     }
 
     public String getType() {
@@ -218,20 +156,20 @@ public class Highlight implements Parcelable {
         this.type = type;
     }
 
-    public int getCurrentPagerPostion() {
-        return currentPagerPostion;
+    public int getScrollPosition() {
+        return scrollPosition;
     }
 
-    public void setCurrentPagerPostion(int currentPagerPostion) {
-        this.currentPagerPostion = currentPagerPostion;
+    public void setScrollPosition(int scrollPosition) {
+        this.scrollPosition = scrollPosition;
     }
 
-    public int getCurrentWebviewScrollPos() {
-        return currentWebviewScrollPos;
+    public int getPageNumber() {
+        return pageNumber;
     }
 
-    public void setCurrentWebviewScrollPos(int currentWebviewScrollPos) {
-        this.currentWebviewScrollPos = currentWebviewScrollPos;
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
     }
 
     public String getNote() {
@@ -250,23 +188,11 @@ public class Highlight implements Parcelable {
         Highlight highlight = (Highlight) o;
 
         if (id != highlight.id) return false;
-        if (page != highlight.page) return false;
         if (bookId != null ? !bookId.equals(highlight.bookId) : highlight.bookId != null)
             return false;
         if (content != null ? !content.equals(highlight.content) : highlight.content != null)
             return false;
-        if (contentPost != null ? !contentPost.equals(highlight.contentPost) :
-                highlight.contentPost != null)
-            return false;
-        if (contentPre != null ? !contentPre.equals(highlight.contentPre) :
-                highlight.contentPre != null)
-            return false;
-        if (date != null ? !date.equals(highlight.date) : highlight.date != null) return false;
-        if (highlightId != null ? !
-                highlightId.equals(highlight.highlightId) : highlight.highlightId != null)
-            return false;
-        return type != null ? type.equals(highlight.type) : highlight.type == null;
-
+        return date != null ? date.equals(highlight.date) : highlight.date == null && (type != null ? type.equals(highlight.type) : highlight.type == null);
     }
 
     @Override
@@ -274,11 +200,7 @@ public class Highlight implements Parcelable {
         int result = id;
         result = 31 * result + (bookId != null ? bookId.hashCode() : 0);
         result = 31 * result + (content != null ? content.hashCode() : 0);
-        result = 31 * result + (contentPost != null ? contentPost.hashCode() : 0);
-        result = 31 * result + (contentPre != null ? contentPre.hashCode() : 0);
         result = 31 * result + (date != null ? date.hashCode() : 0);
-        result = 31 * result + (highlightId != null ? highlightId.hashCode() : 0);
-        result = 31 * result + page;
         result = 31 * result + (type != null ? type.hashCode() : 0);
         return result;
     }
@@ -289,12 +211,11 @@ public class Highlight implements Parcelable {
                 "id=" + id +
                 ", bookId='" + bookId + '\'' +
                 ", content='" + content + '\'' +
-                ", contentPost='" + contentPost + '\'' +
-                ", contentPre='" + contentPre + '\'' +
                 ", date=" + date +
-                ", highlightId='" + highlightId + '\'' +
-                ", page=" + page +
                 ", type='" + type + '\'' +
+                ", scrollPosition=" + scrollPosition +
+                ", pageNumber=" + pageNumber +
+                ", note='" + note + '\'' +
                 '}';
     }
 
@@ -308,14 +229,10 @@ public class Highlight implements Parcelable {
         dest.writeInt(id);
         dest.writeString(bookId);
         dest.writeString(content);
-        dest.writeString(contentPost);
-        dest.writeString(contentPre);
         dest.writeSerializable(date);
-        dest.writeString(highlightId);
-        dest.writeInt(page);
         dest.writeString(type);
-        dest.writeInt(currentPagerPostion);
-        dest.writeInt(currentWebviewScrollPos);
+        dest.writeInt(scrollPosition);
+        dest.writeInt(pageNumber);
         dest.writeString(note);
     }
 
@@ -323,14 +240,10 @@ public class Highlight implements Parcelable {
         id = in.readInt();
         bookId = in.readString();
         content = in.readString();
-        contentPost = in.readString();
-        contentPre = in.readString();
         date = (Date) in.readSerializable();
-        highlightId = in.readString();
-        page = in.readInt();
         type = in.readString();
-        currentPagerPostion = in.readInt();
-        currentWebviewScrollPos = in.readInt();
+        scrollPosition = in.readInt();
+        pageNumber = in.readInt();
         note = in.readString();
     }
 

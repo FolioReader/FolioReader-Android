@@ -1,7 +1,6 @@
 package com.folioreader.ui.folio.fragment;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -9,7 +8,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.ContentLoadingProgressBar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -40,7 +38,7 @@ import com.folioreader.model.event.RewindIndexEvent;
 import com.folioreader.model.event.WebViewPosition;
 import com.folioreader.model.quickaction.ActionItem;
 import com.folioreader.model.quickaction.QuickAction;
-import com.folioreader.model.sqlite.HighLightTable;
+import com.folioreader.model.sqlite.HighLightRangyTable;
 import com.folioreader.ui.base.HtmlTask;
 import com.folioreader.ui.base.HtmlTaskCallback;
 import com.folioreader.ui.base.HtmlUtil;
@@ -288,8 +286,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
      */
     @Subscribe
     public void jumpToAnchorPoint(AnchorIdEvent event) {
-        if(isAdded()) {
-            if(event != null && event.getHref() != null) {
+        if (isAdded()) {
+            if (event != null && event.getHref() != null) {
                 String href = event.getHref();
                 if (href != null && href.indexOf('#') != -1) {
                     if (spineItem.href.equals(href.substring(0, href.lastIndexOf('#')))) {
@@ -375,7 +373,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             @Override
             public void onPageFinished(WebView view, String url) {
                 if (isAdded()) {
-                    if(mAnchorId != null)
+                    if (mAnchorId != null)
                         view.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
                     view.loadUrl("javascript:alert(getReadingTime())");
                     if (!hasMediaOverlay) {
@@ -392,6 +390,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         setWebViewPosition(mLastWebviewScrollpos);
                         mIsPageReloaded = false;
                     }
+                    String rangy = HighLightRangyTable.getRangyForHref(getPageName());
+                    if (!rangy.isEmpty())
+                        mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
                 }
             }
 
@@ -423,7 +424,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     } else {
                         if (url.contains("storage")) {
                             mActivityCallback.setPagerToPosition(url);
-                        } else if (url.endsWith(".xhtml") || url.endsWith(".html")){
+                        } else if (url.endsWith(".xhtml") || url.endsWith(".html")) {
                             mActivityCallback.goToChapter(url);
                         } else {
                             // Otherwise, give the default behavior (open in browser)
@@ -636,11 +637,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     public void highlight(Highlight.HighlightStyle style, boolean isCreated) {
         if (isCreated) {
-            mWebview.loadUrl(String.format(getString(R.string.getHighlightString),
-                    Highlight.HighlightStyle.classForStyle(style)));
+            mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.highlightSelection('%s');}", Highlight.HighlightStyle.classForStyle(style)));
         } else {
-            mWebview.loadUrl(String.format(getString(R.string.sethighlightstyle),
-                    Highlight.HighlightStyle.classForStyle(style)));
+            mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.highlightSelection('%s');}", Highlight.HighlightStyle.classForStyle(style)));
         }
     }
 
@@ -813,27 +812,14 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     }
 
     @JavascriptInterface
-    public void getHighlightJson(String mJsonResponse) {
-        if (mJsonResponse != null) {
-            mHighlightMap = AppUtil.toMap(mJsonResponse);
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mWebview.loadUrl("javascript:alert(getHTML())");
-                }
-            });
+    public void onReceiveHighlights(String html) {
+        if (html != null) {
+            HighlightUtil.createHighlightRangy(html, mBookTitle, getPageName(), mPosition, mWebview.getScrollY());
         }
     }
 
-    @JavascriptInterface
-    public void getHtmlAndSaveHighlight(String html) {
-        if (html != null && mHighlightMap != null) {
-            Highlight highlight =
-                    HighlightUtil.matchHighlight(html, mHighlightMap.get("id"), mBookTitle, mPosition);
-            highlight.setCurrentWebviewScrollPos(mWebview.getScrollY());
-            highlight = ((FolioActivity) getActivity()).setCurrentPagerPostion(highlight);
-            HighLightTable.insertHighlight(highlight);
-        }
+    private String getPageName() {
+        return mBookTitle + "$" + spineItem.href;
     }
 
     @Subscribe
@@ -865,14 +851,14 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @JavascriptInterface
     public void getRemovedHighlightId(String id) {
         if (id != null) {
-            HighLightTable.deleteHighlight(id);
+            //HighLightTable.deleteHighlight(id);
         }
     }
 
     @JavascriptInterface
     public void getUpdatedHighlightId(String id, String style) {
         if (id != null) {
-            HighLightTable.updateHighlightStyle(id, style);
+            //HighLightTable.updateHighlightStyle(id, style);
         }
     }
 
@@ -886,7 +872,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(mWebview != null) mWebview.destroy();
+        if (mWebview != null) mWebview.destroy();
     }
 
     private boolean isCurrentFragment() {

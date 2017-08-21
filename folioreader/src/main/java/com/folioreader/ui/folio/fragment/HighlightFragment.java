@@ -70,8 +70,8 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
 
     @Override
     public void deleteHighlight(String id) {
-        HighLightTable.deleteHighlight(id);
-        FolioActivity.BUS.post(new ReloadDataEvent());
+        //HighLightTable.deleteHighlight(id);
+        //FolioActivity.BUS.post(new ReloadDataEvent());
     }
 
     @Override
@@ -91,7 +91,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                         ((EditText) dialog.findViewById(R.id.edit_note)).getText().toString();
                 if (!TextUtils.isEmpty(note)) {
                     highlight.setNote(note);
-                    HighLightTable.updateHighlight(highlight);
+                    //HighLightTable.updateHighlight(highlight);
                     adapter.editNote(note, position);
                     dialog.dismiss();
                 } else {
