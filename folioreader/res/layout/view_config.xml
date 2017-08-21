@@ -16,14 +16,14 @@
             android:layout_height="match_parent"
             android:layout_weight="0.5"
             android:background="@android:color/transparent"
-            android:src="@drawable/btn_sun_selector" />
+            android:src="@drawable/icon_sun_normal" />
         <ImageButton
             android:id="@+id/night_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.5"
             android:background="@android:color/transparent"
-            android:src="@drawable/btn_moon_selector" />
+            android:src="@drawable/icon_moon_normal" />
     </LinearLayout>
     <View
         android:id="@+id/first_separator"
@@ -46,7 +46,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/andada"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
             app:font="@string/andada_font" />
         <com.folioreader.view.StyleableTextView
@@ -56,7 +55,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/lato"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
             app:font="@string/lato_font" />
         <com.folioreader.view.StyleableTextView
@@ -66,7 +64,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/lora"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
             app:font="@string/lora_font" />
         <com.folioreader.view.StyleableTextView
@@ -76,7 +73,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/raleway"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
             app:font="@string/raleway_font" />
     </LinearLayout>
@@ -102,7 +98,6 @@
             android:id="@+id/seekbar_font_size"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:thumb="@drawable/seekbar_thumb"
             android:layout_toLeftOf="@+id/big_font"
             android:layout_toRightOf="@+id/small_font"
             android:max="4"

@@ -15,15 +15,12 @@
 */
 package com.folioreader.ui.folio.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -33,8 +30,8 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -55,6 +52,7 @@ import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
 import com.folioreader.util.ProgressDialog;
+import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
 import com.folioreader.view.StyleableTextView;
@@ -122,6 +120,13 @@ public class FolioActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
+
+        if (getIntent().getParcelableExtra(Config.INTENT_CONFIG) != null) {
+             Config.setConfig((Config) getIntent().getParcelableExtra(Config.INTENT_CONFIG));
+        }
+
+        initColors();
+
         BUS.register(this);
         String mEpubFilePath = getIntent().getExtras()
                 .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
@@ -568,5 +573,13 @@ public class FolioActivity
 
     @Override
     public void onError() {
+    }
+
+
+    public void initColors(){
+        UiUtil.setColorToImage(this,Config.getConfig().getThemeColor(),((ImageView) findViewById(R.id.btn_close)).getDrawable());
+        UiUtil.setColorToImage(this,Config.getConfig().getThemeColor(),((ImageView) findViewById(R.id.btn_drawer)).getDrawable());
+        UiUtil.setColorToImage(this,Config.getConfig().getThemeColor(),((ImageView) findViewById(R.id.btn_config)).getDrawable());
+        UiUtil.setColorToImage(this,Config.getConfig().getThemeColor(),((ImageView) findViewById(R.id.btn_speaker)).getDrawable());
     }
 }
