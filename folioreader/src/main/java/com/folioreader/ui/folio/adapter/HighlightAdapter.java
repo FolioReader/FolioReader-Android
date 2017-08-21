@@ -58,9 +58,9 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
         holder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.deleteHighlight(getItem(position).getHighlightId());
+                //callback.deleteHighlight(getItem(position).getHighlightId());
                 highlights.remove(position);
-                notifyItemRemoved(position);
+                notifyDataSetChanged();
             }
         });
         holder.editNote.setOnClickListener(new View.OnClickListener() {
@@ -101,12 +101,16 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
                     R.color.white));
             holder.date.setTextColor(ContextCompat.getColor(context,
                     R.color.white));
+            holder.content.setTextColor(ContextCompat.getColor(context,
+                    R.color.white));
         } else {
             holder.container.setBackgroundColor(ContextCompat.getColor(context,
                     R.color.white));
             holder.note.setTextColor(ContextCompat.getColor(context,
                     R.color.black));
             holder.date.setTextColor(ContextCompat.getColor(context,
+                    R.color.black));
+            holder.content.setTextColor(ContextCompat.getColor(context,
                     R.color.black));
         }
     }
@@ -122,7 +126,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
 
     public void editNote(String note, int position) {
         highlights.get(position).setNote(note);
-        notifyItemChanged(position);
+        notifyDataSetChanged();
     }
 
     static class HighlightHolder extends RecyclerView.ViewHolder {

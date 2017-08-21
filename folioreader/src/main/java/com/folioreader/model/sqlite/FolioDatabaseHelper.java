@@ -13,7 +13,7 @@ public class FolioDatabaseHelper extends SQLiteOpenHelper {
     private static SQLiteDatabase myWritableDb;
 
     public static final String DATABASE_NAME = "FolioReader.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public static final String KEY_ID = "_id";
     private final Context mContext;
@@ -49,23 +49,10 @@ public class FolioDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public final void onCreate(final SQLiteDatabase db) {
-        //onUpgradeDropTables(db);
         Log.d("create table highlight", "****" + HighLightTable.SQL_CREATE);
         db.execSQL(HighLightTable.SQL_CREATE);
-        /*db.execSQL(EmailAddressesTable.SQL_CREATE);
-		db.execSQL(PhoneNumbersTable.SQL_CREATE);
-		db.execSQL(LeadTypesTable.SQL_CREATE);
-		db.execSQL(LeadStagesTable.SQL_CREATE);
-		db.execSQL(LeadSourcesTable.SQL_CREATE);
-		db.execSQL(ExpensesTable.SQL_CREATE);
-		db.execSQL(SMSPatternsTable.SQL_CREATE);
-		db.execSQL(SMSLeadTable.SQL_CREATE);
-		*//*SMSPattern pattern=new SMSPattern(1, "^You received a Zillow contact from (.*) at (.*): I am interested in (.*). View here:(.*)$",
-					new String[]{"name,phone,reference"}, "Zillow", 0);
-		db.insert(SMSPatternsTable.TABLE_NAME, null, pattern.getValues());
-		*//*
-		if(Preferences.DEBUG) 
-			Log.d(TAG, "Database Created");*/
+        Log.d("create table " + HighLightRangy.class.getSimpleName(), "****" + HighLightRangyTable.SQL_CREATE);
+        db.execSQL(HighLightRangyTable.SQL_CREATE);
     }
 
     @Override
@@ -81,7 +68,6 @@ public class FolioDatabaseHelper extends SQLiteOpenHelper {
 
 		/* PROTECTED REGION END */
     }
-
 
     /**
      * This basic upgrade functionality will destroy all old data on upgrade

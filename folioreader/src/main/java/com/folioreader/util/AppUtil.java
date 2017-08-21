@@ -8,9 +8,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -35,22 +37,29 @@ public class AppUtil {
         NONE
     }
 
-    public static Map<String, String> stringToJsonMap(String string) {
-        HashMap<String, String> map = new HashMap<>();
+    public static Map<String, String> toMap(String jsonString) {
+        Map<String, String> map = new HashMap<String, String>();
         try {
-            JSONArray jsonArray = new JSONArray(string);
+            JSONArray jsonArray = new JSONArray(jsonString);
             JSONObject jObject = jsonArray.getJSONObject(0);
-            Iterator<?> keys = jObject.keys();
+            Iterator<String> keysItr = jObject.keys();
+        while(keysItr.hasNext()) {
+            String key = keysItr.next();
+            Object value = null;
+            value = jObject.get(key);
 
-            keys.hasNext();
-            String key = (String) keys.next();
-            String value = jObject.getString(key);
-            map.put(key, value);
+            if(value instanceof JSONObject) {
+                value = toMap(value.toString());
+            }
+            map.put(key, value.toString());
+        }
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return map;
     }
+
+
 
     public static String formatDate(Date hightlightDate) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy | HH:mm", Locale.getDefault());

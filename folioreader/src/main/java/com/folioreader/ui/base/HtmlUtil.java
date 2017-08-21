@@ -27,22 +27,35 @@ public final class HtmlUtil {
      */
     public static String getHtmlContent(Context context, String htmlContent, String mBookTitle) {
         String cssPath =
-                String.format(context.getString(R.string.css_tag), "file:///android_asset/Style.css");
+                String.format(context.getString(R.string.css_tag), "file:///android_asset/css/Style.css");
+
         String jsPath =
                 String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/Bridge.js");
+                        "file:///android_asset/js/Bridge.js");
         jsPath =
                 jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/jquery-1.8.3.js");
+                        "file:///android_asset/js/jsface.min.js");
         jsPath =
                 jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/jpntext.js");
+                        "file:///android_asset/js/jquery-3.1.1.min.js");
         jsPath =
                 jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/rangy-core.js");
+                        "file:///android_asset/js/rangy-core.js");
         jsPath =
                 jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/rangy-serializer.js");
+                        "file:///android_asset/js/rangy-highlighter.js");
+        jsPath =
+                jsPath + String.format(context.getString(R.string.script_tag),
+                        "file:///android_asset/js/rangy-classapplier.js");
+        jsPath =
+                jsPath + String.format(context.getString(R.string.script_tag),
+                        "file:///android_asset/js/rangy-serializer.js");
+        jsPath =
+                jsPath + String.format(context.getString(R.string.script_tag),
+                        "file:///android_asset/js/rangy-serializer.js");
+        jsPath =
+                jsPath + String.format(context.getString(R.string.script_tag),
+                        "file:///android_asset/js/ss-reader.js");
         jsPath =
                 jsPath + String.format(context.getString(R.string.script_tag),
                         "file:///android_asset/android.selection.js");
@@ -95,17 +108,17 @@ public final class HtmlUtil {
                 break;
         }
 
-        htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
-        ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBookTitle);
-        for (Highlight highlight : highlights) {
-            String highlightStr = highlight.getContentPre() +
-                    "<highlight id=\"" + highlight.getHighlightId() +
-                    "\" onclick=\"callHighlightURL(this);\" class=\"" +
-                    highlight.getType() + "\">" + highlight.getContent() + "</highlight>" + highlight.getContentPost();
-            String searchStr = highlight.getContentPre() +
-                    "" + highlight.getContent() + "" + highlight.getContentPost();
-            htmlContent = htmlContent.replaceFirst(Pattern.quote(searchStr), highlightStr);
-        }
+//        htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
+//        ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBookTitle);
+//        for (Highlight highlight : highlights) {
+//            String highlightStr = highlight.getContentPre() +
+//                    "<highlight id=\"" + highlight.getHighlightId() +
+//                    "\" onclick=\"callHighlightURL(this);\" class=\"" +
+//                    highlight.getType() + "\">" + highlight.getContent() + "</highlight>" + highlight.getContentPost();
+//            String searchStr = highlight.getContentPre() +
+//                    "" + highlight.getContent() + "" + highlight.getContentPost();
+//            htmlContent = htmlContent.replaceFirst(Pattern.quote(searchStr), highlightStr);
+//        }
         return htmlContent;
     }
 }

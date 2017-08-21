@@ -27,6 +27,14 @@ public class DbAdapter {
         return mDatabase.update(table, contentValues, key + "=?", new String[]{value}) > 0;
     }
 
+    public static Cursor getHighLightsForBookId(String bookId) {
+        return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.COL_BOOK_ID + " = '" + bookId + "'", null);
+    }
+
+    public static Cursor getAllHighlightRangy() {
+        return mDatabase.rawQuery("SELECT * FROM " + HighLightRangyTable.TABLE_NAME, null);
+    }
+
     public boolean deleteAll(String table) {
         return mDatabase.delete(table, null, null) > 0;
     }
@@ -66,27 +74,44 @@ public class DbAdapter {
         return mDatabase.rawQuery("SELECT MAX(" + key + ") FROM " + tableName, null);
     }
 
-    public void deleteDatabase() {
-    /*	mDatabase.execSQL(LeadTypesTable.SQL_DROP);
-        mDatabase.execSQL(LeadStagesTable.SQL_DROP);
-		mDatabase.execSQL(LeadSourcesTable.SQL_DROP);
-		mDatabase.execSQL(ExpensesTable.SQL_DROP);*/
-        mDatabase.execSQL(HighLightTable.SQL_DROP);
-		/*mDatabase.execSQL(EmailAddressesTable.SQL_DROP);
-		mDatabase.execSQL(PhoneNumbersTable.SQL_DROP);
-		//mDatabase.execSQL(SMSLeadTable.SQL_DROP);
-		mDatabase.execSQL(SMSPatternsTable.SQL_DROP);*/
+    public static int isHighLightExist(String bookId) {
+        Cursor c = mDatabase.rawQuery("SELECT " + HighLightRangyTable.ID + " FROM " + HighLightRangyTable.TABLE_NAME + " WHERE " + HighLightTable.COL_BOOK_ID + " = '" + bookId.trim() + "'", null);
+        if (c.moveToFirst()) {
+            int id = c.getInt(0);
+            c.close();
+            return id;
+        } else {
+            c.close();
+            return -1;
+        }
     }
 
-    public void createDtabase() {
-		/*mDatabase.execSQL(LeadTypesTable.SQL_CREATE);
-		mDatabase.execSQL(LeadStagesTable.SQL_CREATE);
-		mDatabase.execSQL(LeadSourcesTable.SQL_CREATE);
-		mDatabase.execSQL(ExpensesTable.SQL_CREATE);*/
-        mDatabase.execSQL(HighLightTable.SQL_CREATE);
-		/*mDatabase.execSQL(EmailAddressesTable.SQL_CREATE);
-		mDatabase.execSQL(PhoneNumbersTable.SQL_CREATE);
-		mDatabase.execSQL(SMSLeadTable.SQL_CREATE);
-		mDatabase.execSQL(SMSPatternsTable.SQL_CREATE);*/
+    public static boolean saveHighLight(ContentValues highlightContentValues) {
+        return mDatabase.insert(HighLightTable.TABLE_NAME, null, highlightContentValues) > 0;
+    }
+
+    public static boolean updateHighLight(ContentValues highlightContentValues, String id) {
+        return mDatabase.update(HighLightTable.TABLE_NAME, highlightContentValues, HighLightTable.ID + " = " + id, null) > 0;
+    }
+
+    public static boolean saveHighLightRangy(ContentValues highlightContentValues) {
+        return mDatabase.insert(HighLightRangyTable.TABLE_NAME, null, highlightContentValues) > 0;
+    }
+
+    public static boolean updateHighLightRangy(ContentValues highlightContentValues, String id) {
+        return mDatabase.update(HighLightRangyTable.TABLE_NAME, highlightContentValues, HighLightTable.ID + " = " + id, null) > 0;
+
+    }
+
+    public static String getRangyForHref(String query) {
+        Cursor c = mDatabase.rawQuery(query, null);
+        if (c.moveToFirst()) {
+            String rangy = c.getString(0);
+            c.close();
+            return rangy;
+        } else {
+            c.close();
+            return "";
+        }
     }
 }
