@@ -99,6 +99,7 @@ $(function(){
         this.highlighter.highlightSelection("highlight_" + color);
         var range = window.getSelection().toString();
         var params = {content: range,rangy: this.getHighlights(),color: color};
+        this.clearSelection();
         Highlight.onReceiveHighlights(JSON.stringify(params));
       } catch(err){
         console.log("highlightSelection : " + err);

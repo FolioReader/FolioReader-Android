@@ -91,7 +91,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                         ((EditText) dialog.findViewById(R.id.edit_note)).getText().toString();
                 if (!TextUtils.isEmpty(note)) {
                     highlight.setNote(note);
-                    //HighLightTable.updateHighlight(highlight);
+                    HighLightTable.updateHighlight(highlight);
                     adapter.editNote(note, position);
                     dialog.dismiss();
                 } else {

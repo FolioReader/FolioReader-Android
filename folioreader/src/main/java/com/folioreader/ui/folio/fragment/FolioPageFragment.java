@@ -373,6 +373,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             @Override
             public void onPageFinished(WebView view, String url) {
                 if (isAdded()) {
+                    String rangy = HighLightRangyTable.getRangyForHref(getPageName());
+                    if (!rangy.isEmpty()) {
+                        view.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
+                    }
                     if (mAnchorId != null)
                         view.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
                     view.loadUrl("javascript:alert(getReadingTime())");
@@ -390,9 +394,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         setWebViewPosition(mLastWebviewScrollpos);
                         mIsPageReloaded = false;
                     }
-                    String rangy = HighLightRangyTable.getRangyForHref(getPageName());
-                    if (!rangy.isEmpty())
-                        mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
                 }
             }
 

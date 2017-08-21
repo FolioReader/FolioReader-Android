@@ -77,6 +77,11 @@ public class HighLightTable {
 
     //TODO
     public static void updateHighlight(Highlight highlight) {
+        if (DbAdapter.updateHighLight(getHighlightContentValues(highlight), String.valueOf(highlight.getId()))) {
+            Log.d(TAG, "highlight updated sucessfully");
+        } else {
+            Log.d(TAG, "error while highlight updateing");
+        }
     }
 
     public static String getDateTimeString(Date date) {
