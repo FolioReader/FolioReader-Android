@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -60,7 +59,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.view_config,container);
+        return inflater.inflate(R.layout.view_config, container);
     }
 
     @Override
@@ -93,10 +92,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         inflateView();
         configFonts();
         mFontSizeSeekBar.setProgress(mConfig.getFontSize());
-        Drawable thumbDrawable = ContextCompat.getDrawable(getActivity(), R.drawable.seekbar_thumb);
-        UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), (thumbDrawable));
-        mFontSizeSeekBar.setThumb(thumbDrawable);
-        configSeekbar();
+        configSeekBar();
         selectFont(mConfig.getFont(), false);
         mIsNightMode = mConfig.isNightMode();
         if (mIsNightMode) {
@@ -134,11 +130,10 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
 
 
     private void configFonts() {
-        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_andada)).setTextColor(getColorStateList());
-        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_lato)).setTextColor(getColorStateList());
-        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_lora)).setTextColor(getColorStateList());
-        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_raleway)).setTextColor(getColorStateList());
-        //UiUtil.setColorToImage(this,R.color.blue,mFontSizeSeekBar.getThumb());
+        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_andada)).setTextColor(UiUtil.getColorList(getActivity(), mConfig.getThemeColor(), R.color.grey_color));
+        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_lato)).setTextColor(UiUtil.getColorList(getActivity(), mConfig.getThemeColor(), R.color.grey_color));
+        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_lora)).setTextColor(UiUtil.getColorList(getActivity(), mConfig.getThemeColor(), R.color.grey_color));
+        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_raleway)).setTextColor(UiUtil.getColorList(getActivity(), mConfig.getThemeColor(), R.color.grey_color));
         mDialogView.findViewById(R.id.btn_font_andada).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -262,7 +257,12 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         colorAnimation.start();
     }
 
-    private void configSeekbar() {
+    private void configSeekBar() {
+        Drawable thumbDrawable = ContextCompat.getDrawable(getActivity(), R.drawable.seekbar_thumb);
+        UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), (thumbDrawable));
+        UiUtil.setColorToImage(getActivity(), R.color.grey_color, mFontSizeSeekBar.getProgressDrawable());
+        mFontSizeSeekBar.setThumb(thumbDrawable);
+
         mFontSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -295,7 +295,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     setToolBarColor();
                     setAudioPlayerBackground();
                     UiUtil.setColorToImage(getActivity(), R.color.app_gray, mNightButton.getDrawable());
-                    UiUtil.setColorToImage(getActivity() ,mConfig.getThemeColor(),mDayButton.getDrawable());
+                    UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), mDayButton.getDrawable());
                 }
                 break;
             case NIGHT_BUTTON:
@@ -305,7 +305,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     mDayButton.setSelected(false);
                     mNightButton.setSelected(true);
                     UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), mNightButton.getDrawable());
-                    UiUtil.setColorToImage(getActivity() ,R.color.app_gray,mDayButton.getDrawable());
+                    UiUtil.setColorToImage(getActivity(), R.color.app_gray, mDayButton.getDrawable());
                     setToolBarColor();
                     setAudioPlayerBackground();
                 }
@@ -335,7 +335,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     }
 
     private void setAudioPlayerBackground() {
-        if(mIsNightMode) {
+        if (mIsNightMode) {
             ((Activity) getContext()).
                     findViewById(R.id.container).
                     setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
@@ -344,17 +344,5 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     findViewById(R.id.container).
                     setBackgroundColor(ContextCompat.getColor(getContext(), R.color.night));
         }
-    }
-
-    public  ColorStateList getColorStateList() {
-        int[][] states = new int[][] {
-                new int[] { android.R.attr.state_selected}, new int[]{}
-        };
-
-        int[] colors = new int[] {
-                ContextCompat.getColor(getContext(),mConfig.getThemeColor()), ContextCompat.getColor(getContext(),R.color.gray_text)
-        };
-        ColorStateList colorStateList = new ColorStateList(states,colors);
-        return colorStateList;
     }
 }

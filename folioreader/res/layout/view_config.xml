@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/top_buttons"
-        android:background="@color/borders" />
+        android:background="@color/grey_color" />
     <LinearLayout
         android:id="@+id/fontLayout"
         android:layout_width="match_parent"
@@ -81,7 +81,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/fontLayout"
-        android:background="@color/borders" />
+        android:background="@color/grey_color" />
     <RelativeLayout android:id="@+id/font_size_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -101,6 +101,8 @@
             android:layout_toLeftOf="@+id/big_font"
             android:layout_toRightOf="@+id/small_font"
             android:max="4"
+            android:minHeight="0.2dp"
+            android:maxHeight="0.2dp"
             android:padding="16dp" />
         <ImageView
             android:id="@+id/big_font"
@@ -116,7 +118,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/font_size_layout"
-        android:background="@color/borders" android:visibility="gone"/>
+        android:background="@color/grey_color" android:visibility="gone"/>
     <LinearLayout
         android:id="@+id/orientationLayout"
         android:layout_width="match_parent"
