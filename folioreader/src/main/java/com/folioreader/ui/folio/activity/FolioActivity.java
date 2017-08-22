@@ -15,15 +15,12 @@
 */
 package com.folioreader.ui.folio.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -33,8 +30,8 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -55,6 +52,7 @@ import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
 import com.folioreader.util.ProgressDialog;
+import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
 import com.folioreader.view.StyleableTextView;
@@ -117,11 +115,21 @@ public class FolioActivity
     private Animation slide_down;
     private Animation slide_up;
     private boolean mIsNightMode;
+    private Config mConfig;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
+
+        if (getIntent().getParcelableExtra(Config.INTENT_CONFIG) != null) {
+            mConfig = getIntent().getParcelableExtra(Config.INTENT_CONFIG);
+        } else {
+            mConfig = new Config.ConfigBuilder().build();
+        }
+
+        initColors();
+
         BUS.register(this);
         String mEpubFilePath = getIntent().getExtras()
                 .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
@@ -150,7 +158,9 @@ public class FolioActivity
         findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class).putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
+                Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
+                intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
+                intent.putExtra(Config.INTENT_CONFIG, mConfig);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
                 overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
             }
@@ -173,7 +183,7 @@ public class FolioActivity
             }
         });
 
-        mIsNightMode = Config.getConfig().isNightMode();
+        mIsNightMode = mConfig.isNightMode();
         if (mIsNightMode) {
             mToolbar.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.black));
             title.setTextColor(ContextCompat.getColor(FolioActivity.this, R.color.white));
@@ -231,7 +241,7 @@ public class FolioActivity
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
             mFolioPageFragmentAdapter =
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, EPUB_TITLE);
+                            mSpineReferenceList, EPUB_TITLE, mConfig);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             mFolioPageViewPager.setOffscreenPageLimit(1);
             mFolioPageViewPager.setCurrentItem(mChapterPosition);
@@ -240,7 +250,7 @@ public class FolioActivity
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
             mFolioPageFragmentAdapter =
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, EPUB_TITLE);
+                            mSpineReferenceList, EPUB_TITLE, mConfig);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             mFolioPageViewPager.setCurrentItem(mChapterPosition);
         }
@@ -269,7 +279,7 @@ public class FolioActivity
         });
 
         if (mSpineReferenceList != null) {
-            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, EPUB_TITLE);
+            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, EPUB_TITLE, mConfig);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         }
 
@@ -291,6 +301,9 @@ public class FolioActivity
             @Override
             public void onClick(View v) {
                 mConfigBottomSheetDialogFragment = new ConfigBottomSheetDialogFragment();
+                Bundle args = new Bundle();
+                args.putParcelable(Config.INTENT_CONFIG, mConfig);
+                mConfigBottomSheetDialogFragment.setArguments(args);
                 mConfigBottomSheetDialogFragment.show(getSupportFragmentManager(), mConfigBottomSheetDialogFragment.getTag());
             }
         });
@@ -568,5 +581,13 @@ public class FolioActivity
 
     @Override
     public void onError() {
+    }
+
+
+    public void initColors() {
+        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_close)).getDrawable());
+        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_drawer)).getDrawable());
+        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_config)).getDrawable());
+        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_speaker)).getDrawable());
     }
 }

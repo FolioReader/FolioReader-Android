@@ -25,7 +25,7 @@ public final class HtmlUtil {
      * @param mBookTitle  Epub book title
      * @return modified raw html string
      */
-    public static String getHtmlContent(Context context, String htmlContent, String mBookTitle) {
+    public static String getHtmlContent(Context context, String htmlContent, String mBookTitle, Config config) {
         String cssPath =
                 String.format(context.getString(R.string.css_tag), "file:///android_asset/Style.css");
         String jsPath =
@@ -53,7 +53,6 @@ public final class HtmlUtil {
         htmlContent = htmlContent.replace("</head>", toInject);
 
         String classes = "";
-        Config config = Config.getConfig();
         switch (config.getFont()) {
             case Constants.FONT_ANDADA:
                 classes = "andada";

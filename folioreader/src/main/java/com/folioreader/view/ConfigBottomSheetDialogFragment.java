@@ -4,7 +4,7 @@ import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.app.Dialog;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
@@ -17,7 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -27,6 +27,7 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.model.event.ReloadDataEvent;
+import com.folioreader.util.UiUtil;
 
 
 /**
@@ -44,11 +45,12 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
 
 
     private RelativeLayout mContainer;
-    private ImageButton mDayButton;
-    private ImageButton mNightButton;
+    private ImageView mDayButton;
+    private ImageView mNightButton;
     private SeekBar mFontSizeSeekBar;
     private View mDialogView;
     private ConfigDialogCallback mConfigDialogCallback;
+    private Config mConfig;
 
     public interface ConfigDialogCallback {
         void onOrientationChange(int orentation);
@@ -57,7 +59,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.view_config,container);
+        return inflater.inflate(R.layout.view_config, container);
     }
 
     @Override
@@ -76,6 +78,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         });
 
         mDialogView = view;
+        mConfig = getArguments().getParcelable(Config.INTENT_CONFIG);
         initViews();
     }
 
@@ -88,10 +91,10 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     private void initViews() {
         inflateView();
         configFonts();
-        mFontSizeSeekBar.setProgress(Config.getConfig().getFontSize());
-        configSeekbar();
-        selectFont(Config.getConfig().getFont(), false);
-        mIsNightMode = Config.getConfig().isNightMode();
+        mFontSizeSeekBar.setProgress(mConfig.getFontSize());
+        configSeekBar();
+        selectFont(mConfig.getFont(), false);
+        mIsNightMode = mConfig.isNightMode();
         if (mIsNightMode) {
             mContainer.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.night));
         } else {
@@ -101,9 +104,13 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         if (mIsNightMode) {
             mDayButton.setSelected(false);
             mNightButton.setSelected(true);
+            UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), mNightButton.getDrawable());
+            UiUtil.setColorToImage(getActivity(), R.color.app_gray, mDayButton.getDrawable());
         } else {
             mDayButton.setSelected(true);
             mNightButton.setSelected(false);
+            UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), mDayButton.getDrawable());
+            UiUtil.setColorToImage(getActivity(), R.color.app_gray, mNightButton.getDrawable());
         }
 
         mConfigDialogCallback = (ConfigDialogCallback) getActivity();
@@ -112,8 +119,8 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     private void inflateView() {
         mContainer = (RelativeLayout) mDialogView.findViewById(R.id.container);
         mFontSizeSeekBar = (SeekBar) mDialogView.findViewById(R.id.seekbar_font_size);
-        mDayButton = (ImageButton) mDialogView.findViewById(R.id.day_button);
-        mNightButton = (ImageButton) mDialogView.findViewById(R.id.night_button);
+        mDayButton = (ImageView) mDialogView.findViewById(R.id.day_button);
+        mNightButton = (ImageView) mDialogView.findViewById(R.id.night_button);
         mDayButton.setTag(DAY_BUTTON);
         mNightButton.setTag(NIGHT_BUTTON);
         mDayButton.setOnClickListener(this);
@@ -123,6 +130,10 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
 
 
     private void configFonts() {
+        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_andada)).setTextColor(UiUtil.getColorList(getActivity(), mConfig.getThemeColor(), R.color.grey_color));
+        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_lato)).setTextColor(UiUtil.getColorList(getActivity(), mConfig.getThemeColor(), R.color.grey_color));
+        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_lora)).setTextColor(UiUtil.getColorList(getActivity(), mConfig.getThemeColor(), R.color.grey_color));
+        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_raleway)).setTextColor(UiUtil.getColorList(getActivity(), mConfig.getThemeColor(), R.color.grey_color));
         mDialogView.findViewById(R.id.btn_font_andada).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -194,7 +205,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             mDialogView.findViewById(R.id.btn_font_raleway).setSelected(true);
         }
 
-        Config.getConfig().setFont(selectedFont);
+        mConfig.setFont(selectedFont);
         //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
         if (isAdded() && isReloadNeeded) {
             FolioActivity.BUS.post(new ReloadDataEvent());
@@ -228,7 +239,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             @Override
             public void onAnimationEnd(Animator animator) {
                 mIsNightMode = !mIsNightMode;
-                Config.getConfig().setNightMode(mIsNightMode);
+                mConfig.setNightMode(mIsNightMode);
                 FolioActivity.BUS.post(new ReloadDataEvent());
                 ///mConfigDialogCallback.onConfigChange();
             }
@@ -246,11 +257,16 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         colorAnimation.start();
     }
 
-    private void configSeekbar() {
+    private void configSeekBar() {
+        Drawable thumbDrawable = ContextCompat.getDrawable(getActivity(), R.drawable.seekbar_thumb);
+        UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), (thumbDrawable));
+        UiUtil.setColorToImage(getActivity(), R.color.grey_color, mFontSizeSeekBar.getProgressDrawable());
+        mFontSizeSeekBar.setThumb(thumbDrawable);
+
         mFontSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Config.getConfig().setFontSize(progress);
+                mConfig.setFontSize(progress);
                 //if (mConfigViewCallback != null) mConfigViewCallback.onConfigChange();
                 //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
                 FolioActivity.BUS.post(new ReloadDataEvent());
@@ -278,6 +294,8 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     mNightButton.setSelected(false);
                     setToolBarColor();
                     setAudioPlayerBackground();
+                    UiUtil.setColorToImage(getActivity(), R.color.app_gray, mNightButton.getDrawable());
+                    UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), mDayButton.getDrawable());
                 }
                 break;
             case NIGHT_BUTTON:
@@ -286,6 +304,8 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     toggleBlackTheme();
                     mDayButton.setSelected(false);
                     mNightButton.setSelected(true);
+                    UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), mNightButton.getDrawable());
+                    UiUtil.setColorToImage(getActivity(), R.color.app_gray, mDayButton.getDrawable());
                     setToolBarColor();
                     setAudioPlayerBackground();
                 }
@@ -315,7 +335,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     }
 
     private void setAudioPlayerBackground() {
-        if(mIsNightMode) {
+        if (mIsNightMode) {
             ((Activity) getContext()).
                     findViewById(R.id.container).
                     setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));

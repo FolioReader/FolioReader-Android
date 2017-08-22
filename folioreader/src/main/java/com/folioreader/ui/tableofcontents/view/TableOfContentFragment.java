@@ -35,11 +35,13 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
     private RecyclerView mTableOfContentsRecyclerView;
     private TableOfContentsPresenter presenter;
     private TextView errorView;
+    private Config mConfig;
 
-    public static TableOfContentFragment newInstance(String selectedChapterHref) {
+    public static TableOfContentFragment newInstance(String selectedChapterHref, Config mConfig) {
         TableOfContentFragment tableOfContentFragment = new TableOfContentFragment();
         Bundle args = new Bundle();
         args.putString(SELECTED_CHAPTER_POSITION, selectedChapterHref);
+        args.putParcelable(Config.INTENT_CONFIG, mConfig);
         tableOfContentFragment.setArguments(args);
         return tableOfContentFragment;
     }
@@ -54,7 +56,8 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View mRootView = inflater.inflate(R.layout.fragment_contents, container, false);
-        if (Config.getConfig().isNightMode()) {
+          mConfig = getArguments().getParcelable(Config.INTENT_CONFIG);
+        if (mConfig.isNightMode()) {
             mRootView.findViewById(R.id.recycler_view_menu).
                     setBackgroundColor(ContextCompat.getColor(getActivity(),
                             R.color.black));
@@ -81,7 +84,7 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
 
     @Override
     public void onLoadTOC(ArrayList<TOCLinkWrapper> tocLinkWrapperList) {
-        mTOCAdapter = new TOCAdapter(getActivity(), tocLinkWrapperList,getArguments().getString(SELECTED_CHAPTER_POSITION));
+        mTOCAdapter = new TOCAdapter(getActivity(), tocLinkWrapperList,getArguments().getString(SELECTED_CHAPTER_POSITION),mConfig);
         mTOCAdapter.setCallback(this);
         mTableOfContentsRecyclerView.setAdapter(mTOCAdapter);
     }

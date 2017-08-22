@@ -34,12 +34,11 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_close_green_24dp" />
 
-            <LinearLayout
+            <LinearLayout android:id="@+id/layout_content_highlights"
                 android:layout_width="170dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerInParent="true"
-                android:background="@drawable/btn_contents_highlights"
                 android:orientation="horizontal"
                 android:padding="1.8dp">
 
@@ -48,11 +47,9 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/style_back_color_selector"
                     android:gravity="center|end"
                     android:padding="5dp"
                     android:text="@string/contents"
-                    android:textColor="@drawable/content_highlight_text_selector"
                     android:textSize="16sp" />
 
                 <TextView
@@ -60,11 +57,9 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/style_back_color_selector"
                     android:gravity="center|start"
                     android:padding="5dp"
                     android:text="@string/highlights"
-                    android:textColor="@drawable/content_highlight_text_selector"
                     android:textSize="16sp" />
             </LinearLayout>
 
