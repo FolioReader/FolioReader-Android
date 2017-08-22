@@ -8,7 +8,6 @@ import android.os.Parcelable;
  */
 public class Config implements Parcelable {
     public static final String INTENT_CONFIG = "config";
-    private static Config mConfig;
     private int font;
     private int fontSize;
     private boolean nightMode;
@@ -26,7 +25,6 @@ public class Config implements Parcelable {
         fontSize = configBuilder.fontSize;
         nightMode = configBuilder.nightMode;
         themeColor = configBuilder.themeColor;
-        mConfig = this;
     }
 
     private Config() {
@@ -40,15 +38,6 @@ public class Config implements Parcelable {
         readFromParcel(in);
     }
 
-    public static Config getConfig() {
-        if (mConfig == null) mConfig = new Config();
-
-        return mConfig;
-    }
-
-    public static void setConfig(Config config) {
-        mConfig = config;
-    }
 
     public int getFont() {
         return font;

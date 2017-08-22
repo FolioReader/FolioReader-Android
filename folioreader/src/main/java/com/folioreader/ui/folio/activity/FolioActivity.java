@@ -115,6 +115,7 @@ public class FolioActivity
     private Animation slide_down;
     private Animation slide_up;
     private boolean mIsNightMode;
+    private Config mConfig;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +123,9 @@ public class FolioActivity
         setContentView(R.layout.folio_activity);
 
         if (getIntent().getParcelableExtra(Config.INTENT_CONFIG) != null) {
-             Config.setConfig((Config) getIntent().getParcelableExtra(Config.INTENT_CONFIG));
+            mConfig = getIntent().getParcelableExtra(Config.INTENT_CONFIG);
+        } else {
+            mConfig = new Config.ConfigBuilder().build();
         }
 
         initColors();
@@ -155,7 +158,9 @@ public class FolioActivity
         findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class).putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
+                Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
+                intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
+                intent.putExtra(Config.INTENT_CONFIG, mConfig);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
                 overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
             }
@@ -178,7 +183,7 @@ public class FolioActivity
             }
         });
 
-        mIsNightMode = Config.getConfig().isNightMode();
+        mIsNightMode = mConfig.isNightMode();
         if (mIsNightMode) {
             mToolbar.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.black));
             title.setTextColor(ContextCompat.getColor(FolioActivity.this, R.color.white));
@@ -236,7 +241,7 @@ public class FolioActivity
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
             mFolioPageFragmentAdapter =
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, EPUB_TITLE);
+                            mSpineReferenceList, EPUB_TITLE, mConfig);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             mFolioPageViewPager.setOffscreenPageLimit(1);
             mFolioPageViewPager.setCurrentItem(mChapterPosition);
@@ -245,7 +250,7 @@ public class FolioActivity
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
             mFolioPageFragmentAdapter =
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, EPUB_TITLE);
+                            mSpineReferenceList, EPUB_TITLE, mConfig);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             mFolioPageViewPager.setCurrentItem(mChapterPosition);
         }
@@ -274,7 +279,7 @@ public class FolioActivity
         });
 
         if (mSpineReferenceList != null) {
-            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, EPUB_TITLE);
+            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, EPUB_TITLE, mConfig);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         }
 
@@ -296,6 +301,9 @@ public class FolioActivity
             @Override
             public void onClick(View v) {
                 mConfigBottomSheetDialogFragment = new ConfigBottomSheetDialogFragment();
+                Bundle args = new Bundle();
+                args.putParcelable(Config.INTENT_CONFIG, mConfig);
+                mConfigBottomSheetDialogFragment.setArguments(args);
                 mConfigBottomSheetDialogFragment.show(getSupportFragmentManager(), mConfigBottomSheetDialogFragment.getTag());
             }
         });
@@ -576,10 +584,10 @@ public class FolioActivity
     }
 
 
-    public void initColors(){
-        UiUtil.setColorToImage(this,Config.getConfig().getThemeColor(),((ImageView) findViewById(R.id.btn_close)).getDrawable());
-        UiUtil.setColorToImage(this,Config.getConfig().getThemeColor(),((ImageView) findViewById(R.id.btn_drawer)).getDrawable());
-        UiUtil.setColorToImage(this,Config.getConfig().getThemeColor(),((ImageView) findViewById(R.id.btn_config)).getDrawable());
-        UiUtil.setColorToImage(this,Config.getConfig().getThemeColor(),((ImageView) findViewById(R.id.btn_speaker)).getDrawable());
+    public void initColors() {
+        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_close)).getDrawable());
+        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_drawer)).getDrawable());
+        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_config)).getDrawable());
+        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_speaker)).getDrawable());
     }
 }
