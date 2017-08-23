@@ -1,81 +1,98 @@
 package com.folioreader.util;
 
-import android.util.Log;
-
 import com.folioreader.model.Highlight;
+import com.folioreader.model.sqlite.HighLightTable;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
 
 /**
  * Created by priyank on 5/12/16.
  */
 public class HighlightUtil {
-    public static final int mHighlightRange = 30;
-    private static final String TAG = HighlightUtil.class.getSimpleName();
 
-    public static Highlight matchHighlight(String html, String highlightId, String bookTitle, int pageNo) {
-        String contentPre;
-        String contentPost;
-        Highlight highlight = null;
+    public static String createHighlightRangy(String content, String bookTitle, String pageId, int pageNo, int scrollPosition, String oldRangy) {
         try {
-            String pattern = "<highlight id=\"" + highlightId
-                    + "\" onclick=\".*?\" class=\"(.*?)\">(.*?)</highlight>";
-            Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE
-                    | Pattern.DOTALL).matcher(html);
-            if (matcher.find()) {
-                contentPre = html.substring(matcher.start() - mHighlightRange, matcher.start());
-                contentPost = html.substring(matcher.end(), matcher.end() + mHighlightRange);
-                if (contentPre.contains(">")) {
-                    Matcher preMatcher = Pattern.compile("((?=[^>]*$)(.|\\s)*$)",
-                            Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(contentPre);
-                    if (preMatcher.find()) {
-                        contentPre = contentPre.substring(contentPre.lastIndexOf('>') + 1,
-                                contentPre.length());
-                    }
-                }
-                if (contentPost.contains("<")) {
-                    Matcher postMatcher = Pattern.compile("^((.|\\s)*?)(?=<)",
-                            Pattern.CASE_INSENSITIVE
-                            | Pattern.DOTALL).matcher(contentPost);
-                    if (postMatcher.find()) {
-                        contentPost = contentPost.substring(0, contentPost.indexOf('<'));
-                    }
-                }
+            JSONObject jObject = new JSONObject(content);
 
-                String content = matcher.group(2);
-                content = removeSentenceSpam(content);
-                contentPost = removeSentenceSpam(contentPost);
-                contentPre = removeSentenceSpam(contentPre);
+            String rangy = jObject.getString("rangy");
+            String textContent = jObject.getString("content");
+            String color = jObject.getString("color");
 
-                highlight = new Highlight();
-                highlight.setContentPre(contentPre);
-                highlight.setType(matcher.group(1));
-                highlight.setContentPost(contentPost);
-                highlight.setHighlightId(highlightId);
-                highlight.setContent(content);
-                highlight.setBookId(bookTitle);
-                highlight.setPage(pageNo);
-                highlight.setDate(Calendar.getInstance().getTime());
-            }
-        } catch (Exception e) {
-            Log.d(TAG, e.getMessage());
+            String rangyHighlightElement = getRangyString(rangy, oldRangy);
+
+            Highlight highlight = new Highlight();
+            highlight.setContent(textContent);
+            highlight.setType(color);
+            highlight.setPageNumber(pageNo);
+            highlight.setScrollPosition(scrollPosition);
+            highlight.setBookId(bookTitle);
+            highlight.setPageId(pageId);
+            highlight.setRangy(rangyHighlightElement);
+            highlight.setDate(Calendar.getInstance().getTime());
+            // save highlight to database
+            HighLightTable.insertHighlight(highlight);
+            return rangy;
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        return highlight;
+        return "";
     }
 
-    private static String removeSentenceSpam(String html) {
-        String pattern = "<span class=\"sentence\">((.|\\s)*?)</span>";
-        Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE
-                | Pattern.DOTALL).matcher(html);
-
-        while (matcher.find()){
-            String rangeWithoutSpan = matcher.group(1);
-            String rangeWithSpan = matcher.group(0);
-
-            html = html.replace(rangeWithSpan, rangeWithoutSpan);
+    /**
+     * function extracts rangy element corresponding to latest highlight.
+     *
+     * @param rangy    new rangy string generated after adding new highlight.
+     * @param oldRangy rangy string before new highlight.
+     * @return rangy element corresponding to latest element.
+     */
+    private static String getRangyString(String rangy, String oldRangy) {
+        List<String> rangyList = getRangyArray(rangy);
+        for (String firs : getRangyArray(oldRangy)) {
+            if (rangyList.contains(firs)) {
+                rangyList.remove(firs);
+            }
         }
-        return html;
+        if (rangyList.size() >= 1) {
+            return rangyList.get(0);
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * function converts Rangy text into each individual element
+     * splitting with '|'.
+     *
+     * @param rangy rangy test with format: type:textContent|start$end$id$class$containerId
+     * @return ArrayList of each rangy element corresponding to each highlight
+     */
+    private static List<String> getRangyArray(String rangy) {
+        List<String> rangyElementList = new ArrayList<>();
+        rangyElementList.addAll(Arrays.asList(rangy.split("\\|")));
+        if (rangyElementList.contains("type:textContent")) {
+            rangyElementList.remove("type:textContent");
+        } else if (rangyElementList.contains("")) {
+            return new ArrayList<>();
+        }
+        return rangyElementList;
+    }
+
+    public static String generateRangyString(String pageId) {
+        List<String> rangyList = HighLightTable.getHighlightsForPageId(pageId);
+        StringBuilder builder = new StringBuilder();
+        if (!rangyList.isEmpty()) {
+            builder.append("type:textContent");
+            for (String rangy : rangyList) {
+                builder.append("\\|");
+                builder.append(rangy);
+            }
+        }
+        return builder.toString();
     }
 }
