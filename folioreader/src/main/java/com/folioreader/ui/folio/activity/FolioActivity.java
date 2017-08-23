@@ -129,7 +129,7 @@ public class FolioActivity
         }
 
         if(!mConfig.isTtsNeeded()){
-            findViewById(R.id.btn_speaker).setVisibility(View.GONE);
+            findViewById(R.id.btn_speaker).setEnabled(false);
         }
         initColors();
 
