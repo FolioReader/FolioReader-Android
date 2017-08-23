@@ -114,4 +114,8 @@ public class DbAdapter {
             return "";
         }
     }
+
+    public static Cursor getHighlightsForPageId(String query, String pageId) {
+        return mDatabase.rawQuery(query, null);
+    }
 }

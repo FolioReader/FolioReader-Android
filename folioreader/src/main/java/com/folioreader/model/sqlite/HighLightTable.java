@@ -4,12 +4,14 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
+import com.folioreader.Constants;
 import com.folioreader.model.Highlight;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class HighLightTable {
@@ -22,6 +24,8 @@ public class HighLightTable {
     private static String COL_TYPE = "type";
     private static String COL_WEB_VIEW_SCROLL = "webView_scroll";
     private static String COL_PAGE_NUMBER = "page_number";
+    private static String COL_PAGE_ID = "pageId";
+    private static String COL_RANGY = "rangy";
     private static String COL_NOTE = "note";
 
     public static String SQL_CREATE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ( " + ID
@@ -32,6 +36,8 @@ public class HighLightTable {
             + COL_TYPE + " TEXT" + ","
             + COL_WEB_VIEW_SCROLL + " INTEGER" + ","
             + COL_PAGE_NUMBER + " INTEGER" + ","
+            + COL_PAGE_ID + " TEXT" + ","
+            + COL_RANGY + " TEXT" + ","
             + COL_NOTE + " TEXT" + ")";
 
     public static String SQL_DROP = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -46,6 +52,8 @@ public class HighLightTable {
         contentValues.put(COL_TYPE, hightlight.getType());
         contentValues.put(COL_WEB_VIEW_SCROLL, hightlight.getScrollPosition());
         contentValues.put(COL_PAGE_NUMBER, hightlight.getPageNumber());
+        contentValues.put(COL_PAGE_ID, hightlight.getPageId());
+        contentValues.put(COL_RANGY, hightlight.getRangy());
         contentValues.put(COL_NOTE, hightlight.getNote());
         return contentValues;
     }
@@ -62,6 +70,8 @@ public class HighLightTable {
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_TYPE)),
                     highlightCursor.getInt(highlightCursor.getColumnIndex(COL_WEB_VIEW_SCROLL)),
                     highlightCursor.getInt(highlightCursor.getColumnIndex(COL_PAGE_NUMBER)),
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_PAGE_ID)),
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_RANGY)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_NOTE))));
         }
         return highlights;
@@ -73,6 +83,16 @@ public class HighLightTable {
 
     //TODO
     public static void deleteHighlight(String highlightId) {
+    }
+
+    public static List<String> getHighlightsForPageId(String pageId) {
+        String query = "SELECT " + COL_RANGY + " FROM " + TABLE_NAME + " WHERE " + COL_PAGE_ID + " = '" + pageId + "'";
+        Cursor c = DbAdapter.getHighlightsForPageId(query, pageId);
+        List<String> rangyList = new ArrayList<>();
+        while (c.moveToNext()) {
+            rangyList.add(c.getString(c.getColumnIndex(COL_RANGY)));
+        }
+        return rangyList;
     }
 
     //TODO

@@ -5,11 +5,6 @@ import android.content.Context;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
-import com.folioreader.model.Highlight;
-import com.folioreader.model.sqlite.HighLightTable;
-
-import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 /**
  * @author gautam chibde on 14/6/17.
@@ -108,17 +103,7 @@ public final class HtmlUtil {
                 break;
         }
 
-//        htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
-//        ArrayList<Highlight> highlights = HighLightTable.getAllHighlights(mBookTitle);
-//        for (Highlight highlight : highlights) {
-//            String highlightStr = highlight.getContentPre() +
-//                    "<highlight id=\"" + highlight.getHighlightId() +
-//                    "\" onclick=\"callHighlightURL(this);\" class=\"" +
-//                    highlight.getType() + "\">" + highlight.getContent() + "</highlight>" + highlight.getContentPost();
-//            String searchStr = highlight.getContentPre() +
-//                    "" + highlight.getContent() + "" + highlight.getContentPost();
-//            htmlContent = htmlContent.replaceFirst(Pattern.quote(searchStr), highlightStr);
-//        }
+        htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
         return htmlContent;
     }
 }

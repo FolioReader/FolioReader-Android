@@ -20,6 +20,8 @@ public class Highlight implements Parcelable {
     private String type;
     private int scrollPosition;
     private int pageNumber;
+    private String pageId;
+    private String rangy;
     private String note;
 
     public enum HighlightStyle {
@@ -96,9 +98,9 @@ public class Highlight implements Parcelable {
         }
     }
 
-    public Highlight(int id, String bookId, String content, Date date,
-                     String type, int scrollPosition, int pageNumber,
-                     String note) {
+    public Highlight(int id, String bookId, String content, Date date, String type,
+                     int scrollPosition, int pageNumber, String pageId,
+                     String rangy, String note) {
         this.id = id;
         this.bookId = bookId;
         this.content = content;
@@ -106,6 +108,8 @@ public class Highlight implements Parcelable {
         this.type = type;
         this.scrollPosition = scrollPosition;
         this.pageNumber = pageNumber;
+        this.pageId = pageId;
+        this.rangy = rangy;
         this.note = note;
     }
 
@@ -150,6 +154,22 @@ public class Highlight implements Parcelable {
 
     public String getType() {
         return type;
+    }
+
+    public String getPageId() {
+        return pageId;
+    }
+
+    public void setPageId(String pageId) {
+        this.pageId = pageId;
+    }
+
+    public String getRangy() {
+        return rangy;
+    }
+
+    public void setRangy(String rangy) {
+        this.rangy = rangy;
     }
 
     public void setType(String type) {
@@ -215,6 +235,8 @@ public class Highlight implements Parcelable {
                 ", type='" + type + '\'' +
                 ", scrollPosition=" + scrollPosition +
                 ", pageNumber=" + pageNumber +
+                ", pageId='" + pageId + '\'' +
+                ", rangy='" + rangy + '\'' +
                 ", note='" + note + '\'' +
                 '}';
     }
@@ -228,6 +250,8 @@ public class Highlight implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
         dest.writeString(bookId);
+        dest.writeString(pageId);
+        dest.writeString(rangy);
         dest.writeString(content);
         dest.writeSerializable(date);
         dest.writeString(type);
@@ -238,6 +262,8 @@ public class Highlight implements Parcelable {
 
     private void readFromParcel(Parcel in) {
         id = in.readInt();
+        pageId = in.readString();
+        rangy = in.readString();
         bookId = in.readString();
         content = in.readString();
         date = (Date) in.readSerializable();

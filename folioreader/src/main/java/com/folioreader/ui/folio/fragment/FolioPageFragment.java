@@ -38,7 +38,6 @@ import com.folioreader.model.event.RewindIndexEvent;
 import com.folioreader.model.event.WebViewPosition;
 import com.folioreader.model.quickaction.ActionItem;
 import com.folioreader.model.quickaction.QuickAction;
-import com.folioreader.model.sqlite.HighLightRangyTable;
 import com.folioreader.ui.base.HtmlTask;
 import com.folioreader.ui.base.HtmlTaskCallback;
 import com.folioreader.ui.base.HtmlUtil;
@@ -92,6 +91,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private String mHtmlString = null;
     private boolean hasMediaOverlay = false;
     private String mAnchorId;
+    private String rangy = "";
 
     public interface FolioPageFragmentCallback {
 
@@ -373,10 +373,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             @Override
             public void onPageFinished(WebView view, String url) {
                 if (isAdded()) {
-                    String rangy = HighLightRangyTable.getRangyForHref(getPageName());
-                    if (!rangy.isEmpty()) {
-                        view.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
-                    }
                     if (mAnchorId != null)
                         view.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
                     view.loadUrl("javascript:alert(getReadingTime())");
@@ -393,6 +389,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     } else if (mIsPageReloaded) {
                         setWebViewPosition(mLastWebviewScrollpos);
                         mIsPageReloaded = false;
+                    }
+                    String rangy = HighlightUtil.generateRangyString(getPageName());
+                    if (!rangy.isEmpty()) {
+                        view.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
                     }
                 }
             }
@@ -812,10 +812,11 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         }
     }
 
+    @SuppressWarnings("unused")
     @JavascriptInterface
     public void onReceiveHighlights(String html) {
         if (html != null) {
-            HighlightUtil.createHighlightRangy(html, mBookTitle, getPageName(), mPosition, mWebview.getScrollY());
+            rangy = HighlightUtil.createHighlightRangy(html, mBookTitle, getPageName(), mPosition, mWebview.getScrollY(),rangy);
         }
     }
 
@@ -823,6 +824,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         return mBookTitle + "$" + spineItem.href;
     }
 
+    @SuppressWarnings("unused")
     @Subscribe
     public void setWebView(final WebViewPosition position) {
         if (position.getHref().equals(spineItem.href)) {
@@ -849,6 +851,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         mWebview.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))");
     }
 
+    //TODO
     @JavascriptInterface
     public void getRemovedHighlightId(String id) {
         if (id != null) {
@@ -856,6 +859,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         }
     }
 
+    //TODO
     @JavascriptInterface
     public void getUpdatedHighlightId(String id, String style) {
         if (id != null) {
