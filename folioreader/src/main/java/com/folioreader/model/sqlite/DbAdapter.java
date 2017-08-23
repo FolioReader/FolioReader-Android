@@ -31,10 +31,6 @@ public class DbAdapter {
         return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.COL_BOOK_ID + " = '" + bookId + "'", null);
     }
 
-    public static Cursor getAllHighlightRangy() {
-        return mDatabase.rawQuery("SELECT * FROM " + HighLightRangyTable.TABLE_NAME, null);
-    }
-
     public boolean deleteAll(String table) {
         return mDatabase.delete(table, null, null) > 0;
     }
@@ -74,45 +70,12 @@ public class DbAdapter {
         return mDatabase.rawQuery("SELECT MAX(" + key + ") FROM " + tableName, null);
     }
 
-    public static int isHighLightExist(String bookId) {
-        Cursor c = mDatabase.rawQuery("SELECT " + HighLightRangyTable.ID + " FROM " + HighLightRangyTable.TABLE_NAME + " WHERE " + HighLightTable.COL_BOOK_ID + " = '" + bookId.trim() + "'", null);
-        if (c.moveToFirst()) {
-            int id = c.getInt(0);
-            c.close();
-            return id;
-        } else {
-            c.close();
-            return -1;
-        }
-    }
-
     public static boolean saveHighLight(ContentValues highlightContentValues) {
         return mDatabase.insert(HighLightTable.TABLE_NAME, null, highlightContentValues) > 0;
     }
 
     public static boolean updateHighLight(ContentValues highlightContentValues, String id) {
         return mDatabase.update(HighLightTable.TABLE_NAME, highlightContentValues, HighLightTable.ID + " = " + id, null) > 0;
-    }
-
-    public static boolean saveHighLightRangy(ContentValues highlightContentValues) {
-        return mDatabase.insert(HighLightRangyTable.TABLE_NAME, null, highlightContentValues) > 0;
-    }
-
-    public static boolean updateHighLightRangy(ContentValues highlightContentValues, String id) {
-        return mDatabase.update(HighLightRangyTable.TABLE_NAME, highlightContentValues, HighLightTable.ID + " = " + id, null) > 0;
-
-    }
-
-    public static String getRangyForHref(String query) {
-        Cursor c = mDatabase.rawQuery(query, null);
-        if (c.moveToFirst()) {
-            String rangy = c.getString(0);
-            c.close();
-            return rangy;
-        } else {
-            c.close();
-            return "";
-        }
     }
 
     public static Cursor getHighlightsForPageId(String query, String pageId) {

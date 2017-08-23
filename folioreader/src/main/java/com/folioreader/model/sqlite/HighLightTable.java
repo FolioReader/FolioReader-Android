@@ -98,21 +98,21 @@ public class HighLightTable {
     //TODO
     public static void updateHighlight(Highlight highlight) {
         if (DbAdapter.updateHighLight(getHighlightContentValues(highlight), String.valueOf(highlight.getId()))) {
-            Log.d(TAG, "highlight updated sucessfully");
+            Log.d(TAG, "highlight updated successfully");
         } else {
-            Log.d(TAG, "error while highlight updateing");
+            Log.d(TAG, "error while highlight updating");
         }
     }
 
     public static String getDateTimeString(Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                Constants.DATE_FORMAT, Locale.getDefault());
         return dateFormat.format(date);
     }
 
     public static Date getDateTime(String date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                Constants.DATE_FORMAT, Locale.getDefault());
         Date date1 = new Date();
         try {
             date1 = dateFormat.parse(date);

@@ -3,6 +3,8 @@ package com.folioreader.util;
 import android.content.Context;
 import android.util.Log;
 
+import com.folioreader.Constants;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,7 +64,7 @@ public class AppUtil {
 
 
     public static String formatDate(Date hightlightDate) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy | HH:mm", Locale.getDefault());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault());
         return simpleDateFormat.format(hightlightDate);
     }
 
