@@ -29,11 +29,13 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
     private static TOCCallback callback;
     private final Context mContext;
     private String selectedHref;
+    private Config mConfig;
 
-    public TOCAdapter(Context context, ArrayList<TOCLinkWrapper> tocLinkWrappers, String selectedHref) {
+    public TOCAdapter(Context context, ArrayList<TOCLinkWrapper> tocLinkWrappers, String selectedHref, Config config) {
         super(tocLinkWrappers);
         mContext = context;
         this.selectedHref = selectedHref;
+        this.mConfig = config;
     }
 
     public void setCallback(TOCCallback callback) {
@@ -58,7 +60,7 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
         }
         viewHolder.sectionTitle.setText(tocLinkWrapper.getTocLink().bookTitle);
 
-        if(Config.getConfig().isNightMode()) {
+        if(mConfig.isNightMode()) {
             if (tocLinkWrapper.isGroup()) {
                 viewHolder.children.setImageResource(R.drawable.ic_plus_white_24dp);
             } else {
@@ -96,7 +98,7 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
             viewHolder.children.setVisibility(View.VISIBLE);
         }
 
-        if(Config.getConfig().isNightMode()){
+        if(mConfig.isNightMode()){
             viewHolder.container.setBackgroundColor(ContextCompat.getColor(mContext,
                     R.color.black));
             viewHolder.children.setBackgroundColor(ContextCompat.getColor(mContext,
@@ -112,7 +114,7 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
                     R.color.black));
         }
         if (tocLinkWrapper.getTocLink().href.equals(selectedHref)) {
-            viewHolder.sectionTitle.setTextColor(Color.GREEN);
+            viewHolder.sectionTitle.setTextColor(ContextCompat.getColor(mContext, mConfig.getThemeColor()));
         }
     }
 

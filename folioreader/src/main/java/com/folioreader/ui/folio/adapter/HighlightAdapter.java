@@ -30,11 +30,13 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
     private List<Highlight> highlights;
     private HighLightAdapterCallback callback;
     private Context context;
+    private  Config config;
 
-    public HighlightAdapter(Context context, List<Highlight> highlights, HighLightAdapterCallback callback) {
+    public HighlightAdapter(Context context, List<Highlight> highlights, HighLightAdapterCallback callback, Config config) {
         this.context = context;
         this.highlights = highlights;
         this.callback = callback;
+        this.config = config;
     }
 
     @Override
@@ -94,7 +96,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
                 });
             }
         }, 20);
-        if (Config.getConfig().isNightMode()) {
+        if (config.isNightMode()) {
             holder.container.setBackgroundColor(ContextCompat.getColor(context,
                     R.color.black));
             holder.note.setTextColor(ContextCompat.getColor(context,

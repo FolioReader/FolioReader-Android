@@ -131,13 +131,15 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private String highlightStyle;
 
     private MediaController mediaController;
+    private Config mConfig;
 
-    public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef) {
+    public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef, Config config) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
         args.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, bookTitle);
         args.putSerializable(SPINE_ITEM, spineRef);
+        args.putParcelable(Config.INTENT_CONFIG,config);
         fragment.setArguments(args);
         return fragment;
     }
@@ -173,6 +175,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
         if (getActivity() instanceof FolioPageFragmentCallback)
             mActivityCallback = (FolioPageFragmentCallback) getActivity();
+         mConfig = getArguments().getParcelable(Config.INTENT_CONFIG);
 
         FolioActivity.BUS.register(this);
 
@@ -318,7 +321,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             String path = ref.substring(0, ref.lastIndexOf("/"));
             mWebview.loadDataWithBaseURL(
                     Constants.LOCALHOST + mBookTitle + "/" + path + "/",
-                    HtmlUtil.getHtmlContent(getActivity(), mHtmlString, mBookTitle),
+                    HtmlUtil.getHtmlContent(getActivity(), mHtmlString, mBookTitle, mConfig),
                     "text/html",
                     "UTF-8",
                     null);
@@ -526,7 +529,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     }
 
     private void updatePagesLeftTextBg() {
-        if (Config.getConfig().isNightMode()) {
+
+        if (mConfig.isNightMode()) {
             mRootView.findViewById(R.id.indicatorLayout)
                     .setBackgroundColor(Color.parseColor("#131313"));
         } else {
