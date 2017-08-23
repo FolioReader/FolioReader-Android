@@ -81,8 +81,8 @@ public class HighLightTable {
         DbAdapter.saveHighLight(getHighlightContentValues(highlight));
     }
 
-    //TODO
-    public static void deleteHighlight(String highlightId) {
+    public static void deleteHighlight(int highlightId) {
+        DbAdapter.deleteById(TABLE_NAME, ID, String.valueOf(highlightId));
     }
 
     public static List<String> getHighlightsForPageId(String pageId) {
@@ -92,6 +92,7 @@ public class HighLightTable {
         while (c.moveToNext()) {
             rangyList.add(c.getString(c.getColumnIndex(COL_RANGY)));
         }
+        c.close();
         return rangyList;
     }
 

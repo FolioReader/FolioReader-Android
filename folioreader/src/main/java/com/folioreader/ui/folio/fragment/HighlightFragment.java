@@ -82,9 +82,9 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     }
 
     @Override
-    public void deleteHighlight(String id) {
-        //HighLightTable.deleteHighlight(id);
-        //FolioActivity.BUS.post(new ReloadDataEvent());
+    public void deleteHighlight(int id) {
+        HighLightTable.deleteHighlight(id);
+        FolioActivity.BUS.post(new ReloadDataEvent());
     }
 
     @Override
