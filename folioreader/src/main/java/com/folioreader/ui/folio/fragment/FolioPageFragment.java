@@ -141,7 +141,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
         args.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, bookTitle);
         args.putSerializable(SPINE_ITEM, spineRef);
-        args.putParcelable(Config.INTENT_CONFIG,config);
         fragment.setArguments(args);
         return fragment;
     }
@@ -177,7 +176,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
         if (getActivity() instanceof FolioPageFragmentCallback)
             mActivityCallback = (FolioPageFragmentCallback) getActivity();
-         mConfig = getArguments().getParcelable(Config.INTENT_CONFIG);
+         mConfig = AppUtil.getSavedConfig(getActivity());
 
         FolioActivity.BUS.register(this);
 
@@ -320,6 +319,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     mediaController.setUpMediaPlayer(spineItem.mediaOverlay, spineItem.mediaOverlay.getAudioPath(spineItem.href), mBookTitle);
                 }
             }
+            mConfig = AppUtil.getSavedConfig(getActivity());
             String path = ref.substring(0, ref.lastIndexOf("/"));
             mWebview.loadDataWithBaseURL(
                     Constants.LOCALHOST + mBookTitle + "/" + path + "/",

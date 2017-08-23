@@ -27,6 +27,7 @@ import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.ui.folio.adapter.HighlightAdapter;
 import com.folioreader.ui.tableofcontents.view.TableOfContentFragment;
+import com.folioreader.util.AppUtil;
 
 import static com.folioreader.Constants.SELECTED_CHAPTER_POSITION;
 
@@ -36,11 +37,8 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     private HighlightAdapter adapter;
 
 
-    public static HighlightFragment newInstance(Config config) {
+    public static HighlightFragment newInstance() {
         HighlightFragment highlightFragment = new HighlightFragment();
-        Bundle args = new Bundle();
-        args.putParcelable(Config.INTENT_CONFIG, config);
-        highlightFragment.setArguments(args);
         return highlightFragment;
     }
 
@@ -60,7 +58,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         RecyclerView highlightsView = (RecyclerView) mRootView.findViewById(R.id.rv_highlights);
-        Config config = getArguments().getParcelable(Config.INTENT_CONFIG);
+        Config config = AppUtil.getSavedConfig(getActivity());
         if (config.isNightMode()) {
             mRootView.findViewById(R.id.rv_highlights).
                     setBackgroundColor(ContextCompat.getColor(getActivity(),

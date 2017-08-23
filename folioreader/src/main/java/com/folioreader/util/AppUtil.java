@@ -3,6 +3,8 @@ package com.folioreader.util;
 import android.content.Context;
 import android.util.Log;
 
+import com.folioreader.Config;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -129,6 +131,36 @@ public class AppUtil {
             }
         }
         return 0;
+    }
+
+
+    public static void saveConfig(Context context, Config config) {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put(Config.CONFIG_FONT, config.getFont());
+            obj.put(Config.CONFIG_FONT_SIZE, config.getFontSize());
+            obj.put(Config.CONFIG_IS_NIGHTMODE, config.isNightMode());
+            obj.put(Config.CONFIG_IS_THEMECOLOR, config.getThemeColor());
+            SharedPreferenceUtil.
+                    putSharedPreferencesString(
+                            context, Config.INTENT_CONFIG, obj.toString());
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    public static Config getSavedConfig(Context context) {
+        String json = getSharedPreferencesString(context, Config.INTENT_CONFIG, null);
+        if (json != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(json);
+                return new Config(jsonObject);
+            } catch (JSONException e) {
+                Log.e(TAG, e.getMessage());
+                return null;
+            }
+        }
+        return null;
     }
 }
 

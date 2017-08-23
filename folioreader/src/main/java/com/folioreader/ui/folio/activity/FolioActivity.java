@@ -122,8 +122,12 @@ public class FolioActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
 
-        if (getIntent().getParcelableExtra(Config.INTENT_CONFIG) != null) {
+
+        if (AppUtil.getSavedConfig(this) != null) {
+            mConfig = AppUtil.getSavedConfig(this);
+        } else if (getIntent().getParcelableExtra(Config.INTENT_CONFIG) != null) {
             mConfig = getIntent().getParcelableExtra(Config.INTENT_CONFIG);
+            AppUtil.saveConfig(this, mConfig);
         } else {
             mConfig = new Config.ConfigBuilder().build();
         }
@@ -160,7 +164,6 @@ public class FolioActivity
             public void onClick(View v) {
                 Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
                 intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
-                intent.putExtra(Config.INTENT_CONFIG, mConfig);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
                 overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
             }
@@ -232,6 +235,7 @@ public class FolioActivity
     @Override
     public void onBackPressed() {
         saveBookState();
+        AppUtil.saveConfig(this, mConfig);
         super.onBackPressed();
     }
 
@@ -301,9 +305,6 @@ public class FolioActivity
             @Override
             public void onClick(View v) {
                 mConfigBottomSheetDialogFragment = new ConfigBottomSheetDialogFragment();
-                Bundle args = new Bundle();
-                args.putParcelable(Config.INTENT_CONFIG, mConfig);
-                mConfigBottomSheetDialogFragment.setArguments(args);
                 mConfigBottomSheetDialogFragment.show(getSupportFragmentManager(), mConfigBottomSheetDialogFragment.getTag());
             }
         });

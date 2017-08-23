@@ -13,6 +13,7 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.ui.folio.fragment.HighlightFragment;
 import com.folioreader.ui.tableofcontents.view.TableOfContentFragment;
+import com.folioreader.util.AppUtil;
 import com.folioreader.util.UiUtil;
 
 public class ContentHighlightActivity extends AppCompatActivity {
@@ -24,7 +25,7 @@ public class ContentHighlightActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_highlight);
         getSupportActionBar().hide();
-        mConfig = getIntent().getParcelableExtra(Config.INTENT_CONFIG);
+        mConfig = AppUtil.getSavedConfig(this);
         mIsNightMode = mConfig.isNightMode();
         initViews();
     }
@@ -74,7 +75,7 @@ public class ContentHighlightActivity extends AppCompatActivity {
         findViewById(R.id.btn_contents).setSelected(true);
         findViewById(R.id.btn_highlights).setSelected(false);
         TableOfContentFragment contentFrameLayout
-                = TableOfContentFragment.newInstance(getIntent().getStringExtra(Constants.CHAPTER_SELECTED), mConfig);
+                = TableOfContentFragment.newInstance(getIntent().getStringExtra(Constants.CHAPTER_SELECTED));
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.parent, contentFrameLayout);
         ft.commit();
@@ -83,7 +84,7 @@ public class ContentHighlightActivity extends AppCompatActivity {
     private void loadHighlightsFragment() {
         findViewById(R.id.btn_contents).setSelected(false);
         findViewById(R.id.btn_highlights).setSelected(true);
-        HighlightFragment highlightFragment = HighlightFragment.newInstance(mConfig);
+        HighlightFragment highlightFragment = HighlightFragment.newInstance();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.parent, highlightFragment);
         ft.commit();

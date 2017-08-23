@@ -3,11 +3,17 @@ package com.folioreader;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.json.JSONObject;
+
 /**
  * Created by mahavir on 4/12/16.
  */
 public class Config implements Parcelable {
     public static final String INTENT_CONFIG = "config";
+    public static final String CONFIG_FONT = "font";
+    public static final String CONFIG_FONT_SIZE = "font_size";
+    public static final String CONFIG_IS_NIGHTMODE = "is_night_mode";
+    public static final String CONFIG_IS_THEMECOLOR = "theme_color";
     private int font;
     private int fontSize;
     private boolean nightMode;
@@ -25,6 +31,13 @@ public class Config implements Parcelable {
         fontSize = configBuilder.fontSize;
         nightMode = configBuilder.nightMode;
         themeColor = configBuilder.themeColor;
+    }
+
+    public Config(JSONObject jsonObject) {
+        font = jsonObject.optInt(CONFIG_FONT);
+        fontSize = jsonObject.optInt(CONFIG_FONT_SIZE);
+        nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHTMODE);
+        themeColor = jsonObject.optInt(CONFIG_IS_THEMECOLOR);
     }
 
     private Config() {

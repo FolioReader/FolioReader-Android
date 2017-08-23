@@ -27,6 +27,7 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.model.event.ReloadDataEvent;
+import com.folioreader.util.AppUtil;
 import com.folioreader.util.UiUtil;
 
 
@@ -78,7 +79,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         });
 
         mDialogView = view;
-        mConfig = getArguments().getParcelable(Config.INTENT_CONFIG);
+        mConfig = AppUtil.getSavedConfig(getActivity());
         initViews();
     }
 
@@ -208,6 +209,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         mConfig.setFont(selectedFont);
         //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
         if (isAdded() && isReloadNeeded) {
+            AppUtil.saveConfig(getActivity(),mConfig);
             FolioActivity.BUS.post(new ReloadDataEvent());
         }
     }
@@ -240,7 +242,9 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             public void onAnimationEnd(Animator animator) {
                 mIsNightMode = !mIsNightMode;
                 mConfig.setNightMode(mIsNightMode);
+                AppUtil.saveConfig(getActivity(),mConfig);
                 FolioActivity.BUS.post(new ReloadDataEvent());
+
                 ///mConfigDialogCallback.onConfigChange();
             }
 
@@ -269,6 +273,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                 mConfig.setFontSize(progress);
                 //if (mConfigViewCallback != null) mConfigViewCallback.onConfigChange();
                 //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
+                AppUtil.saveConfig(getActivity(),mConfig);
                 FolioActivity.BUS.post(new ReloadDataEvent());
             }
 
