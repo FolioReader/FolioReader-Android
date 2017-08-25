@@ -271,8 +271,6 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mConfig.setFontSize(progress);
-                //if (mConfigViewCallback != null) mConfigViewCallback.onConfigChange();
-                //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
                 AppUtil.saveConfig(getActivity(),mConfig);
                 FolioActivity.BUS.post(new ReloadDataEvent());
             }

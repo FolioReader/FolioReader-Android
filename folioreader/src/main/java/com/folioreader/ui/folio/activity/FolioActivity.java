@@ -122,14 +122,13 @@ public class FolioActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
 
-
-        if (AppUtil.getSavedConfig(this) != null) {
-            mConfig = AppUtil.getSavedConfig(this);
-        } else if (getIntent().getParcelableExtra(Config.INTENT_CONFIG) != null) {
+        mConfig = AppUtil.getSavedConfig(this);
+        if(mConfig == null && getIntent().getParcelableExtra(Config.INTENT_CONFIG)!=null) {
             mConfig = getIntent().getParcelableExtra(Config.INTENT_CONFIG);
             AppUtil.saveConfig(this, mConfig);
         } else {
             mConfig = new Config.ConfigBuilder().build();
+            AppUtil.saveConfig(this, mConfig);
         }
 
         initColors();
