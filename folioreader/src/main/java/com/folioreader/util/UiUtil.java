@@ -105,23 +105,23 @@ public class UiUtil {
 
     public static void setBackColorToTextView(UnderlinedTextView textView, String type) {
         Context context = textView.getContext();
-        if (type.equals("highlight-yellow")) {
+        if (type.equals("yellow")) {
             textView.setBackgroundColor(ContextCompat.getColor(context,
                     R.color.yellow));
             textView.setUnderlineWidth(0.0f);
-        } else if (type.equals("highlight-green")) {
+        } else if (type.equals("green")) {
             textView.setBackgroundColor(ContextCompat.getColor(context,
                     R.color.green));
             textView.setUnderlineWidth(0.0f);
-        } else if (type.equals("highlight-blue")) {
+        } else if (type.equals("blue")) {
             textView.setBackgroundColor(ContextCompat.getColor(context,
                     R.color.blue));
             textView.setUnderlineWidth(0.0f);
-        } else if (type.equals("highlight-pink")) {
+        } else if (type.equals("pink")) {
             textView.setBackgroundColor(ContextCompat.getColor(context,
                     R.color.pink));
             textView.setUnderlineWidth(0.0f);
-        } else if (type.equals("highlight-underline")) {
+        } else if (type.equals("underline")) {
             textView.setUnderLineColor(ContextCompat.getColor(context,
                     android.R.color.holo_red_dark));
             textView.setUnderlineWidth(2.0f);

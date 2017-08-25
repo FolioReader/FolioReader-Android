@@ -18,12 +18,14 @@ public class Config implements Parcelable {
     private int fontSize;
     private boolean nightMode;
     private int themeColor;
+    private boolean showTts;
 
-    public Config(int font, int fontSize, boolean nightMode, int iconcolor) {
+    public Config(int font, int fontSize, boolean nightMode, int iconcolor, boolean showTts) {
         this.font = font;
         this.fontSize = fontSize;
         this.nightMode = nightMode;
         this.themeColor = iconcolor;
+        this.showTts = showTts;
     }
 
     private Config(ConfigBuilder configBuilder) {
@@ -31,6 +33,7 @@ public class Config implements Parcelable {
         fontSize = configBuilder.fontSize;
         nightMode = configBuilder.nightMode;
         themeColor = configBuilder.themeColor;
+        showTts = configBuilder.showTts;
     }
 
     public Config(JSONObject jsonObject) {
@@ -45,6 +48,7 @@ public class Config implements Parcelable {
         font = 3;
         nightMode = false;
         themeColor = R.color.app_green;
+        showTts = true;
     }
 
     private Config(Parcel in) {
@@ -83,6 +87,14 @@ public class Config implements Parcelable {
 
     public void setThemeColor(int themeColor) {
         this.themeColor = themeColor;
+    }
+
+    public boolean isShowTts() {
+        return showTts;
+    }
+
+    public void setShowTts(boolean showTts) {
+        this.showTts = showTts;
     }
 
     @Override
@@ -127,6 +139,7 @@ public class Config implements Parcelable {
         dest.writeInt(fontSize);
         dest.writeInt(nightMode ? 1 : 0);
         dest.writeInt(themeColor);
+        dest.writeInt(showTts ? 1 : 0);
     }
 
     private void readFromParcel(Parcel in) {
@@ -134,6 +147,7 @@ public class Config implements Parcelable {
         fontSize = in.readInt();
         nightMode = in.readInt() == 1;
         themeColor = in.readInt();
+        showTts = in.readInt() == 1;
     }
 
     public static final Creator<Config> CREATOR = new Creator<Config>() {
@@ -153,6 +167,7 @@ public class Config implements Parcelable {
         private int fontSize = 2;
         private boolean nightMode = false;
         private int themeColor = R.color.app_green;
+        private boolean showTts;
 
         public ConfigBuilder font(int font) {
             this.font = font;
@@ -173,6 +188,12 @@ public class Config implements Parcelable {
             this.themeColor = themeColor;
             return this;
         }
+
+        public ConfigBuilder setShowTts(boolean showTts) {
+            this.showTts = showTts;
+            return this;
+        }
+
 
         public Config build() {
             return new Config(this);

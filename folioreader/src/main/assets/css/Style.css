@@ -158,16 +158,16 @@ input, textarea, button, highlight, select, a {
 }
 
 /* Highlight styles */
-html .highlight-yellow {background:rgb(255, 235, 107)}
-html .highlight-green {background:#C0ED72}
-html .highlight-blue {background:#ADD8FF}
-html .highlight-pink {background:#FFB0CA}
-html .highlight-underline {
+html .highlight_yellow {background:rgb(255, 235, 107)}
+html .highlight_green {background:#C0ED72}
+html .highlight_blue {background:#ADD8FF}
+html .highlight_pink {background:#FFB0CA}
+html .highlight_underline {
     text-decoration: none;
     border-bottom: 2px solid #F02814;
 }
 
-html .highlight-yellow, html .highlight-green, html .highlight-blue, html .highlight-pink, span.epub-media-overlay-playing {
+html .highlight_yellow, html .highlight_green, html .highlight_blue, html .highlight_pink, span.epub-media-overlay-playing {
     border-radius: 3px;
     padding: 0 2px;
     margin: 0 -2px;
@@ -213,11 +213,11 @@ html.nightMode {
     color: #848484 !important;
 }
 
-html.nightMode .highlight-yellow {background:rgba(255, 235, 107, 0.9)}
-html.nightMode .highlight-green {background:rgba(192, 237, 114, 0.9)}
-html.nightMode .highlight-blue {background:rgba(173, 216, 255, 0.9)}
-html.nightMode .highlight-pink {background:rgba(255, 176, 202, 0.9)}
-html.nightMode .highlight-underline {border-bottom: 2px solid rgba(240, 40, 20, 0.6)}
+html.nightMode .highlight_yellow {background:rgba(255, 235, 107, 0.9)}
+html.nightMode .highlight_green {background:rgba(192, 237, 114, 0.9)}
+html.nightMode .highlight_blue {background:rgba(173, 216, 255, 0.9)}
+html.nightMode .highlight_pink {background:rgba(255, 176, 202, 0.9)}
+html.nightMode .highlight_underline {border-bottom: 2px solid rgba(240, 40, 20, 0.6)}
 
 
 /*

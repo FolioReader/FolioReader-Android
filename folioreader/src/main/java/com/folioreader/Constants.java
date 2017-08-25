@@ -21,4 +21,5 @@ public class Constants {
     public static final int FONT_LATO = 2;
     public static final int FONT_LORA = 3;
     public static final int FONT_RALEWAY = 4;
+    public static final String DATE_FORMAT = "MMM dd, yyyy | HH:mm";
 }

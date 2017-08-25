@@ -131,6 +131,9 @@ public class FolioActivity
             AppUtil.saveConfig(this, mConfig);
         }
 
+        if(!mConfig.isShowTts()){
+            findViewById(R.id.btn_speaker).setVisibility(View.GONE);
+        }
         initColors();
 
         BUS.register(this);
@@ -373,7 +376,7 @@ public class FolioActivity
     }
 
     public Highlight setCurrentPagerPostion(Highlight highlight) {
-        highlight.setCurrentPagerPostion(mFolioPageViewPager.getCurrentItem());
+//        highlight.setCurrentPagerPostion(mFolioPageViewPager.getCurrentItem());
         return highlight;
     }
 
@@ -395,8 +398,8 @@ public class FolioActivity
                 }
             } else if (type.equals(HIGHLIGHT_SELECTED)) {
                 Highlight highlight = data.getParcelableExtra(HIGHLIGHT_ITEM);
-                mWebViewScrollPosition = highlight.getCurrentWebviewScrollPos();
-                int position = highlight.getCurrentPagerPostion();
+                mWebViewScrollPosition = highlight.getScrollPosition();
+                int position = highlight.getPageNumber();
                 mFolioPageViewPager.setCurrentItem(position);
                 BUS.post(new WebViewPosition(mWebViewScrollPosition, mSpineReferenceList.get(mChapterPosition).href));
             }
