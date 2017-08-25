@@ -70,7 +70,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void openEpub(FolioActivity.EpubSourceType sourceType, String path, int rawID) {
         Intent intent = new Intent(HomeActivity.this, FolioActivity.class);
-        Config config = new Config.ConfigBuilder().font(4).fontSize(3).nightmode(true).themeColor(R.color.pink).isTtsNeeded(false).build();
+        Config config = new Config.ConfigBuilder().font(4).fontSize(3).nightmode(true).themeColor(R.color.pink).setShowTts(false).build();
         intent.putExtra(Config.INTENT_CONFIG,config);
         if (rawID != 0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawID);

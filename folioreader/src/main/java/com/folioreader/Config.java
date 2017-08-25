@@ -12,14 +12,14 @@ public class Config implements Parcelable {
     private int fontSize;
     private boolean nightMode;
     private int themeColor;
-    private boolean isTtsNeeded;
+    private boolean showTts;
 
-    public Config(int font, int fontSize, boolean nightMode, int iconcolor, boolean isTtsNeeded) {
+    public Config(int font, int fontSize, boolean nightMode, int iconcolor, boolean showTts) {
         this.font = font;
         this.fontSize = fontSize;
         this.nightMode = nightMode;
         this.themeColor = iconcolor;
-        this.isTtsNeeded = isTtsNeeded;
+        this.showTts = showTts;
     }
 
     private Config(ConfigBuilder configBuilder) {
@@ -27,7 +27,7 @@ public class Config implements Parcelable {
         fontSize = configBuilder.fontSize;
         nightMode = configBuilder.nightMode;
         themeColor = configBuilder.themeColor;
-        isTtsNeeded = configBuilder.isTtsNeeded;
+        showTts = configBuilder.showTts;
     }
 
     private Config() {
@@ -35,7 +35,7 @@ public class Config implements Parcelable {
         font = 3;
         nightMode = false;
         themeColor = R.color.app_green;
-        isTtsNeeded = true;
+        showTts = true;
     }
 
     private Config(Parcel in) {
@@ -76,12 +76,12 @@ public class Config implements Parcelable {
         this.themeColor = themeColor;
     }
 
-    public boolean isTtsNeeded() {
-        return isTtsNeeded;
+    public boolean isShowTts() {
+        return showTts;
     }
 
-    public void setTtsNeeded(boolean ttsNeeded) {
-        isTtsNeeded = ttsNeeded;
+    public void setShowTts(boolean showTts) {
+        this.showTts = showTts;
     }
 
     @Override
@@ -126,7 +126,7 @@ public class Config implements Parcelable {
         dest.writeInt(fontSize);
         dest.writeInt(nightMode ? 1 : 0);
         dest.writeInt(themeColor);
-        dest.writeInt(isTtsNeeded ? 1 : 0);
+        dest.writeInt(showTts ? 1 : 0);
     }
 
     private void readFromParcel(Parcel in) {
@@ -134,7 +134,7 @@ public class Config implements Parcelable {
         fontSize = in.readInt();
         nightMode = in.readInt() == 1;
         themeColor = in.readInt();
-        isTtsNeeded = in.readInt() == 1;
+        showTts = in.readInt() == 1;
     }
 
     public static final Creator<Config> CREATOR = new Creator<Config>() {
@@ -154,7 +154,7 @@ public class Config implements Parcelable {
         private int fontSize = 2;
         private boolean nightMode = false;
         private int themeColor = R.color.app_green;
-        private boolean isTtsNeeded;
+        private boolean showTts;
 
         public ConfigBuilder font(int font) {
             this.font = font;
@@ -176,8 +176,8 @@ public class Config implements Parcelable {
             return this;
         }
 
-        public ConfigBuilder isTtsNeeded(boolean isTttsneeded) {
-            this.isTtsNeeded = isTttsneeded;
+        public ConfigBuilder setShowTts(boolean showTts) {
+            this.showTts = showTts;
             return this;
         }
 

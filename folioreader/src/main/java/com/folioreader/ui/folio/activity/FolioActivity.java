@@ -128,8 +128,8 @@ public class FolioActivity
             mConfig = new Config.ConfigBuilder().build();
         }
 
-        if(!mConfig.isTtsNeeded()){
-            findViewById(R.id.btn_speaker).setEnabled(false);
+        if(!mConfig.isShowTts()){
+            findViewById(R.id.btn_speaker).setVisibility(View.GONE);
         }
         initColors();
 
