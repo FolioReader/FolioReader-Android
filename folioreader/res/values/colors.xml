@@ -16,4 +16,5 @@
     <color name="text_color">#767676</color>
     <color name="white">#FFFFFF</color>
     <color name="underline">#F02814</color>
+    <color name="grey_color">#a8a8a8</color>
 </resources>

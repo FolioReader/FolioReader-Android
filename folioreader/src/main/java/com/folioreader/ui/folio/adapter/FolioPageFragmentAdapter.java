@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.folioreader.Config;
 import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
 
@@ -17,17 +18,19 @@ import java.util.List;
 public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
     private List<Link> mSpineReferences;
     private String mEpubFileName;
+    private Config mConfig;
 
-    public FolioPageFragmentAdapter(FragmentManager fm, List<Link> spineReferences, String epubFileName) {
+    public FolioPageFragmentAdapter(FragmentManager fm, List<Link> spineReferences, String epubFileName, Config config) {
         super(fm);
         this.mSpineReferences = spineReferences;
         this.mEpubFileName = epubFileName;
+        this.mConfig = config;
         FolioActivity.BUS.register(this);
     }
 
     @Override
     public Fragment getItem(int position) {
-        FolioPageFragment mFolioPageFragment = FolioPageFragment.newInstance(position, mEpubFileName, mSpineReferences.get(position));
+        FolioPageFragment mFolioPageFragment = FolioPageFragment.newInstance(position, mEpubFileName, mSpineReferences.get(position), mConfig);
         mFolioPageFragment.setFragmentPos(position);
         return mFolioPageFragment;
     }

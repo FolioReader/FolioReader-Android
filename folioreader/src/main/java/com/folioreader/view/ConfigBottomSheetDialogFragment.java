@@ -4,14 +4,20 @@ import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.app.Dialog;
-import android.support.annotation.NonNull;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageButton;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -21,6 +27,8 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.model.event.ReloadDataEvent;
+import com.folioreader.util.AppUtil;
+import com.folioreader.util.UiUtil;
 
 
 /**
@@ -38,53 +46,56 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
 
 
     private RelativeLayout mContainer;
-    private ImageButton mDayButton;
-    private ImageButton mNightButton;
+    private ImageView mDayButton;
+    private ImageView mNightButton;
     private SeekBar mFontSizeSeekBar;
-    private Dialog mDialog;
+    private View mDialogView;
     private ConfigDialogCallback mConfigDialogCallback;
+    private Config mConfig;
 
     public interface ConfigDialogCallback {
         void onOrientationChange(int orentation);
     }
 
-    private BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
-
-        @Override
-        public void onStateChanged(@NonNull View bottomSheet, int newState) {
-            if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                dismiss();
-            }
-        }
-
-        @Override
-        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-        }
-    };
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.view_config, container);
+    }
 
     @Override
-    public void setupDialog(Dialog dialog, int style) {
-        super.setupDialog(dialog, style);
-        View contentView = View.inflate(getContext(), R.layout.view_config, null);
-        dialog.setContentView(contentView);
-        mDialog = dialog;
-        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
-        mBehavior = params.getBehavior();
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                BottomSheetDialog dialog = (BottomSheetDialog) getDialog();
+                FrameLayout bottomSheet = (FrameLayout)
+                        dialog.findViewById(android.support.design.R.id.design_bottom_sheet);
+                BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheet);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                behavior.setPeekHeight(0);
+            }
+        });
 
-        if (mBehavior != null && mBehavior instanceof BottomSheetBehavior) {
-            ((BottomSheetBehavior) mBehavior).setBottomSheetCallback(mBottomSheetBehaviorCallback);
-        }
-        //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
+        mDialogView = view;
+        mConfig = AppUtil.getSavedConfig(getActivity());
         initViews();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mDialogView.getViewTreeObserver().addOnGlobalLayoutListener(null);
     }
 
     private void initViews() {
         inflateView();
         configFonts();
-        mFontSizeSeekBar.setProgress(Config.getConfig().getFontSize());
-        configSeekbar();
-        selectFont(Config.getConfig().getFont(), false);
-        mIsNightMode = Config.getConfig().isNightMode();
+        mFontSizeSeekBar.setProgress(mConfig.getFontSize());
+        configSeekBar();
+        selectFont(mConfig.getFont(), false);
+        mIsNightMode = mConfig.isNightMode();
         if (mIsNightMode) {
             mContainer.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.night));
         } else {
@@ -94,50 +105,58 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         if (mIsNightMode) {
             mDayButton.setSelected(false);
             mNightButton.setSelected(true);
+            UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), mNightButton.getDrawable());
+            UiUtil.setColorToImage(getActivity(), R.color.app_gray, mDayButton.getDrawable());
         } else {
             mDayButton.setSelected(true);
             mNightButton.setSelected(false);
+            UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), mDayButton.getDrawable());
+            UiUtil.setColorToImage(getActivity(), R.color.app_gray, mNightButton.getDrawable());
         }
 
         mConfigDialogCallback = (ConfigDialogCallback) getActivity();
     }
 
     private void inflateView() {
-        mContainer = (RelativeLayout) mDialog.findViewById(R.id.container);
-        mFontSizeSeekBar = (SeekBar) mDialog.findViewById(R.id.seekbar_font_size);
-        mDayButton = (ImageButton) mDialog.findViewById(R.id.day_button);
-        mNightButton = (ImageButton) mDialog.findViewById(R.id.night_button);
+        mContainer = (RelativeLayout) mDialogView.findViewById(R.id.container);
+        mFontSizeSeekBar = (SeekBar) mDialogView.findViewById(R.id.seekbar_font_size);
+        mDayButton = (ImageView) mDialogView.findViewById(R.id.day_button);
+        mNightButton = (ImageView) mDialogView.findViewById(R.id.night_button);
         mDayButton.setTag(DAY_BUTTON);
         mNightButton.setTag(NIGHT_BUTTON);
         mDayButton.setOnClickListener(this);
         mNightButton.setOnClickListener(this);
-        mDialog.findViewById(R.id.btn_vertical_orentation).setSelected(true);
+        mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(true);
     }
 
 
     private void configFonts() {
-        mDialog.findViewById(R.id.btn_font_andada).setOnClickListener(new View.OnClickListener() {
+        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_andada)).setTextColor(UiUtil.getColorList(getActivity(), mConfig.getThemeColor(), R.color.grey_color));
+        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_lato)).setTextColor(UiUtil.getColorList(getActivity(), mConfig.getThemeColor(), R.color.grey_color));
+        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_lora)).setTextColor(UiUtil.getColorList(getActivity(), mConfig.getThemeColor(), R.color.grey_color));
+        ((StyleableTextView) mDialogView.findViewById(R.id.btn_font_raleway)).setTextColor(UiUtil.getColorList(getActivity(), mConfig.getThemeColor(), R.color.grey_color));
+        mDialogView.findViewById(R.id.btn_font_andada).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectFont(Constants.FONT_ANDADA, true);
             }
         });
 
-        mDialog.findViewById(R.id.btn_font_lato).setOnClickListener(new View.OnClickListener() {
+        mDialogView.findViewById(R.id.btn_font_lato).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectFont(Constants.FONT_LATO, true);
             }
         });
 
-        mDialog.findViewById(R.id.btn_font_lora).setOnClickListener(new View.OnClickListener() {
+        mDialogView.findViewById(R.id.btn_font_lora).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectFont(Constants.FONT_LORA, true);
             }
         });
 
-        mDialog.findViewById(R.id.btn_font_raleway).setOnClickListener(new View.OnClickListener() {
+        mDialogView.findViewById(R.id.btn_font_raleway).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 selectFont(Constants.FONT_RALEWAY, true);
@@ -145,51 +164,52 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         });
 
 
-        mDialog.findViewById(R.id.btn_horizontal_orentation).setOnClickListener(new View.OnClickListener() {
+        mDialogView.findViewById(R.id.btn_horizontal_orentation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mConfigDialogCallback.onOrientationChange(1);
-                mDialog.findViewById(R.id.btn_horizontal_orentation).setSelected(true);
-                mDialog.findViewById(R.id.btn_vertical_orentation).setSelected(false);
+                mDialogView.findViewById(R.id.btn_horizontal_orentation).setSelected(true);
+                mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(false);
             }
         });
 
-        mDialog.findViewById(R.id.btn_vertical_orentation).setOnClickListener(new View.OnClickListener() {
+        mDialogView.findViewById(R.id.btn_vertical_orentation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mConfigDialogCallback.onOrientationChange(0);
-                mDialog.findViewById(R.id.btn_horizontal_orentation).setSelected(false);
-                mDialog.findViewById(R.id.btn_vertical_orentation).setSelected(true);
+                mDialogView.findViewById(R.id.btn_horizontal_orentation).setSelected(false);
+                mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(true);
             }
         });
     }
 
     private void selectFont(int selectedFont, boolean isReloadNeeded) {
         if (selectedFont == Constants.FONT_ANDADA) {
-            mDialog.findViewById(R.id.btn_font_andada).setSelected(true);
-            mDialog.findViewById(R.id.btn_font_lato).setSelected(false);
-            mDialog.findViewById(R.id.btn_font_lora).setSelected(false);
-            mDialog.findViewById(R.id.btn_font_raleway).setSelected(false);
+            mDialogView.findViewById(R.id.btn_font_andada).setSelected(true);
+            mDialogView.findViewById(R.id.btn_font_lato).setSelected(false);
+            mDialogView.findViewById(R.id.btn_font_lora).setSelected(false);
+            mDialogView.findViewById(R.id.btn_font_raleway).setSelected(false);
         } else if (selectedFont == Constants.FONT_LATO) {
-            mDialog.findViewById(R.id.btn_font_andada).setSelected(false);
-            mDialog.findViewById(R.id.btn_font_lato).setSelected(true);
-            mDialog.findViewById(R.id.btn_font_lora).setSelected(false);
-            mDialog.findViewById(R.id.btn_font_raleway).setSelected(false);
+            mDialogView.findViewById(R.id.btn_font_andada).setSelected(false);
+            mDialogView.findViewById(R.id.btn_font_lato).setSelected(true);
+            mDialogView.findViewById(R.id.btn_font_lora).setSelected(false);
+            mDialogView.findViewById(R.id.btn_font_raleway).setSelected(false);
         } else if (selectedFont == Constants.FONT_LORA) {
-            mDialog.findViewById(R.id.btn_font_andada).setSelected(false);
-            mDialog.findViewById(R.id.btn_font_lato).setSelected(false);
-            mDialog.findViewById(R.id.btn_font_lora).setSelected(true);
-            mDialog.findViewById(R.id.btn_font_raleway).setSelected(false);
+            mDialogView.findViewById(R.id.btn_font_andada).setSelected(false);
+            mDialogView.findViewById(R.id.btn_font_lato).setSelected(false);
+            mDialogView.findViewById(R.id.btn_font_lora).setSelected(true);
+            mDialogView.findViewById(R.id.btn_font_raleway).setSelected(false);
         } else if (selectedFont == Constants.FONT_RALEWAY) {
-            mDialog.findViewById(R.id.btn_font_andada).setSelected(false);
-            mDialog.findViewById(R.id.btn_font_lato).setSelected(false);
-            mDialog.findViewById(R.id.btn_font_lora).setSelected(false);
-            mDialog.findViewById(R.id.btn_font_raleway).setSelected(true);
+            mDialogView.findViewById(R.id.btn_font_andada).setSelected(false);
+            mDialogView.findViewById(R.id.btn_font_lato).setSelected(false);
+            mDialogView.findViewById(R.id.btn_font_lora).setSelected(false);
+            mDialogView.findViewById(R.id.btn_font_raleway).setSelected(true);
         }
 
-        Config.getConfig().setFont(selectedFont);
+        mConfig.setFont(selectedFont);
         //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
         if (isAdded() && isReloadNeeded) {
+            AppUtil.saveConfig(getActivity(),mConfig);
             FolioActivity.BUS.post(new ReloadDataEvent());
         }
     }
@@ -221,8 +241,10 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             @Override
             public void onAnimationEnd(Animator animator) {
                 mIsNightMode = !mIsNightMode;
-                Config.getConfig().setNightMode(mIsNightMode);
+                mConfig.setNightMode(mIsNightMode);
+                AppUtil.saveConfig(getActivity(),mConfig);
                 FolioActivity.BUS.post(new ReloadDataEvent());
+
                 ///mConfigDialogCallback.onConfigChange();
             }
 
@@ -239,13 +261,17 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         colorAnimation.start();
     }
 
-    private void configSeekbar() {
+    private void configSeekBar() {
+        Drawable thumbDrawable = ContextCompat.getDrawable(getActivity(), R.drawable.seekbar_thumb);
+        UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), (thumbDrawable));
+        UiUtil.setColorToImage(getActivity(), R.color.grey_color, mFontSizeSeekBar.getProgressDrawable());
+        mFontSizeSeekBar.setThumb(thumbDrawable);
+
         mFontSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Config.getConfig().setFontSize(progress);
-                //if (mConfigViewCallback != null) mConfigViewCallback.onConfigChange();
-                //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
+                mConfig.setFontSize(progress);
+                AppUtil.saveConfig(getActivity(),mConfig);
                 FolioActivity.BUS.post(new ReloadDataEvent());
             }
 
@@ -271,6 +297,8 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     mNightButton.setSelected(false);
                     setToolBarColor();
                     setAudioPlayerBackground();
+                    UiUtil.setColorToImage(getActivity(), R.color.app_gray, mNightButton.getDrawable());
+                    UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), mDayButton.getDrawable());
                 }
                 break;
             case NIGHT_BUTTON:
@@ -279,6 +307,8 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                     toggleBlackTheme();
                     mDayButton.setSelected(false);
                     mNightButton.setSelected(true);
+                    UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), mNightButton.getDrawable());
+                    UiUtil.setColorToImage(getActivity(), R.color.app_gray, mDayButton.getDrawable());
                     setToolBarColor();
                     setAudioPlayerBackground();
                 }
@@ -308,7 +338,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
     }
 
     private void setAudioPlayerBackground() {
-        if(mIsNightMode) {
+        if (mIsNightMode) {
             ((Activity) getContext()).
                     findViewById(R.id.container).
                     setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));

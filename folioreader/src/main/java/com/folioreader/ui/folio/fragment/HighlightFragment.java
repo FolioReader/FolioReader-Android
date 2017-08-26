@@ -26,11 +26,21 @@ import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.ui.folio.adapter.HighlightAdapter;
+import com.folioreader.ui.tableofcontents.view.TableOfContentFragment;
+import com.folioreader.util.AppUtil;
+
+import static com.folioreader.Constants.SELECTED_CHAPTER_POSITION;
 
 public class HighlightFragment extends Fragment implements HighlightAdapter.HighLightAdapterCallback {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private View mRootView;
     private HighlightAdapter adapter;
+
+
+    public static HighlightFragment newInstance() {
+        HighlightFragment highlightFragment = new HighlightFragment();
+        return highlightFragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,14 +58,15 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         RecyclerView highlightsView = (RecyclerView) mRootView.findViewById(R.id.rv_highlights);
-        if (Config.getConfig().isNightMode()) {
+        Config config = AppUtil.getSavedConfig(getActivity());
+        if (config.isNightMode()) {
             mRootView.findViewById(R.id.rv_highlights).
                     setBackgroundColor(ContextCompat.getColor(getActivity(),
                             R.color.black));
         }
         highlightsView.setLayoutManager(new LinearLayoutManager(getActivity()));
         highlightsView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
-        adapter = new HighlightAdapter(getActivity(), HighLightTable.getAllHighlights(FolioActivity.EPUB_TITLE), this);
+        adapter = new HighlightAdapter(getActivity(), HighLightTable.getAllHighlights(FolioActivity.EPUB_TITLE), this, config);
         highlightsView.setAdapter(adapter);
     }
 
@@ -69,7 +80,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     }
 
     @Override
-    public void deleteHighlight(String id) {
+    public void deleteHighlight(int id) {
         HighLightTable.deleteHighlight(id);
         FolioActivity.BUS.post(new ReloadDataEvent());
     }

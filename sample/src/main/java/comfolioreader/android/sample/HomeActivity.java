@@ -27,6 +27,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
+import com.folioreader.Config;
 import com.folioreader.ui.folio.activity.FolioActivity;
 
 public class HomeActivity extends AppCompatActivity {
@@ -69,6 +70,8 @@ public class HomeActivity extends AppCompatActivity {
 
     private void openEpub(FolioActivity.EpubSourceType sourceType, String path, int rawID) {
         Intent intent = new Intent(HomeActivity.this, FolioActivity.class);
+        Config config = new Config.ConfigBuilder().font(4).fontSize(3).nightmode(true).themeColor(R.color.pink).setShowTts(false).build();
+        intent.putExtra(Config.INTENT_CONFIG,config);
         if (rawID != 0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawID);
         } else {
