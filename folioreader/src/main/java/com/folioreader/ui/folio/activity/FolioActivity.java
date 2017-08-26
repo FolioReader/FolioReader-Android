@@ -238,7 +238,6 @@ public class FolioActivity
     @Override
     public void onBackPressed() {
         saveBookState();
-        AppUtil.saveConfig(this, mConfig);
         super.onBackPressed();
     }
 
