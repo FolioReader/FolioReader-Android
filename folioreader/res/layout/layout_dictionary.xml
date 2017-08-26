@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_margin="0dp"
+        android:alpha="0.8"
+        android:background="@color/white"
+        android:padding="0dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:contentInsetEnd="0dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetRight="0dp"
+        app:contentInsetStart="0dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp">
+
+            <ImageView
+                android:id="@+id/btn_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerInParent="true"
+                android:layout_margin="16dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_close_green_24dp" />
+
+            <LinearLayout
+                android:layout_width="170dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerInParent="true"
+                android:background="@drawable/btn_contents_highlights"
+                android:orientation="horizontal"
+                android:padding="1.8dp">
+
+                <TextView
+                    android:id="@+id/btn_dictionary"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/style_back_color_selector"
+                    android:gravity="center|end"
+                    android:padding="5dp"
+                    android:text="@string/dictionary"
+                    android:textColor="@drawable/content_highlight_text_selector"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/btn_wikipedia"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/style_back_color_selector"
+                    android:gravity="center|start"
+                    android:padding="5dp"
+                    android:text="@string/wikipedia"
+                    android:textColor="@drawable/content_highlight_text_selector"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </RelativeLayout>
+    </android.support.v7.widget.Toolbar>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_dict_results"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical" />
+
+        <include layout="@layout/layout_wikipedia" />
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+
+        <TextView
+            android:id="@+id/no_network"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:drawablePadding="8dp"
+            android:drawableTop="@drawable/ic_offline_gray_48dp"
+            android:text="offline"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_google_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/no_network"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/round_button"
+            android:padding="8dp"
+            android:text="Google search"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+</RelativeLayout>

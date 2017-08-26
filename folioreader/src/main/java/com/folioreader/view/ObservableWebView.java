@@ -1,8 +1,5 @@
 package com.folioreader.view;
 
-import com.folioreader.activity.FolioActivity;
-import com.folioreader.fragments.FolioPageFragment;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -14,18 +11,21 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
 
+import com.folioreader.ui.folio.activity.FolioActivity;
+import com.folioreader.ui.folio.fragment.FolioPageFragment;
+
 /**
  * Created by mahavir on 3/31/16.
  */
 public class ObservableWebView extends WebView {
 
-    private ActionMode.Callback mActionModeCallback;
     private FolioPageFragment mFolioPageFragment;
     private FolioPageFragment.FolioPageFragmentCallback mActivityCallback;
+    private float mDownPosX = 0;
+    private float mDownPosY = 0;
 
-
-    public static interface ScrollListener {
-        public void onScrollChange(int percent);
+    public interface ScrollListener {
+        void onScrollChange(int percent);
     }
 
     private ScrollListener mScrollListener;
@@ -53,61 +53,47 @@ public class ObservableWebView extends WebView {
     }
 
     @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mActivityCallback = (FolioActivity) getContext();
+
+        final int action = event.getAction();
+        float MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
+
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                mDownPosX = event.getX();
+                mDownPosY = event.getY();
+                mFolioPageFragment.fadeInSeekBarIfInvisible();
+                break;
+            case MotionEvent.ACTION_UP:
+                if (Math.abs(event.getX() - mDownPosX) < MOVE_THRESHOLD_DP
+                        || Math.abs(event.getY() - mDownPosY) < MOVE_THRESHOLD_DP) {
+                    mActivityCallback.hideOrshowToolBar();
+                }
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
+
+    @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         mActivityCallback = (FolioActivity) getContext();
         mActivityCallback.hideToolBarIfVisible();
-        // Log.d("in ScrollChange","l"+l+"t"+t);
         if (mScrollListener != null) mScrollListener.onScrollChange(t);
         super.onScrollChanged(l, t, oldl, oldt);
     }
 
     public int getContentHeightVal() {
-        int height = (int) Math.floor(this.getContentHeight() * this.getScale());
-        return height;
+        return (int) Math.floor(this.getContentHeight() * this.getScale());
     }
 
-    public int getWebviewHeight() {
+    public int getWebViewHeight() {
         return this.getMeasuredHeight();
     }
 
     @Override
     public ActionMode startActionMode(ActionMode.Callback callback, int type) {
         return this.dummyActionMode();
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        final boolean[] mMoveOccured = new boolean[1];
-        final float[] mDownPosX = new float[1];
-        final float[] mDownPosY = new float[1];
-        // Log.d("dispatchTouchEvent","dispatch touch event");
-        final float MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
-        mActivityCallback = (FolioActivity) getContext();
-        final int action = event.getAction();
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                mMoveOccured[0] = false;
-                mDownPosX[0] = event.getX();
-                mDownPosY[0] = event.getY();
-                mFolioPageFragment.removeCallback();
-                break;
-            case MotionEvent.ACTION_UP:
-                if (!mMoveOccured[0]) {
-                    mActivityCallback.hideOrshowToolBar();
-                }
-
-                mFolioPageFragment.startCallback();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                if (Math.abs(event.getX() - mDownPosX[0]) > MOVE_THRESHOLD_DP
-                        || Math.abs(event.getY() - mDownPosY[0]) > MOVE_THRESHOLD_DP) {
-                    mMoveOccured[0] = true;
-                    mFolioPageFragment.fadeInSeekbarIfInvisible();
-                }
-                break;
-        }
-
-        return super.dispatchTouchEvent(event);
     }
 
     @Override

@@ -19,7 +19,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -28,7 +27,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
-import com.folioreader.activity.FolioActivity;
+import com.folioreader.Config;
+import com.folioreader.ui.folio.activity.FolioActivity;
 
 public class HomeActivity extends AppCompatActivity {
     private static final int GALLERY_REQUEST = 102;
@@ -50,7 +50,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
                 } else {
-                    openEpub(FolioActivity.EpubSourceType.ASSESTS,"The Silver Chair.epub",0);
+                    openEpub(FolioActivity.EpubSourceType.ASSETS, "TheSilverChair.epub", 0);
                 }
             }
         });
@@ -62,16 +62,17 @@ public class HomeActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
                 } else {
-                    openEpub(FolioActivity.EpubSourceType.RAW,null,R.raw.adventures);
+                    openEpub(FolioActivity.EpubSourceType.RAW, null, R.raw.adventures);
                 }
             }
         });
     }
 
-
-    private void openEpub(FolioActivity.EpubSourceType sourceType,String path,int rawID) {
+    private void openEpub(FolioActivity.EpubSourceType sourceType, String path, int rawID) {
         Intent intent = new Intent(HomeActivity.this, FolioActivity.class);
-        if(rawID!=0) {
+        Config config = new Config.ConfigBuilder().font(4).fontSize(3).nightmode(true).themeColor(R.color.pink).setShowTts(false).build();
+        intent.putExtra(Config.INTENT_CONFIG,config);
+        if (rawID != 0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawID);
         } else {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, path);
@@ -85,32 +86,10 @@ public class HomeActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case GALLERY_REQUEST:
-                if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //openEpub();
-                } else {
+                if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
                     Toast.makeText(this, "Cannot open epub it needs storage access !", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
     }
-
-    /*private static class TestFragmentAdapter extends FragmentPagerAdapter {
-
-        protected static final String[] CONTENT = new String[] { "This", "Is Is", "A A A", "Test", };
-
-        public TestFragmentAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return TestFragment.newInstance(CONTENT[position]);
-        }
-
-        @Override
-        public int getCount() {
-            return CONTENT.length;
-        }
-
-    }*/
 }
