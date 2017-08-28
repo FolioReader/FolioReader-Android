@@ -14,6 +14,7 @@ public class Config implements Parcelable {
     public static final String CONFIG_FONT_SIZE = "font_size";
     public static final String CONFIG_IS_NIGHTMODE = "is_night_mode";
     public static final String CONFIG_IS_THEMECOLOR = "theme_color";
+    public static final String CONFIG_IS_TTS = "is_tts";
     private int font;
     private int fontSize;
     private boolean nightMode;
@@ -41,6 +42,7 @@ public class Config implements Parcelable {
         fontSize = jsonObject.optInt(CONFIG_FONT_SIZE);
         nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHTMODE);
         themeColor = jsonObject.optInt(CONFIG_IS_THEMECOLOR);
+        showTts = jsonObject.optBoolean(CONFIG_IS_TTS);
     }
 
     private Config() {
