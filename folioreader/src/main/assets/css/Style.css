@@ -204,7 +204,7 @@ html.nightMode {
     background-color: #131313 !important;
 }
 
-.nightMode p, .nightMode div, .nightMode span:not(.epub-media-overlay-playing) {
+.nightMode p, .nightMode div {
     color: #767676 !important;
     background-color: transparent !important;
 }
