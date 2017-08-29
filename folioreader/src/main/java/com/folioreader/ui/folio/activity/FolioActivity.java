@@ -449,7 +449,7 @@ public class FolioActivity
     private StyleableTextView mBackgroundColorStyle, mUnderlineStyle, mTextColorStyle;
     private RelativeLayout audioContainer;
     private boolean mIsSpeaking;
-    private ImageButton mPlayPauseBtn;
+    private ImageButton mPlayPauseBtn,mPreviousButton, mNextButton;
     private RelativeLayout shade;
 
     private void initAudioView() {
@@ -458,6 +458,27 @@ public class FolioActivity
         mTwoSpeed = (StyleableTextView) findViewById(R.id.btn_twox_speed);
         audioContainer = (RelativeLayout) findViewById(R.id.container);
         shade = (RelativeLayout) findViewById(R.id.shade);
+        mOneAndHalfSpeed = (StyleableTextView) findViewById(R.id.btn_one_and_half_speed);
+        mPlayPauseBtn = (ImageButton) findViewById(R.id.play_button);
+        mPreviousButton = (ImageButton) findViewById(R.id.prev_button);
+        mNextButton = (ImageButton) findViewById(R.id.next_button);
+        mBackgroundColorStyle = (StyleableTextView) findViewById(R.id.btn_backcolor_style);
+        mUnderlineStyle = (StyleableTextView) findViewById(R.id.btn_text_undeline_style);
+        mTextColorStyle = (StyleableTextView) findViewById(R.id.btn_text_color_style);
+        mIsSpeaking = false;
+
+        final Context mContext = mHalfSpeed.getContext();
+        mOneAndHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.one_and_half_speed)));
+        mHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.half_speed_text)));
+        String styleUnderline =
+                mHalfSpeed.getContext().getResources().getString(R.string.style_underline);
+        mUnderlineStyle.setText(Html.fromHtml(styleUnderline));
+
+        setupColors(mContext);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            findViewById(R.id.playback_speed_Layout).setVisibility(GONE);
+        }
+
         shade.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -473,23 +494,6 @@ public class FolioActivity
                 isOpen = !isOpen;
             }
         });
-        mOneAndHalfSpeed = (StyleableTextView) findViewById(R.id.btn_one_and_half_speed);
-        mPlayPauseBtn = (ImageButton) findViewById(R.id.play_button);
-        mBackgroundColorStyle = (StyleableTextView) findViewById(R.id.btn_backcolor_style);
-        mUnderlineStyle = (StyleableTextView) findViewById(R.id.btn_text_undeline_style);
-        mTextColorStyle = (StyleableTextView) findViewById(R.id.btn_text_color_style);
-        mIsSpeaking = false;
-
-        Context mContext = mHalfSpeed.getContext();
-        mOneAndHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.one_and_half_speed)));
-        mHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.half_speed_text)));
-        String styleUnderline =
-                mHalfSpeed.getContext().getResources().getString(R.string.style_underline);
-        mUnderlineStyle.setText(Html.fromHtml(styleUnderline));
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            findViewById(R.id.playback_speed_Layout).setVisibility(GONE);
-        }
 
         mPlayPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -497,9 +501,11 @@ public class FolioActivity
                 if (mIsSpeaking) {
                     FolioActivity.BUS.post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, false));
                     mPlayPauseBtn.setImageDrawable(ContextCompat.getDrawable(FolioActivity.this, R.drawable.play_icon));
+                    UiUtil.setColorToImage(mContext, mConfig.getThemeColor(), mPlayPauseBtn.getDrawable());
                 } else {
                     FolioActivity.BUS.post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, true, false));
                     mPlayPauseBtn.setImageDrawable(ContextCompat.getDrawable(FolioActivity.this, R.drawable.pause_btn));
+                    UiUtil.setColorToImage(mContext, mConfig.getThemeColor(), mPlayPauseBtn.getDrawable());
                 }
                 mIsSpeaking = !mIsSpeaking;
             }
@@ -580,6 +586,21 @@ public class FolioActivity
                 FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.BACKGROUND));
             }
         });
+
+    }
+
+    private void setupColors(Context context) {
+        mHalfSpeed.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
+        mOneAndHalfSpeed.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
+        mTwoSpeed.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
+        mOneSpeed.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
+        mUnderlineStyle.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
+        mBackgroundColorStyle.setTextColor(UiUtil.getColorList(context,  R.color.white, R.color.grey_color));
+        mBackgroundColorStyle.setBackgroundDrawable(UiUtil.convertColorIntoStateDrawable(this, mConfig.getThemeColor(), android.R.color.transparent));
+        mTextColorStyle.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
+        UiUtil.setColorToImage(context, mConfig.getThemeColor(), mPlayPauseBtn.getDrawable());
+        UiUtil.setColorToImage(context, mConfig.getThemeColor(), mNextButton.getDrawable());
+        UiUtil.setColorToImage(context, mConfig.getThemeColor(), mPreviousButton.getDrawable());
     }
 
     @Override

@@ -79,7 +79,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/half_speed"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="14sp"
             app:font="@string/andada_font" />
 
@@ -90,7 +89,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/onex"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
             app:font="@string/lato_font" />
 
@@ -101,7 +99,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/one_and_half"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="14sp"
             app:font="@string/lora_font" />
 
@@ -112,7 +109,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/two_x"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
             app:font="@string/raleway_font" />
     </LinearLayout>
@@ -135,10 +131,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
-            android:background="@drawable/style_back_color_selector"
             android:gravity="center"
             android:text="@string/style"
-            android:textColor="@drawable/style_text_color_selector"
             android:textSize="17sp"
             app:font="@string/lato_font" />
 
@@ -157,7 +151,6 @@
             android:gravity="center"
             android:layerType="software"
             android:text="@string/style_underline"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
             app:font="@string/lora_font" />
 
@@ -174,7 +167,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/style"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
             app:font="@string/raleway_font" />
 
