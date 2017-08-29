@@ -140,6 +140,7 @@ public class AppUtil {
             obj.put(Config.CONFIG_FONT_SIZE, config.getFontSize());
             obj.put(Config.CONFIG_IS_NIGHTMODE, config.isNightMode());
             obj.put(Config.CONFIG_IS_THEMECOLOR, config.getThemeColor());
+            obj.put(Config.CONFIG_IS_TTS,config.isShowTts());
             SharedPreferenceUtil.
                     putSharedPreferencesString(
                             context, Config.INTENT_CONFIG, obj.toString());
