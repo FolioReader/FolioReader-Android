@@ -63,6 +63,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
                 callback.deleteHighlight(getItem(position).getId());
                 highlights.remove(position);
                 notifyDataSetChanged();
+
             }
         });
         holder.editNote.setOnClickListener(new View.OnClickListener() {
