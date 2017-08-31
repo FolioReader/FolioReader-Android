@@ -106,26 +106,25 @@ public class UiUtil {
     public static void setBackColorToTextView(UnderlinedTextView textView, String type) {
         Context context = textView.getContext();
         if (type.equals("yellow")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context,
-                    R.color.yellow));
-            textView.setUnderlineWidth(0.0f);
+            setUnderLineColor(textView, context, R.color.yellow, R.color.yellow);
         } else if (type.equals("green")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context,
-                    R.color.green));
-            textView.setUnderlineWidth(0.0f);
+            setUnderLineColor(textView, context, R.color.green, R.color.green);
         } else if (type.equals("blue")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context,
-                    R.color.blue));
-            textView.setUnderlineWidth(0.0f);
+            setUnderLineColor(textView, context, R.color.blue, R.color.blue);
         } else if (type.equals("pink")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context,
-                    R.color.pink));
-            textView.setUnderlineWidth(0.0f);
+            setUnderLineColor(textView, context, R.color.pink, R.color.pink);
         } else if (type.equals("underline")) {
-            textView.setUnderLineColor(ContextCompat.getColor(context,
-                    android.R.color.holo_red_dark));
+            setUnderLineColor(textView, context, android.R.color.transparent, android.R.color.holo_red_dark);
             textView.setUnderlineWidth(2.0f);
         }
+    }
+
+
+    private static void setUnderLineColor(UnderlinedTextView underlinedTextView, Context context, int background,int underlinecolor) {
+        underlinedTextView.setBackgroundColor(ContextCompat.getColor(context,
+                background));
+        underlinedTextView.setUnderLineColor(ContextCompat.getColor(context,
+                underlinecolor));
     }
 
     public static float convertDpToPixel(float dp, Context context) {

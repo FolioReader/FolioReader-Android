@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Layout;
@@ -66,7 +67,7 @@ public class UnderlinedTextView extends AppCompatTextView {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setColor(mColor); //line mColor
         mPaint.setStrokeWidth(mStrokeWidth);
-        invalidate();
+        postInvalidate();
     }
 
     public float getUnderlineWidth() {
@@ -75,12 +76,11 @@ public class UnderlinedTextView extends AppCompatTextView {
 
     public void setUnderlineWidth(float mStrokeWidth) {
         this.mStrokeWidth = mStrokeWidth;
-        invalidate();
+        postInvalidate();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-
         int count = getLineCount();
 
         final Layout layout = getLayout();
