@@ -368,7 +368,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             public void onScrollChange(int percent) {
                 if (mWebview.getScrollY() != 0) {
                     mScrollY = mWebview.getScrollY();
-                    ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
+                    if(isAdded()) {
+                        ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
+                    }
                 }
                 mScrollSeekbar.setProgressAndThumb(percent);
                 updatePagesLeftText(percent);
@@ -851,7 +853,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         mWebview.post(new Runnable() {
             @Override
             public void run() {
-                mWebview.scrollTo(0, position);
+                if(isAdded()) {
+                    mWebview.scrollTo(0, position);
+                }
             }
         });
     }
