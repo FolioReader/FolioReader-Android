@@ -1,13 +1,16 @@
 package com.folioreader.ui.folio.adapter;
 
 import android.content.Context;
+import android.support.v4.app.FragmentTabHost;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -47,6 +50,19 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
 
     @Override
     public void onBindViewHolder(final HighlightHolder holder, final int position) {
+
+        holder.container.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ((AppCompatActivity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        holder.container.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,FrameLayout.LayoutParams.WRAP_CONTENT));
+                    }
+                });
+            }
+        }, 10);
+
         holder.content.setText(Html.fromHtml(getItem(position).getContent()));
         UiUtil.setBackColorToTextView(holder.content,
                 getItem(position).getType());
@@ -96,7 +112,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
                     }
                 });
             }
-        }, 20);
+        }, 30);
         if (config.isNightMode()) {
             holder.container.setBackgroundColor(ContextCompat.getColor(context,
                     R.color.black));
