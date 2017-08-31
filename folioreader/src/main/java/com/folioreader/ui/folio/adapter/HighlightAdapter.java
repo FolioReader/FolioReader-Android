@@ -101,7 +101,6 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
             @Override
             public void run() {
                 final int height = holder.container.getHeight();
-                Log.d("**hieght" +height,getItem(position).getContent());
                 ((AppCompatActivity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
