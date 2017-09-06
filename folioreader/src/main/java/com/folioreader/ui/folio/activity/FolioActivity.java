@@ -398,10 +398,9 @@ public class FolioActivity
                 }
             } else if (type.equals(HIGHLIGHT_SELECTED)) {
                 Highlight highlight = data.getParcelableExtra(HIGHLIGHT_ITEM);
-                mWebViewScrollPosition = highlight.getScrollPosition();
                 int position = highlight.getPageNumber();
                 mFolioPageViewPager.setCurrentItem(position);
-                BUS.post(new WebViewPosition(mWebViewScrollPosition, mSpineReferenceList.get(mChapterPosition).href, highlight.getRangy()));
+                BUS.post(new WebViewPosition(mSpineReferenceList.get(mChapterPosition).href, highlight.getRangy()));
             }
         }
     }

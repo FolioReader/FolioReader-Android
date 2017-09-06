@@ -891,7 +891,7 @@
             applyToRange: function(range, rangesToPreserve, serializedHighlight) {
                 var applier = this;
                 rangesToPreserve = rangesToPreserve || [];
-                console.log("**serializedHighlight parts" + serializedHighlight);
+
                 // Create an array of range boundaries to preserve
                 var positionsToPreserve = getRangeBoundaries(rangesToPreserve || []);
 

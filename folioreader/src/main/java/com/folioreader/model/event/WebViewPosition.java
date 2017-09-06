@@ -5,26 +5,16 @@ package com.folioreader.model.event;
  */
 
 public class WebViewPosition {
-    private int webviewPos;
     private String href;
     private String highlightId;
 
-    public WebViewPosition(int webviewPos, String href, String highlightId) {
-        this.webviewPos = webviewPos;
-        this.href = href;
-        this.highlightId = highlightId;
-    }
-
-    public int getWebviewPos() {
-        return webviewPos;
-    }
-
-    public void setWebviewPos(int webviewPos) {
-        this.webviewPos = webviewPos;
-    }
-
     public String getHref() {
         return href;
+    }
+
+    public WebViewPosition(String href, String highlightId) {
+        this.href = href;
+        this.highlightId = highlightId;
     }
 
     public void setHref(String href) {
@@ -38,8 +28,4 @@ public class WebViewPosition {
     public void setHighlightId(String highlightId) {
         this.highlightId = highlightId;
     }
-
-
-
-
 }
