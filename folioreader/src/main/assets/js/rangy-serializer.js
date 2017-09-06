@@ -13,4 +13,302 @@
  * Version: 1.3.0
  * Build date: 10 May 2015
  */
-!function(e,n){"function"==typeof define&&define.amd?define(["./rangy-core"],e):"undefined"!=typeof module&&"object"==typeof exports?module.exports=e(require("rangy")):e(n.rangy)}(function(e){return e.createModule("Serializer",["WrappedSelection"],function(e,n){function t(e){return e.replace(/</g,"&lt;").replace(/>/g,"&gt;")}function o(e,n){n=n||[];var r=e.nodeType,i=e.childNodes,c=i.length,a=[r,e.nodeName,c].join(":"),d="",u="";switch(r){case 3:d=t(e.nodeValue);break;case 8:d="<!--"+t(e.nodeValue)+"-->";break;default:d="<"+a+">",u="</>"}d&&n.push(d);for(var s=0;c>s;++s)o(i[s],n);return u&&n.push(u),n}function r(e){var n=o(e).join("");return w(n).toString(16)}function i(e,n,t){var o=[],r=e;for(t=t||R.getDocument(e).documentElement;r&&r!=t;)o.push(R.getNodeIndex(r,!0)),r=r.parentNode;return o.join("/")+":"+n}function c(e,t,o){t||(t=(o||document).documentElement);for(var r,i=e.split(":"),c=t,a=i[0]?i[0].split("/"):[],d=a.length;d--;){if(r=parseInt(a[d],10),!(r<c.childNodes.length))throw n.createError("deserializePosition() failed: node "+R.inspectNode(c)+" has no child with index "+r+", "+d);c=c.childNodes[r]}return new R.DomPosition(c,parseInt(i[1],10))}function a(t,o,c){if(c=c||e.DomRange.getRangeDocument(t).documentElement,!R.isOrIsAncestorOf(c,t.commonAncestorContainer))throw n.createError("serializeRange(): range "+t.inspect()+" is not wholly contained within specified root node "+R.inspectNode(c));var a=i(t.startContainer,t.startOffset,c)+","+i(t.endContainer,t.endOffset,c);return o||(a+="{"+r(c)+"}"),a}function d(t,o,i){o?i=i||R.getDocument(o):(i=i||document,o=i.documentElement);var a=S.exec(t),d=a[4];if(d){var u=r(o);if(d!==u)throw n.createError("deserializeRange(): checksums of serialized range root node ("+d+") and target root node ("+u+") do not match")}var s=c(a[1],o,i),l=c(a[2],o,i),f=e.createRange(i);return f.setStartAndEnd(s.node,s.offset,l.node,l.offset),f}function u(e,n,t){n||(n=(t||document).documentElement);var o=S.exec(e),i=o[3];return!i||i===r(n)}function s(n,t,o){n=e.getSelection(n);for(var r=n.getAllRanges(),i=[],c=0,d=r.length;d>c;++c)i[c]=a(r[c],t,o);return i.join("|")}function l(n,t,o){t?o=o||R.getWindow(t):(o=o||window,t=o.document.documentElement);for(var r=n.split("|"),i=e.getSelection(o),c=[],a=0,u=r.length;u>a;++a)c[a]=d(r[a],t,o.document);return i.setRanges(c),i}function f(e,n,t){var o;n?o=t?t.document:R.getDocument(n):(t=t||window,n=t.document.documentElement);for(var r=e.split("|"),i=0,c=r.length;c>i;++i)if(!u(r[i],n,o))return!1;return!0}function m(e){for(var n,t,o=e.split(/[;,]/),r=0,i=o.length;i>r;++r)if(n=o[r].split("="),n[0].replace(/^\s+/,"")==C&&(t=n[1]))return decodeURIComponent(t.replace(/\s+$/,""));return null}function p(e){e=e||window;var n=m(e.document.cookie);n&&l(n,e.doc)}function g(n,t){n=n||window,t="object"==typeof t?t:{};var o=t.expires?";expires="+t.expires.toUTCString():"",r=t.path?";path="+t.path:"",i=t.domain?";domain="+t.domain:"",c=t.secure?";secure":"",a=s(e.getSelection(n));n.document.cookie=encodeURIComponent(C)+"="+encodeURIComponent(a)+o+r+i+c}var h="undefined",v=e.util;(typeof encodeURIComponent==h||typeof decodeURIComponent==h)&&n.fail("encodeURIComponent and/or decodeURIComponent method is missing");var w=function(){function e(e){for(var n,t=[],o=0,r=e.length;r>o;++o)n=e.charCodeAt(o),128>n?t.push(n):2048>n?t.push(n>>6|192,63&n|128):t.push(n>>12|224,n>>6&63|128,63&n|128);return t}function n(){for(var e,n,t=[],o=0;256>o;++o){for(n=o,e=8;e--;)1==(1&n)?n=n>>>1^3988292384:n>>>=1;t[o]=n>>>0}return t}function t(){return o||(o=n()),o}var o=null;return function(n){for(var o,r=e(n),i=-1,c=t(),a=0,d=r.length;d>a;++a)o=255&(i^r[a]),i=i>>>8^c[o];return(-1^i)>>>0}}(),R=e.dom,S=/^([^,]+),([^,\{]+)(\{([^}]+)\})?$/,C="rangySerializedSelection";v.extend(e,{serializePosition:i,deserializePosition:c,serializeRange:a,deserializeRange:d,canDeserializeRange:u,serializeSelection:s,deserializeSelection:l,canDeserializeSelection:f,restoreSelectionFromCookie:p,saveSelectionCookie:g,getElementChecksum:r,nodeToInfoString:o}),v.crc32=w}),e},this);
+(function(factory, root) {
+    if (typeof define == "function" && define.amd) {
+        // AMD. Register as an anonymous module with a dependency on Rangy.
+        define(["./rangy-core"], factory);
+    } else if (typeof module != "undefined" && typeof exports == "object") {
+        // Node/CommonJS style
+        module.exports = factory( require("rangy") );
+    } else {
+        // No AMD or CommonJS support so we use the rangy property of root (probably the global variable)
+        factory(root.rangy);
+    }
+})(function(rangy) {
+    rangy.createModule("Serializer", ["WrappedSelection"], function(api, module) {
+        var UNDEF = "undefined";
+        var util = api.util;
+
+        // encodeURIComponent and decodeURIComponent are required for cookie handling
+        if (typeof encodeURIComponent == UNDEF || typeof decodeURIComponent == UNDEF) {
+            module.fail("encodeURIComponent and/or decodeURIComponent method is missing");
+        }
+
+        // Checksum for checking whether range can be serialized
+        var crc32 = (function() {
+            function utf8encode(str) {
+                var utf8CharCodes = [];
+
+                for (var i = 0, len = str.length, c; i < len; ++i) {
+                    c = str.charCodeAt(i);
+                    if (c < 128) {
+                        utf8CharCodes.push(c);
+                    } else if (c < 2048) {
+                        utf8CharCodes.push((c >> 6) | 192, (c & 63) | 128);
+                    } else {
+                        utf8CharCodes.push((c >> 12) | 224, ((c >> 6) & 63) | 128, (c & 63) | 128);
+                    }
+                }
+                return utf8CharCodes;
+            }
+
+            var cachedCrcTable = null;
+
+            function buildCRCTable() {
+                var table = [];
+                for (var i = 0, j, crc; i < 256; ++i) {
+                    crc = i;
+                    j = 8;
+                    while (j--) {
+                        if ((crc & 1) == 1) {
+                            crc = (crc >>> 1) ^ 0xEDB88320;
+                        } else {
+                            crc >>>= 1;
+                        }
+                    }
+                    table[i] = crc >>> 0;
+                }
+                return table;
+            }
+
+            function getCrcTable() {
+                if (!cachedCrcTable) {
+                    cachedCrcTable = buildCRCTable();
+                }
+                return cachedCrcTable;
+            }
+
+            return function(str) {
+                var utf8CharCodes = utf8encode(str), crc = -1, crcTable = getCrcTable();
+                for (var i = 0, len = utf8CharCodes.length, y; i < len; ++i) {
+                    y = (crc ^ utf8CharCodes[i]) & 0xFF;
+                    crc = (crc >>> 8) ^ crcTable[y];
+                }
+                return (crc ^ -1) >>> 0;
+            };
+        })();
+
+        var dom = api.dom;
+
+        function escapeTextForHtml(str) {
+            return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function nodeToInfoString(node, infoParts) {
+            infoParts = infoParts || [];
+            var nodeType = node.nodeType, children = node.childNodes, childCount = children.length;
+            var nodeInfo = [nodeType, node.nodeName, childCount].join(":");
+            var start = "", end = "";
+            switch (nodeType) {
+                case 3: // Text node
+                    start = escapeTextForHtml(node.nodeValue);
+                    break;
+                case 8: // Comment
+                    start = "<!--" + escapeTextForHtml(node.nodeValue) + "-->";
+                    break;
+                default:
+                    start = "<" + nodeInfo + ">";
+                    end = "</>";
+                    break;
+            }
+            if (start) {
+                infoParts.push(start);
+            }
+            for (var i = 0; i < childCount; ++i) {
+                nodeToInfoString(children[i], infoParts);
+            }
+            if (end) {
+                infoParts.push(end);
+            }
+            return infoParts;
+        }
+
+        // Creates a string representation of the specified element's contents that is similar to innerHTML but omits all
+        // attributes and comments and includes child node counts. This is done instead of using innerHTML to work around
+        // IE <= 8's policy of including element properties in attributes, which ruins things by changing an element's
+        // innerHTML whenever the user changes an input within the element.
+        function getElementChecksum(el) {
+            var info = nodeToInfoString(el).join("");
+            return crc32(info).toString(16);
+        }
+
+        function serializePosition(node, offset, rootNode) {
+            var pathParts = [], n = node;
+            rootNode = rootNode || dom.getDocument(node).documentElement;
+            while (n && n != rootNode) {
+                pathParts.push(dom.getNodeIndex(n, true));
+                n = n.parentNode;
+            }
+            return pathParts.join("/") + ":" + offset;
+        }
+
+        function deserializePosition(serialized, rootNode, doc) {
+            if (!rootNode) {
+                rootNode = (doc || document).documentElement;
+            }
+            var parts = serialized.split(":");
+            var node = rootNode;
+            var nodeIndices = parts[0] ? parts[0].split("/") : [], i = nodeIndices.length, nodeIndex;
+
+            while (i--) {
+                nodeIndex = parseInt(nodeIndices[i], 10);
+                if (nodeIndex < node.childNodes.length) {
+                    node = node.childNodes[nodeIndex];
+                } else {
+                    throw module.createError("deserializePosition() failed: node " + dom.inspectNode(node) +
+                            " has no child with index " + nodeIndex + ", " + i);
+                }
+            }
+
+            return new dom.DomPosition(node, parseInt(parts[1], 10));
+        }
+
+        function serializeRange(range, omitChecksum, rootNode) {
+            rootNode = rootNode || api.DomRange.getRangeDocument(range).documentElement;
+            if (!dom.isOrIsAncestorOf(rootNode, range.commonAncestorContainer)) {
+                throw module.createError("serializeRange(): range " + range.inspect() +
+                    " is not wholly contained within specified root node " + dom.inspectNode(rootNode));
+            }
+            var serialized = serializePosition(range.startContainer, range.startOffset, rootNode) + "," +
+                serializePosition(range.endContainer, range.endOffset, rootNode);
+            if (!omitChecksum) {
+                serialized += "{" + getElementChecksum(rootNode) + "}";
+            }
+            return serialized;
+        }
+
+        var deserializeRegex = /^([^,]+),([^,\{]+)(\{([^}]+)\})?$/;
+
+        function deserializeRange(serialized, rootNode, doc) {
+            if (rootNode) {
+                doc = doc || dom.getDocument(rootNode);
+            } else {
+                doc = doc || document;
+                rootNode = doc.documentElement;
+            }
+            var result = deserializeRegex.exec(serialized);
+            var checksum = result[4];
+            if (checksum) {
+                var rootNodeChecksum = getElementChecksum(rootNode);
+                if (checksum !== rootNodeChecksum) {
+                    throw module.createError("deserializeRange(): checksums of serialized range root node (" + checksum +
+                        ") and target root node (" + rootNodeChecksum + ") do not match");
+                }
+            }
+            var start = deserializePosition(result[1], rootNode, doc), end = deserializePosition(result[2], rootNode, doc);
+            var range = api.createRange(doc);
+            range.setStartAndEnd(start.node, start.offset, end.node, end.offset);
+            return range;
+        }
+
+        function canDeserializeRange(serialized, rootNode, doc) {
+            if (!rootNode) {
+                rootNode = (doc || document).documentElement;
+            }
+            var result = deserializeRegex.exec(serialized);
+            var checksum = result[3];
+            return !checksum || checksum === getElementChecksum(rootNode);
+        }
+
+        function serializeSelection(selection, omitChecksum, rootNode) {
+            selection = api.getSelection(selection);
+            var ranges = selection.getAllRanges(), serializedRanges = [];
+            for (var i = 0, len = ranges.length; i < len; ++i) {
+                serializedRanges[i] = serializeRange(ranges[i], omitChecksum, rootNode);
+            }
+            return serializedRanges.join("|");
+        }
+
+        function deserializeSelection(serialized, rootNode, win) {
+            if (rootNode) {
+                win = win || dom.getWindow(rootNode);
+            } else {
+                win = win || window;
+                rootNode = win.document.documentElement;
+            }
+            var serializedRanges = serialized.split("|");
+            var sel = api.getSelection(win);
+            var ranges = [];
+
+            for (var i = 0, len = serializedRanges.length; i < len; ++i) {
+                ranges[i] = deserializeRange(serializedRanges[i], rootNode, win.document);
+            }
+            sel.setRanges(ranges);
+
+            return sel;
+        }
+
+        function canDeserializeSelection(serialized, rootNode, win) {
+            var doc;
+            if (rootNode) {
+                doc = win ? win.document : dom.getDocument(rootNode);
+            } else {
+                win = win || window;
+                rootNode = win.document.documentElement;
+            }
+            var serializedRanges = serialized.split("|");
+
+            for (var i = 0, len = serializedRanges.length; i < len; ++i) {
+                if (!canDeserializeRange(serializedRanges[i], rootNode, doc)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        var cookieName = "rangySerializedSelection";
+
+        function getSerializedSelectionFromCookie(cookie) {
+            var parts = cookie.split(/[;,]/);
+            for (var i = 0, len = parts.length, nameVal, val; i < len; ++i) {
+                nameVal = parts[i].split("=");
+                if (nameVal[0].replace(/^\s+/, "") == cookieName) {
+                    val = nameVal[1];
+                    if (val) {
+                        return decodeURIComponent(val.replace(/\s+$/, ""));
+                    }
+                }
+            }
+            return null;
+        }
+
+        function restoreSelectionFromCookie(win) {
+            win = win || window;
+            var serialized = getSerializedSelectionFromCookie(win.document.cookie);
+            if (serialized) {
+                deserializeSelection(serialized, win.doc);
+            }
+        }
+
+        function saveSelectionCookie(win, props) {
+            win = win || window;
+            props = (typeof props == "object") ? props : {};
+            var expires = props.expires ? ";expires=" + props.expires.toUTCString() : "";
+            var path = props.path ? ";path=" + props.path : "";
+            var domain = props.domain ? ";domain=" + props.domain : "";
+            var secure = props.secure ? ";secure" : "";
+            var serialized = serializeSelection(api.getSelection(win));
+            win.document.cookie = encodeURIComponent(cookieName) + "=" + encodeURIComponent(serialized) + expires + path + domain + secure;
+        }
+
+        util.extend(api, {
+            serializePosition: serializePosition,
+            deserializePosition: deserializePosition,
+            serializeRange: serializeRange,
+            deserializeRange: deserializeRange,
+            canDeserializeRange: canDeserializeRange,
+            serializeSelection: serializeSelection,
+            deserializeSelection: deserializeSelection,
+            canDeserializeSelection: canDeserializeSelection,
+            restoreSelectionFromCookie: restoreSelectionFromCookie,
+            saveSelectionCookie: saveSelectionCookie,
+            getElementChecksum: getElementChecksum,
+            nodeToInfoString: nodeToInfoString
+        });
+
+        util.crc32 = crc32;
+    });
+    
+    return rangy;
+}, this);

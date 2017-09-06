@@ -645,3 +645,11 @@ function getHighlightString(style) {
     params.push({id: id, rect: getRectForSelectedText(elm)});
     Highlight.getHighlightJson(JSON.stringify(params));
 }
+
+function gotoHighlight(highlightId){
+  //var element = document.querySelector('[rangy='+highlightId+']');
+  var element = document.getElementById(highlightId.toString());
+   //console.log(element.getAttribute('class'));
+  console.log(element.toString());
+  goToEl(element);
+}

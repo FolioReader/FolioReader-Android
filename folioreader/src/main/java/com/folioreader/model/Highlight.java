@@ -262,9 +262,9 @@ public class Highlight implements Parcelable {
 
     private void readFromParcel(Parcel in) {
         id = in.readInt();
+        bookId = in.readString();
         pageId = in.readString();
         rangy = in.readString();
-        bookId = in.readString();
         content = in.readString();
         date = (Date) in.readSerializable();
         type = in.readString();
