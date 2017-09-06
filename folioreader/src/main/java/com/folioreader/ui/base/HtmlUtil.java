@@ -24,15 +24,13 @@ public final class HtmlUtil {
         String cssPath =
                 String.format(context.getString(R.string.css_tag), "file:///android_asset/css/Style.css");
 
-        String jsPath =
-                String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/js/Bridge.js");
-        jsPath =
-                jsPath + String.format(context.getString(R.string.script_tag),
+
+        String jsPath = String.format(context.getString(R.string.script_tag),
                         "file:///android_asset/js/jsface.min.js");
         jsPath =
                 jsPath + String.format(context.getString(R.string.script_tag),
                         "file:///android_asset/js/jquery-3.1.1.min.js");
+
         jsPath =
                 jsPath + String.format(context.getString(R.string.script_tag),
                         "file:///android_asset/js/rangy-core.js");
@@ -50,13 +48,15 @@ public final class HtmlUtil {
                         "file:///android_asset/js/rangy-serializer.js");
         jsPath =
                 jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/js/ss-reader.js");
+                        "file:///android_asset/js/Bridge.js");
+
         jsPath =
                 jsPath + String.format(context.getString(R.string.script_tag),
                         "file:///android_asset/android.selection.js");
         jsPath =
                 jsPath + String.format(context.getString(R.string.script_tag_method_call),
                         "setMediaOverlayStyleColors('#C0ED72','#C0ED72')");
+
         String toInject = "\n" + cssPath + "\n" + jsPath + "\n</head>";
         htmlContent = htmlContent.replace("</head>", toInject);
 
