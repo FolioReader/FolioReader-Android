@@ -401,7 +401,7 @@ public class FolioActivity
                 mWebViewScrollPosition = highlight.getScrollPosition();
                 int position = highlight.getPageNumber();
                 mFolioPageViewPager.setCurrentItem(position);
-                BUS.post(new WebViewPosition(mWebViewScrollPosition, mSpineReferenceList.get(mChapterPosition).href));
+                BUS.post(new WebViewPosition(mWebViewScrollPosition, mSpineReferenceList.get(mChapterPosition).href, highlight.getRangy()));
             }
         }
     }

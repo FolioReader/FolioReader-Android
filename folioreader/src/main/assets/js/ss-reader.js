@@ -96,7 +96,9 @@ $(function(){
 
     highlightSelection: function(color){
       try {
-        this.highlighter.highlightSelection("highlight_" + color);
+      var serializedHighlights = this.getHighlights().split("|");
+        console.log("**serializedHighlights" +serializedHighlights[serializedHighlights.length-1]);
+        this.highlighter.highlightSelection("highlight_" + color, null ,serializedHighlights[serializedHighlights.length-1]);
         var range = window.getSelection().toString();
         var params = {content: range,rangy: this.getHighlights(),color: color};
         this.clearSelection();

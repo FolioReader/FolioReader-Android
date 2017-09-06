@@ -94,6 +94,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private boolean hasMediaOverlay = false;
     private String mAnchorId;
     private String rangy = "";
+    private String highlightId;
 
     public interface FolioPageFragmentCallback {
 
@@ -402,6 +403,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     String rangy = HighlightUtil.generateRangyString(getPageName());
                     if (!rangy.isEmpty()) {
                         view.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
+                    }
+
+                    if(highlightId !=null){
+                        mWebview.loadUrl(String.format(getString(R.string.goto_highlight),highlightId));
                     }
                 }
             }
@@ -845,7 +850,12 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @Subscribe
     public void setWebView(final WebViewPosition position) {
         if (position.getHref().equals(spineItem.href)) {
-            setWebViewPosition(position.getWebviewPos());
+            if(isAdded()) {
+                highlightId = position.getHighlightId();
+                if (mWebview.getContentHeight() > 0) {
+                    mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
+                }
+            }
         }
     }
 
@@ -910,4 +920,16 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @Override
     public void onError() {
     }
+
+    @JavascriptInterface
+    public void onClickTest(String id){
+        Toast.makeText(getActivity(), "Id is " + id, Toast.LENGTH_LONG).show();
+    }
+
+    @JavascriptInterface
+    public void printData(String str){
+        Log.d("***",str);
+    }
+
+
 }
