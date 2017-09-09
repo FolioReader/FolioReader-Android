@@ -81,4 +81,19 @@ public class DbAdapter {
     public static Cursor getHighlightsForPageId(String query, String pageId) {
         return mDatabase.rawQuery(query, null);
     }
+
+    public static int getIdForRangy(String query, String rangy) {
+        Cursor c = mDatabase.rawQuery(query,null);
+
+        int id = -1;
+        while (c.moveToNext()) {
+            id = c.getInt(c.getColumnIndex(HighLightTable.ID));
+        }
+        c.close();
+        return id;
+    }
+
+    public static Cursor getHighlightsForId(int id) {
+        return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.ID + " = '" + id + "'", null);
+    }
 }

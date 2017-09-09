@@ -2,6 +2,7 @@ package com.folioreader.model.sqlite;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.folioreader.Constants;
@@ -77,8 +78,34 @@ public class HighLightTable {
         return highlights;
     }
 
+    public static Highlight getHighlightId(int id) {
+        Cursor highlightCursor = DbAdapter.getHighlightsForId(id);
+        Highlight highLight = new Highlight();
+        while (highlightCursor.moveToNext()) {
+            highLight = new Highlight(highlightCursor.getInt(highlightCursor.getColumnIndex(ID)),
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_BOOK_ID)),
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_CONTENT)),
+                    getDateTime(highlightCursor.getString(highlightCursor.getColumnIndex(COL_DATE))),
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_TYPE)),
+                    highlightCursor.getInt(highlightCursor.getColumnIndex(COL_WEB_VIEW_SCROLL)),
+                    highlightCursor.getInt(highlightCursor.getColumnIndex(COL_PAGE_NUMBER)),
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_PAGE_ID)),
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_RANGY)),
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_NOTE)));
+        }
+        return highLight;
+    }
+
     public static void insertHighlight(Highlight highlight) {
         DbAdapter.saveHighLight(getHighlightContentValues(highlight));
+    }
+
+    public static void deleteHighlight(String rangy) {
+        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
+        int id = DbAdapter.getIdForRangy(query, rangy);
+        if (id != -1) {
+            deleteHighlight(id);
+        }
     }
 
     public static void deleteHighlight(int highlightId) {
@@ -121,6 +148,42 @@ public class HighLightTable {
             e.printStackTrace();
         }
         return date1;
+    }
+
+    public static void updateHighlightStyle(String rangy, String style) {
+        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
+        int id = DbAdapter.getIdForRangy(query, rangy);
+        if (id != -1) {
+            update(id, updateRangy(rangy, style));
+        }
+    }
+
+    private static String updateRangy(String rangy, String style) {
+        /*Pattern p = Pattern.compile("\\highlight_\\w+");
+        Matcher m = p.matcher(rangy);
+        return m.replaceAll(style);*/
+        String[] s = rangy.split("\\$");
+        StringBuilder builder = new StringBuilder();
+        for (String p : s) {
+            if (TextUtils.isDigitsOnly(p)) {
+                builder.append(p);
+                builder.append("$");
+            } else {
+                builder.append(style);
+                builder.append("$");
+            }
+        }
+        return builder.toString();
+    }
+
+    private static void update(int id, String s) {
+        Highlight highlight = getHighlightId(id);
+        highlight.setRangy(s);
+        if (DbAdapter.updateHighLight(getHighlightContentValues(highlight), String.valueOf(id))) {
+            Log.i("HighLightTable", "highlight updated " + id);
+        } else {
+            Log.i("HighLightTable", "highlight update failed " + id);
+        }
     }
 }
 

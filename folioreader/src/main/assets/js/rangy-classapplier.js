@@ -69,6 +69,7 @@
             if (typeof el.classList == "object") {
                 el.classList.add(className);
                 el.setAttribute("id", serializedHighlight);
+                el.setAttribute("onclick","callHighlightURL(this)");
             } else {
                 var classNameSupported = (typeof el.className == "string");
                 var elClass = classNameSupported ? el.className : el.getAttribute("class");
@@ -919,7 +920,7 @@
                     }
 
                     // Update the ranges from the preserved boundary positions
-                    updateRangesFromBoundaries(rangesToPreserve, positionsToPreserve,);
+                    updateRangesFromBoundaries(rangesToPreserve, positionsToPreserve);
                 }
 
                 // Apply classes to any appropriate empty elements
