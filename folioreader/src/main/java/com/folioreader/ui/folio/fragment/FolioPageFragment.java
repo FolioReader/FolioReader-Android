@@ -296,6 +296,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                 if (href != null && href.indexOf('#') != -1) {
                     if (spineItem.href.equals(href.substring(0, href.lastIndexOf('#')))) {
                         mAnchorId = href.substring(href.lastIndexOf('#') + 1);
+                        if (mWebview.getContentHeight() > 0 && mAnchorId != null) {
+                            mWebview.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
+                        }
                     }
                 }
             }
