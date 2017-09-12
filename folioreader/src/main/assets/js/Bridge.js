@@ -721,8 +721,8 @@ $(function(){
 
     highlightSelection: function(color){
       try {
-      var serializedHighlights = this.getHighlights().split("|");
-        this.highlighter.highlightSelection("highlight_" + color, null ,serializedHighlights[serializedHighlights.length-1]);
+
+        this.highlighter.highlightSelection("highlight_" + color, null);
         var range = window.getSelection().toString();
         var params = {content: range,rangy: this.getHighlights(),color: color};
         this.clearSelection();
@@ -803,3 +803,8 @@ $(function(){
       $(this).after(container);
     });
   });
+
+function array_diff(array1, array2){
+    var difference = $.grep(array1, function(el) { return $.inArray(el,array2) < 0});
+    return difference.concat($.grep(array2, function(el) { return $.inArray(el,array1) < 0}));;
+}
