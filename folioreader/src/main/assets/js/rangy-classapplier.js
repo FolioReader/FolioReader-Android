@@ -807,7 +807,6 @@
                         this.appliesToElement(parent) &&
                         this.elementHasProperties(parent, this.elementProperties) &&
                         this.elementHasAttributes(parent, this.elementAttributes)) {
-                        //Highlight.printData("applyToTextNode");
                         addClass(parent, this.className, serializedHighlight);
                     } else {
                         var textNodeParent = textNode.parentNode;

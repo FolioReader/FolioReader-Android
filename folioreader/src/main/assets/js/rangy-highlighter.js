@@ -321,7 +321,7 @@
                 return intersectingHighlights;
             },
 
-            highlightCharacterRanges: function(className, charRanges, options, highlightStr) {
+            highlightCharacterRanges: function(className, charRanges, options) {
                 var i, len, j;
                 var highlights = this.highlights;
                 var converter = this.converter;
@@ -406,6 +406,8 @@
                     if (classApplier) {
                         highlightsToKeep.push(new Highlight(doc, charRange, classApplier, converter, null, containerElementId));
                     }
+                    var  oldHighlights = this.serialize(null).split("|");
+
                     this.highlights = highlights = highlightsToKeep;
                 }
 
@@ -415,7 +417,8 @@
                 });
 
 
-
+                var serializedHighlights = this.serialize(null).split("|");
+                var highlightStr = array_diff(oldHighlights, serializedHighlights)[0];
 
                 // Apply new highlights
                 var newHighlights = [];
@@ -457,7 +460,7 @@
                 });
             },
 
-            highlightSelection: function(className, options, highlightStr) {
+            highlightSelection: function(className, options) {
                 var converter = this.converter;
                 var classApplier = className ? this.classAppliers[className] : false;
 
@@ -489,7 +492,7 @@
                 var newHighlights = this.highlightCharacterRanges(className, selCharRanges, {
                     containerElementId: containerElementId,
                     exclusive: exclusive
-                },highlightStr);
+                });
 
                 // Restore selection
                 converter.restoreSelection(selection, serializedSelection, containerElement);

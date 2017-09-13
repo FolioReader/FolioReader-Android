@@ -407,9 +407,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         view.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
                     }
 
-                    if (highlightId != null) {
-                        mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
-                    }
+                    scrollToHighlightId();
+
+
+
                 }
             }
 
@@ -864,8 +865,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         if (position.getHref().equals(spineItem.href)) {
             if (isAdded()) {
                 highlightId = position.getHighlightId();
+
                 if (mWebview.getContentHeight() > 0) {
-                    mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
+                    scrollToHighlightId();
+                    //Webview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
                 }
             }
         }
@@ -929,5 +932,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     @Override
     public void onError() {
+    }
+
+    private void scrollToHighlightId() {
+        mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
     }
 }
