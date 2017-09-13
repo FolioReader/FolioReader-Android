@@ -28,6 +28,7 @@ import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.ui.folio.adapter.HighlightAdapter;
 import com.folioreader.ui.tableofcontents.view.TableOfContentFragment;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.FolioReader;
 
 import static com.folioreader.Constants.SELECTED_CHAPTER_POSITION;
 
@@ -35,10 +36,14 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private View mRootView;
     private HighlightAdapter adapter;
+    private String mBookId;
 
 
-    public static HighlightFragment newInstance() {
+    public static HighlightFragment newInstance(String bookId) {
         HighlightFragment highlightFragment = new HighlightFragment();
+        Bundle args =new Bundle();
+        args.putString(FolioReader.INTENT_BOOK_ID, bookId);
+        highlightFragment.setArguments(args);
         return highlightFragment;
     }
 
@@ -59,6 +64,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
         super.onViewCreated(view, savedInstanceState);
         RecyclerView highlightsView = (RecyclerView) mRootView.findViewById(R.id.rv_highlights);
         Config config = AppUtil.getSavedConfig(getActivity());
+        mBookId = getArguments().getString(FolioReader.INTENT_BOOK_ID);
         if (config.isNightMode()) {
             mRootView.findViewById(R.id.rv_highlights).
                     setBackgroundColor(ContextCompat.getColor(getActivity(),
@@ -66,7 +72,10 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
         }
         highlightsView.setLayoutManager(new LinearLayoutManager(getActivity()));
         highlightsView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
-        adapter = new HighlightAdapter(getActivity(), HighLightTable.getAllHighlights(FolioActivity.EPUB_TITLE), this, config);
+        if (mBookId == null) {
+            mBookId = String.valueOf(FolioActivity.EPUB_TITLE.hashCode());
+        }
+        adapter = new HighlightAdapter(getActivity(), HighLightTable.getAllHighlights(mBookId), this, config);
         highlightsView.setAdapter(adapter);
     }
 

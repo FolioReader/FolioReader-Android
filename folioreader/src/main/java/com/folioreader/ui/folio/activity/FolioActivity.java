@@ -51,6 +51,7 @@ import com.folioreader.ui.folio.presenter.MainMvpView;
 import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
+import com.folioreader.util.FolioReader;
 import com.folioreader.util.ProgressDialog;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
@@ -116,6 +117,8 @@ public class FolioActivity
     private Animation slide_up;
     private boolean mIsNightMode;
     private Config mConfig;
+    private String mBookId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +138,8 @@ public class FolioActivity
         if(!mConfig.isShowTts()){
             findViewById(R.id.btn_speaker).setVisibility(View.GONE);
         }
+
+        mBookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
         initColors();
 
         BUS.register(this);
@@ -167,6 +172,7 @@ public class FolioActivity
             public void onClick(View v) {
                 Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
                 intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
+                intent.putExtra(FolioReader.INTENT_BOOK_ID, mBookId);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
                 overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
             }
@@ -199,7 +205,8 @@ public class FolioActivity
 
     private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
         try {
-            mEpubServer = EpubServerSingleton.getEpubServerInstance(Constants.PORT_NUMBER);
+            int portNumber = getIntent().getIntExtra(Config.INTENT_PORT, 8080);
+            mEpubServer = EpubServerSingleton.getEpubServerInstance(portNumber);
             mEpubServer.start();
             String path = FileUtil.saveEpubFileAndLoadLazyBook(FolioActivity.this, mEpubSourceType, mEpubFilePath,
                     mEpubRawId, mEpubFileName);
@@ -247,7 +254,7 @@ public class FolioActivity
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
             mFolioPageFragmentAdapter =
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, EPUB_TITLE, mConfig);
+                            mSpineReferenceList, EPUB_TITLE, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             mFolioPageViewPager.setOffscreenPageLimit(1);
             mFolioPageViewPager.setCurrentItem(mChapterPosition);
@@ -256,7 +263,7 @@ public class FolioActivity
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
             mFolioPageFragmentAdapter =
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, EPUB_TITLE, mConfig);
+                            mSpineReferenceList, EPUB_TITLE, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             mFolioPageViewPager.setCurrentItem(mChapterPosition);
         }
@@ -285,7 +292,7 @@ public class FolioActivity
         });
 
         if (mSpineReferenceList != null) {
-            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, EPUB_TITLE, mConfig);
+            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, EPUB_TITLE,mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         }
 

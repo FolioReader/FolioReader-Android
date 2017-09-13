@@ -17,10 +17,9 @@ public final class HtmlUtil {
      *
      * @param context     Activity Context
      * @param htmlContent input html raw data
-     * @param mBookTitle  Epub book title
      * @return modified raw html string
      */
-    public static String getHtmlContent(Context context, String htmlContent, String mBookTitle, Config config) {
+    public static String getHtmlContent(Context context, String htmlContent, Config config) {
         String cssPath =
                 String.format(context.getString(R.string.css_tag), "file:///android_asset/css/Style.css");
 

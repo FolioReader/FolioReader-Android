@@ -29,14 +29,17 @@ import android.widget.Toast;
 
 import com.folioreader.Config;
 import com.folioreader.ui.folio.activity.FolioActivity;
+import com.folioreader.util.FolioReader;
 
 public class HomeActivity extends AppCompatActivity {
-    private static final int GALLERY_REQUEST = 102;
+    private static final int STORAGE_REQUEST = 102;
 
 
     public static final String[] WRITE_EXTERNAL_STORAGE_PERMS = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
+
+    private FolioReader folioReader = new FolioReader();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,9 +51,9 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
+                    ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, STORAGE_REQUEST);
                 } else {
-                    openEpub(FolioActivity.EpubSourceType.ASSETS, "mimetype.epub", 0);
+                    folioReader.openBook("mimetype.epub",0,HomeActivity.this);
                 }
             }
         });
@@ -60,32 +63,19 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, GALLERY_REQUEST);
+                    ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, STORAGE_REQUEST);
                 } else {
-                    openEpub(FolioActivity.EpubSourceType.RAW, null, R.raw.adventures);
+                    folioReader.openBook(null, R.raw.adventures, HomeActivity.this);
                 }
             }
         });
-    }
-
-    private void openEpub(FolioActivity.EpubSourceType sourceType, String path, int rawID) {
-        Intent intent = new Intent(HomeActivity.this, FolioActivity.class);
-        Config config = new Config.ConfigBuilder().font(4).fontSize(3).nightmode(true).themeColor(R.color.pink).setShowTts(true).build();
-        intent.putExtra(Config.INTENT_CONFIG,config);
-        if (rawID != 0) {
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawID);
-        } else {
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, path);
-        }
-        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, sourceType);
-        startActivity(intent);
     }
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case GALLERY_REQUEST:
+            case STORAGE_REQUEST:
                 if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
                     Toast.makeText(this, "Cannot open epub it needs storage access !", Toast.LENGTH_SHORT).show();
                 }

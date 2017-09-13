@@ -14,6 +14,7 @@ import com.folioreader.R;
 import com.folioreader.ui.folio.fragment.HighlightFragment;
 import com.folioreader.ui.tableofcontents.view.TableOfContentFragment;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.FolioReader;
 import com.folioreader.util.UiUtil;
 
 public class ContentHighlightActivity extends AppCompatActivity {
@@ -84,7 +85,8 @@ public class ContentHighlightActivity extends AppCompatActivity {
     private void loadHighlightsFragment() {
         findViewById(R.id.btn_contents).setSelected(false);
         findViewById(R.id.btn_highlights).setSelected(true);
-        HighlightFragment highlightFragment = HighlightFragment.newInstance();
+        String bookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
+        HighlightFragment highlightFragment = HighlightFragment.newInstance(bookId);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.parent, highlightFragment);
         ft.commit();
