@@ -89,7 +89,7 @@ public class HighlightUtil {
         if (!rangyList.isEmpty()) {
             builder.append("type:textContent");
             for (String rangy : rangyList) {
-                builder.append("\\|");
+                builder.append("|");
                 builder.append(rangy);
             }
         }

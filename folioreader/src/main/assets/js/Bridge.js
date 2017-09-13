@@ -82,9 +82,7 @@ function setFontSize(cls) {
 
 // Menu colors
 function setHighlightStyle(style) {
-    thisHighlight.className = style;
     Highlight.getUpdatedHighlightId(thisHighlight.id, style);
-    return thisHighlight.id;
 }
 
 function removeThisHighlight() {
@@ -749,6 +747,12 @@ $(function(){
       try {
         this.highlighter.removeAllHighlights();
         this.highlighter.deserialize(serializedHighlight);
+      } catch(err){}
+    },
+
+    removeAll: function(){
+      try {
+        this.highlighter.removeAllHighlights();
       } catch(err){}
     },
 

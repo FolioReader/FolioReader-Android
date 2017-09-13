@@ -1,5 +1,6 @@
 package com.folioreader.ui.folio.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -40,6 +41,7 @@ import com.folioreader.model.event.RewindIndexEvent;
 import com.folioreader.model.event.WebViewPosition;
 import com.folioreader.model.quickaction.ActionItem;
 import com.folioreader.model.quickaction.QuickAction;
+import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.base.HtmlTask;
 import com.folioreader.ui.base.HtmlTaskCallback;
 import com.folioreader.ui.base.HtmlUtil;
@@ -470,11 +472,21 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             @Override
             public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
                 if (FolioPageFragment.this.isVisible()) {
-                    if (TextUtils.isDigitsOnly(message)) {
+                    String rangyPattern = "\\d+\\$\\d+\\$\\d+\\$\\w+\\$";
+                    Pattern pattern = Pattern.compile(rangyPattern);
+                    Matcher matcher = pattern.matcher(message);
+                    if (matcher.matches()) {
+                        HighLightTable.deleteHighlight(message);
+                        String rangy = HighlightUtil.generateRangyString(getPageName());
+                        view.loadUrl("javascript:ssReader.removeAll()");
+                        if (!rangy.isEmpty()) {
+                            view.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
+                        }
+                    } else if (TextUtils.isDigitsOnly(message)) {
                         mTotalMinutes = Integer.parseInt(message);
                     } else {
-                        final Pattern pattern = Pattern.compile(getString(R.string.pattern));
-                        Matcher matcher = pattern.matcher(message);
+                        pattern = Pattern.compile(getString(R.string.pattern));
+                        matcher = pattern.matcher(message);
                         if (matcher.matches()) {
                             double left = Double.parseDouble(matcher.group(1));
                             double top = Double.parseDouble(matcher.group(2));
@@ -662,7 +674,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         if (isCreated) {
             mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.highlightSelection('%s');}", Highlight.HighlightStyle.classForStyle(style)));
         } else {
-            mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.highlightSelection('%s');}", Highlight.HighlightStyle.classForStyle(style)));
+            mWebview.loadUrl(String.format("javascript:alert(setHighlightStyle('%s'))", "highlight_" + Highlight.HighlightStyle.classForStyle(style)));
         }
     }
 
@@ -880,19 +892,17 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         mWebview.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))");
     }
 
-    //TODO
-    @JavascriptInterface
-    public void getRemovedHighlightId(String id) {
-        if (id != null) {
-            //HighLightTable.deleteHighlight(id);
-        }
-    }
-
-    //TODO
     @JavascriptInterface
     public void getUpdatedHighlightId(String id, String style) {
         if (id != null) {
-            //HighLightTable.updateHighlightStyle(id, style);
+            HighLightTable.updateHighlightStyle(id, style);
+            final String rangyString = HighlightUtil.generateRangyString(getPageName());
+            getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangyString));
+                }
+            });
+
         }
     }
 
