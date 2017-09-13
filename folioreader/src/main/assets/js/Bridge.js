@@ -86,8 +86,6 @@ function setHighlightStyle(style) {
 }
 
 function removeThisHighlight() {
-    thisHighlight.outerHTML = thisHighlight.innerHTML;
-    Highlight.getRemovedHighlightId(thisHighlight.id);
     return thisHighlight.id;
 }
 
