@@ -96,6 +96,8 @@
             return function(el, className) {
                 if (typeof el.classList == "object") {
                     el.classList.remove(className);
+                    el.removeAttribute('onclick');
+                    el.removeAttribute('id');
                 } else {
                     var classNameSupported = (typeof el.className == "string");
                     var elClass = classNameSupported ? el.className : el.getAttribute("class");
