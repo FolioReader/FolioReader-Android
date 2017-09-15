@@ -66,17 +66,17 @@ public class FolioReader {
         context.startActivity(intent);
     }
 
-    private Intent getIntentFromUrl(String assetsUrl, int rawId, Context context) {
+    private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId, Context context) {
         Intent intent = new Intent(context, FolioActivity.class);
         if (rawId != 0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawId);
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.RAW);
-        } else if(assetsUrl.contains(Constants.STORAGE)) {
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetsUrl);
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.SD_CARD);
-        } else {
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetsUrl);
+        } else if(assetOrSdcardPath.contains(Constants.ASSET)) {
+            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetOrSdcardPath);
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.ASSETS);
+        } else {
+            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetOrSdcardPath);
+            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.SD_CARD);
         }
         return intent;
     }

@@ -18,6 +18,7 @@ package comfolioreader.android.sample;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -50,7 +51,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, STORAGE_REQUEST);
                 } else {
-                    folioReader.openBook(HomeActivity.this, "adventures.epub");
+                    folioReader.openBook(HomeActivity.this, "file:///android_asset/adventures.epub");
                 }
             }
         });

@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.os.Environment;
 import android.util.Log;
 
+import com.folioreader.Constants;
 import com.folioreader.ui.folio.activity.FolioActivity;
 
 import java.io.File;
@@ -36,6 +37,7 @@ public class FileUtil {
                     saveTempEpubFile(filePath, epubFileName, epubInputStream);
                 } else if (epubSourceType.equals(FolioActivity.EpubSourceType.ASSETS)) {
                     AssetManager assetManager = context.getAssets();
+                    epubFilePath = epubFilePath.replaceAll(Constants.ASSET, "");
                     epubInputStream = assetManager.open(epubFilePath);
                     saveTempEpubFile(filePath, epubFileName, epubInputStream);
                 } else {
@@ -46,6 +48,7 @@ public class FileUtil {
         } catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }
+
         return null;
     }
 
