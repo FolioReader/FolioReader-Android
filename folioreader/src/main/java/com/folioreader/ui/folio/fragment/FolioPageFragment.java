@@ -404,7 +404,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     }
                     String rangy = HighlightUtil.generateRangyString(getPageName());
                     if (!rangy.isEmpty()) {
-                        view.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
+                        loadRangy(view, rangy);
                     }
 
                     scrollToHighlightId();
@@ -479,10 +479,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     if (matcher.matches()) {
                         HighLightTable.deleteHighlight(message);
                         String rangy = HighlightUtil.generateRangyString(getPageName());
-                        view.loadUrl("javascript:ssReader.removeAll()");
-                        if (!rangy.isEmpty()) {
-                            view.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
-                        }
+                        loadRangy(view, rangy);
                     } else if (TextUtils.isDigitsOnly(message)) {
                         mTotalMinutes = Integer.parseInt(message);
                     } else {
@@ -542,6 +539,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
         new HtmlTask(this).execute(getWebviewUrl());
+    }
+
+    private void loadRangy(WebView view, String rangy) {
+        view.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
     }
 
     private void setupScrollBar() {
@@ -902,7 +903,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             final String rangyString = HighlightUtil.generateRangyString(getPageName());
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
-                    mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangyString));
+                    loadRangy(mWebview, rangyString);
                 }
             });
 

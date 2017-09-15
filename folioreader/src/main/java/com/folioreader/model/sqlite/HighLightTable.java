@@ -154,7 +154,7 @@ public class HighLightTable {
         String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
         int id = DbAdapter.getIdForRangy(query, rangy);
         if (id != -1) {
-            update(id, updateRangy(rangy, style));
+            update(id, updateRangy(rangy, style), style.replace("highlight_", ""));
         }
     }
 
@@ -176,9 +176,10 @@ public class HighLightTable {
         return builder.toString();
     }
 
-    private static void update(int id, String s) {
+    private static void update(int id, String s, String color) {
         Highlight highlight = getHighlightId(id);
         highlight.setRangy(s);
+        highlight.setType(color);
         if (DbAdapter.updateHighLight(getHighlightContentValues(highlight), String.valueOf(id))) {
             Log.i("HighLightTable", "highlight updated " + id);
         } else {
