@@ -17,9 +17,8 @@ import android.widget.TextView;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
-import com.folioreader.ui.folio.activity.FolioActivity;
-import com.folioreader.ui.tableofcontents.adapter.TOCAdapter;
 import com.folioreader.model.TOCLinkWrapper;
+import com.folioreader.ui.tableofcontents.adapter.TOCAdapter;
 import com.folioreader.ui.tableofcontents.presenter.TOCMvpView;
 import com.folioreader.ui.tableofcontents.presenter.TableOfContentsPresenter;
 import com.folioreader.util.AppUtil;
@@ -37,11 +36,13 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
     private TableOfContentsPresenter presenter;
     private TextView errorView;
     private Config mConfig;
+    private String mBookTitle;
 
-    public static TableOfContentFragment newInstance(String selectedChapterHref) {
+    public static TableOfContentFragment newInstance(String selectedChapterHref, String bookTitle) {
         TableOfContentFragment tableOfContentFragment = new TableOfContentFragment();
         Bundle args = new Bundle();
         args.putString(SELECTED_CHAPTER_POSITION, selectedChapterHref);
+        args.putString(Constants.BOOK_TITLE, bookTitle);
         tableOfContentFragment.setArguments(args);
         return tableOfContentFragment;
     }
@@ -56,7 +57,8 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View mRootView = inflater.inflate(R.layout.fragment_contents, container, false);
-          mConfig = AppUtil.getSavedConfig(getActivity());
+        mConfig = AppUtil.getSavedConfig(getActivity());
+        mBookTitle = getArguments().getString(Constants.BOOK_TITLE);
         if (mConfig.isNightMode()) {
             mRootView.findViewById(R.id.recycler_view_menu).
                     setBackgroundColor(ContextCompat.getColor(getActivity(),
@@ -70,7 +72,7 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
         super.onViewCreated(view, savedInstanceState);
         mTableOfContentsRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_menu);
         errorView = (TextView) view.findViewById(R.id.tv_error);
-        String urlString = Constants.LOCALHOST + FolioActivity.EPUB_TITLE + "/manifest";
+        String urlString = Constants.LOCALHOST + mBookTitle + "/manifest";
 
         configRecyclerViews();
         presenter.getTOCContent(urlString);
@@ -84,7 +86,7 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
 
     @Override
     public void onLoadTOC(ArrayList<TOCLinkWrapper> tocLinkWrapperList) {
-        mTOCAdapter = new TOCAdapter(getActivity(), tocLinkWrapperList,getArguments().getString(SELECTED_CHAPTER_POSITION),mConfig);
+        mTOCAdapter = new TOCAdapter(getActivity(), tocLinkWrapperList, getArguments().getString(SELECTED_CHAPTER_POSITION), mConfig);
         mTOCAdapter.setCallback(this);
         mTableOfContentsRecyclerView.setAdapter(mTOCAdapter);
     }

@@ -16,7 +16,6 @@
 package comfolioreader.android.sample;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,8 +26,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
-import com.folioreader.Config;
-import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.util.FolioReader;
 
 public class HomeActivity extends AppCompatActivity {
@@ -53,7 +50,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, STORAGE_REQUEST);
                 } else {
-                    folioReader.openBook("mimetype.epub",0,HomeActivity.this);
+                    folioReader.openBook(HomeActivity.this, "adventures.epub");
                 }
             }
         });
@@ -65,7 +62,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, STORAGE_REQUEST);
                 } else {
-                    folioReader.openBook(null, R.raw.adventures, HomeActivity.this);
+                    folioReader.openBook(HomeActivity.this, R.raw.barrett);
                 }
             }
         });

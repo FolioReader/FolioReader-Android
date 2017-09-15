@@ -96,7 +96,7 @@ public class FolioActivity
     private boolean isOpen = true;
 
     public static final int ACTION_CONTENT_HIGHLIGHT = 77;
-    public static String EPUB_TITLE = "";
+    private String mBookTitle;
     private static final String HIGHLIGHT_ITEM = "highlight_item";
 
     public static final Bus BUS = new Bus(ThreadEnforcer.MAIN);
@@ -125,33 +125,10 @@ public class FolioActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
 
-        if (AppUtil.getSavedConfig(this) != null) {
-            mConfig = AppUtil.getSavedConfig(this);
-        } else if (getIntent().getParcelableExtra(Config.INTENT_CONFIG) != null) {
-            mConfig = getIntent().getParcelableExtra(Config.INTENT_CONFIG);
-            AppUtil.saveConfig(this, mConfig);
-        } else {
-            mConfig = new Config.ConfigBuilder().build();
-            AppUtil.saveConfig(this, mConfig);
-        }
-
-        if(!mConfig.isShowTts()){
-            findViewById(R.id.btn_speaker).setVisibility(View.GONE);
-        }
-
+        int mEpubRawId = 0;
         mBookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
-        initColors();
-
-        BUS.register(this);
         String mEpubFilePath = getIntent().getExtras()
                 .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
-
-        title = (TextView) findViewById(R.id.lbl_center);
-        slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.slide_down);
-        slide_up = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.slide_up);
-        int mEpubRawId = 0;
         EpubSourceType mEpubSourceType = (EpubSourceType)
                 getIntent().getExtras().getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
         if (mEpubSourceType.equals(EpubSourceType.RAW)) {
@@ -161,9 +138,29 @@ public class FolioActivity
                     .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         }
 
-        EPUB_TITLE = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
+        mBookTitle = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
+        if (mBookId == null) {
+            mBookId = String.valueOf(mBookTitle.hashCode());
+        }
 
-        initBook(EPUB_TITLE, mEpubRawId, mEpubFilePath, mEpubSourceType);
+        setConfig();
+
+        if (!mConfig.isShowTts()) {
+            findViewById(R.id.btn_speaker).setVisibility(View.GONE);
+        }
+
+        title = (TextView) findViewById(R.id.lbl_center);
+        slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_down);
+        slide_up = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_up);
+
+        initColors();
+
+        BUS.register(this);
+
+
+        initBook(mBookTitle, mEpubRawId, mEpubFilePath, mEpubSourceType);
         initAudioView();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -173,6 +170,7 @@ public class FolioActivity
                 Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
                 intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
                 intent.putExtra(FolioReader.INTENT_BOOK_ID, mBookId);
+                intent.putExtra(Constants.BOOK_TITLE, mBookTitle);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
                 overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
             }
@@ -203,16 +201,17 @@ public class FolioActivity
         }
     }
 
+
     private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
         try {
-            int portNumber = getIntent().getIntExtra(Config.INTENT_PORT, 8080);
+            int portNumber = getIntent().getIntExtra(Config.INTENT_PORT, Constants.PORT_NUMBER);
             mEpubServer = EpubServerSingleton.getEpubServerInstance(portNumber);
             mEpubServer.start();
             String path = FileUtil.saveEpubFileAndLoadLazyBook(FolioActivity.this, mEpubSourceType, mEpubFilePath,
                     mEpubRawId, mEpubFileName);
             addEpub(path);
 
-            String urlString = Constants.LOCALHOST + EPUB_TITLE + "/manifest";
+            String urlString = Constants.LOCALHOST + mBookTitle + "/manifest";
             MainPresenter mainPresenter = new MainPresenter(this);
             mainPresenter.parseManifest(urlString);
 
@@ -225,7 +224,7 @@ public class FolioActivity
 
     private void addEpub(String path) throws IOException {
         Container epubContainer = new EpubContainer(path);
-        mEpubServer.addEpub(epubContainer, "/" + EPUB_TITLE);
+        mEpubServer.addEpub(epubContainer, "/" + mBookTitle);
         getEpubResource();
     }
 
@@ -254,7 +253,7 @@ public class FolioActivity
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
             mFolioPageFragmentAdapter =
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, EPUB_TITLE, mBookId);
+                            mSpineReferenceList, mBookTitle, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             mFolioPageViewPager.setOffscreenPageLimit(1);
             mFolioPageViewPager.setCurrentItem(mChapterPosition);
@@ -263,7 +262,7 @@ public class FolioActivity
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
             mFolioPageFragmentAdapter =
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, EPUB_TITLE, mBookId);
+                            mSpineReferenceList, mBookTitle, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             mFolioPageViewPager.setCurrentItem(mChapterPosition);
         }
@@ -292,12 +291,12 @@ public class FolioActivity
         });
 
         if (mSpineReferenceList != null) {
-            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, EPUB_TITLE,mBookId);
+            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, mBookTitle, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         }
 
-        if (AppUtil.checkPreviousBookStateExist(FolioActivity.this, EPUB_TITLE)) {
-            mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, EPUB_TITLE));
+        if (AppUtil.checkPreviousBookStateExist(FolioActivity.this, mBookTitle)) {
+            mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBookTitle));
         }
     }
 
@@ -321,7 +320,7 @@ public class FolioActivity
 
     private void saveBookState() {
         if (mSpineReferenceList.size() > 0) {
-            AppUtil.saveBookState(FolioActivity.this, EPUB_TITLE, mFolioPageViewPager.getCurrentItem(), mWebViewScrollPosition);
+            AppUtil.saveBookState(FolioActivity.this, mBookTitle, mFolioPageViewPager.getCurrentItem(), mWebViewScrollPosition);
         }
     }
 
@@ -352,7 +351,7 @@ public class FolioActivity
 
     @Override
     public void goToChapter(String href) {
-        href = href.substring(href.indexOf(EPUB_TITLE + "/") + EPUB_TITLE.length() + 1);
+        href = href.substring(href.indexOf(mBookTitle + "/") + mBookTitle.length() + 1);
         for (Link spine : mSpineReferenceList) {
             if (spine.href.contains(href)) {
                 mChapterPosition = mSpineReferenceList.indexOf(spine);
@@ -448,6 +447,19 @@ public class FolioActivity
         }).start();
     }
 
+    private void setConfig() {
+        if (AppUtil.getSavedConfig(this) != null) {
+            mConfig = AppUtil.getSavedConfig(this);
+        } else if (getIntent().getParcelableExtra(Config.INTENT_CONFIG) != null) {
+            mConfig = getIntent().getParcelableExtra(Config.INTENT_CONFIG);
+            AppUtil.saveConfig(this, mConfig);
+        } else {
+            mConfig = new Config.ConfigBuilder().build();
+            AppUtil.saveConfig(this, mConfig);
+        }
+    }
+
+
     //*************************************************************************//
     //                           AUDIO PLAYER                                  //
     //*************************************************************************//
@@ -455,7 +467,7 @@ public class FolioActivity
     private StyleableTextView mBackgroundColorStyle, mUnderlineStyle, mTextColorStyle;
     private RelativeLayout audioContainer;
     private boolean mIsSpeaking;
-    private ImageButton mPlayPauseBtn,mPreviousButton, mNextButton;
+    private ImageButton mPlayPauseBtn, mPreviousButton, mNextButton;
     private RelativeLayout shade;
 
     private void initAudioView() {
@@ -601,7 +613,7 @@ public class FolioActivity
         mTwoSpeed.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
         mOneSpeed.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
         mUnderlineStyle.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
-        mBackgroundColorStyle.setTextColor(UiUtil.getColorList(context,  R.color.white, R.color.grey_color));
+        mBackgroundColorStyle.setTextColor(UiUtil.getColorList(context, R.color.white, R.color.grey_color));
         mBackgroundColorStyle.setBackgroundDrawable(UiUtil.convertColorIntoStateDrawable(this, mConfig.getThemeColor(), android.R.color.transparent));
         mTextColorStyle.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
         UiUtil.setColorToImage(context, mConfig.getThemeColor(), mPlayPauseBtn.getDrawable());

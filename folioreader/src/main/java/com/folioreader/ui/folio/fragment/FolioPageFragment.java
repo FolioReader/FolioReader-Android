@@ -1,6 +1,5 @@
 package com.folioreader.ui.folio.fragment;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -62,7 +61,6 @@ import org.readium.r2_streamer.model.publication.link.Link;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Locale;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -856,9 +854,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @JavascriptInterface
     public void onReceiveHighlights(String html) {
         if (html != null) {
-            if (mBookId == null) {
-                mBookId = String.valueOf(mBookTitle.hashCode());
-            }
             rangy = HighlightUtil.createHighlightRangy(html, mBookId, getPageName(), mPosition, mWebview.getScrollY(), rangy);
         }
     }
