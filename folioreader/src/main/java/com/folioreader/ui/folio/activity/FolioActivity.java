@@ -15,12 +15,16 @@
 */
 package com.folioreader.ui.folio.activity;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -34,6 +38,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.folioreader.Config;
 import com.folioreader.Constants;
@@ -118,6 +123,9 @@ public class FolioActivity
     private boolean mIsNightMode;
     private Config mConfig;
     private String mBookId;
+    private String mEpubFilePath;
+    private EpubSourceType mEpubSourceType;
+    int mEpubRawId = 0;
 
 
     @Override
@@ -125,22 +133,15 @@ public class FolioActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
 
-        int mEpubRawId = 0;
+
         mBookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
-        String mEpubFilePath = getIntent().getExtras()
-                .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
-        EpubSourceType mEpubSourceType = (EpubSourceType)
+        mEpubSourceType = (EpubSourceType)
                 getIntent().getExtras().getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
         if (mEpubSourceType.equals(EpubSourceType.RAW)) {
             mEpubRawId = getIntent().getExtras().getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         } else {
             mEpubFilePath = getIntent().getExtras()
                     .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
-        }
-
-        mBookTitle = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
-        if (mBookId == null) {
-            mBookId = String.valueOf(mBookTitle.hashCode());
         }
 
         setConfig();
@@ -160,7 +161,12 @@ public class FolioActivity
         BUS.register(this);
 
 
-        initBook(mBookTitle, mEpubRawId, mEpubFilePath, mEpubSourceType);
+        if (ContextCompat.checkSelfPermission(FolioActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(FolioActivity.this, Constants.WRITE_EXTERNAL_STORAGE_PERMS, Constants.WRITE_EXTERNAL_STORAGE_REQUEST);
+        } else {
+            setupBook();
+        }
+
         initAudioView();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -200,7 +206,6 @@ public class FolioActivity
             audioContainer.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.night));
         }
     }
-
 
     private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
         try {
@@ -631,5 +636,27 @@ public class FolioActivity
         UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_drawer)).getDrawable());
         UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_config)).getDrawable());
         UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_speaker)).getDrawable());
+    }
+
+    private void setupBook() {
+        mBookTitle = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
+        if (mBookId == null) {
+            mBookId = String.valueOf(mBookTitle.hashCode());
+        }
+        initBook(mBookTitle, mEpubRawId, mEpubFilePath, mEpubSourceType);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case Constants.WRITE_EXTERNAL_STORAGE_REQUEST:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    setupBook();
+                } else {
+                    Toast.makeText(this, getString(R.string.cannot_access_epub_message), Toast.LENGTH_LONG).show();
+                    finish();
+                }
+                break;
+        }
     }
 }

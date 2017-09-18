@@ -1,5 +1,7 @@
 package com.folioreader;
 
+import android.Manifest;
+
 /**
  * Created by mobisys on 10/4/2016.
  */
@@ -22,5 +24,10 @@ public class Constants {
     public static final int FONT_LORA = 3;
     public static final int FONT_RALEWAY = 4;
     public static final String DATE_FORMAT = "MMM dd, yyyy | HH:mm";
-    public static final String ASSET ="file:///android_asset/" ;
+    public static final String ASSET = "file:///android_asset/";
+    public static final int WRITE_EXTERNAL_STORAGE_REQUEST = 102;
+
+    public static final String[] WRITE_EXTERNAL_STORAGE_PERMS = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
 }

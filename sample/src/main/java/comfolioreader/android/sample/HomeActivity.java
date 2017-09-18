@@ -15,27 +15,14 @@
 */
 package comfolioreader.android.sample;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Toast;
 
 import com.folioreader.util.FolioReader;
 
 public class HomeActivity extends AppCompatActivity {
-    private static final int STORAGE_REQUEST = 102;
-
-
-    public static final String[] WRITE_EXTERNAL_STORAGE_PERMS = {
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
 
     private FolioReader folioReader = new FolioReader();
 
@@ -47,37 +34,15 @@ public class HomeActivity extends AppCompatActivity {
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, STORAGE_REQUEST);
-                } else {
-                    folioReader.openBook(HomeActivity.this, "file:///android_asset/adventures.epub");
-                }
+                folioReader.openBook(HomeActivity.this, "file:///android_asset/adventures.epub");
             }
         });
 
         findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (ContextCompat.checkSelfPermission(HomeActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(HomeActivity.this, WRITE_EXTERNAL_STORAGE_PERMS, STORAGE_REQUEST);
-                } else {
-                    folioReader.openBook(HomeActivity.this, R.raw.barrett);
-                }
+                folioReader.openBook(HomeActivity.this, R.raw.barrett);
             }
         });
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case STORAGE_REQUEST:
-                if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                    Toast.makeText(this, "Cannot open epub it needs storage access !", Toast.LENGTH_SHORT).show();
-                }
-                break;
-        }
     }
 }
