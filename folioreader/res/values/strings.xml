@@ -90,4 +90,5 @@
     <string name="debug_start_unable_drag">Starting unable to drag!</string>
     <string name="dictionary">Dictionary</string>
     <string name="wikipedia">Wikipedia</string>
+    <string name="cannot_access_epub_message">Cannot open epub it needs storage access !</string>
 </resources>

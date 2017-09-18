@@ -15,6 +15,7 @@ public class Config implements Parcelable {
     public static final String CONFIG_IS_NIGHTMODE = "is_night_mode";
     public static final String CONFIG_IS_THEMECOLOR = "theme_color";
     public static final String CONFIG_IS_TTS = "is_tts";
+    public static final String INTENT_PORT = "port";
     private int font;
     private int fontSize;
     private boolean nightMode;
@@ -169,7 +170,7 @@ public class Config implements Parcelable {
         private int fontSize = 2;
         private boolean nightMode = false;
         private int themeColor = R.color.app_green;
-        private boolean showTts;
+        private boolean showTts = true;
 
         public ConfigBuilder font(int font) {
             this.font = font;

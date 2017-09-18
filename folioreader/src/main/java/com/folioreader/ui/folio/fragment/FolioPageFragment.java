@@ -1,6 +1,5 @@
 package com.folioreader.ui.folio.fragment;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -49,6 +48,7 @@ import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.ui.folio.mediaoverlay.MediaController;
 import com.folioreader.ui.folio.mediaoverlay.MediaControllerCallbacks;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.FolioReader;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.util.SMILParser;
 import com.folioreader.util.UiUtil;
@@ -61,7 +61,6 @@ import org.readium.r2_streamer.model.publication.link.Link;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Locale;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -136,12 +135,14 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     private MediaController mediaController;
     private Config mConfig;
+    private String mBookId;
 
-    public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef, Config config) {
+    public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef, String bookId) {
         FolioPageFragment fragment = new FolioPageFragment();
         Bundle args = new Bundle();
         args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position);
         args.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, bookTitle);
+        args.putString(FolioReader.INTENT_BOOK_ID, bookId);
         args.putSerializable(SPINE_ITEM, spineRef);
         fragment.setArguments(args);
         return fragment;
@@ -156,12 +157,14 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBookTitle = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
+            mBookId = getArguments().getString(FolioReader.INTENT_BOOK_ID);
             spineItem = (Link) savedInstanceState.getSerializable(SPINE_ITEM);
         } else {
             mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
             mBookTitle = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
             mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
             spineItem = (Link) getArguments().getSerializable(SPINE_ITEM);
+            mBookId = getArguments().getString(FolioReader.INTENT_BOOK_ID);
         }
         if (spineItem != null) {
             if (spineItem.properties.contains("media-overlay")) {
@@ -179,6 +182,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         if (getActivity() instanceof FolioPageFragmentCallback)
             mActivityCallback = (FolioPageFragmentCallback) getActivity();
         mConfig = AppUtil.getSavedConfig(getActivity());
+
 
         FolioActivity.BUS.register(this);
 
@@ -328,7 +332,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             String path = ref.substring(0, ref.lastIndexOf("/"));
             mWebview.loadDataWithBaseURL(
                     Constants.LOCALHOST + mBookTitle + "/" + path + "/",
-                    HtmlUtil.getHtmlContent(getActivity(), mHtmlString, mBookTitle, mConfig),
+                    HtmlUtil.getHtmlContent(getActivity(), mHtmlString, mConfig),
                     "text/html",
                     "UTF-8",
                     null);
@@ -852,7 +856,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @JavascriptInterface
     public void onReceiveHighlights(String html) {
         if (html != null) {
-            rangy = HighlightUtil.createHighlightRangy(html, mBookTitle, getPageName(), mPosition, mWebview.getScrollY(), rangy);
+            rangy = HighlightUtil.createHighlightRangy(html, mBookId, getPageName(), mPosition, mWebview.getScrollY(), rangy);
         }
     }
 

@@ -18,19 +18,19 @@ import java.util.List;
 public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
     private List<Link> mSpineReferences;
     private String mEpubFileName;
-    private Config mConfig;
+    private String mBookId;
 
-    public FolioPageFragmentAdapter(FragmentManager fm, List<Link> spineReferences, String epubFileName, Config config) {
+    public FolioPageFragmentAdapter(FragmentManager fm, List<Link> spineReferences, String epubFileName, String bookId) {
         super(fm);
         this.mSpineReferences = spineReferences;
         this.mEpubFileName = epubFileName;
-        this.mConfig = config;
+        this.mBookId = bookId;
         FolioActivity.BUS.register(this);
     }
 
     @Override
     public Fragment getItem(int position) {
-        FolioPageFragment mFolioPageFragment = FolioPageFragment.newInstance(position, mEpubFileName, mSpineReferences.get(position), mConfig);
+        FolioPageFragment mFolioPageFragment = FolioPageFragment.newInstance(position, mEpubFileName, mSpineReferences.get(position),mBookId);
         mFolioPageFragment.setFragmentPos(position);
         return mFolioPageFragment;
     }
