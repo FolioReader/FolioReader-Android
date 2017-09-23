@@ -407,6 +407,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         mIsPageReloaded = false;
                     }
                     String rangy = HighlightUtil.generateRangyString(getPageName());
+                    FolioPageFragment.this.rangy = rangy;
                     if (!rangy.isEmpty()) {
                         loadRangy(view, rangy);
                     }
@@ -484,6 +485,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         HighLightTable.deleteHighlight(message);
                         String rangy = HighlightUtil.generateRangyString(getPageName());
                         loadRangy(view, rangy);
+                        mTextSelectionSupport.endSelectionMode();
                     } else if (TextUtils.isDigitsOnly(message)) {
                         mTotalMinutes = Integer.parseInt(message);
                     } else {
@@ -727,10 +729,12 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         if (actionId == ACTION_ID_COPY) {
             UiUtil.copyToClipboard(getActivity(), mSelectedText);
             Toast.makeText(getActivity(), getString(R.string.copied), Toast.LENGTH_SHORT).show();
+            mTextSelectionSupport.endSelectionMode();
         } else if (actionId == ACTION_ID_SHARE) {
             UiUtil.share(getActivity(), mSelectedText);
         } else if (actionId == ACTION_ID_DEFINE) {
             showDictDialog(mSelectedText);
+            mTextSelectionSupport.endSelectionMode();
         } else if (actionId == ACTION_ID_HIGHLIGHT) {
             onHighlight(view, width, height, true);
         }
@@ -790,6 +794,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             onHighlightColors(view, isCreated);
         } else if (actionId == ACTION_ID_SHARE) {
             UiUtil.share(getActivity(), mSelectedText);
+            mTextSelectionSupport.endSelectionMode();
         } else if (actionId == ACTION_ID_DELETE) {
             highlightRemove();
         }
@@ -843,6 +848,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         } else if (actionId == ACTION_ID_HIGHLIGHT_UNDERLINE) {
             highlight(Highlight.HighlightStyle.Underline, isCreated);
         }
+        mTextSelectionSupport.endSelectionMode();
     }
 
     @Override
