@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="155dp"
     android:background="@color/white">
     <LinearLayout
         android:id="@+id/top_buttons"
@@ -16,21 +16,21 @@
             android:layout_height="match_parent"
             android:layout_weight="0.5"
             android:background="@android:color/transparent"
-            android:src="@drawable/btn_sun_selector" />
+            android:src="@drawable/icon_sun_normal" />
         <ImageButton
             android:id="@+id/night_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.5"
             android:background="@android:color/transparent"
-            android:src="@drawable/btn_moon_selector" />
+            android:src="@drawable/icon_moon_normal" />
     </LinearLayout>
     <View
         android:id="@+id/first_separator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/top_buttons"
-        android:background="@color/borders" />
+        android:background="@color/grey_color" />
     <LinearLayout
         android:id="@+id/fontLayout"
         android:layout_width="match_parent"
@@ -46,7 +46,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/andada"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
             app:font="@string/andada_font" />
         <com.folioreader.view.StyleableTextView
@@ -56,7 +55,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/lato"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
             app:font="@string/lato_font" />
         <com.folioreader.view.StyleableTextView
@@ -66,7 +64,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/lora"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
             app:font="@string/lora_font" />
         <com.folioreader.view.StyleableTextView
@@ -76,7 +73,6 @@
             android:layout_weight="1.0"
             android:gravity="center"
             android:text="@string/raleway"
-            android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
             app:font="@string/raleway_font" />
     </LinearLayout>
@@ -85,7 +81,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/fontLayout"
-        android:background="@color/borders" />
+        android:background="@color/grey_color" />
     <RelativeLayout android:id="@+id/font_size_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -102,10 +98,11 @@
             android:id="@+id/seekbar_font_size"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:thumb="@drawable/seekbar_thumb"
             android:layout_toLeftOf="@+id/big_font"
             android:layout_toRightOf="@+id/small_font"
             android:max="4"
+            android:minHeight="0.2dp"
+            android:maxHeight="0.2dp"
             android:padding="16dp" />
         <ImageView
             android:id="@+id/big_font"
@@ -121,7 +118,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/font_size_layout"
-        android:background="@color/borders" android:visibility="gone"/>
+        android:background="@color/grey_color" android:visibility="gone"/>
     <LinearLayout
         android:id="@+id/orientationLayout"
         android:layout_width="match_parent"

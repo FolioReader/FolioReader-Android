@@ -26,11 +26,24 @@ import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.ui.folio.adapter.HighlightAdapter;
+import com.folioreader.util.AppUtil;
+import com.folioreader.util.FolioReader;
 
 public class HighlightFragment extends Fragment implements HighlightAdapter.HighLightAdapterCallback {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private View mRootView;
     private HighlightAdapter adapter;
+    private String mBookId;
+
+
+    public static HighlightFragment newInstance(String bookId, String epubTitle) {
+        HighlightFragment highlightFragment = new HighlightFragment();
+        Bundle args = new Bundle();
+        args.putString(FolioReader.INTENT_BOOK_ID, bookId);
+        args.putString(Constants.BOOK_TITLE, epubTitle);
+        highlightFragment.setArguments(args);
+        return highlightFragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,14 +61,18 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         RecyclerView highlightsView = (RecyclerView) mRootView.findViewById(R.id.rv_highlights);
-        if (Config.getConfig().isNightMode()) {
+        Config config = AppUtil.getSavedConfig(getActivity());
+        mBookId = getArguments().getString(FolioReader.INTENT_BOOK_ID);
+
+        if (config.isNightMode()) {
             mRootView.findViewById(R.id.rv_highlights).
                     setBackgroundColor(ContextCompat.getColor(getActivity(),
                             R.color.black));
         }
         highlightsView.setLayoutManager(new LinearLayoutManager(getActivity()));
         highlightsView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
-        adapter = new HighlightAdapter(getActivity(), HighLightTable.getAllHighlights(FolioActivity.EPUB_TITLE), this);
+
+        adapter = new HighlightAdapter(getActivity(), HighLightTable.getAllHighlights(mBookId), this, config);
         highlightsView.setAdapter(adapter);
     }
 
@@ -69,7 +86,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     }
 
     @Override
-    public void deleteHighlight(String id) {
+    public void deleteHighlight(int id) {
         HighLightTable.deleteHighlight(id);
         FolioActivity.BUS.post(new ReloadDataEvent());
     }
@@ -99,7 +116,6 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                             getString(R.string.please_enter_note),
                             Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
     }

@@ -3,36 +3,61 @@ package com.folioreader;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.json.JSONObject;
+
 /**
  * Created by mahavir on 4/12/16.
  */
 public class Config implements Parcelable {
-    private static Config mConfig;
+    public static final String INTENT_CONFIG = "config";
+    public static final String CONFIG_FONT = "font";
+    public static final String CONFIG_FONT_SIZE = "font_size";
+    public static final String CONFIG_IS_NIGHTMODE = "is_night_mode";
+    public static final String CONFIG_IS_THEMECOLOR = "theme_color";
+    public static final String CONFIG_IS_TTS = "is_tts";
+    public static final String INTENT_PORT = "port";
     private int font;
     private int fontSize;
     private boolean nightMode;
+    private int themeColor;
+    private boolean showTts;
 
-    public Config(int font, int fontSize, boolean nightMode) {
+    public Config(int font, int fontSize, boolean nightMode, int iconcolor, boolean showTts) {
         this.font = font;
         this.fontSize = fontSize;
         this.nightMode = nightMode;
+        this.themeColor = iconcolor;
+        this.showTts = showTts;
+    }
+
+    private Config(ConfigBuilder configBuilder) {
+        font = configBuilder.font;
+        fontSize = configBuilder.fontSize;
+        nightMode = configBuilder.nightMode;
+        themeColor = configBuilder.themeColor;
+        showTts = configBuilder.showTts;
+    }
+
+    public Config(JSONObject jsonObject) {
+        font = jsonObject.optInt(CONFIG_FONT);
+        fontSize = jsonObject.optInt(CONFIG_FONT_SIZE);
+        nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHTMODE);
+        themeColor = jsonObject.optInt(CONFIG_IS_THEMECOLOR);
+        showTts = jsonObject.optBoolean(CONFIG_IS_TTS);
     }
 
     private Config() {
         fontSize = 2;
         font = 3;
         nightMode = false;
+        themeColor = R.color.app_green;
+        showTts = true;
     }
 
     private Config(Parcel in) {
         readFromParcel(in);
     }
 
-    public static Config getConfig() {
-        if (mConfig == null) mConfig = new Config();
-
-        return mConfig;
-    }
 
     public int getFont() {
         return font;
@@ -58,7 +83,25 @@ public class Config implements Parcelable {
         this.nightMode = nightMode;
     }
 
+
+    public int getThemeColor() {
+        return themeColor;
+    }
+
+    public void setThemeColor(int themeColor) {
+        this.themeColor = themeColor;
+    }
+
+    public boolean isShowTts() {
+        return showTts;
+    }
+
+    public void setShowTts(boolean showTts) {
+        this.showTts = showTts;
+    }
+
     @Override
+
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Config)) return false;
@@ -98,12 +141,16 @@ public class Config implements Parcelable {
         dest.writeInt(font);
         dest.writeInt(fontSize);
         dest.writeInt(nightMode ? 1 : 0);
+        dest.writeInt(themeColor);
+        dest.writeInt(showTts ? 1 : 0);
     }
 
     private void readFromParcel(Parcel in) {
         font = in.readInt();
         fontSize = in.readInt();
         nightMode = in.readInt() == 1;
+        themeColor = in.readInt();
+        showTts = in.readInt() == 1;
     }
 
     public static final Creator<Config> CREATOR = new Creator<Config>() {
@@ -117,4 +164,44 @@ public class Config implements Parcelable {
             return new Config[size];
         }
     };
+
+    public static class ConfigBuilder {
+        private int font = 3;
+        private int fontSize = 2;
+        private boolean nightMode = false;
+        private int themeColor = R.color.app_green;
+        private boolean showTts = true;
+
+        public ConfigBuilder font(int font) {
+            this.font = font;
+            return this;
+        }
+
+        public ConfigBuilder fontSize(int fontSize) {
+            this.fontSize = fontSize;
+            return this;
+        }
+
+        public ConfigBuilder nightmode(boolean nightMode) {
+            this.nightMode = nightMode;
+            return this;
+        }
+
+        public ConfigBuilder themeColor(int themeColor) {
+            this.themeColor = themeColor;
+            return this;
+        }
+
+        public ConfigBuilder setShowTts(boolean showTts) {
+            this.showTts = showTts;
+            return this;
+        }
+
+
+        public Config build() {
+            return new Config(this);
+        }
+    }
 }
+
+

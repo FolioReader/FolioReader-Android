@@ -8,12 +8,18 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.StateSet;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -76,14 +82,12 @@ public class UiUtil {
 
     public static ColorStateList getColorList(Context context, int selectedColor, int unselectedColor) {
         int[][] states = new int[][]{
-                new int[]{android.R.attr.state_pressed}, // pressed
-                new int[]{android.R.attr.state_selected}, // focused
+                new int[]{android.R.attr.state_selected},
                 new int[]{}
         };
         int[] colors = new int[]{
-                ContextCompat.getColor(context, selectedColor), // green
-                ContextCompat.getColor(context, selectedColor), // green
-                ContextCompat.getColor(context, unselectedColor)  // white
+                ContextCompat.getColor(context, selectedColor),
+                ContextCompat.getColor(context, unselectedColor)
         };
         ColorStateList list = new ColorStateList(states, colors);
         return list;
@@ -101,27 +105,26 @@ public class UiUtil {
 
     public static void setBackColorToTextView(UnderlinedTextView textView, String type) {
         Context context = textView.getContext();
-        if (type.equals("highlight-yellow")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context,
-                    R.color.yellow));
-            textView.setUnderlineWidth(0.0f);
-        } else if (type.equals("highlight-green")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context,
-                    R.color.green));
-            textView.setUnderlineWidth(0.0f);
-        } else if (type.equals("highlight-blue")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context,
-                    R.color.blue));
-            textView.setUnderlineWidth(0.0f);
-        } else if (type.equals("highlight-pink")) {
-            textView.setBackgroundColor(ContextCompat.getColor(context,
-                    R.color.pink));
-            textView.setUnderlineWidth(0.0f);
-        } else if (type.equals("highlight-underline")) {
-            textView.setUnderLineColor(ContextCompat.getColor(context,
-                    android.R.color.holo_red_dark));
+        if (type.equals("yellow")) {
+            setUnderLineColor(textView, context, R.color.yellow, R.color.yellow);
+        } else if (type.equals("green")) {
+            setUnderLineColor(textView, context, R.color.green, R.color.green);
+        } else if (type.equals("blue")) {
+            setUnderLineColor(textView, context, R.color.blue, R.color.blue);
+        } else if (type.equals("pink")) {
+            setUnderLineColor(textView, context, R.color.pink, R.color.pink);
+        } else if (type.equals("underline")) {
+            setUnderLineColor(textView, context, android.R.color.transparent, android.R.color.holo_red_dark);
             textView.setUnderlineWidth(2.0f);
         }
+    }
+
+
+    private static void setUnderLineColor(UnderlinedTextView underlinedTextView, Context context, int background,int underlinecolor) {
+        underlinedTextView.setBackgroundColor(ContextCompat.getColor(context,
+                background));
+        underlinedTextView.setUnderLineColor(ContextCompat.getColor(context,
+                underlinecolor));
     }
 
     public static float convertDpToPixel(float dp, Context context) {
@@ -145,5 +148,31 @@ public class UiUtil {
         sendIntent.setType("text/plain");
         context.startActivity(Intent.createChooser(sendIntent,
                 context.getResources().getText(R.string.send_to)));
+    }
+
+
+    public static void setColorToImage(Context context, int color, Drawable drawable) {
+        drawable.setColorFilter(ContextCompat.getColor(context, color), PorterDuff.Mode.SRC_ATOP);
+    }
+
+
+    public static StateListDrawable convertColorIntoStateDrawable(Context context, int colorSelected, int colorNormal) {
+        StateListDrawable stateListDrawable = new StateListDrawable();
+        stateListDrawable.addState(new int[]{android.R.attr.state_selected}, new ColorDrawable(ContextCompat.getColor(context, colorSelected)));
+        stateListDrawable.addState(StateSet.WILD_CARD, new ColorDrawable(ContextCompat.getColor(context, colorNormal)));
+        return stateListDrawable;
+    }
+
+    public static GradientDrawable getShapeDrawable(Context context, int color) {
+        GradientDrawable gradientDrawable = new GradientDrawable();
+        gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+        gradientDrawable.setStroke(pxToDp(2), ContextCompat.getColor(context, color));
+        gradientDrawable.setColor(ContextCompat.getColor(context, color));
+        gradientDrawable.setCornerRadius(pxToDp(3));
+        return gradientDrawable;
+    }
+
+    public static int pxToDp(int px) {
+        return (int) (px / Resources.getSystem().getDisplayMetrics().density);
     }
 }
