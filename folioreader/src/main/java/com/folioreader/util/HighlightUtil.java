@@ -1,5 +1,10 @@
 package com.folioreader.util;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+
 import com.folioreader.model.Highlight;
 import com.folioreader.model.sqlite.HighLightTable;
 
@@ -16,7 +21,12 @@ import java.util.List;
  */
 public class HighlightUtil {
 
-    public static String createHighlightRangy(String content, String bookTitle, String pageId, int pageNo, int scrollPosition, String oldRangy) {
+    public static String createHighlightRangy(Context context,
+                                              String content,
+                                              String bookTitle,
+                                              String pageId,
+                                              int pageNo,
+                                              String oldRangy) {
         try {
             JSONObject jObject = new JSONObject(content);
 
@@ -30,13 +40,17 @@ public class HighlightUtil {
             highlight.setContent(textContent);
             highlight.setType(color);
             highlight.setPageNumber(pageNo);
-            highlight.setScrollPosition(scrollPosition);
             highlight.setBookId(bookTitle);
             highlight.setPageId(pageId);
             highlight.setRangy(rangyHighlightElement);
             highlight.setDate(Calendar.getInstance().getTime());
             // save highlight to database
-            HighLightTable.insertHighlight(highlight);
+            long id = HighLightTable.insertHighlight(highlight);
+            if (id != -1) {
+                highlight.setId((int) id);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(
+                        getHighlightBroadcastIntent(highlight, Highlight.HighLightAction.NEW));
+            }
             return rangy;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -94,5 +108,12 @@ public class HighlightUtil {
             }
         }
         return builder.toString();
+    }
+
+    public static Intent getHighlightBroadcastIntent(Highlight highlight, Highlight.HighLightAction modify) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Highlight.INTENT, highlight);
+        bundle.putSerializable(Highlight.HighLightAction.class.getName(), modify);
+        return new Intent(Highlight.BROADCAST_EVENT).putExtras(bundle);
     }
 }

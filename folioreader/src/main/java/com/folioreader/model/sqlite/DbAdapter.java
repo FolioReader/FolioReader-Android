@@ -70,8 +70,8 @@ public class DbAdapter {
         return mDatabase.rawQuery("SELECT MAX(" + key + ") FROM " + tableName, null);
     }
 
-    public static boolean saveHighLight(ContentValues highlightContentValues) {
-        return mDatabase.insert(HighLightTable.TABLE_NAME, null, highlightContentValues) > 0;
+    public static long saveHighLight(ContentValues highlightContentValues) {
+        return mDatabase.insert(HighLightTable.TABLE_NAME, null, highlightContentValues);
     }
 
     public static boolean updateHighLight(ContentValues highlightContentValues, String id) {
@@ -82,8 +82,8 @@ public class DbAdapter {
         return mDatabase.rawQuery(query, null);
     }
 
-    public static int getIdForRangy(String query, String rangy) {
-        Cursor c = mDatabase.rawQuery(query,null);
+    public static int getIdForRangy(String query) {
+        Cursor c = mDatabase.rawQuery(query, null);
 
         int id = -1;
         while (c.moveToNext()) {

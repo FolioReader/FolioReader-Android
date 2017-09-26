@@ -20,29 +20,42 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import com.folioreader.model.Highlight;
 import com.folioreader.util.FolioReader;
+import com.folioreader.util.OnHighlightCreateListener;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements OnHighlightCreateListener {
 
-    private FolioReader folioReader = new FolioReader();
+    private FolioReader folioReader;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
+        folioReader = new FolioReader(this);
+        folioReader.setOnHighlightCreateListener(this);
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                folioReader.openBook(HomeActivity.this, "file:///android_asset/adventures.epub");
+                folioReader.openBook("file:///android_asset/adventures.epub");
             }
         });
 
         findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                folioReader.openBook(HomeActivity.this, R.raw.barrett);
+                folioReader.openBook(R.raw.barrett);
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        folioReader.unSubscribe();
+    }
+
+    @Override
+    public void onCreateHighlight(Highlight highlight, Highlight.HighLightAction type) {
     }
 }
