@@ -28,6 +28,7 @@ import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.ui.folio.adapter.HighlightAdapter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FolioReader;
+import com.folioreader.util.HighlightUtil;
 
 public class HighlightFragment extends Fragment implements HighlightAdapter.HighLightAdapterCallback {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
@@ -108,8 +109,13 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                         ((EditText) dialog.findViewById(R.id.edit_note)).getText().toString();
                 if (!TextUtils.isEmpty(note)) {
                     highlight.setNote(note);
-                    HighLightTable.updateHighlight(highlight);
-                    adapter.editNote(note, position);
+                    if (HighLightTable.updateHighlight(highlight)) {
+                        HighlightUtil.sendHighlightBroadcastEvent(
+                                HighlightFragment.this.getActivity().getApplicationContext(),
+                                highlight,
+                                Highlight.HighLightAction.MODIFY);
+                        adapter.editNote(note, position);
+                    }
                     dialog.dismiss();
                 } else {
                     Toast.makeText(getActivity(),

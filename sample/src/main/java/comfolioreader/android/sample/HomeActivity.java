@@ -19,30 +19,47 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
 
+import com.folioreader.model.Highlight;
 import com.folioreader.util.FolioReader;
+import com.folioreader.util.OnHighlightListener;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements OnHighlightListener {
 
-    private FolioReader folioReader = new FolioReader();
+    private FolioReader folioReader;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
+        folioReader = new FolioReader(this);
+        folioReader.registerHighlightListener(this);
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                folioReader.openBook(HomeActivity.this, "file:///android_asset/adventures.epub");
+                folioReader.openBook("file:///android_asset/adventures.epub");
             }
         });
 
         findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                folioReader.openBook(HomeActivity.this, R.raw.barrett);
+                folioReader.openBook(R.raw.barrett);
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        folioReader.unregisterHighlightListener();
+    }
+
+    @Override
+    public void onHighlight(Highlight highlight, Highlight.HighLightAction type) {
+        Toast.makeText(this,
+                "highlight id = " + highlight.getId() + " type = " + type,
+                Toast.LENGTH_SHORT).show();
     }
 }

@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -90,7 +91,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private static final int ACTION_ID_HIGHLIGHT_UNDERLINE = 1011;
     private static final String KEY_TEXT_ELEMENTS = "text_elements";
     private static final String SPINE_ITEM = "spine_item";
-    private WebViewPosition mWebviewposition;
+
     private String mHtmlString = null;
     private boolean hasMediaOverlay = false;
     private String mAnchorId;
@@ -415,7 +416,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     scrollToHighlightId();
 
 
-
                 }
             }
 
@@ -482,10 +482,18 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     Pattern pattern = Pattern.compile(rangyPattern);
                     Matcher matcher = pattern.matcher(message);
                     if (matcher.matches()) {
-                        HighLightTable.deleteHighlight(message);
-                        String rangy = HighlightUtil.generateRangyString(getPageName());
-                        loadRangy(view, rangy);
-                        mTextSelectionSupport.endSelectionMode();
+                        Highlight highlight = HighLightTable.getHighlightForRangy(message);
+                        if (HighLightTable.deleteHighlight(message)) {
+                            String rangy = HighlightUtil.generateRangyString(getPageName());
+                            loadRangy(view, rangy);
+                            mTextSelectionSupport.endSelectionMode();
+                            if (highlight != null) {
+                                HighlightUtil.sendHighlightBroadcastEvent(
+                                        FolioPageFragment.this.getActivity().getApplicationContext(),
+                                        highlight,
+                                        Highlight.HighLightAction.DELETE);
+                            }
+                        }
                     } else if (TextUtils.isDigitsOnly(message)) {
                         mTotalMinutes = Integer.parseInt(message);
                     } else {
@@ -862,7 +870,12 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @JavascriptInterface
     public void onReceiveHighlights(String html) {
         if (html != null) {
-            rangy = HighlightUtil.createHighlightRangy(html, mBookId, getPageName(), mPosition, mWebview.getScrollY(), rangy);
+            rangy = HighlightUtil.createHighlightRangy(getActivity().getApplicationContext(),
+                    html,
+                    mBookId,
+                    getPageName(),
+                    mWebview.getScrollY(),
+                    rangy);
         }
     }
 
@@ -909,7 +922,13 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @JavascriptInterface
     public void getUpdatedHighlightId(String id, String style) {
         if (id != null) {
-            HighLightTable.updateHighlightStyle(id, style);
+            Highlight highlight = HighLightTable.updateHighlightStyle(id, style);
+            if (highlight != null) {
+                HighlightUtil.sendHighlightBroadcastEvent(
+                        getActivity().getApplicationContext(),
+                        highlight,
+                        Highlight.HighLightAction.MODIFY);
+            }
             final String rangyString = HighlightUtil.generateRangyString(getPageName());
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
