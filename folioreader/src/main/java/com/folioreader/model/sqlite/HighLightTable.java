@@ -116,13 +116,8 @@ public class HighLightTable {
         return rangyList;
     }
 
-    //TODO
-    public static void updateHighlight(Highlight highlight) {
-        if (DbAdapter.updateHighLight(getHighlightContentValues(highlight), String.valueOf(highlight.getId()))) {
-            Log.d(TAG, "highlight updated successfully");
-        } else {
-            Log.d(TAG, "error while highlight updating");
-        }
+    public static boolean updateHighlight(Highlight highlight) {
+        return DbAdapter.updateHighLight(getHighlightContentValues(highlight), String.valueOf(highlight.getId()));
     }
 
     public static String getDateTimeString(Date date) {

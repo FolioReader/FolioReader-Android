@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
 
 import com.folioreader.model.Highlight;
 import com.folioreader.util.FolioReader;
@@ -52,10 +53,13 @@ public class HomeActivity extends AppCompatActivity implements OnHighlightListen
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        folioReader.unRegisterHighlightListener();
+        folioReader.unregisterHighlightListener();
     }
 
     @Override
     public void onHighlight(Highlight highlight, Highlight.HighLightAction type) {
+        Toast.makeText(this,
+                "highlight id = " + highlight.getId() + " type = " + type,
+                Toast.LENGTH_SHORT).show();
     }
 }

@@ -489,7 +489,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                             mTextSelectionSupport.endSelectionMode();
                             if (highlight != null) {
                                 HighlightUtil.sendHighlightBroadcastEvent(
-                                        FolioPageFragment.this.getActivity(),
+                                        FolioPageFragment.this.getActivity().getApplicationContext(),
                                         highlight,
                                         Highlight.HighLightAction.DELETE);
                             }
@@ -870,7 +870,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @JavascriptInterface
     public void onReceiveHighlights(String html) {
         if (html != null) {
-            rangy = HighlightUtil.createHighlightRangy(getActivity(),
+            rangy = HighlightUtil.createHighlightRangy(getActivity().getApplicationContext(),
                     html,
                     mBookId,
                     getPageName(),
@@ -925,7 +925,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             Highlight highlight = HighLightTable.updateHighlightStyle(id, style);
             if (highlight != null) {
                 HighlightUtil.sendHighlightBroadcastEvent(
-                        getActivity(),
+                        getActivity().getApplicationContext(),
                         highlight,
                         Highlight.HighLightAction.MODIFY);
             }

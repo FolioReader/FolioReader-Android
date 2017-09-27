@@ -110,7 +110,7 @@ public class FolioReader {
         this.onHighlightListener = onHighlightListener;
     }
 
-    public void unRegisterHighlightListener() {
+    public void unregisterHighlightListener() {
         LocalBroadcastManager.getInstance(context).unregisterReceiver(highlightReceiver);
         this.onHighlightListener = null;
     }
