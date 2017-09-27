@@ -8,13 +8,13 @@ import com.folioreader.model.Highlight;
  * @author gautam chibde on 26/9/17.
  */
 
-public interface OnHighlightCreateListener {
+public interface OnHighlightListener {
 
     /**
-     * Interface for receiving notification when a highlight is created.
+     * This method will be invoked when a highlight is created, deleted or modified.
      *
      * @param highlight meta-data for created highlight {@link Highlight}.
      * @param type      type of event e.g new,edit or delete {@link com.folioreader.model.Highlight.HighLightAction}.
      */
-    void onCreateHighlight(Highlight highlight, Highlight.HighLightAction type);
+    void onHighlight(Highlight highlight, Highlight.HighLightAction type);
 }

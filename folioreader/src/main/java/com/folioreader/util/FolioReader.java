@@ -19,7 +19,7 @@ public class FolioReader {
     public static final String INTENT_BOOK_ID = "book_id";
     private Context context;
 
-    private OnHighlightCreateListener onHighlightCreateListener;
+    private OnHighlightListener onHighlightListener;
 
     public FolioReader(Context context) {
         this.context = context;
@@ -33,8 +33,8 @@ public class FolioReader {
             Highlight highlight = intent.getParcelableExtra(Highlight.INTENT);
             Highlight.HighLightAction action = (Highlight.HighLightAction)
                     intent.getSerializableExtra(Highlight.HighLightAction.class.getName());
-            if (onHighlightCreateListener != null && highlight != null && action != null) {
-                onHighlightCreateListener.onCreateHighlight(highlight, action);
+            if (onHighlightListener != null && highlight != null && action != null) {
+                onHighlightListener.onHighlight(highlight, action);
             }
         }
     };
@@ -106,11 +106,12 @@ public class FolioReader {
         return intent;
     }
 
-    public void setOnHighlightCreateListener(OnHighlightCreateListener onHighlightCreateListener) {
-        this.onHighlightCreateListener = onHighlightCreateListener;
+    public void registerHighlightListener(OnHighlightListener onHighlightListener) {
+        this.onHighlightListener = onHighlightListener;
     }
 
-    public void unSubscribe() {
+    public void unRegisterHighlightListener() {
         LocalBroadcastManager.getInstance(context).unregisterReceiver(highlightReceiver);
+        this.onHighlightListener = null;
     }
 }

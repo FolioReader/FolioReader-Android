@@ -488,11 +488,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                             loadRangy(view, rangy);
                             mTextSelectionSupport.endSelectionMode();
                             if (highlight != null) {
-                                LocalBroadcastManager.getInstance(
-                                        FolioPageFragment.this.getActivity()).sendBroadcast(
-                                        HighlightUtil.getHighlightBroadcastIntent(
-                                                highlight,
-                                                Highlight.HighLightAction.DELETE));
+                                HighlightUtil.sendHighlightBroadcastEvent(
+                                        FolioPageFragment.this.getActivity(),
+                                        highlight,
+                                        Highlight.HighLightAction.DELETE);
                             }
                         }
                     } else if (TextUtils.isDigitsOnly(message)) {
@@ -925,11 +924,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         if (id != null) {
             Highlight highlight = HighLightTable.updateHighlightStyle(id, style);
             if (highlight != null) {
-                LocalBroadcastManager.getInstance(
-                        getActivity()).sendBroadcast(
-                        HighlightUtil.getHighlightBroadcastIntent(
-                                highlight,
-                                Highlight.HighLightAction.MODIFY));
+                HighlightUtil.sendHighlightBroadcastEvent(
+                        getActivity(),
+                        highlight,
+                        Highlight.HighLightAction.MODIFY);
             }
             final String rangyString = HighlightUtil.generateRangyString(getPageName());
             getActivity().runOnUiThread(new Runnable() {

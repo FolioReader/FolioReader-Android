@@ -22,9 +22,9 @@ import android.view.View;
 
 import com.folioreader.model.Highlight;
 import com.folioreader.util.FolioReader;
-import com.folioreader.util.OnHighlightCreateListener;
+import com.folioreader.util.OnHighlightListener;
 
-public class HomeActivity extends AppCompatActivity implements OnHighlightCreateListener {
+public class HomeActivity extends AppCompatActivity implements OnHighlightListener {
 
     private FolioReader folioReader;
 
@@ -33,7 +33,7 @@ public class HomeActivity extends AppCompatActivity implements OnHighlightCreate
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         folioReader = new FolioReader(this);
-        folioReader.setOnHighlightCreateListener(this);
+        folioReader.registerHighlightListener(this);
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -52,10 +52,10 @@ public class HomeActivity extends AppCompatActivity implements OnHighlightCreate
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        folioReader.unSubscribe();
+        folioReader.unRegisterHighlightListener();
     }
 
     @Override
-    public void onCreateHighlight(Highlight highlight, Highlight.HighLightAction type) {
+    public void onHighlight(Highlight highlight, Highlight.HighLightAction type) {
     }
 }

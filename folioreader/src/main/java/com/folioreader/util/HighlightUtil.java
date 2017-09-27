@@ -48,8 +48,7 @@ public class HighlightUtil {
             long id = HighLightTable.insertHighlight(highlight);
             if (id != -1) {
                 highlight.setId((int) id);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(
-                        getHighlightBroadcastIntent(highlight, Highlight.HighLightAction.NEW));
+                sendHighlightBroadcastEvent(context, highlight, Highlight.HighLightAction.NEW);
             }
             return rangy;
         } catch (JSONException e) {
@@ -108,6 +107,11 @@ public class HighlightUtil {
             }
         }
         return builder.toString();
+    }
+
+    public static void sendHighlightBroadcastEvent(Context context, Highlight highlight, Highlight.HighLightAction action) {
+        LocalBroadcastManager.getInstance(context).sendBroadcast(
+                getHighlightBroadcastIntent(highlight, action));
     }
 
     public static Intent getHighlightBroadcastIntent(Highlight highlight, Highlight.HighLightAction modify) {
