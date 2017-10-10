@@ -8,7 +8,8 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.folioreader.Config;
 import com.folioreader.Constants;
-import com.folioreader.model.Highlight;
+import com.folioreader.model.HighLight;
+import com.folioreader.model.HighlightImpl;
 import com.folioreader.ui.folio.activity.FolioActivity;
 
 /**
@@ -24,17 +25,17 @@ public class FolioReader {
     public FolioReader(Context context) {
         this.context = context;
         LocalBroadcastManager.getInstance(context).registerReceiver(highlightReceiver,
-                new IntentFilter(Highlight.BROADCAST_EVENT));
+                new IntentFilter(HighlightImpl.BROADCAST_EVENT));
     }
 
     private BroadcastReceiver highlightReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Highlight highlight = intent.getParcelableExtra(Highlight.INTENT);
-            Highlight.HighLightAction action = (Highlight.HighLightAction)
-                    intent.getSerializableExtra(Highlight.HighLightAction.class.getName());
-            if (onHighlightListener != null && highlight != null && action != null) {
-                onHighlightListener.onHighlight(highlight, action);
+            HighlightImpl highlightImpl = intent.getParcelableExtra(HighlightImpl.INTENT);
+            HighLight.HighLightAction action = (HighLight.HighLightAction)
+                    intent.getSerializableExtra(HighLight.HighLightAction.class.getName());
+            if (onHighlightListener != null && highlightImpl != null && action != null) {
+                onHighlightListener.onHighlight(highlightImpl, action);
             }
         }
     };

@@ -11,9 +11,9 @@ import java.util.Date;
  * @author mahavir on 5/12/16.
  */
 
-public class Highlight implements Parcelable {
+public class HighlightImpl implements Parcelable, HighLight {
 
-    public static final String INTENT = Highlight.class.getName();
+    public static final String INTENT = HighlightImpl.class.getName();
     public static final String BROADCAST_EVENT = "highlight_broadcast_event";
 
     /**
@@ -55,10 +55,6 @@ public class Highlight implements Parcelable {
      */
     private String note;
 
-    public enum HighLightAction {
-        NEW, DELETE, MODIFY
-    }
-
     public enum HighlightStyle {
         Yellow,
         Green,
@@ -95,9 +91,9 @@ public class Highlight implements Parcelable {
         }
     }
 
-    public Highlight(int id, String bookId, String content, Date date, String type,
-                     int pageNumber, String pageId,
-                     String rangy, String note) {
+    public HighlightImpl(int id, String bookId, String content, Date date, String type,
+                         int pageNumber, String pageId,
+                         String rangy, String note) {
         this.id = id;
         this.bookId = bookId;
         this.content = content;
@@ -109,10 +105,10 @@ public class Highlight implements Parcelable {
         this.note = note;
     }
 
-    public Highlight() {
+    public HighlightImpl() {
     }
 
-    protected Highlight(Parcel in) {
+    protected HighlightImpl(Parcel in) {
         readFromParcel(in);
     }
 
@@ -193,13 +189,13 @@ public class Highlight implements Parcelable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Highlight highlight = (Highlight) o;
+        HighlightImpl highlightImpl = (HighlightImpl) o;
 
-        return id == highlight.id
-                && (bookId != null ? bookId.equals(highlight.bookId) : highlight.bookId == null
-                && (content != null ? content.equals(highlight.content) : highlight.content == null
-                && (date != null ? date.equals(highlight.date) : highlight.date == null
-                && (type != null ? type.equals(highlight.type) : highlight.type == null))));
+        return id == highlightImpl.id
+                && (bookId != null ? bookId.equals(highlightImpl.bookId) : highlightImpl.bookId == null
+                && (content != null ? content.equals(highlightImpl.content) : highlightImpl.content == null
+                && (date != null ? date.equals(highlightImpl.date) : highlightImpl.date == null
+                && (type != null ? type.equals(highlightImpl.type) : highlightImpl.type == null))));
     }
 
     @Override
@@ -214,7 +210,7 @@ public class Highlight implements Parcelable {
 
     @Override
     public String toString() {
-        return "Highlight{" +
+        return "HighlightImpl{" +
                 "id=" + id +
                 ", bookId='" + bookId + '\'' +
                 ", content='" + content + '\'' +
@@ -257,15 +253,15 @@ public class Highlight implements Parcelable {
         note = in.readString();
     }
 
-    public static final Creator<Highlight> CREATOR = new Creator<Highlight>() {
+    public static final Creator<HighlightImpl> CREATOR = new Creator<HighlightImpl>() {
         @Override
-        public Highlight createFromParcel(Parcel in) {
-            return new Highlight(in);
+        public HighlightImpl createFromParcel(Parcel in) {
+            return new HighlightImpl(in);
         }
 
         @Override
-        public Highlight[] newArray(int size) {
-            return new Highlight[size];
+        public HighlightImpl[] newArray(int size) {
+            return new HighlightImpl[size];
         }
     };
 }

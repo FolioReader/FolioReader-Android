@@ -21,7 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
-import com.folioreader.model.Highlight;
+import com.folioreader.model.HighLight;
 import com.folioreader.util.FolioReader;
 import com.folioreader.util.OnHighlightListener;
 
@@ -57,7 +57,7 @@ public class HomeActivity extends AppCompatActivity implements OnHighlightListen
     }
 
     @Override
-    public void onHighlight(Highlight highlight, Highlight.HighLightAction type) {
+    public void onHighlight(HighLight highlight, HighLight.HighLightAction type) {
         Toast.makeText(this,
                 "highlight id = " + highlight.getId() + " type = " + type,
                 Toast.LENGTH_SHORT).show();
