@@ -4,13 +4,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.ui.folio.activity.FolioActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by avez raj on 9/13/2017.
@@ -20,7 +26,11 @@ public class FolioReader {
     public static final String INTENT_BOOK_ID = "book_id";
     private Context context;
 
+    private List<HighlightImpl> h = new ArrayList<>();
+
     private OnHighlightListener onHighlightListener;
+
+    private List<HighlightImpl> highlights;
 
     public FolioReader(Context context) {
         this.context = context;
@@ -32,6 +42,15 @@ public class FolioReader {
         @Override
         public void onReceive(Context context, Intent intent) {
             HighlightImpl highlightImpl = intent.getParcelableExtra(HighlightImpl.INTENT);
+            h.add(highlightImpl);
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                Log.i("json", objectMapper.writeValueAsString(h));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
             HighLight.HighLightAction action = (HighLight.HighLightAction)
                     intent.getSerializableExtra(HighLight.HighLightAction.class.getName());
             if (onHighlightListener != null && highlightImpl != null && action != null) {
@@ -104,6 +123,8 @@ public class FolioReader {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetOrSdcardPath);
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.SD_CARD);
         }
+        intent.putParcelableArrayListExtra(FolioActivity.INTENT_HIGHLIGHTS_LIST,
+                (ArrayList<? extends Parcelable>) getHighlights());
         return intent;
     }
 
@@ -114,5 +135,16 @@ public class FolioReader {
     public void unregisterHighlightListener() {
         LocalBroadcastManager.getInstance(context).unregisterReceiver(highlightReceiver);
         this.onHighlightListener = null;
+    }
+
+    public void setHighlights(List<HighlightImpl> highlights) {
+        this.highlights = highlights;
+    }
+
+    public List<HighlightImpl> getHighlights() {
+        if (highlights != null) {
+            return highlights;
+        }
+        return new ArrayList<>();
     }
 }
