@@ -5,7 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.folioreader.model.Highlight;
+import com.folioreader.model.HighLight;
+import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.sqlite.HighLightTable;
 
 import org.json.JSONException;
@@ -36,19 +37,19 @@ public class HighlightUtil {
 
             String rangyHighlightElement = getRangyString(rangy, oldRangy);
 
-            Highlight highlight = new Highlight();
-            highlight.setContent(textContent);
-            highlight.setType(color);
-            highlight.setPageNumber(pageNo);
-            highlight.setBookId(bookTitle);
-            highlight.setPageId(pageId);
-            highlight.setRangy(rangyHighlightElement);
-            highlight.setDate(Calendar.getInstance().getTime());
+            HighlightImpl highlightImpl = new HighlightImpl();
+            highlightImpl.setContent(textContent);
+            highlightImpl.setType(color);
+            highlightImpl.setPageNumber(pageNo);
+            highlightImpl.setBookId(bookTitle);
+            highlightImpl.setPageId(pageId);
+            highlightImpl.setRangy(rangyHighlightElement);
+            highlightImpl.setDate(Calendar.getInstance().getTime());
             // save highlight to database
-            long id = HighLightTable.insertHighlight(highlight);
+            long id = HighLightTable.insertHighlight(highlightImpl);
             if (id != -1) {
-                highlight.setId((int) id);
-                sendHighlightBroadcastEvent(context, highlight, Highlight.HighLightAction.NEW);
+                highlightImpl.setId((int) id);
+                sendHighlightBroadcastEvent(context, highlightImpl, HighLight.HighLightAction.NEW);
             }
             return rangy;
         } catch (JSONException e) {
@@ -109,15 +110,18 @@ public class HighlightUtil {
         return builder.toString();
     }
 
-    public static void sendHighlightBroadcastEvent(Context context, Highlight highlight, Highlight.HighLightAction action) {
+    public static void sendHighlightBroadcastEvent(Context context,
+                                                   HighlightImpl highlightImpl,
+                                                   HighLight.HighLightAction action) {
         LocalBroadcastManager.getInstance(context).sendBroadcast(
-                getHighlightBroadcastIntent(highlight, action));
+                getHighlightBroadcastIntent(highlightImpl, action));
     }
 
-    public static Intent getHighlightBroadcastIntent(Highlight highlight, Highlight.HighLightAction modify) {
+    public static Intent getHighlightBroadcastIntent(HighlightImpl highlightImpl,
+                                                     HighLight.HighLightAction modify) {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(Highlight.INTENT, highlight);
-        bundle.putSerializable(Highlight.HighLightAction.class.getName(), modify);
-        return new Intent(Highlight.BROADCAST_EVENT).putExtras(bundle);
+        bundle.putParcelable(HighlightImpl.INTENT, highlightImpl);
+        bundle.putSerializable(HighLight.HighLightAction.class.getName(), modify);
+        return new Intent(HighlightImpl.BROADCAST_EVENT).putExtras(bundle);
     }
 }

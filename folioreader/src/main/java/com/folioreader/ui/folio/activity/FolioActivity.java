@@ -43,7 +43,7 @@ import android.widget.Toast;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
-import com.folioreader.model.Highlight;
+import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
@@ -386,9 +386,9 @@ public class FolioActivity
         }
     }
 
-    public Highlight setCurrentPagerPostion(Highlight highlight) {
+    public HighlightImpl setCurrentPagerPostion(HighlightImpl highlightImpl) {
 //        highlight.setCurrentPagerPostion(mFolioPageViewPager.getCurrentItem());
-        return highlight;
+        return highlightImpl;
     }
 
     @Override
@@ -408,10 +408,10 @@ public class FolioActivity
                     }
                 }
             } else if (type.equals(HIGHLIGHT_SELECTED)) {
-                Highlight highlight = data.getParcelableExtra(HIGHLIGHT_ITEM);
-                int position = highlight.getPageNumber();
+                HighlightImpl highlightImpl = data.getParcelableExtra(HIGHLIGHT_ITEM);
+                int position = highlightImpl.getPageNumber();
                 mFolioPageViewPager.setCurrentItem(position);
-                BUS.post(new WebViewPosition(mSpineReferenceList.get(mChapterPosition).href, highlight.getRangy()));
+                BUS.post(new WebViewPosition(mSpineReferenceList.get(mChapterPosition).href, highlightImpl.getRangy()));
             }
         }
     }

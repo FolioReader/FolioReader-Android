@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import com.folioreader.Config;
 import com.folioreader.R;
-import com.folioreader.model.Highlight;
+import com.folioreader.model.HighlightImpl;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.UnderlinedTextView;
@@ -30,12 +30,12 @@ import java.util.List;
  */
 
 public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.HighlightHolder> {
-    private List<Highlight> highlights;
+    private List<HighlightImpl> highlights;
     private HighLightAdapterCallback callback;
     private Context context;
     private  Config config;
 
-    public HighlightAdapter(Context context, List<Highlight> highlights, HighLightAdapterCallback callback, Config config) {
+    public HighlightAdapter(Context context, List<HighlightImpl> highlights, HighLightAdapterCallback callback, Config config) {
         this.context = context;
         this.highlights = highlights;
         this.callback = callback;
@@ -134,7 +134,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
         }
     }
 
-    private Highlight getItem(int position) {
+    private HighlightImpl getItem(int position) {
         return highlights.get(position);
     }
 
@@ -169,10 +169,10 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
     }
 
     public interface HighLightAdapterCallback {
-        void onItemClick(Highlight highlight);
+        void onItemClick(HighlightImpl highlightImpl);
 
         void deleteHighlight(int id);
 
-        void editNote(Highlight highlight, int position);
+        void editNote(HighlightImpl highlightImpl, int position);
     }
 }
