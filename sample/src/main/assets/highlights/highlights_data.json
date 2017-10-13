@@ -1,0 +1,46 @@
+[
+  {
+    "bookId": "1620217580",
+    "content": "Sir Arthur",
+    "date": 1507628988173,
+    "note": null,
+    "pageId": "adventures$OEBPS/Text/colophon.xhtml",
+    "pageNumber": 0,
+    "rangy": "12$22$1$highlight_yellow$",
+    "type": "yellow",
+    "uuid": "32f24e14-7199-437e-a526-46dd607fe311"
+  },
+  {
+    "bookId": "1620217580",
+    "content": "Doyle, The Adventures Of Sherlock Holmes — Adventure ",
+    "date": 1507628998499,
+    "note": null,
+    "pageId": "adventures$OEBPS/Text/colophon.xhtml",
+    "pageNumber": 0,
+    "rangy": "29$82$2$highlight_green$",
+    "type": "green",
+    "uuid": "a9571784-a8aa-4821-ac74-52c66ac46a31"
+  },
+  {
+    "bookId": "1620217580",
+    "content": "edition by ReadBeyond, December 2015",
+    "date": 1507629006805,
+    "note": null,
+    "pageId": "adventures$OEBPS/Text/colophon.xhtml",
+    "pageNumber": 0,
+    "rangy": "121$157$3$highlight_pink$",
+    "type": "pink",
+    "uuid": "09978f89-6604-406e-ada2-32b4757d1d35"
+  },
+  {
+    "bookId": "1620217580",
+    "content": "cover was designed by Marta D’Asaro, Simplicissimus Book Farm.",
+    "date": 1507629015071,
+    "note": null,
+    "pageId": "adventures$OEBPS/Text/colophon.xhtml",
+    "pageNumber": 0,
+    "rangy": "205$267$4$highlight_underline$",
+    "type": "underline",
+    "uuid": "cb09eecd-c86a-4184-8667-df69ce8aed88"
+  }
+]

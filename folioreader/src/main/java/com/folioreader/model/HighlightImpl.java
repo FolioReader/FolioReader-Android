@@ -3,25 +3,72 @@ package com.folioreader.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.folioreader.R;
-
 import java.util.Date;
 
 /**
- * Created by mahavir on 5/12/16.
+ * This data structure holds information about an individual highlight.
+ *
+ * @author mahavir on 5/12/16.
  */
 
-public class Highlight implements Parcelable {
+public class HighlightImpl implements Parcelable, HighLight {
 
+    public static final String INTENT = HighlightImpl.class.getName();
+    public static final String BROADCAST_EVENT = "highlight_broadcast_event";
+
+    /**
+     * Database id
+     */
     private int id;
+    /**
+     * <p> Book id, which can be provided to intent to folio reader, if not provided id is
+     * used from epub's dc:identifier field in metadata.
+     * <p>for reference, look here:
+     * <a href="http://www.idpf.org/epub/30/spec/epub30-publications.html#sec-package-metadata-identifiers">IDPF</a>.</p>
+     * in case identifier is not found in the epub,
+     * <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html#hashCode()">hash code</a>
+     * of book title is used also if book title is not found then
+     * hash code of the book file name is used.
+     * </p>
+     */
     private String bookId;
+    /**
+     * Highlighted text content text content.
+     */
     private String content;
+    /**
+     * Date time when highlight is created (format:- MMM dd, yyyy | HH:mm).
+     */
     private Date date;
+    /**
+     * Field defines the color of the highlight. {@link HighlightStyle}
+     */
     private String type;
-    private int scrollPosition;
+    /**
+     * Page index in the book taken from Epub spine reference.
+     */
     private int pageNumber;
+    /**
+     * href of the page from the Epub spine list.
+     */
     private String pageId;
+    /**
+     * <p> Contains highlight meta data in terms of rangy format.</p>
+     * <strong>format </strong>:- start$end$id$class$containerId.
+     * <p>for reference, look here: <a href="https://github.com/timdown/rangy">rangy</a>.</p>
+     */
     private String rangy;
+
+    /**
+     * Unique identifier for a highlight for sync across devices.
+     * <p>for reference, look here:
+     * <a href = "https://docs.oracle.com/javase/7/docs/api/java/util/UUID.html#toString()">UUID</a>.</p>
+     */
+    private String uuid;
+
+    /**
+     * Note linked to the highlight (optional)
+     */
     private String note;
 
     public enum HighlightStyle {
@@ -33,27 +80,6 @@ public class Highlight implements Parcelable {
         TextColor,
         DottetUnderline,
         Normal;
-
-
-        /**
-         * Return HighlightStyle for CSS class.
-         */
-        public static HighlightStyle styleForClass(String className) {
-            switch (className) {
-                case "yellow":
-                    return Yellow;
-                case "green":
-                    return Green;
-                case "blue":
-                    return Blue;
-                case "pink":
-                    return Pink;
-                case "underline":
-                    return Underline;
-                default:
-                    return Yellow;
-            }
-        }
 
         /**
          * Return CSS class for HighlightStyle.
@@ -79,44 +105,27 @@ public class Highlight implements Parcelable {
 
             }
         }
-
-        public static int colorForStyle(HighlightStyle style, boolean nightMode) {
-            switch (style) {
-                case Yellow:
-                    return R.color.yellow;
-                case Green:
-                    return R.color.green;
-                case Blue:
-                    return R.color.blue;
-                case Pink:
-                    return R.color.pink;
-                case Underline:
-                    return R.color.underline;
-                default:
-                    return R.color.yellow;
-            }
-        }
     }
 
-    public Highlight(int id, String bookId, String content, Date date, String type,
-                     int scrollPosition, int pageNumber, String pageId,
-                     String rangy, String note) {
+    public HighlightImpl(int id, String bookId, String content, Date date, String type,
+                         int pageNumber, String pageId,
+                         String rangy, String note, String uuid) {
         this.id = id;
         this.bookId = bookId;
         this.content = content;
         this.date = date;
         this.type = type;
-        this.scrollPosition = scrollPosition;
         this.pageNumber = pageNumber;
         this.pageId = pageId;
         this.rangy = rangy;
         this.note = note;
+        this.uuid = uuid;
     }
 
-    public Highlight() {
+    public HighlightImpl() {
     }
 
-    protected Highlight(Parcel in) {
+    protected HighlightImpl(Parcel in) {
         readFromParcel(in);
     }
 
@@ -176,14 +185,6 @@ public class Highlight implements Parcelable {
         this.type = type;
     }
 
-    public int getScrollPosition() {
-        return scrollPosition;
-    }
-
-    public void setScrollPosition(int scrollPosition) {
-        this.scrollPosition = scrollPosition;
-    }
-
     public int getPageNumber() {
         return pageNumber;
     }
@@ -196,6 +197,14 @@ public class Highlight implements Parcelable {
         return note;
     }
 
+    public String getUUID() {
+        return uuid;
+    }
+
+    public void setUUID(String uuid) {
+        this.uuid = uuid;
+    }
+
     public void setNote(String note) {
         this.note = note;
     }
@@ -205,14 +214,13 @@ public class Highlight implements Parcelable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Highlight highlight = (Highlight) o;
+        HighlightImpl highlightImpl = (HighlightImpl) o;
 
-        if (id != highlight.id) return false;
-        if (bookId != null ? !bookId.equals(highlight.bookId) : highlight.bookId != null)
-            return false;
-        if (content != null ? !content.equals(highlight.content) : highlight.content != null)
-            return false;
-        return date != null ? date.equals(highlight.date) : highlight.date == null && (type != null ? type.equals(highlight.type) : highlight.type == null);
+        return id == highlightImpl.id
+                && (bookId != null ? bookId.equals(highlightImpl.bookId) : highlightImpl.bookId == null
+                && (content != null ? content.equals(highlightImpl.content) : highlightImpl.content == null
+                && (date != null ? date.equals(highlightImpl.date) : highlightImpl.date == null
+                && (type != null ? type.equals(highlightImpl.type) : highlightImpl.type == null))));
     }
 
     @Override
@@ -227,17 +235,17 @@ public class Highlight implements Parcelable {
 
     @Override
     public String toString() {
-        return "Highlight{" +
+        return "HighlightImpl{" +
                 "id=" + id +
                 ", bookId='" + bookId + '\'' +
                 ", content='" + content + '\'' +
                 ", date=" + date +
                 ", type='" + type + '\'' +
-                ", scrollPosition=" + scrollPosition +
                 ", pageNumber=" + pageNumber +
                 ", pageId='" + pageId + '\'' +
                 ", rangy='" + rangy + '\'' +
                 ", note='" + note + '\'' +
+                ", uuid='" + uuid + '\'' +
                 '}';
     }
 
@@ -255,9 +263,9 @@ public class Highlight implements Parcelable {
         dest.writeString(content);
         dest.writeSerializable(date);
         dest.writeString(type);
-        dest.writeInt(scrollPosition);
         dest.writeInt(pageNumber);
         dest.writeString(note);
+        dest.writeString(uuid);
     }
 
     private void readFromParcel(Parcel in) {
@@ -268,20 +276,20 @@ public class Highlight implements Parcelable {
         content = in.readString();
         date = (Date) in.readSerializable();
         type = in.readString();
-        scrollPosition = in.readInt();
         pageNumber = in.readInt();
         note = in.readString();
+        uuid = in.readString();
     }
 
-    public static final Creator<Highlight> CREATOR = new Creator<Highlight>() {
+    public static final Creator<HighlightImpl> CREATOR = new Creator<HighlightImpl>() {
         @Override
-        public Highlight createFromParcel(Parcel in) {
-            return new Highlight(in);
+        public HighlightImpl createFromParcel(Parcel in) {
+            return new HighlightImpl(in);
         }
 
         @Override
-        public Highlight[] newArray(int size) {
-            return new Highlight[size];
+        public HighlightImpl[] newArray(int size) {
+            return new HighlightImpl[size];
         }
     };
 }

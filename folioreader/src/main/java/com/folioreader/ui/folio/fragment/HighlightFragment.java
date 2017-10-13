@@ -21,13 +21,15 @@ import android.widget.Toast;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
-import com.folioreader.model.Highlight;
+import com.folioreader.model.HighLight;
+import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.ui.folio.adapter.HighlightAdapter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FolioReader;
+import com.folioreader.util.HighlightUtil;
 
 public class HighlightFragment extends Fragment implements HighlightAdapter.HighLightAdapterCallback {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
@@ -77,9 +79,9 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     }
 
     @Override
-    public void onItemClick(Highlight highlight) {
+    public void onItemClick(HighlightImpl highlightImpl) {
         Intent intent = new Intent();
-        intent.putExtra(HIGHLIGHT_ITEM, highlight);
+        intent.putExtra(HIGHLIGHT_ITEM, highlightImpl);
         intent.putExtra(Constants.TYPE, Constants.HIGHLIGHT_SELECTED);
         getActivity().setResult(Activity.RESULT_OK, intent);
         getActivity().finish();
@@ -92,12 +94,12 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     }
 
     @Override
-    public void editNote(final Highlight highlight, final int position) {
+    public void editNote(final HighlightImpl highlightImpl, final int position) {
         final Dialog dialog = new Dialog(getActivity(), R.style.DialogCustomTheme);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_edit_notes);
         dialog.show();
-        String noteText = highlight.getNote();
+        String noteText = highlightImpl.getNote();
         ((EditText) dialog.findViewById(R.id.edit_note)).setText(noteText);
 
         dialog.findViewById(R.id.btn_save_note).setOnClickListener(new View.OnClickListener() {
@@ -107,9 +109,14 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                 String note =
                         ((EditText) dialog.findViewById(R.id.edit_note)).getText().toString();
                 if (!TextUtils.isEmpty(note)) {
-                    highlight.setNote(note);
-                    HighLightTable.updateHighlight(highlight);
-                    adapter.editNote(note, position);
+                    highlightImpl.setNote(note);
+                    if (HighLightTable.updateHighlight(highlightImpl)) {
+                        HighlightUtil.sendHighlightBroadcastEvent(
+                                HighlightFragment.this.getActivity().getApplicationContext(),
+                                highlightImpl,
+                                HighLight.HighLightAction.MODIFY);
+                        adapter.editNote(note, position);
+                    }
                     dialog.dismiss();
                 } else {
                     Toast.makeText(getActivity(),

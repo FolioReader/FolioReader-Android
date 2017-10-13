@@ -3,10 +3,10 @@ package com.folioreader.model.sqlite;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.folioreader.Constants;
-import com.folioreader.model.Highlight;
+import com.folioreader.model.HighLight;
+import com.folioreader.model.HighlightImpl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class HighLightTable {
     public static String TABLE_NAME = "highlight_table";
@@ -23,11 +24,11 @@ public class HighLightTable {
     private static String COL_CONTENT = "content";
     private static String COL_DATE = "date";
     private static String COL_TYPE = "type";
-    private static String COL_WEB_VIEW_SCROLL = "webView_scroll";
     private static String COL_PAGE_NUMBER = "page_number";
     private static String COL_PAGE_ID = "pageId";
     private static String COL_RANGY = "rangy";
     private static String COL_NOTE = "note";
+    private static String COL_UUID = "uuid";
 
     public static String SQL_CREATE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ( " + ID
             + " INTEGER PRIMARY KEY AUTOINCREMENT" + ","
@@ -35,81 +36,81 @@ public class HighLightTable {
             + COL_CONTENT + " TEXT" + ","
             + COL_DATE + " TEXT" + ","
             + COL_TYPE + " TEXT" + ","
-            + COL_WEB_VIEW_SCROLL + " INTEGER" + ","
             + COL_PAGE_NUMBER + " INTEGER" + ","
             + COL_PAGE_ID + " TEXT" + ","
             + COL_RANGY + " TEXT" + ","
+            + COL_UUID + " TEXT" + ","
             + COL_NOTE + " TEXT" + ")";
 
     public static String SQL_DROP = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
     public static String TAG = HighLightTable.class.getSimpleName();
 
-    public static ContentValues getHighlightContentValues(Highlight hightlight) {
+    public static ContentValues getHighlightContentValues(HighLight highLight) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COL_BOOK_ID, hightlight.getBookId());
-        contentValues.put(COL_CONTENT, hightlight.getContent());
-        contentValues.put(COL_DATE, getDateTimeString(hightlight.getDate()));
-        contentValues.put(COL_TYPE, hightlight.getType());
-        contentValues.put(COL_WEB_VIEW_SCROLL, hightlight.getScrollPosition());
-        contentValues.put(COL_PAGE_NUMBER, hightlight.getPageNumber());
-        contentValues.put(COL_PAGE_ID, hightlight.getPageId());
-        contentValues.put(COL_RANGY, hightlight.getRangy());
-        contentValues.put(COL_NOTE, hightlight.getNote());
+        contentValues.put(COL_BOOK_ID, highLight.getBookId());
+        contentValues.put(COL_CONTENT, highLight.getContent());
+        contentValues.put(COL_DATE, getDateTimeString(highLight.getDate()));
+        contentValues.put(COL_TYPE, highLight.getType());
+        contentValues.put(COL_PAGE_NUMBER, highLight.getPageNumber());
+        contentValues.put(COL_PAGE_ID, highLight.getPageId());
+        contentValues.put(COL_RANGY, highLight.getRangy());
+        contentValues.put(COL_NOTE, highLight.getNote());
+        contentValues.put(COL_UUID, highLight.getUUID());
         return contentValues;
     }
 
 
-    public static ArrayList<Highlight> getAllHighlights(String bookId) {
-        ArrayList<Highlight> highlights = new ArrayList<>();
+    public static ArrayList<HighlightImpl> getAllHighlights(String bookId) {
+        ArrayList<HighlightImpl> highlights = new ArrayList<>();
         Cursor highlightCursor = DbAdapter.getHighLightsForBookId(bookId);
         while (highlightCursor.moveToNext()) {
-            highlights.add(new Highlight(highlightCursor.getInt(highlightCursor.getColumnIndex(ID)),
+            highlights.add(new HighlightImpl(highlightCursor.getInt(highlightCursor.getColumnIndex(ID)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_BOOK_ID)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_CONTENT)),
                     getDateTime(highlightCursor.getString(highlightCursor.getColumnIndex(COL_DATE))),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_TYPE)),
-                    highlightCursor.getInt(highlightCursor.getColumnIndex(COL_WEB_VIEW_SCROLL)),
                     highlightCursor.getInt(highlightCursor.getColumnIndex(COL_PAGE_NUMBER)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_PAGE_ID)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_RANGY)),
-                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_NOTE))));
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_NOTE)),
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_UUID))));
         }
         return highlights;
     }
 
-    public static Highlight getHighlightId(int id) {
+    public static HighlightImpl getHighlightId(int id) {
         Cursor highlightCursor = DbAdapter.getHighlightsForId(id);
-        Highlight highLight = new Highlight();
+        HighlightImpl highlightImpl = new HighlightImpl();
         while (highlightCursor.moveToNext()) {
-            highLight = new Highlight(highlightCursor.getInt(highlightCursor.getColumnIndex(ID)),
+            highlightImpl = new HighlightImpl(highlightCursor.getInt(highlightCursor.getColumnIndex(ID)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_BOOK_ID)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_CONTENT)),
                     getDateTime(highlightCursor.getString(highlightCursor.getColumnIndex(COL_DATE))),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_TYPE)),
-                    highlightCursor.getInt(highlightCursor.getColumnIndex(COL_WEB_VIEW_SCROLL)),
                     highlightCursor.getInt(highlightCursor.getColumnIndex(COL_PAGE_NUMBER)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_PAGE_ID)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_RANGY)),
-                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_NOTE)));
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_NOTE)),
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_UUID)));
+
         }
-        return highLight;
+        return highlightImpl;
     }
 
-    public static void insertHighlight(Highlight highlight) {
-        DbAdapter.saveHighLight(getHighlightContentValues(highlight));
+    public static long insertHighlight(HighlightImpl highlightImpl) {
+        highlightImpl.setUUID(UUID.randomUUID().toString());
+        return DbAdapter.saveHighLight(getHighlightContentValues(highlightImpl));
     }
 
-    public static void deleteHighlight(String rangy) {
+    public static boolean deleteHighlight(String rangy) {
         String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
-        int id = DbAdapter.getIdForRangy(query, rangy);
-        if (id != -1) {
-            deleteHighlight(id);
-        }
+        int id = DbAdapter.getIdForQuery(query);
+        return id != -1 && deleteHighlight(id);
     }
 
-    public static void deleteHighlight(int highlightId) {
-        DbAdapter.deleteById(TABLE_NAME, ID, String.valueOf(highlightId));
+    public static boolean deleteHighlight(int highlightId) {
+        return DbAdapter.deleteById(TABLE_NAME, ID, String.valueOf(highlightId));
     }
 
     public static List<String> getHighlightsForPageId(String pageId) {
@@ -123,13 +124,8 @@ public class HighLightTable {
         return rangyList;
     }
 
-    //TODO
-    public static void updateHighlight(Highlight highlight) {
-        if (DbAdapter.updateHighLight(getHighlightContentValues(highlight), String.valueOf(highlight.getId()))) {
-            Log.d(TAG, "highlight updated successfully");
-        } else {
-            Log.d(TAG, "error while highlight updating");
-        }
+    public static boolean updateHighlight(HighlightImpl highlightImpl) {
+        return DbAdapter.updateHighLight(getHighlightContentValues(highlightImpl), String.valueOf(highlightImpl.getId()));
     }
 
     public static String getDateTimeString(Date date) {
@@ -150,12 +146,20 @@ public class HighLightTable {
         return date1;
     }
 
-    public static void updateHighlightStyle(String rangy, String style) {
+    public static HighlightImpl updateHighlightStyle(String rangy, String style) {
         String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
-        int id = DbAdapter.getIdForRangy(query, rangy);
+        int id = DbAdapter.getIdForQuery(query);
         if (id != -1) {
-            update(id, updateRangy(rangy, style), style.replace("highlight_", ""));
+            if (update(id, updateRangy(rangy, style), style.replace("highlight_", ""))) {
+                return getHighlightId(id);
+            }
         }
+        return null;
+    }
+
+    public static HighlightImpl getHighlightForRangy(String rangy) {
+        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
+        return getHighlightId(DbAdapter.getIdForQuery(query));
     }
 
     private static String updateRangy(String rangy, String style) {
@@ -176,14 +180,18 @@ public class HighLightTable {
         return builder.toString();
     }
 
-    private static void update(int id, String s, String color) {
-        Highlight highlight = getHighlightId(id);
-        highlight.setRangy(s);
-        highlight.setType(color);
-        if (DbAdapter.updateHighLight(getHighlightContentValues(highlight), String.valueOf(id))) {
-            Log.i("HighLightTable", "highlight updated " + id);
-        } else {
-            Log.i("HighLightTable", "highlight update failed " + id);
+    private static boolean update(int id, String s, String color) {
+        HighlightImpl highlightImpl = getHighlightId(id);
+        highlightImpl.setRangy(s);
+        highlightImpl.setType(color);
+        return DbAdapter.updateHighLight(getHighlightContentValues(highlightImpl), String.valueOf(id));
+    }
+
+    public static void saveHighlightIfNotExists(HighLight highLight) {
+        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_UUID + " = '" + highLight.getUUID() + "'";
+        int id = DbAdapter.getIdForQuery(query);
+        if (id == -1) {
+            DbAdapter.saveHighLight(getHighlightContentValues(highLight));
         }
     }
 }

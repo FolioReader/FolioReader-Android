@@ -30,7 +30,8 @@ import com.bossturban.webviewmarker.TextSelectionSupport;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
-import com.folioreader.model.Highlight;
+import com.folioreader.model.HighLight;
+import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
@@ -90,7 +91,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private static final int ACTION_ID_HIGHLIGHT_UNDERLINE = 1011;
     private static final String KEY_TEXT_ELEMENTS = "text_elements";
     private static final String SPINE_ITEM = "spine_item";
-    private WebViewPosition mWebviewposition;
+
     private String mHtmlString = null;
     private boolean hasMediaOverlay = false;
     private String mAnchorId;
@@ -175,7 +176,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                 mediaController.setTextToSpeech(getActivity());
             }
         }
-        highlightStyle = Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
+        highlightStyle = HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal);
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
@@ -257,15 +258,15 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             switch (event.getStyle()) {
                 case DEFAULT:
                     highlightStyle =
-                            Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.Normal);
+                            HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal);
                     break;
                 case UNDERLINE:
                     highlightStyle =
-                            Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.DottetUnderline);
+                            HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.DottetUnderline);
                     break;
                 case BACKGROUND:
                     highlightStyle =
-                            Highlight.HighlightStyle.classForStyle(Highlight.HighlightStyle.TextColor);
+                            HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.TextColor);
                     break;
             }
             mWebview.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), highlightStyle));
@@ -398,8 +399,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
                     }
                     view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
-                            Highlight.HighlightStyle.classForStyle(
-                                    Highlight.HighlightStyle.Normal)));
+                            HighlightImpl.HighlightStyle.classForStyle(
+                                    HighlightImpl.HighlightStyle.Normal)));
                     if (isCurrentFragment()) {
                         setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(getActivity(), mBookTitle));
                     } else if (mIsPageReloaded) {
@@ -413,7 +414,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     }
 
                     scrollToHighlightId();
-
 
 
                 }
@@ -482,10 +482,18 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     Pattern pattern = Pattern.compile(rangyPattern);
                     Matcher matcher = pattern.matcher(message);
                     if (matcher.matches()) {
-                        HighLightTable.deleteHighlight(message);
-                        String rangy = HighlightUtil.generateRangyString(getPageName());
-                        loadRangy(view, rangy);
-                        mTextSelectionSupport.endSelectionMode();
+                        HighlightImpl highlightImpl = HighLightTable.getHighlightForRangy(message);
+                        if (HighLightTable.deleteHighlight(message)) {
+                            String rangy = HighlightUtil.generateRangyString(getPageName());
+                            loadRangy(view, rangy);
+                            mTextSelectionSupport.endSelectionMode();
+                            if (highlightImpl != null) {
+                                HighlightUtil.sendHighlightBroadcastEvent(
+                                        FolioPageFragment.this.getActivity().getApplicationContext(),
+                                        highlightImpl,
+                                        HighLight.HighLightAction.DELETE);
+                            }
+                        }
                     } else if (TextUtils.isDigitsOnly(message)) {
                         mTotalMinutes = Integer.parseInt(message);
                     } else {
@@ -678,11 +686,11 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         outState.putSerializable(SPINE_ITEM, spineItem);
     }
 
-    public void highlight(Highlight.HighlightStyle style, boolean isCreated) {
+    public void highlight(HighlightImpl.HighlightStyle style, boolean isCreated) {
         if (isCreated) {
-            mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.highlightSelection('%s');}", Highlight.HighlightStyle.classForStyle(style)));
+            mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.highlightSelection('%s');}", HighlightImpl.HighlightStyle.classForStyle(style)));
         } else {
-            mWebview.loadUrl(String.format("javascript:alert(setHighlightStyle('%s'))", "highlight_" + Highlight.HighlightStyle.classForStyle(style)));
+            mWebview.loadUrl(String.format("javascript:alert(setHighlightStyle('%s'))", "highlight_" + HighlightImpl.HighlightStyle.classForStyle(style)));
         }
     }
 
@@ -838,15 +846,15 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     private void onHighlightColorsActionItemClicked(int actionId, View view, boolean isCreated) {
         if (actionId == ACTION_ID_HIGHLIGHT_YELLOW) {
-            highlight(Highlight.HighlightStyle.Yellow, isCreated);
+            highlight(HighlightImpl.HighlightStyle.Yellow, isCreated);
         } else if (actionId == ACTION_ID_HIGHLIGHT_GREEN) {
-            highlight(Highlight.HighlightStyle.Green, isCreated);
+            highlight(HighlightImpl.HighlightStyle.Green, isCreated);
         } else if (actionId == ACTION_ID_HIGHLIGHT_BLUE) {
-            highlight(Highlight.HighlightStyle.Blue, isCreated);
+            highlight(HighlightImpl.HighlightStyle.Blue, isCreated);
         } else if (actionId == ACTION_ID_HIGHLIGHT_PINK) {
-            highlight(Highlight.HighlightStyle.Pink, isCreated);
+            highlight(HighlightImpl.HighlightStyle.Pink, isCreated);
         } else if (actionId == ACTION_ID_HIGHLIGHT_UNDERLINE) {
-            highlight(Highlight.HighlightStyle.Underline, isCreated);
+            highlight(HighlightImpl.HighlightStyle.Underline, isCreated);
         }
         mTextSelectionSupport.endSelectionMode();
     }
@@ -862,7 +870,12 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @JavascriptInterface
     public void onReceiveHighlights(String html) {
         if (html != null) {
-            rangy = HighlightUtil.createHighlightRangy(html, mBookId, getPageName(), mPosition, mWebview.getScrollY(), rangy);
+            rangy = HighlightUtil.createHighlightRangy(getActivity().getApplicationContext(),
+                    html,
+                    mBookId,
+                    getPageName(),
+                    mWebview.getScrollY(),
+                    rangy);
         }
     }
 
@@ -909,7 +922,13 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @JavascriptInterface
     public void getUpdatedHighlightId(String id, String style) {
         if (id != null) {
-            HighLightTable.updateHighlightStyle(id, style);
+            HighlightImpl highlightImpl = HighLightTable.updateHighlightStyle(id, style);
+            if (highlightImpl != null) {
+                HighlightUtil.sendHighlightBroadcastEvent(
+                        getActivity().getApplicationContext(),
+                        highlightImpl,
+                        HighLight.HighLightAction.MODIFY);
+            }
             final String rangyString = HighlightUtil.generateRangyString(getPageName());
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {

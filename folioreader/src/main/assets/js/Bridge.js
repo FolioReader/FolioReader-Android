@@ -620,8 +620,9 @@ function getHighlightString(style) {
 
 function gotoHighlight(highlightId){
   var element = document.getElementById(highlightId.toString());
-  console.log(element.toString());
-  goToEl(element);
+  if(element != null) {
+    goToEl(element);
+  }
 }
 
 $(function(){
