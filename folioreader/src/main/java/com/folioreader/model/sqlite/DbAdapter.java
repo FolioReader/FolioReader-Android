@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.folioreader.model.HighlightImpl;
+
 public class DbAdapter {
     private static final String TAG = "DBAdapter";
 
@@ -82,7 +84,7 @@ public class DbAdapter {
         return mDatabase.rawQuery(query, null);
     }
 
-    public static int getIdForRangy(String query) {
+    public static int getIdForQuery(String query) {
         Cursor c = mDatabase.rawQuery(query, null);
 
         int id = -1;

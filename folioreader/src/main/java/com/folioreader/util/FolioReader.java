@@ -5,12 +5,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
+import com.folioreader.model.sqlite.DbAdapter;
+import com.folioreader.ui.base.OnSaveHighlight;
+import com.folioreader.ui.base.SaveReceivedHighlightTask;
 import com.folioreader.ui.folio.activity.FolioActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by avez raj on 9/13/2017.
@@ -24,6 +32,7 @@ public class FolioReader {
 
     public FolioReader(Context context) {
         this.context = context;
+        new DbAdapter(context);
         LocalBroadcastManager.getInstance(context).registerReceiver(highlightReceiver,
                 new IntentFilter(HighlightImpl.BROADCAST_EVENT));
     }
@@ -84,7 +93,7 @@ public class FolioReader {
         context.startActivity(intent);
     }
 
-    public void openBook(Context context, int rawId, Config config, int port, String bookId) {
+    public void openBook(int rawId, Config config, int port, String bookId) {
         Intent intent = getIntentFromUrl(null, rawId);
         intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.INTENT_PORT, port);
@@ -114,5 +123,9 @@ public class FolioReader {
     public void unregisterHighlightListener() {
         LocalBroadcastManager.getInstance(context).unregisterReceiver(highlightReceiver);
         this.onHighlightListener = null;
+    }
+
+    public void saveReceivedHighLights(List<HighLight> highlights, OnSaveHighlight onSaveHighlight) {
+        new SaveReceivedHighlightTask(onSaveHighlight, highlights).execute();
     }
 }

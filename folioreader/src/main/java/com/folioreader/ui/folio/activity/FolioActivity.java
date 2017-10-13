@@ -17,7 +17,6 @@ package com.folioreader.ui.folio.activity;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -49,7 +48,6 @@ import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.event.WebViewPosition;
-import com.folioreader.model.sqlite.DbAdapter;
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
 import com.folioreader.ui.folio.presenter.MainMvpView;
@@ -57,7 +55,6 @@ import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
 import com.folioreader.util.FolioReader;
-import com.folioreader.util.ProgressDialog;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
@@ -91,6 +88,7 @@ public class FolioActivity
 
     public static final String INTENT_EPUB_SOURCE_PATH = "com.folioreader.epub_asset_path";
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
+    public static final String INTENT_HIGHLIGHTS_LIST = "highlight_list";
 
     public enum EpubSourceType {
         RAW,
@@ -101,7 +99,7 @@ public class FolioActivity
     private boolean isOpen = true;
 
     public static final int ACTION_CONTENT_HIGHLIGHT = 77;
-    private String mBookTitle;
+    private String bookFileName;
     private static final String HIGHLIGHT_ITEM = "highlight_item";
 
     public static final Bus BUS = new Bus(ThreadEnforcer.MAIN);
@@ -127,12 +125,10 @@ public class FolioActivity
     private EpubSourceType mEpubSourceType;
     int mEpubRawId = 0;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
-
 
         mBookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
         mEpubSourceType = (EpubSourceType)
@@ -176,7 +172,7 @@ public class FolioActivity
                 Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
                 intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
                 intent.putExtra(FolioReader.INTENT_BOOK_ID, mBookId);
-                intent.putExtra(Constants.BOOK_TITLE, mBookTitle);
+                intent.putExtra(Constants.BOOK_TITLE, bookFileName);
                 startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
                 overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
             }
@@ -216,28 +212,21 @@ public class FolioActivity
                     mEpubRawId, mEpubFileName);
             addEpub(path);
 
-            String urlString = Constants.LOCALHOST + mBookTitle + "/manifest";
-            MainPresenter mainPresenter = new MainPresenter(this);
-            mainPresenter.parseManifest(urlString);
+            String urlString = Constants.LOCALHOST + bookFileName + "/manifest";
+            new MainPresenter(this).parseManifest(urlString);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        new DbAdapter(FolioActivity.this);
     }
 
     private void addEpub(String path) throws IOException {
         Container epubContainer = new EpubContainer(path);
-        mEpubServer.addEpub(epubContainer, "/" + mBookTitle);
+        mEpubServer.addEpub(epubContainer, "/" + bookFileName);
         getEpubResource();
     }
 
     private void getEpubResource() {
-    }
-
-    private void loadBook() {
-        configFolio();
     }
 
     @Override
@@ -258,7 +247,7 @@ public class FolioActivity
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
             mFolioPageFragmentAdapter =
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, mBookTitle, mBookId);
+                            mSpineReferenceList, bookFileName, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             mFolioPageViewPager.setOffscreenPageLimit(1);
             mFolioPageViewPager.setCurrentItem(mChapterPosition);
@@ -267,7 +256,7 @@ public class FolioActivity
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
             mFolioPageFragmentAdapter =
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, mBookTitle, mBookId);
+                            mSpineReferenceList, bookFileName, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             mFolioPageViewPager.setCurrentItem(mChapterPosition);
         }
@@ -296,12 +285,12 @@ public class FolioActivity
         });
 
         if (mSpineReferenceList != null) {
-            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, mBookTitle, mBookId);
+            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, bookFileName, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         }
 
-        if (AppUtil.checkPreviousBookStateExist(FolioActivity.this, mBookTitle)) {
-            mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, mBookTitle));
+        if (AppUtil.checkPreviousBookStateExist(FolioActivity.this, bookFileName)) {
+            mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, bookFileName));
         }
     }
 
@@ -325,7 +314,7 @@ public class FolioActivity
 
     private void saveBookState() {
         if (mSpineReferenceList.size() > 0) {
-            AppUtil.saveBookState(FolioActivity.this, mBookTitle, mFolioPageViewPager.getCurrentItem(), mWebViewScrollPosition);
+            AppUtil.saveBookState(FolioActivity.this, bookFileName, mFolioPageViewPager.getCurrentItem(), mWebViewScrollPosition);
         }
     }
 
@@ -356,7 +345,7 @@ public class FolioActivity
 
     @Override
     public void goToChapter(String href) {
-        href = href.substring(href.indexOf(mBookTitle + "/") + mBookTitle.length() + 1);
+        href = href.substring(href.indexOf(bookFileName + "/") + bookFileName.length() + 1);
         for (Link spine : mSpineReferenceList) {
             if (spine.href.contains(href)) {
                 mChapterPosition = mSpineReferenceList.indexOf(spine);
@@ -436,20 +425,18 @@ public class FolioActivity
             title.setText(publication.metadata.title);
         }
 
-        final Dialog pgDailog = ProgressDialog.show(FolioActivity.this,
-                getString(R.string.please_wait));
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadBook();
-                        if (pgDailog != null && pgDailog.isShowing()) pgDailog.dismiss();
-                    }
-                });
+        if (mBookId == null) {
+            if (publication.metadata.identifier != null) {
+                mBookId = publication.metadata.identifier;
+            } else {
+                if (publication.metadata.title != null) {
+                    mBookId = String.valueOf(publication.metadata.title.hashCode());
+                } else {
+                    mBookId = String.valueOf(bookFileName.hashCode());
+                }
             }
-        }).start();
+        }
+        configFolio();
     }
 
     private void setConfig() {
@@ -639,11 +626,8 @@ public class FolioActivity
     }
 
     private void setupBook() {
-        mBookTitle = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
-        if (mBookId == null) {
-            mBookId = String.valueOf(mBookTitle.hashCode());
-        }
-        initBook(mBookTitle, mEpubRawId, mEpubFilePath, mEpubSourceType);
+        bookFileName = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
+        initBook(bookFileName, mEpubRawId, mEpubFilePath, mEpubSourceType);
     }
 
     @Override

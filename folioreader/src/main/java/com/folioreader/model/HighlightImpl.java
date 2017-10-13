@@ -21,7 +21,15 @@ public class HighlightImpl implements Parcelable, HighLight {
      */
     private int id;
     /**
-     * Book id.
+     * <p> Book id, which can be provided to intent to folio reader, if not provided id is
+     * used from epub's dc:identifier field in metadata.
+     * <p>for reference, look here:
+     * <a href="http://www.idpf.org/epub/30/spec/epub30-publications.html#sec-package-metadata-identifiers">IDPF</a>.</p>
+     * in case identifier is not found in the epub,
+     * <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html#hashCode()">hash code</a>
+     * of book title is used also if book title is not found then
+     * hash code of the book file name is used.
+     * </p>
      */
     private String bookId;
     /**
@@ -33,7 +41,7 @@ public class HighlightImpl implements Parcelable, HighLight {
      */
     private Date date;
     /**
-     * Field defines the color of the highlight.
+     * Field defines the color of the highlight. {@link HighlightStyle}
      */
     private String type;
     /**
@@ -50,6 +58,14 @@ public class HighlightImpl implements Parcelable, HighLight {
      * <p>for reference, look here: <a href="https://github.com/timdown/rangy">rangy</a>.</p>
      */
     private String rangy;
+
+    /**
+     * Unique identifier for a highlight for sync across devices.
+     * <p>for reference, look here:
+     * <a href = "https://docs.oracle.com/javase/7/docs/api/java/util/UUID.html#toString()">UUID</a>.</p>
+     */
+    private String uuid;
+
     /**
      * Note linked to the highlight (optional)
      */
@@ -93,7 +109,7 @@ public class HighlightImpl implements Parcelable, HighLight {
 
     public HighlightImpl(int id, String bookId, String content, Date date, String type,
                          int pageNumber, String pageId,
-                         String rangy, String note) {
+                         String rangy, String note, String uuid) {
         this.id = id;
         this.bookId = bookId;
         this.content = content;
@@ -103,6 +119,7 @@ public class HighlightImpl implements Parcelable, HighLight {
         this.pageId = pageId;
         this.rangy = rangy;
         this.note = note;
+        this.uuid = uuid;
     }
 
     public HighlightImpl() {
@@ -180,6 +197,14 @@ public class HighlightImpl implements Parcelable, HighLight {
         return note;
     }
 
+    public String getUUID() {
+        return uuid;
+    }
+
+    public void setUUID(String uuid) {
+        this.uuid = uuid;
+    }
+
     public void setNote(String note) {
         this.note = note;
     }
@@ -220,6 +245,7 @@ public class HighlightImpl implements Parcelable, HighLight {
                 ", pageId='" + pageId + '\'' +
                 ", rangy='" + rangy + '\'' +
                 ", note='" + note + '\'' +
+                ", uuid='" + uuid + '\'' +
                 '}';
     }
 
@@ -239,6 +265,7 @@ public class HighlightImpl implements Parcelable, HighLight {
         dest.writeString(type);
         dest.writeInt(pageNumber);
         dest.writeString(note);
+        dest.writeString(uuid);
     }
 
     private void readFromParcel(Parcel in) {
@@ -251,6 +278,7 @@ public class HighlightImpl implements Parcelable, HighLight {
         type = in.readString();
         pageNumber = in.readInt();
         note = in.readString();
+        uuid = in.readString();
     }
 
     public static final Creator<HighlightImpl> CREATOR = new Creator<HighlightImpl>() {

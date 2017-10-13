@@ -3,9 +3,9 @@ package com.folioreader.model.sqlite;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.folioreader.Constants;
+import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 
 import java.text.ParseException;
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class HighLightTable {
     public static String TABLE_NAME = "highlight_table";
@@ -27,6 +28,7 @@ public class HighLightTable {
     private static String COL_PAGE_ID = "pageId";
     private static String COL_RANGY = "rangy";
     private static String COL_NOTE = "note";
+    private static String COL_UUID = "uuid";
 
     public static String SQL_CREATE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ( " + ID
             + " INTEGER PRIMARY KEY AUTOINCREMENT" + ","
@@ -37,22 +39,24 @@ public class HighLightTable {
             + COL_PAGE_NUMBER + " INTEGER" + ","
             + COL_PAGE_ID + " TEXT" + ","
             + COL_RANGY + " TEXT" + ","
+            + COL_UUID + " TEXT" + ","
             + COL_NOTE + " TEXT" + ")";
 
     public static String SQL_DROP = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
     public static String TAG = HighLightTable.class.getSimpleName();
 
-    public static ContentValues getHighlightContentValues(HighlightImpl highlightImpl) {
+    public static ContentValues getHighlightContentValues(HighLight highLight) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COL_BOOK_ID, highlightImpl.getBookId());
-        contentValues.put(COL_CONTENT, highlightImpl.getContent());
-        contentValues.put(COL_DATE, getDateTimeString(highlightImpl.getDate()));
-        contentValues.put(COL_TYPE, highlightImpl.getType());
-        contentValues.put(COL_PAGE_NUMBER, highlightImpl.getPageNumber());
-        contentValues.put(COL_PAGE_ID, highlightImpl.getPageId());
-        contentValues.put(COL_RANGY, highlightImpl.getRangy());
-        contentValues.put(COL_NOTE, highlightImpl.getNote());
+        contentValues.put(COL_BOOK_ID, highLight.getBookId());
+        contentValues.put(COL_CONTENT, highLight.getContent());
+        contentValues.put(COL_DATE, getDateTimeString(highLight.getDate()));
+        contentValues.put(COL_TYPE, highLight.getType());
+        contentValues.put(COL_PAGE_NUMBER, highLight.getPageNumber());
+        contentValues.put(COL_PAGE_ID, highLight.getPageId());
+        contentValues.put(COL_RANGY, highLight.getRangy());
+        contentValues.put(COL_NOTE, highLight.getNote());
+        contentValues.put(COL_UUID, highLight.getUUID());
         return contentValues;
     }
 
@@ -69,7 +73,8 @@ public class HighLightTable {
                     highlightCursor.getInt(highlightCursor.getColumnIndex(COL_PAGE_NUMBER)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_PAGE_ID)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_RANGY)),
-                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_NOTE))));
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_NOTE)),
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_UUID))));
         }
         return highlights;
     }
@@ -86,18 +91,21 @@ public class HighLightTable {
                     highlightCursor.getInt(highlightCursor.getColumnIndex(COL_PAGE_NUMBER)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_PAGE_ID)),
                     highlightCursor.getString(highlightCursor.getColumnIndex(COL_RANGY)),
-                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_NOTE)));
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_NOTE)),
+                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_UUID)));
+
         }
         return highlightImpl;
     }
 
     public static long insertHighlight(HighlightImpl highlightImpl) {
+        highlightImpl.setUUID(UUID.randomUUID().toString());
         return DbAdapter.saveHighLight(getHighlightContentValues(highlightImpl));
     }
 
     public static boolean deleteHighlight(String rangy) {
         String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
-        int id = DbAdapter.getIdForRangy(query);
+        int id = DbAdapter.getIdForQuery(query);
         return id != -1 && deleteHighlight(id);
     }
 
@@ -140,7 +148,7 @@ public class HighLightTable {
 
     public static HighlightImpl updateHighlightStyle(String rangy, String style) {
         String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
-        int id = DbAdapter.getIdForRangy(query);
+        int id = DbAdapter.getIdForQuery(query);
         if (id != -1) {
             if (update(id, updateRangy(rangy, style), style.replace("highlight_", ""))) {
                 return getHighlightId(id);
@@ -151,7 +159,7 @@ public class HighLightTable {
 
     public static HighlightImpl getHighlightForRangy(String rangy) {
         String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
-        return getHighlightId(DbAdapter.getIdForRangy(query));
+        return getHighlightId(DbAdapter.getIdForQuery(query));
     }
 
     private static String updateRangy(String rangy, String style) {
@@ -177,6 +185,14 @@ public class HighLightTable {
         highlightImpl.setRangy(s);
         highlightImpl.setType(color);
         return DbAdapter.updateHighLight(getHighlightContentValues(highlightImpl), String.valueOf(id));
+    }
+
+    public static void saveHighlightIfNotExists(HighLight highLight) {
+        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_UUID + " = '" + highLight.getUUID() + "'";
+        int id = DbAdapter.getIdForQuery(query);
+        if (id == -1) {
+            DbAdapter.saveHighLight(getHighlightContentValues(highLight));
+        }
     }
 }
 
