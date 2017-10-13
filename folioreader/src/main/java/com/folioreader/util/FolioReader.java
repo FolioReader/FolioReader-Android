@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -13,6 +12,9 @@ import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
+import com.folioreader.model.sqlite.DbAdapter;
+import com.folioreader.ui.base.OnSaveHighlight;
+import com.folioreader.ui.base.SaveReceivedHighlightTask;
 import com.folioreader.ui.folio.activity.FolioActivity;
 
 import java.util.ArrayList;
@@ -30,10 +32,9 @@ public class FolioReader {
 
     private OnHighlightListener onHighlightListener;
 
-    private List<HighlightImpl> highlights;
-
     public FolioReader(Context context) {
         this.context = context;
+        new DbAdapter(context);
         LocalBroadcastManager.getInstance(context).registerReceiver(highlightReceiver,
                 new IntentFilter(HighlightImpl.BROADCAST_EVENT));
     }
@@ -64,9 +65,30 @@ public class FolioReader {
         context.startActivity(intent);
     }
 
+    public void openBook(final String assetOrSdcardPath,
+                         List<HighLight> highlights) {
+        saveReceivedHighLights(new OnSaveHighlight() {
+            @Override
+            public void onFinished() {
+                openBook(assetOrSdcardPath);
+            }
+        }, highlights);
+    }
+
+
     public void openBook(int rawId) {
         Intent intent = getIntentFromUrl(null, rawId);
         context.startActivity(intent);
+    }
+
+    public void openBook(final int rawId,
+                         List<HighLight> highlights) {
+        saveReceivedHighLights(new OnSaveHighlight() {
+            @Override
+            public void onFinished() {
+                openBook(rawId);
+            }
+        }, highlights);
     }
 
     public void openBook(String assetOrSdcardPath, Config config) {
@@ -75,10 +97,32 @@ public class FolioReader {
         context.startActivity(intent);
     }
 
+    public void openBook(final String assetOrSdcardPath,
+                         final Config config,
+                         List<HighLight> highlights) {
+        saveReceivedHighLights(new OnSaveHighlight() {
+            @Override
+            public void onFinished() {
+                openBook(assetOrSdcardPath, config);
+            }
+        }, highlights);
+    }
+
     public void openBook(int rawId, Config config) {
         Intent intent = getIntentFromUrl(null, rawId);
         intent.putExtra(Config.INTENT_CONFIG, config);
         context.startActivity(intent);
+    }
+
+    public void openBook(final int rawId,
+                         final Config config,
+                         List<HighLight> highlights) {
+        saveReceivedHighLights(new OnSaveHighlight() {
+            @Override
+            public void onFinished() {
+                openBook(rawId, config);
+            }
+        }, highlights);
     }
 
     public void openBook(String assetOrSdcardPath, Config config, int port) {
@@ -88,11 +132,34 @@ public class FolioReader {
         context.startActivity(intent);
     }
 
+    public void openBook(final String assetOrSdcardPath,
+                         final Config config,
+                         final int port,
+                         List<HighLight> highlights) {
+        saveReceivedHighLights(new OnSaveHighlight() {
+            @Override
+            public void onFinished() {
+                openBook(assetOrSdcardPath, config, port);
+            }
+        }, highlights);
+    }
+
     public void openBook(int rawId, Config config, int port) {
         Intent intent = getIntentFromUrl(null, rawId);
         intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.INTENT_PORT, port);
         context.startActivity(intent);
+    }
+
+    public void openBook(final int rawId,
+                         final Config config,
+                         final int port, List<HighLight> highlights) {
+        saveReceivedHighLights(new OnSaveHighlight() {
+            @Override
+            public void onFinished() {
+                openBook(rawId, config, port);
+            }
+        }, highlights);
     }
 
     public void openBook(String assetOrSdcardPath, Config config, int port, String bookId) {
@@ -103,12 +170,38 @@ public class FolioReader {
         context.startActivity(intent);
     }
 
-    public void openBook(Context context, int rawId, Config config, int port, String bookId) {
+    public void openBook(final String assetOrSdcardPath,
+                         final Config config,
+                         final int port,
+                         final String bookId,
+                         List<HighLight> highlights) {
+        saveReceivedHighLights(new OnSaveHighlight() {
+            @Override
+            public void onFinished() {
+                openBook(assetOrSdcardPath, config, port, bookId);
+            }
+        }, highlights);
+    }
+
+    public void openBook(int rawId, Config config, int port, String bookId) {
         Intent intent = getIntentFromUrl(null, rawId);
         intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.INTENT_PORT, port);
         intent.putExtra(INTENT_BOOK_ID, bookId);
         context.startActivity(intent);
+    }
+
+    public void openBook(final int rawId,
+                         final Config config,
+                         final int port,
+                         final String bookId,
+                         List<HighLight> highlights) {
+        saveReceivedHighLights(new OnSaveHighlight() {
+            @Override
+            public void onFinished() {
+                openBook(rawId, config, port, bookId);
+            }
+        }, highlights);
     }
 
     private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId) {
@@ -123,8 +216,6 @@ public class FolioReader {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetOrSdcardPath);
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.SD_CARD);
         }
-        intent.putParcelableArrayListExtra(FolioActivity.INTENT_HIGHLIGHTS_LIST,
-                (ArrayList<? extends Parcelable>) getHighlights());
         return intent;
     }
 
@@ -137,14 +228,8 @@ public class FolioReader {
         this.onHighlightListener = null;
     }
 
-    public void setHighlights(List<HighlightImpl> highlights) {
-        this.highlights = highlights;
-    }
-
-    public List<HighlightImpl> getHighlights() {
-        if (highlights != null) {
-            return highlights;
-        }
-        return new ArrayList<>();
+    private void saveReceivedHighLights(OnSaveHighlight onSaveHighlight,
+                                        List<HighLight> highlights) {
+        new SaveReceivedHighlightTask(onSaveHighlight, highlights).execute();
     }
 }

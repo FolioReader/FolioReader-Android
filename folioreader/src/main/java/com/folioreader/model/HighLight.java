@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * Interface to access Highlight data.
  *
- * @author gautam on 9/10/17.
+ * @author gautam chibde on 9/10/17.
  */
 
 public interface HighLight {
@@ -18,13 +18,14 @@ public interface HighLight {
     }
 
     /**
-     * <p> Returns Book id. used from epub's dc:identifier field in metadata.
+     * <p> Returns Book id, which can be provided to intent to folio reader, if not provided id is
+     * used from epub's dc:identifier field in metadata.
      * <p>for reference, look here:
-     * <a href="http://www.idpf.org/epub/30/spec/epub30-publications.html#sec-package-metadata-identifiers">idpf.org</a>.</p>
+     * <a href="http://www.idpf.org/epub/30/spec/epub30-publications.html#sec-package-metadata-identifiers">IDPF</a>.</p>
      * in case identifier is not found in the epub,
      * <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/String.html#hashCode()">hash code</a>
-     * of book title is used or else if the
-     * book title is not found hash code of the book file name is used.
+     * of book title is used also if book title is not found then
+     * hash code of the book file name is used.
      * </p>
      */
     String getBookId();

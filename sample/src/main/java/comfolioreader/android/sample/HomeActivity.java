@@ -15,7 +15,6 @@
 */
 package comfolioreader.android.sample;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -23,12 +22,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.model.HighLight;
-import com.folioreader.model.HighlightImpl;
 import com.folioreader.util.FolioReader;
 import com.folioreader.util.OnHighlightListener;
 
@@ -49,14 +45,12 @@ public class HomeActivity extends AppCompatActivity implements OnHighlightListen
         setContentView(R.layout.activity_home);
         folioReader = new FolioReader(this);
         folioReader.registerHighlightListener(this);
-        folioReader.setHighlights(getHighlights());
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                folioReader.openBook("file:///android_asset/adventures.epub");
+                folioReader.openBook("file:///android_asset/adventures.epub", getHighlights());
             }
         });
-
         findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,12 +59,12 @@ public class HomeActivity extends AppCompatActivity implements OnHighlightListen
         });
     }
 
-    private List<HighlightImpl> getHighlights() {
+    private List<HighLight> getHighlights() {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.readValue(
                     loadAssetTextAsString("highlights/highlights_data.json"),
-                    new TypeReference<List<HighlightImpl>>() {
+                    new TypeReference<List<HighlightData>>() {
                     });
         } catch (IOException e) {
             e.printStackTrace();

@@ -17,7 +17,6 @@ package com.folioreader.ui.folio.activity;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -49,8 +48,6 @@ import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.event.WebViewPosition;
-import com.folioreader.model.sqlite.DbAdapter;
-import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
 import com.folioreader.ui.folio.presenter.MainMvpView;
@@ -58,8 +55,6 @@ import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
 import com.folioreader.util.FolioReader;
-import com.folioreader.util.HighlightUtil;
-import com.folioreader.util.ProgressDialog;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
@@ -129,15 +124,12 @@ public class FolioActivity
     private String mEpubFilePath;
     private EpubSourceType mEpubSourceType;
     int mEpubRawId = 0;
-    private MainPresenter mainPresenter;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
 
-        mainPresenter = new MainPresenter(this);
         mBookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
         mEpubSourceType = (EpubSourceType)
                 getIntent().getExtras().getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
@@ -211,16 +203,6 @@ public class FolioActivity
         }
     }
 
-    private void saveReceivedHighLights() {
-        List<HighlightImpl> highlights = getIntent().getParcelableArrayListExtra(INTENT_HIGHLIGHTS_LIST);
-        mainPresenter.saveReceivedHighLights(highlights, new OnSaveHighlight() {
-            @Override
-            public void onFinished() {
-                configFolio();
-            }
-        }, mBookId);
-    }
-
     private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
         try {
             int portNumber = getIntent().getIntExtra(Config.INTENT_PORT, Constants.PORT_NUMBER);
@@ -231,13 +213,11 @@ public class FolioActivity
             addEpub(path);
 
             String urlString = Constants.LOCALHOST + bookFileName + "/manifest";
-            mainPresenter.parseManifest(urlString);
+            new MainPresenter(this).parseManifest(urlString);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        new DbAdapter(FolioActivity.this);
     }
 
     private void addEpub(String path) throws IOException {
@@ -456,7 +436,7 @@ public class FolioActivity
                 }
             }
         }
-        saveReceivedHighLights();
+        configFolio();
     }
 
     private void setConfig() {
