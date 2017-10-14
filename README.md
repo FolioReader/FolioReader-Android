@@ -63,9 +63,9 @@ folioReader.openBook(context, R.raw.barrett);
 
 ## WIKI
 
-* [Custom Configuration](https://github.com/codetoart/FolioReader-Android/wiki/Custom-Configuration)
-* [Highlight Event](https://github.com/codetoart/FolioReader-Android/wiki/Highlight-Event)
-* [Providing External Highlight](https://github.com/codetoart/FolioReader-Android/wiki/Providing-External-Highlight)
+* [Custom Configuration](https://github.com/FolioReader/FolioReader-Android/wiki/Custom-Configuration)
+* [Highlight Event](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight-Event)
+* [Providing External Highlight](https://github.com/FolioReader/FolioReader-Android/wiki/Providing-External-Highlight)
 
 ### Credits
 1. <a href="https://github.com/daimajia/AndroidSwipeLayout">SwipeLayout</a>
