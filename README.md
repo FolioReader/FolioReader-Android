@@ -14,7 +14,7 @@ FolioReader-Android is an ePub reader and parser framework written in Java.
 - [x] Handle Internal and External Links
 - [x] Portrait / Landscape
 - [x] Reading Time Left / Pages left
-- [ ] In-App Dictionary
+- [x] In-App Dictionary
 - [x] Media Overlays (Sync text rendering with audio playback)
 - [x] TTS - Text to Speech Support
 - [ ] Parse epub cover image
@@ -41,32 +41,37 @@ compile 'com.folioreader:folioreader:0.2.5'
 
 ### Usage
 
-To use FolioReader, you need to call FolioReaderActivity with following parameters:
-1. INTENT_EPUB_SOURCE_TYPE - your epub can come from raw or assets folder or from SD card. Use enum FolioActivity.EpubSourceType.
-2. INTENT_EPUB_SOURCE_PATH - assets/SD card path of the epub file or raw ID of epub file if epub file is in raw folder
+To use FolioReader, create object of **FolioReader** .
 
-Reading from assets folder
 ```java
-Intent intent = new Intent(HomeActivity.this, FolioActivity.class);
-intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.ASSESTS);
-intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, "epub/The Silver Chair.epub");
-startActivity(intent);
+FolioReader folioReader = new FolioReader(context);
+
 ```
 
-Reading from raw folder of resources
+Call the function openBook().
+
+##### opening book from assets
+
 ```java
-Intent intent = new Intent(HomeActivity.this, FolioActivity.class);
-intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.RAW);
-intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, R.raw.adventures);
-startActivity(intent);
+folioReader.openBook(context, "file:///android_asset/adventures.epub");
+```
+##### opening book from raw
+
+```java
+folioReader.openBook(context, R.raw.barrett);
 ```
 
-For reading from SD card, just retrieve absolute path of epub file and pass that in INTENT_EPUB_SOURCE_PATH.
+## WIKI
+
+* [Custom Configuration](https://github.com/codetoart/FolioReader-Android/wiki/Custom-Configuration)
+* [Highlight Event](https://github.com/codetoart/FolioReader-Android/wiki/Highlight-Event)
+* [Providing External Highlight](https://github.com/codetoart/FolioReader-Android/wiki/Providing-External-Highlight)
 
 ### Credits
 1. <a href="https://github.com/daimajia/AndroidSwipeLayout">SwipeLayout</a>
-2. <a href="http://ormlite.com/">ORMLite</a>
-3. <a href="https://github.com/julianharty/new-android-daisy-reader">SMIL parsing</a>
+2. <a href="https://github.com/readium/r2-streamer-java">r2-streamer-java</a>
+3. <a href="http://developer.pearson.com/apis/dictionaries">Pearson Dictionaries</a>
+4. <a href="https://github.com/timdown/rangy">rangy</a>
 
 ### Author
 [**Heberti Almeida**](https://github.com/hebertialmeida)
@@ -95,4 +100,3 @@ For reading from SD card, just retrieve absolute path of epub file and pass that
 
 ## License
 FolioReaderKit is available under the BSD license. See the [LICENSE](https://github.com/FolioReader/FolioReader-Android/blob/master/License.md) file.
-
