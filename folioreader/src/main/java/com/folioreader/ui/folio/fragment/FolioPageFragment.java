@@ -874,7 +874,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     html,
                     mBookId,
                     getPageName(),
-                    mWebview.getScrollY(),
+                    mPosition,
                     rangy);
         }
     }
