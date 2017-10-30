@@ -28,7 +28,7 @@ ext {
 android {
     useLibrary 'org.apache.http.legacy'
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion "26.0.2"
 
     defaultConfig {
         versionCode 1
@@ -83,6 +83,7 @@ dependencies {
 
     final ANDROID_LIB_VERSION = '26.0.0-alpha1'
 
+    //noinspection GradleDependency
     compile "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
     compile "com.android.support:recyclerview-v7:$ANDROID_LIB_VERSION"
     compile "com.android.support:support-v4:$ANDROID_LIB_VERSION"

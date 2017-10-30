@@ -4,6 +4,10 @@ buildscript {
         maven {
             url  "http://dl.bintray.com/mobisystech/maven"
         }
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.0'
@@ -17,6 +21,10 @@ allprojects {
         jcenter()
         maven {
             url  "http://dl.bintray.com/mobisystech/maven"
+        }
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
         }
     }
 }
