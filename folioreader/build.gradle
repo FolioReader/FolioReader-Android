@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
 apply from: '../config/quality/quality.gradle'
+apply plugin: 'com.github.dcendents.android-maven'
+group = 'com.github.Semper-Viventem'
 
 ext {
     bintrayRepo = 'maven'
