@@ -25,9 +25,11 @@ public class ContentHighlightActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_highlight);
-        getSupportActionBar().hide();
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
         mConfig = AppUtil.getSavedConfig(this);
-        mIsNightMode = mConfig.isNightMode();
+        mIsNightMode = mConfig != null && mConfig.isNightMode();
         initViews();
     }
 
