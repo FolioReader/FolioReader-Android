@@ -1,5 +1,8 @@
 apply plugin: 'com.android.library'
 apply from: '../config/quality/quality.gradle'
+apply plugin: 'com.github.dcendents.android-maven'
+group = 'com.github.Semper-Viventem'
+version = "0.5.0"
 
 ext {
     bintrayRepo = 'maven'
@@ -28,7 +31,7 @@ ext {
 android {
     useLibrary 'org.apache.http.legacy'
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion "26.0.2"
 
     defaultConfig {
         versionCode 1
@@ -83,6 +86,7 @@ dependencies {
 
     final ANDROID_LIB_VERSION = '26.0.0-alpha1'
 
+    //noinspection GradleDependency
     compile "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
     compile "com.android.support:recyclerview-v7:$ANDROID_LIB_VERSION"
     compile "com.android.support:support-v4:$ANDROID_LIB_VERSION"
