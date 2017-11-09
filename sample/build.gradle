@@ -8,8 +8,8 @@ android {
     javaMaxHeapSize "4G"
   }
 
-  compileSdkVersion 25
-  buildToolsVersion "25.0.0"
+  compileSdkVersion 27
+  buildToolsVersion "27.0.0"
 
   defaultConfig {
     applicationId "com.folioreader.android.sample"
@@ -66,5 +66,5 @@ android {
 
 dependencies {
   compile project(':folioreader')
-  compile 'com.android.support:appcompat-v7:25.1.0'
+  compile 'com.android.support:appcompat-v7:27.0.0'
 }

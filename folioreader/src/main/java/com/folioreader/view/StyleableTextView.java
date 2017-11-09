@@ -17,14 +17,14 @@ public class StyleableTextView extends AppCompatTextView {
         super(context, attrs);
         UiUtil.setCustomFont(this, context, attrs,
                 R.styleable.StyleableTextView,
-                R.styleable.StyleableTextView_font);
+                R.styleable.StyleableTextView_folio_font);
     }
 
     public StyleableTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         UiUtil.setCustomFont(this, context, attrs,
                 R.styleable.StyleableTextView,
-                R.styleable.StyleableTextView_font);
+                R.styleable.StyleableTextView_folio_font);
     }
 
 }

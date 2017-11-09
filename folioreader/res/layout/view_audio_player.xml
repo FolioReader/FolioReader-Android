@@ -80,7 +80,7 @@
             android:gravity="center"
             android:text="@string/half_speed"
             android:textSize="14sp"
-            app:font="@string/andada_font" />
+            app:folio_font="@string/andada_font" />
 
         <com.folioreader.view.StyleableTextView
             android:id="@+id/btn_one_x_speed"
@@ -90,7 +90,7 @@
             android:gravity="center"
             android:text="@string/onex"
             android:textSize="17sp"
-            app:font="@string/lato_font" />
+            app:folio_font="@string/lato_font" />
 
         <com.folioreader.view.StyleableTextView
             android:id="@+id/btn_one_and_half_speed"
@@ -100,7 +100,7 @@
             android:gravity="center"
             android:text="@string/one_and_half"
             android:textSize="14sp"
-            app:font="@string/lora_font" />
+            app:folio_font="@string/lora_font" />
 
         <com.folioreader.view.StyleableTextView
             android:id="@+id/btn_twox_speed"
@@ -110,7 +110,7 @@
             android:gravity="center"
             android:text="@string/two_x"
             android:textSize="17sp"
-            app:font="@string/raleway_font" />
+            app:folio_font="@string/raleway_font" />
     </LinearLayout>
 
     <View
@@ -134,7 +134,7 @@
             android:gravity="center"
             android:text="@string/style"
             android:textSize="17sp"
-            app:font="@string/lato_font" />
+            app:folio_font="@string/lato_font" />
 
         <View
             android:id="@+id/third_separator"
@@ -152,7 +152,7 @@
             android:layerType="software"
             android:text="@string/style_underline"
             android:textSize="17sp"
-            app:font="@string/lora_font" />
+            app:folio_font="@string/lora_font" />
 
         <View
             android:id="@+id/fourth_separator"
@@ -168,7 +168,7 @@
             android:gravity="center"
             android:text="@string/style"
             android:textSize="17sp"
-            app:font="@string/raleway_font" />
+            app:folio_font="@string/raleway_font" />
 
     </LinearLayout>
 
