@@ -1,6 +1,7 @@
 package com.folioreader.ui.folio.fragment;
 
 import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -21,6 +22,8 @@ import android.view.animation.AnimationUtils;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
@@ -457,6 +460,34 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     }
                 }
                 return true;
+            }
+
+
+            // prevent favicon.ico to be loaded automatically
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+                if(url.toLowerCase().contains("/favicon.ico")) {
+                    try {
+                        return new WebResourceResponse("image/png", null, null);
+                    } catch (Exception e) {
+                        Log.e(TAG, "shouldInterceptRequest failed", e);
+                    }
+                }
+                return null;
+            }
+
+            // prevent favicon.ico to be loaded automatically
+            @Override
+            @SuppressLint("NewApi")
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                if(!request.isForMainFrame() && request.getUrl().getPath().endsWith("/favicon.ico")) {
+                    try {
+                        return new WebResourceResponse("image/png", null, null);
+                    } catch (Exception e) {
+                        Log.e(TAG, "shouldInterceptRequest failed", e);
+                    }
+                }
+                return null;
             }
         });
 
