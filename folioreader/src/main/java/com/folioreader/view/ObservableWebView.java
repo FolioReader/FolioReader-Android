@@ -78,9 +78,10 @@ public class ObservableWebView extends WebView {
                 if (mSeekBarListener != null) mSeekBarListener.fadeInSeekBarIfInvisible();
                 break;
             case MotionEvent.ACTION_UP:
-                if (Math.abs(event.getX() - mDownPosX) < MOVE_THRESHOLD_DP
-                        || Math.abs(event.getY() - mDownPosY) < MOVE_THRESHOLD_DP) {
-                    if(mToolBarListener != null) mToolBarListener.hideOrshowToolBar();
+                if (mToolBarListener != null &&
+                        (Math.abs(event.getX() - mDownPosX) < MOVE_THRESHOLD_DP
+                                || Math.abs(event.getY() - mDownPosY) < MOVE_THRESHOLD_DP)) {
+                    mToolBarListener.hideOrshowToolBar();
                 }
                 break;
         }
