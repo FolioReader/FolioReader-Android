@@ -15,11 +15,11 @@ import java.util.Map;
 
 public class DictionaryTable {
 
-    public static String TABLE_NAME = "dictionary_table";
+    public static final String TABLE_NAME = "dictionary_table";
 
-    public static String ID = "_id";
-    public static String WORD = "word";
-    public static String MEANING = "meaning";
+    public static final String ID = "_id";
+    public static final String WORD = "word";
+    public static final String MEANING = "meaning";
     private SQLiteDatabase database;
 
     public DictionaryTable(Context context) {

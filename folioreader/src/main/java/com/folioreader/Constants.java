@@ -27,7 +27,9 @@ public class Constants {
     public static final String ASSET = "file:///android_asset/";
     public static final int WRITE_EXTERNAL_STORAGE_REQUEST = 102;
 
-    public static final String[] WRITE_EXTERNAL_STORAGE_PERMS = {
+    public static String[] getWriteExternalStoragePerms() {
+        return new String[] {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
+        };
+    }
 }

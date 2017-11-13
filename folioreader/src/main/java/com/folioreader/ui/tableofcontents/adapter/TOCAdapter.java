@@ -26,7 +26,7 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
 
     private static final int LEVEL_ONE_PADDING_PIXEL = 15;
 
-    private static TOCCallback callback;
+    private TOCCallback callback;
     private final Context mContext;
     private String selectedHref;
     private Config mConfig;
@@ -39,7 +39,7 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
     }
 
     public void setCallback(TOCCallback callback) {
-        TOCAdapter.callback = callback;
+        this.callback = callback;
     }
 
     @Override
@@ -124,7 +124,7 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
         void onExpanded(int position);
     }
 
-    public static class TOCRowViewHolder extends RecyclerView.ViewHolder {
+    public class TOCRowViewHolder extends RecyclerView.ViewHolder {
         public ImageView children;
         TextView sectionTitle;
         private LinearLayout container;
