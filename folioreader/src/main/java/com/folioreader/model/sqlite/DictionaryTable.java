@@ -27,12 +27,12 @@ public class DictionaryTable {
         database = dbHelper.getWritableDatabase();
     }
 
-    public static String SQL_CREATE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ( " + ID
+    public static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ( " + ID
             + " INTEGER PRIMARY KEY AUTOINCREMENT" + ","
             + WORD + " TEXT" + ","
             + MEANING + " TEXT" + ")";
 
-    public static String SQL_DROP = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    public static final String SQL_DROP = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
     public boolean insertWord(String word, String meaning) {
         ContentValues values = new ContentValues();

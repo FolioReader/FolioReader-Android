@@ -31,7 +31,7 @@ public class AppUtil {
 
     private static final String SMIL_ELEMENTS = "smil_elements";
     private static final String TAG = AppUtil.class.getSimpleName();
-    private static String FOLIO_READER_ROOT = "folioreader";
+    private static final String FOLIO_READER_ROOT = "folioreader";
 
     private enum FileType {
         OPS,
@@ -56,7 +56,7 @@ public class AppUtil {
             map.put(key, value.toString());
         }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, "toMap failed", e);
         }
         return map;
     }

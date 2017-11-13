@@ -1,8 +1,8 @@
 package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
-import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.model.dictionary.Dictionary;
@@ -14,13 +14,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
 
 /**
  * @author gautam chibde on 4/7/17.
  */
 
 public class DictionaryTask extends AsyncTask<String, Void, Dictionary> {
+
+    private static final String TAG = "DictionaryTask";
 
     private DictionaryCallBack callBack;
 
@@ -46,7 +47,7 @@ public class DictionaryTask extends AsyncTask<String, Void, Dictionary> {
             objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
             return objectMapper.readValue(stringBuilder.toString(), Dictionary.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "DictionaryTask failed", e);
         }
         return null;
     }

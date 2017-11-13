@@ -1,6 +1,7 @@
 package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.util.AppUtil;
@@ -23,6 +24,8 @@ import java.net.URLConnection;
  */
 
 public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
+
+    private static final String TAG = "ManifestTask";
 
     private ManifestCallBack manifestCallBack;
 
@@ -48,7 +51,7 @@ public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(stringBuilder.toString(), EpubPublication.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "ManifestTask failed", e);
         }
         return null;
     }

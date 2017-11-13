@@ -1,6 +1,7 @@
 package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.folioreader.util.AppUtil;
 
@@ -19,6 +20,8 @@ import java.net.URLConnection;
  */
 
 public class HtmlTask extends AsyncTask<String, Void, String> {
+
+    private static final String TAG = "HtmlTask";
 
     private HtmlTaskCallback callback;
 
@@ -41,7 +44,7 @@ public class HtmlTask extends AsyncTask<String, Void, String> {
             }
             return stringBuilder.toString();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "HtmlTask failed", e);
         }
         return null;
     }

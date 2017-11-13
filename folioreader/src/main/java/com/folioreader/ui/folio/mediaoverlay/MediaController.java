@@ -176,10 +176,8 @@ public class MediaController {
             if (mediaPlayer != null) {
                 mediaPlayer.pause();
             }
-            if (mTextToSpeech != null) {
-                if (mTextToSpeech.isSpeaking()) {
-                    mTextToSpeech.stop();
-                }
+            if (mTextToSpeech != null && mTextToSpeech.isSpeaking()) {
+                mTextToSpeech.stop();
             }
         } else {
             if (event.isPlay()) {
@@ -236,12 +234,10 @@ public class MediaController {
             mTextToSpeech.shutdown();
         }
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-                mediaPlayer.release();
-                mediaPlayer = null;
-                mediaHandler.removeCallbacks(mHighlightTask);
-            }
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+            mediaHandler.removeCallbacks(mHighlightTask);
         }
     }
 }

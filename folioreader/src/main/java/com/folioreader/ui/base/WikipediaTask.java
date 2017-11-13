@@ -1,6 +1,7 @@
 package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.folioreader.model.dictionary.Wikipedia;
 import com.folioreader.util.AppUtil;
@@ -20,6 +21,8 @@ import java.net.URLConnection;
  */
 
 public class WikipediaTask extends AsyncTask<String, Void, Wikipedia> {
+
+    private static final String TAG = "WikipediaTask";
 
     private WikipediaCallBack callBack;
 
@@ -54,7 +57,7 @@ public class WikipediaTask extends AsyncTask<String, Void, Wikipedia> {
                         wikipedia.setLink(links.get(0).toString());
                         return wikipedia;
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "WikipediaTask failed", e);
                         return null;
                     }
 
@@ -62,11 +65,11 @@ public class WikipediaTask extends AsyncTask<String, Void, Wikipedia> {
                     return null;
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(TAG, "WikipediaTask failed", e);
                 return null;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "WikipediaTask failed", e);
         }
         return null;
     }
