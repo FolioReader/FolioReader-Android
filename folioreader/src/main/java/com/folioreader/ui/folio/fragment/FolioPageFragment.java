@@ -69,7 +69,7 @@ import java.util.regex.Pattern;
  * Created by mahavir on 4/2/16.
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-public class FolioPageFragment extends Fragment implements HtmlTaskCallback, MediaControllerCallbacks {
+public class FolioPageFragment extends Fragment implements HtmlTaskCallback, MediaControllerCallbacks, ObservableWebView.SeekBarListener {
 
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.ui.folio.fragment.FolioPageFragment.POSITION";
     public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.BOOK_TITLE";
@@ -100,10 +100,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private String highlightId;
 
     public interface FolioPageFragmentCallback {
-
-        void hideOrshowToolBar();
-
-        void hideToolBarIfVisible();
 
         void setPagerToPosition(String href);
 
@@ -343,7 +339,11 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     private void initWebView() {
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
-        mWebview.setFragment(FolioPageFragment.this);
+        mWebview.setSeekBarListener(FolioPageFragment.this);
+
+        if (getActivity() instanceof ObservableWebView.ToolBarListener)
+            mWebview.setToolBarListener((ObservableWebView.ToolBarListener) getActivity());
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }

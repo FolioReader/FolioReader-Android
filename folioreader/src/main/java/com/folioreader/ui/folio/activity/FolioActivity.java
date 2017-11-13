@@ -59,6 +59,7 @@ import com.folioreader.util.FolioReader;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
+import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.StyleableTextView;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
@@ -82,6 +83,7 @@ import static com.folioreader.Constants.TYPE;
 public class FolioActivity
         extends AppCompatActivity
         implements FolioPageFragment.FolioPageFragmentCallback,
+        ObservableWebView.ToolBarListener,
         ConfigBottomSheetDialogFragment.ConfigDialogCallback,
         MainMvpView {
 
