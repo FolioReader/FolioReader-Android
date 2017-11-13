@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.JavascriptInterface;
@@ -349,16 +348,16 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         }
 
         setupScrollBar();
-        mWebview.getViewTreeObserver().
-                addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        int height =
-                                (int) Math.floor(mWebview.getContentHeight() * mWebview.getScale());
-                        int webViewHeight = mWebview.getMeasuredHeight();
-                        mScrollSeekbar.setMaximum(height - webViewHeight);
-                    }
-                });
+        mWebview.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View view, int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                int height =
+                        (int) Math.floor(mWebview.getContentHeight() * mWebview.getScale());
+                int webViewHeight = mWebview.getMeasuredHeight();
+                mScrollSeekbar.setMaximum(height - webViewHeight);
+            }
+        });
 
         mWebview.getSettings().setJavaScriptEnabled(true);
         mWebview.setVerticalScrollBarEnabled(false);
