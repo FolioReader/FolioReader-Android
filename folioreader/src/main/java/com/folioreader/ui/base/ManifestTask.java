@@ -1,8 +1,10 @@
 package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.folioreader.util.AppUtil;
 
 import org.readium.r2_streamer.model.publication.EpubPublication;
 import org.readium.r2_streamer.model.tableofcontents.TOCLink;
@@ -23,6 +25,8 @@ import java.net.URLConnection;
 
 public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
 
+    private static final String TAG = "ManifestTask";
+
     private ManifestCallBack manifestCallBack;
 
     public ManifestTask(ManifestCallBack manifestCallBack) {
@@ -37,7 +41,7 @@ public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
             URL url = new URL(strUrl);
             URLConnection urlConnection = url.openConnection();
             InputStream inputStream = urlConnection.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil.charsetNameForURLConnection(urlConnection)));
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -47,7 +51,7 @@ public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(stringBuilder.toString(), EpubPublication.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "ManifestTask failed", e);
         }
         return null;
     }

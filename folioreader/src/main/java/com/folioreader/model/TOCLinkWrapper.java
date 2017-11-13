@@ -15,14 +15,14 @@ public class TOCLinkWrapper implements MultiLevelExpIndListAdapter.ExpIndData{
     private TOCLink tocLink;
     private int indentation;
     private ArrayList<TOCLinkWrapper> tocLinkWrappers;
-    private boolean isGroup;
+    private boolean mIsGroup;
     private int mGroupSize;
 
     public TOCLinkWrapper(TOCLink tocLink, int indentation) {
         this.tocLink = tocLink;
         this.indentation = indentation;
         this.tocLinkWrappers = new ArrayList<>();
-        this.isGroup = (tocLink.getTocLinks()!=null && tocLink.getTocLinks().size()>0);
+        this.mIsGroup = (tocLink.getTocLinks()!=null && tocLink.getTocLinks().size()>0);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class TOCLinkWrapper implements MultiLevelExpIndListAdapter.ExpIndData{
                 "tocLink=" + tocLink +
                 ", indentation=" + indentation +
                 ", tocLinkWrappers=" + tocLinkWrappers +
-                ", isGroup=" + isGroup +
+                ", mIsGroup=" + mIsGroup +
                 ", mGroupSize=" + mGroupSize +
                 '}';
     }
@@ -72,12 +72,12 @@ public class TOCLinkWrapper implements MultiLevelExpIndListAdapter.ExpIndData{
 
     @Override
     public boolean isGroup() {
-        return isGroup;
+        return mIsGroup;
     }
 
     @Override
     public void setIsGroup(boolean value) {
-        this.isGroup = value;
+        mIsGroup = value;
     }
 
     @Override

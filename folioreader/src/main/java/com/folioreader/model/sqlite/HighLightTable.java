@@ -3,6 +3,7 @@ package com.folioreader.model.sqlite;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.folioreader.Constants;
 import com.folioreader.model.HighLight;
@@ -16,21 +17,22 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class HighLightTable {
-    public static String TABLE_NAME = "highlight_table";
+    public static final String TABLE_NAME = "highlight_table";
 
-    public static String ID = "_id";
-    public static String COL_BOOK_ID = "bookId";
-    private static String COL_CONTENT = "content";
-    private static String COL_DATE = "date";
-    private static String COL_TYPE = "type";
-    private static String COL_PAGE_NUMBER = "page_number";
-    private static String COL_PAGE_ID = "pageId";
-    private static String COL_RANGY = "rangy";
-    private static String COL_NOTE = "note";
-    private static String COL_UUID = "uuid";
+    public static final String ID = "_id";
+    public static final String COL_BOOK_ID = "bookId";
+    private static final String COL_CONTENT = "content";
+    private static final String COL_DATE = "date";
+    private static final String COL_TYPE = "type";
+    private static final String COL_PAGE_NUMBER = "page_number";
+    private static final String COL_PAGE_ID = "pageId";
+    private static final String COL_RANGY = "rangy";
+    private static final String COL_NOTE = "note";
+    private static final String COL_UUID = "uuid";
 
-    public static String SQL_CREATE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ( " + ID
+    public static final String SQL_CREATE = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " ( " + ID
             + " INTEGER PRIMARY KEY AUTOINCREMENT" + ","
             + COL_BOOK_ID + " TEXT" + ","
             + COL_CONTENT + " TEXT" + ","
@@ -42,9 +44,9 @@ public class HighLightTable {
             + COL_UUID + " TEXT" + ","
             + COL_NOTE + " TEXT" + ")";
 
-    public static String SQL_DROP = "DROP TABLE IF EXISTS " + TABLE_NAME;
+    public static final String SQL_DROP = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
-    public static String TAG = HighLightTable.class.getSimpleName();
+    public static final String TAG = HighLightTable.class.getSimpleName();
 
     public static ContentValues getHighlightContentValues(HighLight highLight) {
         ContentValues contentValues = new ContentValues();
@@ -141,7 +143,7 @@ public class HighLightTable {
         try {
             date1 = dateFormat.parse(date);
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Date parsing failed", e);
         }
         return date1;
     }
@@ -149,10 +151,8 @@ public class HighLightTable {
     public static HighlightImpl updateHighlightStyle(String rangy, String style) {
         String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
         int id = DbAdapter.getIdForQuery(query);
-        if (id != -1) {
-            if (update(id, updateRangy(rangy, style), style.replace("highlight_", ""))) {
-                return getHighlightId(id);
-            }
+        if (id != -1 && update(id, updateRangy(rangy, style), style.replace("highlight_", ""))) {
+            return getHighlightId(id);
         }
         return null;
     }
@@ -171,10 +171,10 @@ public class HighLightTable {
         for (String p : s) {
             if (TextUtils.isDigitsOnly(p)) {
                 builder.append(p);
-                builder.append("$");
+                builder.append('$');
             } else {
                 builder.append(style);
-                builder.append("$");
+                builder.append('$');
             }
         }
         return builder.toString();

@@ -38,11 +38,11 @@ public class DictionaryResults {
         this.headword = headword;
     }
 
-    public String getPart_of_speech() {
+    public String getPartOfSpeech() {
         return part_of_speech;
     }
 
-    public void setPart_of_speech(String part_of_speech) {
+    public void setPartOfSpeech(String part_of_speech) {
         this.part_of_speech = part_of_speech;
     }
 

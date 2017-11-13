@@ -1,11 +1,12 @@
 package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
-import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.model.dictionary.Dictionary;
+import com.folioreader.util.AppUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,6 +21,8 @@ import java.net.URLConnection;
 
 public class DictionaryTask extends AsyncTask<String, Void, Dictionary> {
 
+    private static final String TAG = "DictionaryTask";
+
     private DictionaryCallBack callBack;
 
     public DictionaryTask(DictionaryCallBack callBack) {
@@ -33,7 +36,7 @@ public class DictionaryTask extends AsyncTask<String, Void, Dictionary> {
             URL url = new URL(strUrl);
             URLConnection urlConnection = url.openConnection();
             InputStream inputStream = urlConnection.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil.charsetNameForURLConnection(urlConnection)));
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -44,7 +47,7 @@ public class DictionaryTask extends AsyncTask<String, Void, Dictionary> {
             objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
             return objectMapper.readValue(stringBuilder.toString(), Dictionary.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "DictionaryTask failed", e);
         }
         return null;
     }

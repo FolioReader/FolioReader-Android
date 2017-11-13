@@ -68,6 +68,7 @@ import java.util.regex.Pattern;
 /**
  * Created by mahavir on 4/2/16.
  */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class FolioPageFragment extends Fragment implements HtmlTaskCallback, MediaControllerCallbacks {
 
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.ui.folio.fragment.FolioPageFragment.POSITION";
@@ -222,10 +223,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @SuppressWarnings("unused")
     @Subscribe
     public void pauseButtonClicked(MediaOverlayPlayPauseEvent event) {
-        if (isAdded()) {
-            if (spineItem.href.equals(event.getHref())) {
-                mediaController.stateChanged(event);
-            }
+        if (isAdded()
+                && spineItem.href.equals(event.getHref())) {
+            mediaController.stateChanged(event);
         }
     }
 
@@ -297,16 +297,12 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
      */
     @Subscribe
     public void jumpToAnchorPoint(AnchorIdEvent event) {
-        if (isAdded()) {
-            if (event != null && event.getHref() != null) {
-                String href = event.getHref();
-                if (href != null && href.indexOf('#') != -1) {
-                    if (spineItem.href.equals(href.substring(0, href.lastIndexOf('#')))) {
-                        mAnchorId = href.substring(href.lastIndexOf('#') + 1);
-                        if (mWebview.getContentHeight() > 0 && mAnchorId != null) {
-                            mWebview.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
-                        }
-                    }
+        if (isAdded() && event != null && event.getHref() != null) {
+            String href = event.getHref();
+            if (href != null && href.indexOf('#') != -1 && spineItem.href.equals(href.substring(0, href.lastIndexOf('#')))) {
+                mAnchorId = href.substring(href.lastIndexOf('#') + 1);
+                if (mWebview.getContentHeight() > 0 && mAnchorId != null) {
+                    mWebview.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
                 }
             }
         }
@@ -323,14 +319,12 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private void setHtml(boolean reloaded) {
         if (spineItem != null) {
             String ref = spineItem.href;
-            if (!reloaded) {
-                if (spineItem.properties.contains("media-overlay")) {
-                    mediaController.setSMILItems(SMILParser.parseSMIL(mHtmlString));
-                    mediaController.setUpMediaPlayer(spineItem.mediaOverlay, spineItem.mediaOverlay.getAudioPath(spineItem.href), mBookTitle);
-                }
+            if (!reloaded && spineItem.properties.contains("media-overlay")) {
+                mediaController.setSMILItems(SMILParser.parseSMIL(mHtmlString));
+                mediaController.setUpMediaPlayer(spineItem.mediaOverlay, spineItem.mediaOverlay.getAudioPath(spineItem.href), mBookTitle);
             }
             mConfig = AppUtil.getSavedConfig(getActivity());
-            String path = ref.substring(0, ref.lastIndexOf("/"));
+            String path = ref.substring(0, ref.lastIndexOf('/'));
             mWebview.loadDataWithBaseURL(
                     Constants.LOCALHOST + mBookTitle + "/" + path + "/",
                     HtmlUtil.getHtmlContent(getActivity(), mHtmlString, mConfig),
@@ -515,10 +509,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         } else {
                             // to handle TTS playback when highlight is deleted.
                             Pattern p = Pattern.compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}");
-                            if (!p.matcher(message).matches() && (!message.equals("undefined"))) {
-                                if (isCurrentFragment()) {
-                                    mediaController.speakAudio(message);
-                                }
+                            if (!p.matcher(message).matches() && (!message.equals("undefined")) && isCurrentFragment()) {
+                                mediaController.speakAudio(message);
                             }
                         }
                     }
@@ -886,14 +878,12 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @SuppressWarnings("unused")
     @Subscribe
     public void setWebView(final WebViewPosition position) {
-        if (position.getHref().equals(spineItem.href)) {
-            if (isAdded()) {
-                highlightId = position.getHighlightId();
+        if (position.getHref().equals(spineItem.href) && isAdded()) {
+            highlightId = position.getHighlightId();
 
-                if (mWebview.getContentHeight() > 0) {
-                    scrollToHighlightId();
-                    //Webview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
-                }
+            if (mWebview.getContentHeight() > 0) {
+                scrollToHighlightId();
+                //Webview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
             }
         }
     }

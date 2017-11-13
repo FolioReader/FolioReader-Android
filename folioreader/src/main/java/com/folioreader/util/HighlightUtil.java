@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
@@ -21,6 +22,8 @@ import java.util.List;
  * Created by priyank on 5/12/16.
  */
 public class HighlightUtil {
+
+    private static final String TAG = "HighlightUtil";
 
     public static String createHighlightRangy(Context context,
                                               String content,
@@ -53,7 +56,7 @@ public class HighlightUtil {
             }
             return rangy;
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, "createHighlightRangy failed", e);
         }
         return "";
     }
@@ -103,7 +106,7 @@ public class HighlightUtil {
         if (!rangyList.isEmpty()) {
             builder.append("type:textContent");
             for (String rangy : rangyList) {
-                builder.append("|");
+                builder.append('|');
                 builder.append(rangy);
             }
         }
