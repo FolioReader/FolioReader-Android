@@ -3,6 +3,7 @@ package com.folioreader.ui.base;
 import android.os.AsyncTask;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.folioreader.util.AppUtil;
 
 import org.readium.r2_streamer.model.publication.EpubPublication;
 import org.readium.r2_streamer.model.tableofcontents.TOCLink;
@@ -37,7 +38,7 @@ public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
             URL url = new URL(strUrl);
             URLConnection urlConnection = url.openConnection();
             InputStream inputStream = urlConnection.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil.charsetNameForURLConnection(urlConnection)));
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {

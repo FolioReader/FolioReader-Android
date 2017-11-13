@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -60,7 +61,27 @@ public class AppUtil {
         return map;
     }
 
+    public static String charsetNameForURLConnection(URLConnection connection) {
+        // see https://stackoverflow.com/a/3934280/1027646
+        String contentType = connection.getContentType();
+        String[] values = contentType.split(";");
+        String charset = null;
 
+        for (String value : values) {
+            value = value.trim();
+
+            if (value.toLowerCase().startsWith("charset=")) {
+                charset = value.substring("charset=".length());
+                break;
+            }
+        }
+
+        if (charset == null || charset.isEmpty()) {
+            charset = "UTF-8"; //Assumption
+        }
+
+        return charset;
+    }
 
     public static String formatDate(Date hightlightDate) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault());
