@@ -45,6 +45,7 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.AnchorIdEvent;
+import com.folioreader.model.event.BusOwner;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
@@ -83,6 +84,7 @@ public class FolioActivity
         extends AppCompatActivity
         implements FolioPageFragment.FolioPageFragmentCallback,
         ConfigBottomSheetDialogFragment.ConfigDialogCallback,
+        BusOwner,
         MainMvpView {
 
     private static final String TAG = "FolioActivity";
@@ -103,7 +105,12 @@ public class FolioActivity
     private String bookFileName;
     private static final String HIGHLIGHT_ITEM = "highlight_item";
 
-    public static final Bus BUS = new Bus(ThreadEnforcer.MAIN);
+    private final Bus BUS = new Bus(ThreadEnforcer.MAIN);
+    @Override
+    public Bus getBus() {
+        return BUS;
+    }
+
     public boolean mIsActionBarVisible;
     private DirectionalViewpager mFolioPageViewPager;
     private Toolbar mToolbar;
@@ -272,7 +279,7 @@ public class FolioActivity
 
             @Override
             public void onPageSelected(int position) {
-                FolioActivity.BUS.post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, true));
+                BUS.post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, true));
                 mPlayPauseBtn.setImageDrawable(ContextCompat.getDrawable(FolioActivity.this, R.drawable.play_icon));
                 mChapterPosition = position;
             }
@@ -510,11 +517,11 @@ public class FolioActivity
             @Override
             public void onClick(View v) {
                 if (mIsSpeaking) {
-                    FolioActivity.BUS.post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, false));
+                    BUS.post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, false));
                     mPlayPauseBtn.setImageDrawable(ContextCompat.getDrawable(FolioActivity.this, R.drawable.play_icon));
                     UiUtil.setColorToImage(mContext, mConfig.getThemeColor(), mPlayPauseBtn.getDrawable());
                 } else {
-                    FolioActivity.BUS.post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, true, false));
+                    BUS.post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, true, false));
                     mPlayPauseBtn.setImageDrawable(ContextCompat.getDrawable(FolioActivity.this, R.drawable.pause_btn));
                     UiUtil.setColorToImage(mContext, mConfig.getThemeColor(), mPlayPauseBtn.getDrawable());
                 }
@@ -530,7 +537,7 @@ public class FolioActivity
                 mOneSpeed.setSelected(false);
                 mOneAndHalfSpeed.setSelected(false);
                 mTwoSpeed.setSelected(false);
-                FolioActivity.BUS.post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.HALF));
+                BUS.post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.HALF));
             }
         });
 
@@ -542,7 +549,7 @@ public class FolioActivity
                 mOneSpeed.setSelected(true);
                 mOneAndHalfSpeed.setSelected(false);
                 mTwoSpeed.setSelected(false);
-                FolioActivity.BUS.post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.ONE));
+                BUS.post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.ONE));
             }
         });
         mOneAndHalfSpeed.setOnClickListener(new View.OnClickListener() {
@@ -553,7 +560,7 @@ public class FolioActivity
                 mOneSpeed.setSelected(false);
                 mOneAndHalfSpeed.setSelected(true);
                 mTwoSpeed.setSelected(false);
-                FolioActivity.BUS.post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.ONE_HALF));
+                BUS.post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.ONE_HALF));
             }
         });
         mTwoSpeed.setOnClickListener(new View.OnClickListener() {
@@ -563,7 +570,7 @@ public class FolioActivity
                 mOneSpeed.setSelected(false);
                 mOneAndHalfSpeed.setSelected(false);
                 mTwoSpeed.setSelected(true);
-                FolioActivity.BUS.post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.TWO));
+                BUS.post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.TWO));
             }
         });
 
@@ -573,7 +580,7 @@ public class FolioActivity
                 mBackgroundColorStyle.setSelected(true);
                 mUnderlineStyle.setSelected(false);
                 mTextColorStyle.setSelected(false);
-                FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.DEFAULT));
+                BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.DEFAULT));
             }
         });
 
@@ -583,7 +590,7 @@ public class FolioActivity
                 mBackgroundColorStyle.setSelected(false);
                 mUnderlineStyle.setSelected(true);
                 mTextColorStyle.setSelected(false);
-                FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.UNDERLINE));
+                BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.UNDERLINE));
 
             }
         });
@@ -594,7 +601,7 @@ public class FolioActivity
                 mBackgroundColorStyle.setSelected(false);
                 mUnderlineStyle.setSelected(false);
                 mTextColorStyle.setSelected(true);
-                FolioActivity.BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.BACKGROUND));
+                BUS.post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.BACKGROUND));
             }
         });
 
