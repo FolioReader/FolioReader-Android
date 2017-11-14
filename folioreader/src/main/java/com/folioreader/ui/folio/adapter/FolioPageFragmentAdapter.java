@@ -4,7 +4,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
 
 import org.readium.r2_streamer.model.publication.link.Link;
@@ -24,7 +23,6 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
         this.mSpineReferences = spineReferences;
         this.mEpubFileName = epubFileName;
         this.mBookId = bookId;
-        FolioActivity.BUS.register(this);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.folioreader.ui.folio.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -33,6 +34,7 @@ import com.folioreader.R;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.AnchorIdEvent;
+import com.folioreader.model.event.BusOwner;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
@@ -177,12 +179,16 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
-        if (getActivity() instanceof FolioPageFragmentCallback)
-            mActivityCallback = (FolioPageFragmentCallback) getActivity();
-        mConfig = AppUtil.getSavedConfig(getActivity());
 
+        Activity activity = getActivity();
 
-        FolioActivity.BUS.register(this);
+        mConfig = AppUtil.getSavedConfig(activity);
+
+        if (activity instanceof FolioPageFragmentCallback)
+            mActivityCallback = (FolioPageFragmentCallback) activity;
+
+        if (activity instanceof BusOwner)
+            ((BusOwner) activity).getBus().register(this);
 
         initSeekbar();
         initAnimations();
@@ -191,6 +197,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
         return mRootView;
     }
+
 
     private String getWebviewUrl() {
         return Constants.LOCALHOST + mBookTitle + "/" + spineItem.href;
@@ -666,6 +673,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     public void onDestroyView() {
         mFadeInAnimation.setAnimationListener(null);
         mFadeOutAnimation.setAnimationListener(null);
+
+        Activity activity = getActivity();
+        if (activity instanceof BusOwner)
+            ((BusOwner) activity).getBus().unregister(this);
         super.onDestroyView();
     }
 
