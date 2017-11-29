@@ -47,7 +47,7 @@
             android:gravity="center"
             android:text="@string/andada"
             android:textSize="17sp"
-            app:font="@string/andada_font" />
+            app:folio_font="@string/andada_font" />
         <com.folioreader.view.StyleableTextView
             android:id="@+id/btn_font_lato"
             android:layout_width="0dp"
@@ -56,7 +56,7 @@
             android:gravity="center"
             android:text="@string/lato"
             android:textSize="17sp"
-            app:font="@string/lato_font" />
+            app:folio_font="@string/lato_font" />
         <com.folioreader.view.StyleableTextView
             android:id="@+id/btn_font_lora"
             android:layout_width="0dp"
@@ -65,7 +65,7 @@
             android:gravity="center"
             android:text="@string/lora"
             android:textSize="17sp"
-            app:font="@string/lora_font" />
+            app:folio_font="@string/lora_font" />
         <com.folioreader.view.StyleableTextView
             android:id="@+id/btn_font_raleway"
             android:layout_width="0dp"
@@ -74,7 +74,7 @@
             android:gravity="center"
             android:text="@string/raleway"
             android:textSize="17sp"
-            app:font="@string/raleway_font" />
+            app:folio_font="@string/raleway_font" />
     </LinearLayout>
     <View
         android:id="@+id/second_separator"
@@ -136,7 +136,7 @@
             android:text="vertical"
             android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
-            app:font="@string/andada_font" />
+            app:folio_font="@string/andada_font" />
         <com.folioreader.view.StyleableTextView
             android:id="@+id/btn_horizontal_orentation"
             android:layout_width="0dp"
@@ -146,6 +146,6 @@
             android:text="horizontal"
             android:textColor="@drawable/font_text_selector"
             android:textSize="17sp"
-            app:font="@string/lato_font" />
+            app:folio_font="@string/lato_font" />
            </LinearLayout>
 </RelativeLayout>

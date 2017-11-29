@@ -30,30 +30,35 @@ artifacts {
 }
 
 // Bintray
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def propertiesFile = project.rootProject.file('local.properties')
+if( propertiesFile.exists()) {
+    Properties properties = new Properties()
+    properties.load(propertiesFile.newDataInputStream())
 
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
+    bintray {
+        user = properties.getProperty("bintray.user")
+        key = properties.getProperty("bintray.apikey")
 
-    configurations = ['archives']
-    pkg {
-        repo = bintrayRepo
-        name = bintrayName
-        desc = libraryDescription
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = allLicenses
-        publish = true
-        publicDownloadNumbers = true
-        version {
+        configurations = ['archives']
+        pkg {
+            repo = bintrayRepo
+            name = bintrayName
             desc = libraryDescription
-            gpg {
-                sign = true //Determines whether to GPG sign the files. The default is false
-                passphrase = properties.getProperty("bintray.gpg.password")
-                //Optional. The passphrase for GPG signing'
+            websiteUrl = siteUrl
+            vcsUrl = gitUrl
+            licenses = allLicenses
+            publish = true
+            publicDownloadNumbers = true
+            version {
+                desc = libraryDescription
+                gpg {
+                    sign = true //Determines whether to GPG sign the files. The default is false
+                    passphrase = properties.getProperty("bintray.gpg.password")
+                    //Optional. The passphrase for GPG signing'
+                }
             }
         }
     }
+} else {
+    logger.info("local.properties does not exist. Skipping Bintray.")
 }

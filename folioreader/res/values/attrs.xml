@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="StyleableTextView">
-        <attr name="font" format="string"/>
+        <attr name="folio_font" format="string"/>
     </declare-styleable>
 
     <declare-styleable name="DirectionalViewpager">

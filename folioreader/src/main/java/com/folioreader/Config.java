@@ -31,11 +31,11 @@ public class Config implements Parcelable {
     }
 
     private Config(ConfigBuilder configBuilder) {
-        font = configBuilder.font;
-        fontSize = configBuilder.fontSize;
-        nightMode = configBuilder.nightMode;
-        themeColor = configBuilder.themeColor;
-        showTts = configBuilder.showTts;
+        font = configBuilder.mFont;
+        fontSize = configBuilder.mFontSize;
+        nightMode = configBuilder.mNightMode;
+        themeColor = configBuilder.mThemeColor;
+        showTts = configBuilder.mShowTts;
     }
 
     public Config(JSONObject jsonObject) {
@@ -166,34 +166,34 @@ public class Config implements Parcelable {
     };
 
     public static class ConfigBuilder {
-        private int font = 3;
-        private int fontSize = 2;
-        private boolean nightMode = false;
-        private int themeColor = R.color.app_green;
-        private boolean showTts = true;
+        private int mFont = 3;
+        private int mFontSize = 2;
+        private boolean mNightMode = false;
+        private int mThemeColor = R.color.app_green;
+        private boolean mShowTts = true;
 
         public ConfigBuilder font(int font) {
-            this.font = font;
+            mFont = font;
             return this;
         }
 
         public ConfigBuilder fontSize(int fontSize) {
-            this.fontSize = fontSize;
+            mFontSize = fontSize;
             return this;
         }
 
         public ConfigBuilder nightmode(boolean nightMode) {
-            this.nightMode = nightMode;
+            mNightMode = nightMode;
             return this;
         }
 
         public ConfigBuilder themeColor(int themeColor) {
-            this.themeColor = themeColor;
+            mThemeColor = themeColor;
             return this;
         }
 
         public ConfigBuilder setShowTts(boolean showTts) {
-            this.showTts = showTts;
+            mShowTts = showTts;
             return this;
         }
 

@@ -16,16 +16,14 @@ import android.os.SystemClock;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.KeyEventCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.PageTransformer;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-
+import android.support.v4.view.ViewPager.PageTransformer;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 import android.support.v4.view.accessibility.AccessibilityRecordCompat;
@@ -2433,9 +2431,9 @@ public class VerticalViewPager extends ViewGroup {
                     if (Build.VERSION.SDK_INT >= 11) {
                         // The focus finder had a bug handling FOCUS_FORWARD and FOCUS_BACKWARD
                         // before Android 3.0. Ignore the tab key on those devices.
-                        if (KeyEventCompat.hasNoModifiers(event)) {
+                        if (KeyEvent.metaStateHasNoModifiers(event.getMetaState())) {
                             handled = arrowScroll(FOCUS_FORWARD);
-                        } else if (KeyEventCompat.hasModifiers(event, KeyEvent.META_SHIFT_ON)) {
+                        } else if (KeyEvent.metaStateHasNoModifiers(event.getMetaState())) {
                             handled = arrowScroll(FOCUS_BACKWARD);
                         }
                     }

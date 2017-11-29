@@ -1,6 +1,9 @@
 package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
+import android.util.Log;
+
+import com.folioreader.util.AppUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,6 +21,8 @@ import java.net.URLConnection;
 
 public class HtmlTask extends AsyncTask<String, Void, String> {
 
+    private static final String TAG = "HtmlTask";
+
     private HtmlTaskCallback callback;
 
     public HtmlTask(HtmlTaskCallback callback) {
@@ -31,7 +36,7 @@ public class HtmlTask extends AsyncTask<String, Void, String> {
             URL url = new URL(strUrl);
             URLConnection urlConnection = url.openConnection();
             InputStream inputStream = urlConnection.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil.charsetNameForURLConnection(urlConnection)));
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -39,7 +44,7 @@ public class HtmlTask extends AsyncTask<String, Void, String> {
             }
             return stringBuilder.toString();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "HtmlTask failed", e);
         }
         return null;
     }

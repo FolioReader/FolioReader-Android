@@ -42,7 +42,7 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
         TableOfContentFragment tableOfContentFragment = new TableOfContentFragment();
         Bundle args = new Bundle();
         args.putString(SELECTED_CHAPTER_POSITION, selectedChapterHref);
-        args.putString(Constants.BOOK_TITLE, bookTitle);
+        args.putString(BOOK_TITLE, bookTitle);
         tableOfContentFragment.setArguments(args);
         return tableOfContentFragment;
     }
@@ -58,7 +58,7 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
                              ViewGroup container, Bundle savedInstanceState) {
         View mRootView = inflater.inflate(R.layout.fragment_contents, container, false);
         mConfig = AppUtil.getSavedConfig(getActivity());
-        mBookTitle = getArguments().getString(Constants.BOOK_TITLE);
+        mBookTitle = getArguments().getString(BOOK_TITLE);
         if (mConfig.isNightMode()) {
             mRootView.findViewById(R.id.recycler_view_menu).
                     setBackgroundColor(ContextCompat.getColor(getActivity(),

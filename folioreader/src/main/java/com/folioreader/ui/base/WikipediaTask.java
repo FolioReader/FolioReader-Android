@@ -1,8 +1,10 @@
 package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.folioreader.model.dictionary.Wikipedia;
+import com.folioreader.util.AppUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +22,8 @@ import java.net.URLConnection;
 
 public class WikipediaTask extends AsyncTask<String, Void, Wikipedia> {
 
+    private static final String TAG = "WikipediaTask";
+
     private WikipediaCallBack callBack;
 
     public WikipediaTask(WikipediaCallBack callBack) {
@@ -33,7 +37,7 @@ public class WikipediaTask extends AsyncTask<String, Void, Wikipedia> {
             URL url = new URL(strUrl);
             URLConnection urlConnection = url.openConnection();
             InputStream inputStream = urlConnection.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil.charsetNameForURLConnection(urlConnection)));
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -53,7 +57,7 @@ public class WikipediaTask extends AsyncTask<String, Void, Wikipedia> {
                         wikipedia.setLink(links.get(0).toString());
                         return wikipedia;
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "WikipediaTask failed", e);
                         return null;
                     }
 
@@ -61,11 +65,11 @@ public class WikipediaTask extends AsyncTask<String, Void, Wikipedia> {
                     return null;
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(TAG, "WikipediaTask failed", e);
                 return null;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "WikipediaTask failed", e);
         }
         return null;
     }
