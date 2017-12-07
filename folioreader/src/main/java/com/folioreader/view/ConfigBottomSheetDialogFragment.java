@@ -25,10 +25,11 @@ import android.widget.TextView;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
-import com.folioreader.model.event.BusOwner;
 import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.UiUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 
 /**
@@ -210,10 +211,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
         if (isAdded() && isReloadNeeded) {
             AppUtil.saveConfig(getActivity(),mConfig);
-
-            Activity activity = getActivity();
-            if (activity instanceof BusOwner)
-                ((BusOwner) activity).getBus().post(new ReloadDataEvent());
+            EventBus.getDefault().post(new ReloadDataEvent());
         }
     }
 
@@ -246,12 +244,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
                 mIsNightMode = !mIsNightMode;
                 mConfig.setNightMode(mIsNightMode);
                 AppUtil.saveConfig(getActivity(),mConfig);
-
-                Activity activity = getActivity();
-                if (activity instanceof BusOwner)
-                    ((BusOwner) activity).getBus().post(new ReloadDataEvent());
-
-                ///mConfigDialogCallback.onConfigChange();
+                EventBus.getDefault().post(new ReloadDataEvent());
             }
 
             @Override
@@ -278,10 +271,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mConfig.setFontSize(progress);
                 AppUtil.saveConfig(getActivity(),mConfig);
-
-                Activity activity = getActivity();
-                if (activity instanceof BusOwner)
-                    ((BusOwner) activity).getBus().post(new ReloadDataEvent());
+                EventBus.getDefault().post(new ReloadDataEvent());
             }
 
             @Override
