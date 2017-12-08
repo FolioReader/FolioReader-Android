@@ -23,13 +23,14 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
-import com.folioreader.model.event.BusOwner;
-import com.folioreader.model.event.ReloadDataEvent;
+import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.folio.adapter.HighlightAdapter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FolioReader;
 import com.folioreader.util.HighlightUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 public class HighlightFragment extends Fragment implements HighlightAdapter.HighLightAdapterCallback {
     private static final String HIGHLIGHT_ITEM = "highlight_item";
@@ -89,11 +90,9 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
 
     @Override
     public void deleteHighlight(int id) {
-        HighLightTable.deleteHighlight(id);
-
-        Activity activity = getActivity();
-        if (activity instanceof BusOwner)
-            ((BusOwner) activity).getBus().post(new ReloadDataEvent());
+        if(HighLightTable.deleteHighlight(id)) {
+            EventBus.getDefault().post(new UpdateHighlightEvent());
+        }
     }
 
     @Override

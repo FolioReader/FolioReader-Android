@@ -1,7 +1,7 @@
 package com.folioreader.ui.folio.fragment;
 
-import android.app.Activity;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -36,12 +36,12 @@ import com.folioreader.R;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.AnchorIdEvent;
-import com.folioreader.model.event.BusOwner;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.event.RewindIndexEvent;
+import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.event.WebViewPosition;
 import com.folioreader.model.quickaction.ActionItem;
 import com.folioreader.model.quickaction.QuickAction;
@@ -59,8 +59,10 @@ import com.folioreader.util.SMILParser;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
-import com.squareup.otto.Subscribe;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.readium.r2_streamer.model.publication.link.Link;
 
 import java.io.UnsupportedEncodingException;
@@ -153,6 +155,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        EventBus.getDefault().register(this);
         if ((savedInstanceState != null)
                 && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_POSITION)
                 && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK_TITLE)) {
@@ -189,9 +192,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         if (activity instanceof FolioPageFragmentCallback)
             mActivityCallback = (FolioPageFragmentCallback) activity;
 
-        if (activity instanceof BusOwner)
-            ((BusOwner) activity).getBus().register(this);
-
         initSeekbar();
         initAnimations();
         initWebView();
@@ -226,7 +226,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
      * @param event of type {@link MediaOverlayPlayPauseEvent} contains if paused/played
      */
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void pauseButtonClicked(MediaOverlayPlayPauseEvent event) {
         if (isAdded()
                 && spineItem.href.equals(event.getHref())) {
@@ -243,7 +243,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
      *              type HALF,ONE,ONE_HALF and TWO.
      */
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void speedChanged(MediaOverlaySpeedEvent event) {
         mediaController.setSpeed(event.getSpeed());
     }
@@ -257,7 +257,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
      *              of type DEFAULT,UNDERLINE and BACKGROUND.
      */
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void styleChanged(MediaOverlayHighlightStyleEvent event) {
         if (isAdded()) {
             switch (event.getStyle()) {
@@ -284,7 +284,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
      *
      * @param reloadDataEvent empty POJO.
      */
-    @Subscribe
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void reload(ReloadDataEvent reloadDataEvent) {
         if (isAdded()) {
             mLastWebviewScrollpos = mWebview.getScrollY();
@@ -296,11 +297,28 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     /**
      * [EVENT BUS FUNCTION]
+     *
+     * Function triggered when highlight is deleted and page is needed to
+     * be updated.
+     *
+     * @param event empty POJO.
+     */
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void updateHighlight(UpdateHighlightEvent event){
+        if(isAdded()) {
+            this.rangy = HighlightUtil.generateRangyString(getPageName());
+            loadRangy(mWebview, this.rangy);
+        }
+    }
+
+    /**
+     * [EVENT BUS FUNCTION]
      * Function triggered from {@link FolioActivity#onActivityResult(int, int, Intent)} when any item in toc clicked.
      *
      * @param event of type {@link AnchorIdEvent} contains selected chapter href.
      */
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void jumpToAnchorPoint(AnchorIdEvent event) {
         if (isAdded() && event != null && event.getHref() != null) {
             String href = event.getHref();
@@ -310,6 +328,14 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     mWebview.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
                 }
             }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void resetCurrentIndex(RewindIndexEvent resetIndex) {
+        if (isCurrentFragment()) {
+            mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
         }
     }
 
@@ -415,10 +441,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     if (!rangy.isEmpty()) {
                         loadRangy(view, rangy);
                     }
-
                     scrollToHighlightId();
-
-
                 }
             }
 
@@ -461,7 +484,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                 }
                 return true;
             }
-
 
             // prevent favicon.ico to be loaded automatically
             @Override
@@ -703,10 +725,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     public void onDestroyView() {
         mFadeInAnimation.setAnimationListener(null);
         mFadeOutAnimation.setAnimationListener(null);
-
-        Activity activity = getActivity();
-        if (activity instanceof BusOwner)
-            ((BusOwner) activity).getBus().unregister(this);
+        EventBus.getDefault().unregister(this);
         super.onDestroyView();
     }
 
@@ -917,7 +936,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     }
 
     @SuppressWarnings("unused")
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void setWebView(final WebViewPosition position) {
         if (position.getHref().equals(spineItem.href) && isAdded()) {
             highlightId = position.getHighlightId();
@@ -967,13 +986,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                 }
             });
 
-        }
-    }
-
-    @Subscribe
-    public void resetCurrentIndex(RewindIndexEvent resetIndex) {
-        if (isCurrentFragment()) {
-            mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
         }
     }
 
