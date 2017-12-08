@@ -99,7 +99,6 @@ dependencies {
     compile "org.readium:r2-server:$R2_STREAMER_VERSION"
 
     compile 'org.greenrobot:eventbus:3.1.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
 }
 
 apply from: '../folioreader/bintray/installv1.gradle'
