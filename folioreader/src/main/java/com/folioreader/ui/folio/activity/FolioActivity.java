@@ -45,7 +45,6 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.AnchorIdEvent;
-import com.folioreader.model.event.BusOwner;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
@@ -85,7 +84,6 @@ public class FolioActivity
         implements FolioPageFragment.FolioPageFragmentCallback,
         ObservableWebView.ToolBarListener,
         ConfigBottomSheetDialogFragment.ConfigDialogCallback,
-        BusOwner,
         MainMvpView {
 
     private static final String TAG = "FolioActivity";

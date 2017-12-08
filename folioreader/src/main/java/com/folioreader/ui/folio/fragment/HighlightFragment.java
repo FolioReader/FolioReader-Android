@@ -24,6 +24,7 @@ import com.folioreader.R;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.ReloadDataEvent;
+import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.folio.adapter.HighlightAdapter;
 import com.folioreader.util.AppUtil;
@@ -91,7 +92,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     @Override
     public void deleteHighlight(int id) {
         if(HighLightTable.deleteHighlight(id)) {
-            EventBus.getDefault().post(new ReloadDataEvent());
+            EventBus.getDefault().post(new UpdateHighlightEvent());
         }
     }
 

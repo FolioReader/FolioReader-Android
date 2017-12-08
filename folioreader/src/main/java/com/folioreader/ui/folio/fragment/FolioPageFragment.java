@@ -41,6 +41,7 @@ import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.event.RewindIndexEvent;
+import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.event.WebViewPosition;
 import com.folioreader.model.quickaction.ActionItem;
 import com.folioreader.model.quickaction.QuickAction;
@@ -290,6 +291,17 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             mIsPageReloaded = true;
             setHtml(true);
             updatePagesLeftTextBg();
+        }
+    }
+
+    @Subscribe()
+    public void updateHighlight(UpdateHighlightEvent event){
+        if(isAdded()) {
+            String rangy = HighlightUtil.generateRangyString(getPageName());
+            FolioPageFragment.this.rangy = rangy;
+            if (!rangy.isEmpty()) {
+                loadRangy(mWebview, rangy);
+            }
         }
     }
 
