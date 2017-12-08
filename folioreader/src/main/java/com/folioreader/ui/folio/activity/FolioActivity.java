@@ -261,7 +261,7 @@ public class FolioActivity
     }
 
     private void configFolio() {
-        mFolioPageViewPager = (DirectionalViewpager) findViewById(R.id.folioPageViewPager);
+        mFolioPageViewPager = findViewById(R.id.folioPageViewPager);
         mFolioPageViewPager.setOnPageChangeListener(new DirectionalViewpager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -270,7 +270,6 @@ public class FolioActivity
             @Override
             public void onPageSelected(int position) {
                 EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, true));
-               // BUS.post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, true));
                 mPlayPauseBtn.setImageDrawable(ContextCompat.getDrawable(FolioActivity.this, R.drawable.play_icon));
                 mChapterPosition = position;
             }
@@ -392,7 +391,6 @@ public class FolioActivity
                         mFolioPageViewPager.setCurrentItem(mChapterPosition);
                         title.setText(data.getStringExtra(Constants.BOOK_TITLE));
                         EventBus.getDefault().post(new AnchorIdEvent(selectedChapterHref));
-                        //BUS.post(new AnchorIdEvent(selectedChapterHref));
                         break;
                     }
                 }
@@ -401,7 +399,6 @@ public class FolioActivity
                 int position = highlightImpl.getPageNumber();
                 mFolioPageViewPager.setCurrentItem(position);
                 EventBus.getDefault().post(new WebViewPosition(mSpineReferenceList.get(mChapterPosition).href, highlightImpl.getRangy()));
-//                BUS.post(new WebViewPosition(mSpineReferenceList.get(mChapterPosition).href, highlightImpl.getRangy()));
             }
         }
     }
@@ -463,18 +460,18 @@ public class FolioActivity
     private RelativeLayout shade;
 
     private void initAudioView() {
-        mHalfSpeed = (StyleableTextView) findViewById(R.id.btn_half_speed);
-        mOneSpeed = (StyleableTextView) findViewById(R.id.btn_one_x_speed);
-        mTwoSpeed = (StyleableTextView) findViewById(R.id.btn_twox_speed);
-        audioContainer = (RelativeLayout) findViewById(R.id.container);
-        shade = (RelativeLayout) findViewById(R.id.shade);
-        mOneAndHalfSpeed = (StyleableTextView) findViewById(R.id.btn_one_and_half_speed);
-        mPlayPauseBtn = (ImageButton) findViewById(R.id.play_button);
-        mPreviousButton = (ImageButton) findViewById(R.id.prev_button);
-        mNextButton = (ImageButton) findViewById(R.id.next_button);
-        mBackgroundColorStyle = (StyleableTextView) findViewById(R.id.btn_backcolor_style);
-        mUnderlineStyle = (StyleableTextView) findViewById(R.id.btn_text_undeline_style);
-        mTextColorStyle = (StyleableTextView) findViewById(R.id.btn_text_color_style);
+        mHalfSpeed = findViewById(R.id.btn_half_speed);
+        mOneSpeed = findViewById(R.id.btn_one_x_speed);
+        mTwoSpeed = findViewById(R.id.btn_twox_speed);
+        audioContainer = findViewById(R.id.container);
+        shade = findViewById(R.id.shade);
+        mOneAndHalfSpeed = findViewById(R.id.btn_one_and_half_speed);
+        mPlayPauseBtn = findViewById(R.id.play_button);
+        mPreviousButton = findViewById(R.id.prev_button);
+        mNextButton = findViewById(R.id.next_button);
+        mBackgroundColorStyle = findViewById(R.id.btn_backcolor_style);
+        mUnderlineStyle = findViewById(R.id.btn_text_undeline_style);
+        mTextColorStyle = findViewById(R.id.btn_text_color_style);
         mIsSpeaking = false;
 
         final Context mContext = mHalfSpeed.getContext();

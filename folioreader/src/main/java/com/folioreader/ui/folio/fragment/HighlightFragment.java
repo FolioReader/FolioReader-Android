@@ -23,7 +23,6 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
-import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.folio.adapter.HighlightAdapter;

@@ -284,6 +284,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
      *
      * @param reloadDataEvent empty POJO.
      */
+    @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void reload(ReloadDataEvent reloadDataEvent) {
         if (isAdded()) {
@@ -294,14 +295,20 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         }
     }
 
-    @Subscribe()
+    /**
+     * [EVENT BUS FUNCTION]
+     *
+     * Function triggered when highlight is deleted and page is needed to
+     * be updated.
+     *
+     * @param event empty POJO.
+     */
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void updateHighlight(UpdateHighlightEvent event){
         if(isAdded()) {
-            String rangy = HighlightUtil.generateRangyString(getPageName());
-            FolioPageFragment.this.rangy = rangy;
-            if (!rangy.isEmpty()) {
-                loadRangy(mWebview, rangy);
-            }
+            this.rangy = HighlightUtil.generateRangyString(getPageName());
+            loadRangy(mWebview, this.rangy);
         }
     }
 
@@ -321,6 +328,14 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     mWebview.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
                 }
             }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void resetCurrentIndex(RewindIndexEvent resetIndex) {
+        if (isCurrentFragment()) {
+            mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
         }
     }
 
@@ -426,10 +441,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     if (!rangy.isEmpty()) {
                         loadRangy(view, rangy);
                     }
-
                     scrollToHighlightId();
-
-
                 }
             }
 
@@ -472,7 +484,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                 }
                 return true;
             }
-
 
             // prevent favicon.ico to be loaded automatically
             @Override
@@ -975,13 +986,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                 }
             });
 
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void resetCurrentIndex(RewindIndexEvent resetIndex) {
-        if (isCurrentFragment()) {
-            mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
         }
     }
 
