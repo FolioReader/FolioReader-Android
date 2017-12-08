@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class AppUtil {
 
     private static final String SMIL_ELEMENTS = "smil_elements";
     private static final String TAG = AppUtil.class.getSimpleName();
-    private static String FOLIO_READER_ROOT = "folioreader";
+    private static final String FOLIO_READER_ROOT = "folioreader";
 
     private enum FileType {
         OPS,
@@ -55,12 +56,32 @@ public class AppUtil {
             map.put(key, value.toString());
         }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, "toMap failed", e);
         }
         return map;
     }
 
+    public static String charsetNameForURLConnection(URLConnection connection) {
+        // see https://stackoverflow.com/a/3934280/1027646
+        String contentType = connection.getContentType();
+        String[] values = contentType.split(";");
+        String charset = null;
 
+        for (String value : values) {
+            value = value.trim();
+
+            if (value.toLowerCase().startsWith("charset=")) {
+                charset = value.substring("charset=".length());
+                break;
+            }
+        }
+
+        if (charset == null || charset.isEmpty()) {
+            charset = "UTF-8"; //Assumption
+        }
+
+        return charset;
+    }
 
     public static String formatDate(Date hightlightDate) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault());

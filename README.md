@@ -36,7 +36,7 @@ FolioReader-Android is an ePub reader and parser framework written in Java.
 ### Gradle
 Add following dependency to your app build.gradle
 ``` java
-compile 'com.folioreader:folioreader:0.2.5'
+compile 'com.folioreader:folioreader:0.3.2'
 ```
 
 ### Usage
@@ -63,9 +63,9 @@ folioReader.openBook(context, R.raw.barrett);
 
 ## WIKI
 
-* [Custom Configuration](https://github.com/codetoart/FolioReader-Android/wiki/Custom-Configuration)
-* [Highlight Event](https://github.com/codetoart/FolioReader-Android/wiki/Highlight-Event)
-* [Providing External Highlight](https://github.com/codetoart/FolioReader-Android/wiki/Providing-External-Highlight)
+* [Custom Configuration](https://github.com/FolioReader/FolioReader-Android/wiki/Custom-Configuration)
+* [Highlight Event](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight-Event)
+* [Providing External Highlight](https://github.com/FolioReader/FolioReader-Android/wiki/Providing-External-Highlight)
 
 ### Credits
 1. <a href="https://github.com/daimajia/AndroidSwipeLayout">SwipeLayout</a>

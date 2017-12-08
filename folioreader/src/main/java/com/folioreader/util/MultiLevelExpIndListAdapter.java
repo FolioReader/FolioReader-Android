@@ -175,16 +175,14 @@ public abstract class MultiLevelExpIndListAdapter extends RecyclerView.Adapter {
     public boolean remove(ExpIndData item, boolean expandGroupBeforeRemoval) {
         int index;
         boolean removed = false;
-        if (item != null && (index = mData.indexOf(item)) != -1) {
-            if ((removed = mData.remove(item))) {
-                if (mGroups.containsKey(item)) {
-                    if (expandGroupBeforeRemoval)
-                        expandGroup(index);
-                    mGroups.remove(item);
-                }
-                if (mNotifyOnChange)
-                    notifyItemRemoved(index);
+        if (item != null && (index = mData.indexOf(item)) != -1 && (removed = mData.remove(item))) {
+            if (mGroups.containsKey(item)) {
+                if (expandGroupBeforeRemoval)
+                    expandGroup(index);
+                mGroups.remove(item);
             }
+            if (mNotifyOnChange)
+                notifyItemRemoved(index);
         }
         return removed;
     }
@@ -235,8 +233,9 @@ public abstract class MultiLevelExpIndListAdapter extends RecyclerView.Adapter {
         List<ExpIndData> stack = new ArrayList<ExpIndData>();
         int groupSize = 0;
 
-        for (int i = firstItem.getChildren().size() - 1; i >= 0; i--)
+        for (int i = firstItem.getChildren().size() - 1; i >= 0; i--) {
             stack.add(firstItem.getChildren().get(i));
+        }
 
         while (!stack.isEmpty()) {
             ExpIndData item = stack.remove(stack.size() - 1);
@@ -244,8 +243,9 @@ public abstract class MultiLevelExpIndListAdapter extends RecyclerView.Adapter {
             groupSize++;
             // stop when the item is a leaf or a group
             if (item.getChildren() != null && !item.getChildren().isEmpty() && !item.isGroup()) {
-                for (int i = item.getChildren().size() - 1; i >= 0; i--)
+                for (int i = item.getChildren().size() - 1; i >= 0; i--) {
                     stack.add(item.getChildren().get(i));
+                }
             }
 
             if (mData.contains(item)) mData.remove(item);

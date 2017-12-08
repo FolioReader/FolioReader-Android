@@ -46,9 +46,9 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
     @Override
     public void onBindViewHolder(DictionaryHolder holder, int position) {
         final DictionaryResults res = results.get(position);
-        if (res.getPart_of_speech() != null) {
+        if (res.getPartOfSpeech() != null) {
             int wordLength = res.getHeadword().length();
-            SpannableString spannableString = new SpannableString(res.getHeadword() + " - " + res.getPart_of_speech());
+            SpannableString spannableString = new SpannableString(res.getHeadword() + " - " + res.getPartOfSpeech());
             spannableString.setSpan(new StyleSpan(Typeface.BOLD), 0, wordLength, 0);
             spannableString.setSpan(new StyleSpan(Typeface.ITALIC), wordLength + 2, spannableString.length(), 0);
             holder.name.setText(spannableString);
@@ -63,7 +63,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
             for (Senses senses : res.getSenses()) {
                 if (senses.getDefinition() != null) {
                     for (String s : senses.getDefinition()) {
-                        def.append("\u2022 ").append(s).append("\n");
+                        def.append("\u2022 ").append(s).append('\n');
                     }
                 }
             }
@@ -71,7 +71,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
             for (Senses senses : res.getSenses()) {
                 if (senses.getExamples() != null) {
                     for (Example s : senses.getExamples()) {
-                        exp.append("\u2022 ").append(s.getText()).append("\n");
+                        exp.append("\u2022 ").append(s.getText()).append('\n');
                     }
                 }
             }
@@ -109,14 +109,12 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
     }
 
     private String getAudioUrl(List<Pronunciations> pronunciations) {
-        if (!pronunciations.isEmpty()) {
-            if (pronunciations.get(0).getAudio() != null) {
-                if (!pronunciations.get(0).getAudio().isEmpty()) {
-                    Audio audio = pronunciations.get(0).getAudio().get(0);
-                    if (audio.getUrl() != null) {
-                        return audio.getUrl();
-                    }
-                }
+        if (!pronunciations.isEmpty()
+                && pronunciations.get(0).getAudio() != null
+                && !pronunciations.get(0).getAudio().isEmpty()) {
+            Audio audio = pronunciations.get(0).getAudio().get(0);
+            if (audio.getUrl() != null) {
+                return audio.getUrl();
             }
         }
         return null;
