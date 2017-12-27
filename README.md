@@ -39,6 +39,16 @@ Add following dependency to your app build.gradle
 compile 'com.folioreader:folioreader:0.3.2'
 ```
 
+Add maven repository to your top level build.gradle
+
+```groovy
+allprojects {
+    repositories {
+        maven { url "http://dl.bintray.com/mobisystech/maven" }
+    }
+}
+```
+
 ### Usage
 
 To use FolioReader, create object of **FolioReader** .
