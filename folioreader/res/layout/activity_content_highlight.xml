@@ -35,7 +35,7 @@
                 android:src="@drawable/ic_close_green_24dp" />
 
             <LinearLayout android:id="@+id/layout_content_highlights"
-                android:layout_width="170dp"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerInParent="true"
@@ -47,7 +47,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:gravity="center|end"
+                    android:gravity="center"
                     android:padding="5dp"
                     android:text="@string/contents"
                     android:textSize="16sp" />
@@ -57,7 +57,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:gravity="center|start"
+                    android:gravity="center"
                     android:padding="5dp"
                     android:text="@string/highlights"
                     android:textSize="16sp" />
