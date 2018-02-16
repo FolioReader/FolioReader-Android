@@ -102,13 +102,13 @@ public class FolioReader {
         Intent intent = new Intent(context, FolioActivity.class);
         if (rawId != 0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawId);
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.RAW);
+            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FileUtil.EpubSourceType.RAW);
         } else if (assetOrSdcardPath.contains(Constants.ASSET)) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetOrSdcardPath);
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.ASSETS);
+            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FileUtil.EpubSourceType.ASSETS);
         } else {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetOrSdcardPath);
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.SD_CARD);
+            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FileUtil.EpubSourceType.SD_CARD);
         }
         return intent;
     }

@@ -92,12 +92,6 @@ public class FolioActivity
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
     public static final String INTENT_HIGHLIGHTS_LIST = "highlight_list";
 
-    public enum EpubSourceType {
-        RAW,
-        ASSETS,
-        SD_CARD
-    }
-
     private boolean isOpen = true;
 
     public static final int ACTION_CONTENT_HIGHLIGHT = 77;
@@ -123,7 +117,7 @@ public class FolioActivity
     private Config mConfig;
     private String mBookId;
     private String mEpubFilePath;
-    private EpubSourceType mEpubSourceType;
+    private FileUtil.EpubSourceType mEpubSourceType;
     int mEpubRawId = 0;
 
     @Override
@@ -132,9 +126,9 @@ public class FolioActivity
         setContentView(R.layout.folio_activity);
 
         mBookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
-        mEpubSourceType = (EpubSourceType)
+        mEpubSourceType = (FileUtil.EpubSourceType)
                 getIntent().getExtras().getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE);
-        if (mEpubSourceType.equals(EpubSourceType.RAW)) {
+        if (mEpubSourceType.equals(FileUtil.EpubSourceType.RAW)) {
             mEpubRawId = getIntent().getExtras().getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         } else {
             mEpubFilePath = getIntent().getExtras()
@@ -201,7 +195,7 @@ public class FolioActivity
         }
     }
 
-    private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
+    private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, FileUtil.EpubSourceType mEpubSourceType) {
         try {
             int portNumber = getIntent().getIntExtra(Config.INTENT_PORT, Constants.PORT_NUMBER);
             mEpubServer = EpubServerSingleton.getEpubServerInstance(portNumber);
