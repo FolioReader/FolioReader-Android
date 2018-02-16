@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">folioreader</string>
+    <string name="share">Compartilhar</string>
+    <string name="copy">Copiar</string>
+    <string name="send_to">Enviar</string>
+    <string name="copied">Copiado</string>
+    <string name="less_than_minute">Menos de 1 minuto</string>
+    <string name="minute_left">%1$d minuto · </string>
+    <string name="minutes_left">%1$d minutos · </string>
+    <string name="highlight">Destacar</string>
+    <string name="define">Dicionário</string>
+    <string name="highlights">Destacados</string>
+    <string name="style">Estilo</string>
+    <string name="Cancel">Cancelar</string>
+    <string name="loading">Carregando</string>
+    <string name="please_wait">aguarde...</string>
+    <string name="edit_notes">Salvar nota</string>
+    <string name="save_note">Salvar</string>
+    <string name="please_enter_note">Digite a nota</string>
+    <string name="contents">Conteúdo</string>
+    <string name="dictionary">Dicionário</string>
+    <string name="cannot_access_epub_message">Sem permissão para acessar o epub</string>
+    <string name="pages_left">%1$d páginas restando</string>
+    <string name="page_left">Resta %1$d página</string>
+    <string name="change_Font">Trocar fonte</string>
+    <string name="change_Font_Color">Cor da fonte</string>
+    <string name="changeStyle">Trocar estilo</string>
+    <string name="error_CannotChangeStyle">Não foi possível trocar o estilo</string>
+    <string name="OK">Ok</string>
+    <string name="SetSizeTitle">Painel superior</string>
+    <string name="LanguageChooserTitle">Escolha 2 linguagens</string>
+</resources>
