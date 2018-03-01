@@ -260,6 +260,18 @@ public class FolioActivity
         }
     }
 
+    public void nextPage() {
+        if(mChapterPosition < mSpineReferenceList.size()) {
+            mFolioPageViewPager.setCurrentItem(mChapterPosition + 1);
+        }
+    }
+
+    public void previousPage() {
+        if(mChapterPosition > 0) {
+            mFolioPageViewPager.setCurrentItem(mChapterPosition - 1);
+        }
+    }
+
     private void configFolio() {
         mFolioPageViewPager = findViewById(R.id.folioPageViewPager);
         mFolioPageViewPager.setOnPageChangeListener(new DirectionalViewpager.OnPageChangeListener() {

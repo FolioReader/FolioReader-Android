@@ -76,7 +76,10 @@ import java.util.regex.Pattern;
  * Created by mahavir on 4/2/16.
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-public class FolioPageFragment extends Fragment implements HtmlTaskCallback, MediaControllerCallbacks, ObservableWebView.SeekBarListener {
+public class FolioPageFragment
+        extends Fragment
+        implements HtmlTaskCallback,
+        MediaControllerCallbacks, ObservableWebView.SeekBarListener,ObservableWebView.PageChangeListner {
 
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.ui.folio.fragment.FolioPageFragment.POSITION";
     public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.BOOK_TITLE";
@@ -298,7 +301,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     /**
      * [EVENT BUS FUNCTION]
-     *
+     * <p>
      * Function triggered when highlight is deleted and page is needed to
      * be updated.
      *
@@ -306,8 +309,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
      */
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void updateHighlight(UpdateHighlightEvent event){
-        if(isAdded()) {
+    public void updateHighlight(UpdateHighlightEvent event) {
+        if (isAdded()) {
             this.rangy = HighlightUtil.generateRangyString(getPageName());
             loadRangy(mWebview, this.rangy);
         }
@@ -366,6 +369,25 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         }
     }
 
+
+    @Override
+    public void nextPage() {
+        if(isAdded()) {
+            if(getActivity() instanceof FolioActivity) {
+                ((FolioActivity) getActivity()).nextPage();
+            }
+        }
+    }
+
+    @Override
+    public void previousPage() {
+        if(isAdded()) {
+            if(getActivity() instanceof FolioActivity) {
+                ((FolioActivity) getActivity()).previousPage();
+            }
+        }
+    }
+
     @Override
     public void onStop() {
         super.onStop();
@@ -375,7 +397,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     private void initWebView() {
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
-        mWebview.setSeekBarListener(FolioPageFragment.this);
+
+        mWebview.setPageChangeListner(this);
 
         if (getActivity() instanceof ObservableWebView.ToolBarListener)
             mWebview.setToolBarListener((ObservableWebView.ToolBarListener) getActivity());
@@ -443,9 +466,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         loadRangy(view, rangy);
                     }
 
-//                    if(SharedPreferenceUtil.getPagerOrientation(FolioPageFragment.this.getActivity()).equals(Constants.ORIENTATION.VERTICAL.toString())) {
-//                        mWebview.loadUrl("javascript:initializeHorizontalOrientation()");
-//                    }
+                    if (SharedPreferenceUtil.getPagerOrientation(FolioPageFragment.this.getActivity()).equals(Constants.ORIENTATION.HORIZONTAL.toString())) {
+                        mWebview.loadUrl("javascript:alert(initializeHorizontalOrientation())");
+                    }
                     scrollToHighlightId();
                 }
             }
@@ -493,7 +516,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             // prevent favicon.ico to be loaded automatically
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-                if(url.toLowerCase().contains("/favicon.ico")) {
+                if (url.toLowerCase().contains("/favicon.ico")) {
                     try {
                         return new WebResourceResponse("image/png", null, null);
                     } catch (Exception e) {
@@ -507,7 +530,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             @Override
             @SuppressLint("NewApi")
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                if(!request.isForMainFrame() && request.getUrl().getPath().endsWith("/favicon.ico")) {
+                if (!request.isForMainFrame() && request.getUrl().getPath().endsWith("/favicon.ico")) {
                     try {
                         return new WebResourceResponse("image/png", null, null);
                     } catch (Exception e) {
@@ -556,7 +579,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         mTotalMinutes = Integer.parseInt(message);
                     } else if (message.contains("horizontalPageCount")) {
                         int pageCount = Integer.parseInt(message.split(":")[1]);
-                        Log.i(TAG,"count :  " + pageCount);
+                        mWebview.setPageCount(pageCount);
                     } else {
                         pattern = Pattern.compile(getString(R.string.pattern));
                         matcher = pattern.matcher(message);
