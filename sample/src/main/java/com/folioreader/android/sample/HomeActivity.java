@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package comfolioreader.android.sample;
+package com.folioreader.android.sample;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -49,7 +49,7 @@ public class HomeActivity extends AppCompatActivity implements OnHighlightListen
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                folioReader.openBook("file:///android_asset/adventures.epub");
+                folioReader.openBook("file:///android_asset/TheSilverChair.epub");
             }
         });
         findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {

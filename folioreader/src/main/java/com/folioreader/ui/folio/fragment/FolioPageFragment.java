@@ -335,7 +335,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void resetCurrentIndex(RewindIndexEvent resetIndex) {
         if (isCurrentFragment()) {
-            mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
+            mWebview.loadUrl("javascript:rewindCurrentIndex()");
         }
     }
 
@@ -425,7 +425,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         view.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
                     view.loadUrl("javascript:alert(getReadingTime())");
                     if (!hasMediaOverlay) {
-                        view.loadUrl("javascript:alert(wrappingSentencesWithinPTags())");
+                        view.loadUrl("javascript:wrappingSentencesWithinPTags()");
                     }
                     view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
                             HighlightImpl.HighlightStyle.classForStyle(
@@ -742,7 +742,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         if (isCreated) {
             mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.highlightSelection('%s');}", HighlightImpl.HighlightStyle.classForStyle(style)));
         } else {
-            mWebview.loadUrl(String.format("javascript:alert(setHighlightStyle('%s'))", "highlight_" + HighlightImpl.HighlightStyle.classForStyle(style)));
+            mWebview.loadUrl(String.format("javascript:setHighlightStyle('%s')", "highlight_" + HighlightImpl.HighlightStyle.classForStyle(style)));
         }
     }
 
@@ -914,7 +914,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @Override
     public void resetCurrentIndex() {
         if (isCurrentFragment()) {
-            mWebview.loadUrl("javascript:alert(rewindCurrentIndex())");
+            mWebview.loadUrl("javascript:rewindCurrentIndex()");
         }
     }
 

@@ -1,4 +1,4 @@
-package comfolioreader.android.sample;
+package com.folioreader.android.sample;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

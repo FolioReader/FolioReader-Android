@@ -1,4 +1,4 @@
-package comfolioreader.android.sample;
+package com.folioreader.android.sample;
 
 import com.folioreader.model.HighLight;
 
