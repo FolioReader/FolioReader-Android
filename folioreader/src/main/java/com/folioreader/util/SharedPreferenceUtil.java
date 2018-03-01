@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.folioreader.Constants;
+
 import java.util.Set;
 
 /**
@@ -85,10 +87,22 @@ public class SharedPreferenceUtil {
         return preferences.getBoolean(key, defaultValue);
     }
 
+    public static String getPagerOrientation(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getString(Constants.VIEWPAGER_ORIENTATION, "VERTICAL");
+    }
+
     public static boolean removeSharedPreferencesKey(Context context, String key) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove(key);
         return editor.commit();
+    }
+
+    public static void setOrientation(Context context, String s) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor edit = preferences.edit();
+        edit.putString(Constants.VIEWPAGER_ORIENTATION, s);
+        edit.apply();
     }
 }

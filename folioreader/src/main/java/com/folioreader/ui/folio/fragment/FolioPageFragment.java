@@ -56,6 +56,7 @@ import com.folioreader.util.AppUtil;
 import com.folioreader.util.FolioReader;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.util.SMILParser;
+import com.folioreader.util.SharedPreferenceUtil;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
@@ -441,6 +442,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     if (!rangy.isEmpty()) {
                         loadRangy(view, rangy);
                     }
+
+//                    if(SharedPreferenceUtil.getPagerOrientation(FolioPageFragment.this.getActivity()).equals(Constants.ORIENTATION.VERTICAL.toString())) {
+//                        mWebview.loadUrl("javascript:initializeHorizontalOrientation()");
+//                    }
                     scrollToHighlightId();
                 }
             }
@@ -549,6 +554,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         }
                     } else if (TextUtils.isDigitsOnly(message)) {
                         mTotalMinutes = Integer.parseInt(message);
+                    } else if (message.contains("horizontalPageCount")) {
+                        int pageCount = Integer.parseInt(message.split(":")[1]);
+                        Log.i(TAG,"count :  " + pageCount);
                     } else {
                         pattern = Pattern.compile(getString(R.string.pattern));
                         matcher = pattern.matcher(message);

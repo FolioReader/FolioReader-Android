@@ -272,6 +272,21 @@ function removeAllClasses(className) {
     }
 }
 
+function initializeHorizontalOrientation() {
+    var d = document.getElementsByTagName('body')[0];
+    var ourH = window.innerHeight;
+    var ourW = window.innerWidth;
+    var fullH = d.offsetHeight;
+    var pageCount = Math.floor(fullH/ourH)+1;
+    var currentPage = 0;
+    var newW = pageCount*ourW;
+    d.style.height = ourH+'px';
+    d.style.width = newW+'px';
+    d.style.margin = 0;
+    d.style.webkitColumnCount = pageCount;
+    return "horizontalPageCount:" + pageCount;
+}
+
 /**
  Audio Mark ID - marks an element with an ID with the given class and scrolls to it
  */
