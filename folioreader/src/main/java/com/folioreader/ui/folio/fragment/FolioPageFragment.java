@@ -466,7 +466,7 @@ public class FolioPageFragment
                         loadRangy(view, rangy);
                     }
 
-                    if (SharedPreferenceUtil.getPagerOrientation(FolioPageFragment.this.getActivity()).equals(Constants.ORIENTATION.HORIZONTAL.toString())) {
+                    if (UiUtil.isOrientationHorizontal(getContext())) {
                         mWebview.loadUrl("javascript:alert(initializeHorizontalOrientation())");
                     }
                     scrollToHighlightId();
@@ -580,6 +580,7 @@ public class FolioPageFragment
                     } else if (message.contains("horizontalPageCount")) {
                         int pageCount = Integer.parseInt(message.split(":")[1]);
                         mWebview.setPageCount(pageCount);
+                        mWebview.scrollToCurrentPage();
                     } else {
                         pattern = Pattern.compile(getString(R.string.pattern));
                         matcher = pattern.matcher(message);

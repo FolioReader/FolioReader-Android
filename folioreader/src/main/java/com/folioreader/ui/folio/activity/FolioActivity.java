@@ -299,7 +299,7 @@ public class FolioActivity
             mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, bookFileName, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         }
-        if(SharedPreferenceUtil.getPagerOrientation(this).equals(Constants.ORIENTATION.HORIZONTAL)) {
+        if(UiUtil.isOrientationHorizontal(this)) {
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
         }
         if (AppUtil.checkPreviousBookStateExist(FolioActivity.this, bookFileName)) {

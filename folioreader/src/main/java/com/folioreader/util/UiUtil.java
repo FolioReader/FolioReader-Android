@@ -25,6 +25,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.view.UnderlinedTextView;
 
@@ -120,7 +121,7 @@ public class UiUtil {
     }
 
 
-    private static void setUnderLineColor(UnderlinedTextView underlinedTextView, Context context, int background,int underlinecolor) {
+    private static void setUnderLineColor(UnderlinedTextView underlinedTextView, Context context, int background, int underlinecolor) {
         underlinedTextView.setBackgroundColor(ContextCompat.getColor(context,
                 background));
         underlinedTextView.setUnderLineColor(ContextCompat.getColor(context,
@@ -174,5 +175,9 @@ public class UiUtil {
 
     public static int pxToDp(int px) {
         return (int) (px / Resources.getSystem().getDisplayMetrics().density);
+    }
+
+    public static boolean isOrientationHorizontal(Context context) {
+        return SharedPreferenceUtil.getPagerOrientation(context).equals(Constants.ORIENTATION.HORIZONTAL.toString());
     }
 }

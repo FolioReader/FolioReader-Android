@@ -128,12 +128,12 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         mNightButton.setTag(NIGHT_BUTTON);
         mDayButton.setOnClickListener(this);
         mNightButton.setOnClickListener(this);
-        if (SharedPreferenceUtil.getPagerOrientation(getContext()).equals(Constants.ORIENTATION.VERTICAL.toString())) {
-            mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(true);
-            mDialogView.findViewById(R.id.btn_horizontal_orentation).setSelected(false);
-        } else {
+        if (UiUtil.isOrientationHorizontal(getContext())) {
             mDialogView.findViewById(R.id.btn_horizontal_orentation).setSelected(true);
             mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(false);
+        } else {
+            mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(true);
+            mDialogView.findViewById(R.id.btn_horizontal_orentation).setSelected(false);
         }
     }
 

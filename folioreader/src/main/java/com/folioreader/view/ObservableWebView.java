@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,44 +14,46 @@ import android.view.animation.LinearInterpolator;
 import android.webkit.WebView;
 
 import com.folioreader.Constants;
-import com.folioreader.ui.folio.fragment.FolioPageFragment;
 import com.folioreader.util.SharedPreferenceUtil;
 
 /**
  * Created by mahavir on 3/31/16.
  */
 public class ObservableWebView extends WebView {
-
     private float mDownPosX = 0;
     private float mDownPosY = 0;
-    private float x1 = -1;
+    private int current_x = 0;
     private int pageCount = 0;
     private int currentPage = 0;
-
-    public interface ScrollListener {
-        void onScrollChange(int percent);
-    }
-
-    public interface PageChangeListner {
-        void nextPage();
-
-        void previousPage();
-    }
-
-    public interface SeekBarListener {
-        void fadeInSeekBarIfInvisible();
-    }
-
-    public interface ToolBarListener {
-        void hideOrshowToolBar();
-
-        void hideToolBarIfVisible();
-    }
 
     private ScrollListener mScrollListener;
     private SeekBarListener mSeekBarListener;
     private ToolBarListener mToolBarListener;
     private PageChangeListner pageChangeListner;
+
+    public void scrollToCurrentPage() {
+        scrollTo(current_x, 0);
+    }
+    public interface ScrollListener {
+        void onScrollChange(int percent);
+
+    }
+    public interface PageChangeListner {
+
+        void nextPage();
+        void previousPage();
+
+    }
+    public interface SeekBarListener {
+        void fadeInSeekBarIfInvisible();
+
+    }
+    public interface ToolBarListener {
+
+        void hideOrshowToolBar();
+        void hideToolBarIfVisible();
+
+    }
 
     public ObservableWebView(Context context) {
         super(context);
@@ -124,21 +125,17 @@ public class ObservableWebView extends WebView {
                             turnPageLeft();
                             return true;
                         }
-
                         // Right to left swipe action
                         else {
                             turnPageRight();
                             return true;
                         }
-
                     }
                     break;
             }
         }
         return super.onTouchEvent(event);
     }
-
-    private int current_x = 0;
 
     private void turnPageLeft() {
         if (currentPage > 0) {
@@ -157,10 +154,11 @@ public class ObservableWebView extends WebView {
 
     private void turnPageRight() {
         if (currentPage < pageCount - 1) {
+            int paddingOffset = 10;
             int scrollX = getNextPagePosition();
-            loadAnimation(scrollX + 10);
-            current_x = scrollX + 10;
-            scrollTo(scrollX + 10 , 0);
+            loadAnimation(scrollX + paddingOffset);
+            current_x = scrollX + paddingOffset;
+            scrollTo(scrollX + paddingOffset, 0);
         } else {
             pageChangeListner.nextPage();
         }
