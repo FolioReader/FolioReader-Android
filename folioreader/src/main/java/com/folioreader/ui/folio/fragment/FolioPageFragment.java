@@ -697,7 +697,7 @@ public class FolioPageFragment
 
             mMinutesLeftTextView.setText(minutesRemainingStr);
             mPagesLeftTextView.setText(pagesRemainingStr);
-        } catch (java.lang.ArithmeticException exp) {
+        } catch (java.lang.ArithmeticException | IllegalStateException exp) {
             Log.d("divide error", exp.toString());
         }
     }

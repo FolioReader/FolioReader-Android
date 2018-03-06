@@ -175,22 +175,22 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         mDialogView.findViewById(R.id.btn_horizontal_orentation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //mConfigDialogCallback.onOrientationChange(1);
                 SharedPreferenceUtil.setOrientation(ConfigBottomSheetDialogFragment.this.getContext(), Constants.ORIENTATION.HORIZONTAL.toString());
+                mConfigDialogCallback.onOrientationChange(1);
                 mDialogView.findViewById(R.id.btn_horizontal_orentation).setSelected(true);
                 mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(false);
-                EventBus.getDefault().post(new ReloadDataEvent());
+                //EventBus.getDefault().post(new ReloadDataEvent());
             }
         });
 
         mDialogView.findViewById(R.id.btn_vertical_orentation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //mConfigDialogCallback.onOrientationChange(0);
                 SharedPreferenceUtil.setOrientation(ConfigBottomSheetDialogFragment.this.getContext(), Constants.ORIENTATION.VERTICAL.toString());
+                mConfigDialogCallback.onOrientationChange(0);
                 mDialogView.findViewById(R.id.btn_horizontal_orentation).setSelected(false);
                 mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(true);
-                EventBus.getDefault().post(new ReloadDataEvent());
+                //EventBus.getDefault().post(new ReloadDataEvent());
             }
         });
     }

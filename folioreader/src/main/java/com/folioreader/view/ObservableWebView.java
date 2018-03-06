@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +27,7 @@ public class ObservableWebView extends WebView {
     private float mDownPosY = 0;
     private float x1 = -1;
     private int pageCount = 0;
+    private int currentPage = 0;
 
     public interface ScrollListener {
         void onScrollChange(int percent);
@@ -33,6 +35,7 @@ public class ObservableWebView extends WebView {
 
     public interface PageChangeListner {
         void nextPage();
+
         void previousPage();
     }
 
@@ -42,6 +45,7 @@ public class ObservableWebView extends WebView {
 
     public interface ToolBarListener {
         void hideOrshowToolBar();
+
         void hideToolBarIfVisible();
     }
 
@@ -84,7 +88,7 @@ public class ObservableWebView extends WebView {
     public boolean onTouchEvent(MotionEvent event) {
         final int action = event.getAction();
         float MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
-        if(SharedPreferenceUtil.getPagerOrientation(getContext()).equals(Constants.ORIENTATION.VERTICAL.toString())) {
+        if (SharedPreferenceUtil.getPagerOrientation(getContext()).equals(Constants.ORIENTATION.VERTICAL.toString())) {
 
             switch (action) {
                 case MotionEvent.ACTION_DOWN:
@@ -100,7 +104,7 @@ public class ObservableWebView extends WebView {
                     }
                     break;
             }
-        }else {
+        } else {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     mDownPosX = event.getX();
@@ -133,10 +137,11 @@ public class ObservableWebView extends WebView {
         }
         return super.onTouchEvent(event);
     }
+
     private int current_x = 0;
 
     private void turnPageLeft() {
-        if (getCurrentPage() > 0) {
+        if (currentPage > 0) {
             int scrollX = getPrevPagePosition();
             loadAnimation(scrollX);
             current_x = scrollX;
@@ -147,16 +152,15 @@ public class ObservableWebView extends WebView {
     }
 
     private int getPrevPagePosition() {
-        int prevPage = getCurrentPage() - 1;
-        return (int) Math.ceil(prevPage * this.getMeasuredWidth());
+        return (int) Math.ceil(--currentPage * this.getMeasuredWidth());
     }
 
     private void turnPageRight() {
-        if (getCurrentPage() < pageCount - 1) {
+        if (currentPage < pageCount - 1) {
             int scrollX = getNextPagePosition();
-            loadAnimation(scrollX);
-            current_x = scrollX;
-            scrollTo(scrollX, 0);
+            loadAnimation(scrollX + 10);
+            current_x = scrollX + 10;
+            scrollTo(scrollX + 10 , 0);
         } else {
             pageChangeListner.nextPage();
         }
@@ -171,12 +175,7 @@ public class ObservableWebView extends WebView {
     }
 
     private int getNextPagePosition() {
-        int nextPage = getCurrentPage() + 1;
-        return (int) Math.ceil(nextPage * this.getMeasuredWidth());
-    }
-
-    public int getCurrentPage() {
-        return (int) (Math.ceil((double) getScrollX() / this.getMeasuredWidth()));
+        return (int) Math.ceil(++currentPage * this.getMeasuredWidth());
     }
 
     public void setPageCount(int pageCount) {

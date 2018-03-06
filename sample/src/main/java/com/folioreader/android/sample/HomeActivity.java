@@ -49,7 +49,7 @@ public class HomeActivity extends AppCompatActivity implements OnHighlightListen
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                folioReader.openBook("file:///android_asset/TheSilverChair.epub");
+                folioReader.openBook("file:///android_asset/adventures.epub");
             }
         });
         findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {

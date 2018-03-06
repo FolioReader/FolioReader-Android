@@ -56,6 +56,7 @@ import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
 import com.folioreader.util.FolioReader;
+import com.folioreader.util.SharedPreferenceUtil;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
@@ -298,7 +299,9 @@ public class FolioActivity
             mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, bookFileName, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         }
-
+        if(SharedPreferenceUtil.getPagerOrientation(this).equals(Constants.ORIENTATION.HORIZONTAL)) {
+            mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
+        }
         if (AppUtil.checkPreviousBookStateExist(FolioActivity.this, bookFileName)) {
             mFolioPageViewPager.setCurrentItem(AppUtil.getPreviousBookStatePosition(FolioActivity.this, bookFileName));
         }

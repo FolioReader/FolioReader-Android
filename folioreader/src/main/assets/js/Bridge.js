@@ -274,21 +274,21 @@ function removeAllClasses(className) {
 
 function initializeHorizontalOrientation() {
     var d = document.getElementsByTagName('body')[0];
-    var ourH = window.innerHeight;
+    var ourH = window.innerHeight - 20;
     var ourW = window.innerWidth - (2*20);
     var fullH = d.offsetHeight;
     //var bodyW = ourW - 40;
     var pageCount = Math.floor(fullH/ourH)+1;
     var currentPage = 0;
-    var newW = pageCount*window.innerWidth;
+    var newW = pageCount*window.innerWidth - (2*20);
     d.style.height = ourH+'px';
     d.style.width = newW+'px';
     d.style.margin = 0;
     d.style.webkitColumnCount = pageCount;
     d.style.webkitColumnGap = '40px';
     d.style.webkitColumnWidth = ourW + 'px';
-    //d.style.webkitMarginCollapse = 'separate';
-    return "horizontalPageCount:10";
+
+    return "horizontalPageCount:" + pageCount;
 }
 
 /**
