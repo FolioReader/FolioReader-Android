@@ -1,6 +1,7 @@
 package com.folioreader.util;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.folioreader.Config;
@@ -88,7 +89,8 @@ public class AppUtil {
         return simpleDateFormat.format(hightlightDate);
     }
 
-    public static void saveBookState(Context context, String bookTitle, int folioPageViewPagerPosition, int webViewScrollPosition) {
+    public static void saveBookState(Context context, String bookTitle,
+                                     int folioPageViewPagerPosition, String webViewScrollPosition) {
         SharedPreferenceUtil.removeSharedPreferencesKey(context, bookTitle + BOOK_STATE);
         JSONObject obj = new JSONObject();
         try {
@@ -139,17 +141,29 @@ public class AppUtil {
         return 0;
     }
 
-    public static int getPreviousBookStateWebViewPosition(Context context, String bookTitle) {
+    public static int getPreviousBookStateWebViewPosition(Context context, String bookTitle,
+                                                          int currentViewPagerPosition) {
+
         String json = getSharedPreferencesString(context, bookTitle + BOOK_STATE, null);
-        if (json != null) {
-            try {
-                JSONObject jsonObject = new JSONObject(json);
-                return jsonObject.getInt(WEBVIEW_SCROLL_POSITION);
-            } catch (JSONException e) {
-                Log.e(TAG, e.getMessage());
+
+        if (TextUtils.isEmpty(json))
+            return 0;
+
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            int folioPageViewPagerPosition = jsonObject.getInt(VIEWPAGER_POSITION);
+
+            if (folioPageViewPagerPosition != currentViewPagerPosition)
                 return 0;
+            else {
+                JSONObject webViewPositionJson = new JSONObject(
+                        jsonObject.getString(WEBVIEW_SCROLL_POSITION));
+                return webViewPositionJson.getInt("value");
             }
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage());
         }
+
         return 0;
     }
 

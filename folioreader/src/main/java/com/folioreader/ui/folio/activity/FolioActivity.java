@@ -110,7 +110,7 @@ public class FolioActivity
 
     private int mChapterPosition;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
-    private int mWebViewScrollPosition;
+    private String lastWebViewPosition;
     private ConfigBottomSheetDialogFragment mConfigBottomSheetDialogFragment;
     private TextView title;
 
@@ -234,12 +234,6 @@ public class FolioActivity
     }
 
     @Override
-    public void onBackPressed() {
-        saveBookState();
-        super.onBackPressed();
-    }
-
-    @Override
     public void onOrientationChange(int orentation) {
         if (orentation == 0) {
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
@@ -296,7 +290,6 @@ public class FolioActivity
         findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveBookState();
                 finish();
             }
         });
@@ -312,7 +305,8 @@ public class FolioActivity
 
     private void saveBookState() {
         if (mSpineReferenceList.size() > 0) {
-            AppUtil.saveBookState(FolioActivity.this, bookFileName, mFolioPageViewPager.getCurrentItem(), mWebViewScrollPosition);
+            AppUtil.saveBookState(FolioActivity.this, bookFileName,
+                    mFolioPageViewPager.getCurrentItem(), lastWebViewPosition);
         }
     }
 
@@ -337,8 +331,24 @@ public class FolioActivity
     }
 
     @Override
-    public void setLastWebViewPosition(int position) {
-        this.mWebViewScrollPosition = position;
+    public void setLastWebViewPosition(String json) {
+        lastWebViewPosition = json;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Activity is waiting to get lastWebViewPosition stored from
+        // Bridge -> FolioPageFragment -> FolioActivity to avoid any race condition.
+        // This delay goes unnoticed as it is onStop() and not in onPause()
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        saveBookState();
     }
 
     @Override
@@ -411,7 +421,8 @@ public class FolioActivity
         }
     }
 
-    public int getmChapterPosition() {
+    @Override
+    public int getChapterPosition() {
         return mChapterPosition;
     }
 
