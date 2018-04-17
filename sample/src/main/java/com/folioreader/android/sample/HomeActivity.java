@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.model.HighLight;
 import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.util.FolioReader;
+import com.folioreader.util.LastReadStateCallback;
 import com.folioreader.util.OnHighlightListener;
 
 import java.io.BufferedReader;
@@ -36,8 +37,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity implements OnHighlightListener {
+public class HomeActivity extends AppCompatActivity
+        implements OnHighlightListener, LastReadStateCallback {
 
+    private static final String LOG_TAG = HomeActivity.class.getSimpleName();
     private FolioReader folioReader;
 
     @Override
@@ -46,6 +49,7 @@ public class HomeActivity extends AppCompatActivity implements OnHighlightListen
         setContentView(R.layout.activity_home);
         folioReader = new FolioReader(this);
         folioReader.registerHighlightListener(this);
+        folioReader.setLastReadStateCallback(this);
 
         findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,7 +64,32 @@ public class HomeActivity extends AppCompatActivity implements OnHighlightListen
                 folioReader.openBook("file:///android_asset/TheSilverChair.epub");
             }
         });
+
         getHighlightsAndSave();
+        getLastReadPositionAndSave();
+    }
+
+    private void getLastReadPositionAndSave() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                int lastReadChapterIndex = 12;
+                String lastReadSpanIndex = "{\"usingId\":false,\"value\":21}";
+
+                folioReader.setLastReadState(lastReadChapterIndex, lastReadSpanIndex);
+            }
+        }).start();
+    }
+
+    @Override
+    public void saveLastReadState(int lastReadChapterIndex, String lastReadSpanIndex) {
+
+        Toast.makeText(this, "lastReadChapterIndex = " + lastReadChapterIndex +
+                ", lastReadSpanIndex = " + lastReadSpanIndex, Toast.LENGTH_SHORT).show();
+        Log.i(LOG_TAG, "-> saveLastReadState -> lastReadChapterIndex = "
+                + lastReadChapterIndex + ", lastReadSpanIndex = " + lastReadSpanIndex);
     }
 
     /*
@@ -129,6 +158,7 @@ public class HomeActivity extends AppCompatActivity implements OnHighlightListen
     protected void onDestroy() {
         super.onDestroy();
         folioReader.unregisterHighlightListener();
+        folioReader.setLastReadStateCallback(null);
     }
 
     @Override

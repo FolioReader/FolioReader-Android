@@ -111,7 +111,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
         void setPagerToPosition(String href);
 
-        void setLastWebViewPosition(String json);
+        void setLastReadSpanIndex(String json);
 
         void goToChapter(String href);
     }
@@ -452,7 +452,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     } else if (!TextUtils.isEmpty(highlightId)) {
                         scrollToHighlightId();
                     } else if (isCurrentFragment()) {
-                        int index = AppUtil.getPreviousBookStateWebViewPosition(getActivity(), mBookTitle, mPos);
+                        int index = AppUtil.getLastReadSpanIndex(getActivity(), mBookId, mPos);
                         mWebview.loadUrl("javascript:scrollToSpanIndex(" + index + ")");
                     }
                 }
@@ -628,7 +628,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     @JavascriptInterface
     public void storeFirstVisibleSpanIndex(String json) {
-        mActivityCallback.setLastWebViewPosition(json);
+        mActivityCallback.setLastReadSpanIndex(json);
     }
 
     private void loadRangy(WebView view, String rangy) {
