@@ -147,8 +147,11 @@ public class FolioReader {
 
     public void setLastReadStateCallback(LastReadStateCallback lastReadStateCallback) {
         this.lastReadStateCallback = lastReadStateCallback;
-        if (lastReadStateCallback == null)
-            LocalBroadcastManager.getInstance(context).unregisterReceiver(lastReadStateReceiver);
+    }
+
+    public void removeLastReadStateCallback() {
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(lastReadStateReceiver);
+        lastReadStateCallback = null;
     }
 
     public void setLastReadState(int lastReadChapterIndex, String lastReadSpanIndex) {

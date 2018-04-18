@@ -158,7 +158,7 @@ public class HomeActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         folioReader.unregisterHighlightListener();
-        folioReader.setLastReadStateCallback(null);
+        folioReader.removeLastReadStateCallback();
     }
 
     @Override
