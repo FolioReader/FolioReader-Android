@@ -564,6 +564,44 @@ function wrappingSentencesWithinPTags(){
     guessSenetences();
 }
 
+function isElementVisible(element, isHorizontal) {
+
+    var rect = element.getBoundingClientRect();
+
+    if(isHorizontal)
+        return rect.left > 0;
+    else
+        return rect.top > 0;
+}
+
+function getFirstVisibleSpanIndex(isHorizontal) {
+
+    //Can be more specific with document.querySelectorAll('span.sentence')
+    var spanCollection = document.getElementsByTagName("span");
+    var json = {usingId: false, value: 0};
+
+    for (var i = 0 ; i < spanCollection.length ; i++) {
+
+        if (isElementVisible(spanCollection[i], isHorizontal)) {
+
+            json.value = i;
+            break;
+        }
+    }
+
+    FolioPageFragment.storeFirstVisibleSpanIndex(JSON.stringify(json));
+}
+
+function scrollToSpanIndex(index) {
+
+    var spanCollection = document.getElementsByTagName("span");
+
+    if (spanCollection.length == 0 || index < 0 || index >= spanCollection.length)
+        return;
+
+    goToEl(spanCollection[index]);
+}
+
 // Class based onClick listener
 
 function addClassBasedOnClickListener(schemeName, querySelector, attributeName, selectAll) {
