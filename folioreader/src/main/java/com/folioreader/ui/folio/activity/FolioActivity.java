@@ -349,7 +349,7 @@ public class FolioActivity
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e(TAG, "-> " + e);
         }
 
         saveLastReadState();
