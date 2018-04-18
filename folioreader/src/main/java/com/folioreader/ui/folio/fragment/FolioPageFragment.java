@@ -107,9 +107,11 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     public interface FolioPageFragmentCallback {
 
+        int getChapterPosition();
+
         void setPagerToPosition(String href);
 
-        void setLastWebViewPosition(int position);
+        void setLastReadSpanIndex(String json);
 
         void goToChapter(String href);
     }
@@ -155,6 +157,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+
+        if (getActivity() instanceof FolioPageFragmentCallback)
+            mActivityCallback = (FolioPageFragmentCallback) getActivity();
+
         EventBus.getDefault().register(this);
         if ((savedInstanceState != null)
                 && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_POSITION)
@@ -188,9 +194,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         Activity activity = getActivity();
 
         mConfig = AppUtil.getSavedConfig(activity);
-
-        if (activity instanceof FolioPageFragmentCallback)
-            mActivityCallback = (FolioPageFragmentCallback) activity;
 
         initSeekbar();
         initAnimations();
@@ -355,9 +358,14 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                 mediaController.setUpMediaPlayer(spineItem.mediaOverlay, spineItem.mediaOverlay.getAudioPath(spineItem.href), mBookTitle);
             }
             mConfig = AppUtil.getSavedConfig(getActivity());
-            String path = ref.substring(0, ref.lastIndexOf('/'));
+
+            String path = "";
+            int forwardSlashLastIndex = ref.lastIndexOf('/');
+            if (forwardSlashLastIndex != -1)
+                path = ref.substring(0, forwardSlashLastIndex + 1);
+
             mWebview.loadDataWithBaseURL(
-                    Constants.LOCALHOST + mBookTitle + "/" + path + "/",
+                    Constants.LOCALHOST + mBookTitle + "/" + path,
                     HtmlUtil.getHtmlContent(getActivity(), mHtmlString, mConfig),
                     "text/html",
                     "UTF-8",
@@ -402,46 +410,51 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         mWebview.setHorizontalScrollBarEnabled(false);
 
         mWebview.addJavascriptInterface(this, "Highlight");
+        mWebview.addJavascriptInterface(this, "FolioPageFragment");
+
         mWebview.setScrollListener(new ObservableWebView.ScrollListener() {
             @Override
             public void onScrollChange(int percent) {
-                if (mWebview.getScrollY() != 0) {
+
+                if (mWebview.getScrollY() != 0)
                     mScrollY = mWebview.getScrollY();
-                    if (isAdded()) {
-                        ((FolioActivity) getActivity()).setLastWebViewPosition(mScrollY);
-                    }
-                }
+
                 mScrollSeekbar.setProgressAndThumb(percent);
                 updatePagesLeftText(percent);
-
             }
         });
 
         mWebview.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
+
                 if (isAdded()) {
-                    if (mAnchorId != null)
-                        view.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
+
                     view.loadUrl("javascript:alert(getReadingTime())");
-                    if (!hasMediaOverlay) {
+
+                    if (!hasMediaOverlay)
                         view.loadUrl("javascript:wrappingSentencesWithinPTags()");
-                    }
+
                     view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
                             HighlightImpl.HighlightStyle.classForStyle(
                                     HighlightImpl.HighlightStyle.Normal)));
-                    if (isCurrentFragment()) {
-                        setWebViewPosition(AppUtil.getPreviousBookStateWebViewPosition(getActivity(), mBookTitle));
-                    } else if (mIsPageReloaded) {
-                        setWebViewPosition(mLastWebviewScrollpos);
-                        mIsPageReloaded = false;
-                    }
+
                     String rangy = HighlightUtil.generateRangyString(getPageName());
                     FolioPageFragment.this.rangy = rangy;
-                    if (!rangy.isEmpty()) {
+                    if (!rangy.isEmpty())
                         loadRangy(view, rangy);
+
+                    if (mIsPageReloaded) {
+                        setWebViewPosition(mLastWebviewScrollpos);
+                        mIsPageReloaded = false;
+                    } else if (!TextUtils.isEmpty(mAnchorId)) {
+                        view.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
+                    } else if (!TextUtils.isEmpty(highlightId)) {
+                        scrollToHighlightId();
+                    } else if (isCurrentFragment()) {
+                        int index = AppUtil.getLastReadSpanIndex(getActivity(), mBookId, mPos);
+                        mWebview.loadUrl("javascript:scrollToSpanIndex(" + index + ")");
                     }
-                    scrollToHighlightId();
                 }
             }
 
@@ -604,6 +617,18 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
         new HtmlTask(this).execute(getWebviewUrl());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (isCurrentFragment())
+            mWebview.loadUrl("javascript:getFirstVisibleSpanIndex()");
+    }
+
+    @JavascriptInterface
+    public void storeFirstVisibleSpanIndex(String json) {
+        mActivityCallback.setLastReadSpanIndex(json);
     }
 
     private void loadRangy(WebView view, String rangy) {
@@ -996,7 +1021,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     }
 
     private boolean isCurrentFragment() {
-        return isAdded() && ((FolioActivity) getActivity()).getmChapterPosition() == mPos;
+        return isAdded() && mActivityCallback.getChapterPosition() == mPos;
     }
 
     public void setFragmentPos(int pos) {
