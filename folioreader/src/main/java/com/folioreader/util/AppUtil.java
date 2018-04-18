@@ -152,9 +152,9 @@ public class AppUtil {
             JSONObject jsonObject = new JSONObject(json);
             int lastReadChapterIndex = jsonObject.getInt(LAST_READ_CHAPTER_INDEX);
 
-            if (lastReadChapterIndex != currentChapterIndex)
+            if (lastReadChapterIndex != currentChapterIndex) {
                 return 0;
-            else {
+            } else {
                 JSONObject webViewPositionJson = new JSONObject(
                         jsonObject.getString(LAST_READ_SPAN_INDEX));
                 return webViewPositionJson.getInt("value");
