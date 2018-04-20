@@ -1,18 +1,18 @@
 /*
-* Copyright (C) 2016 Pedro Paulo de Amorim
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (C) 2016 Pedro Paulo de Amorim
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.folioreader.ui.folio.activity;
 
 import android.Manifest;
@@ -165,8 +165,10 @@ public class FolioActivity
 
         initColors();
 
-        if (ContextCompat.checkSelfPermission(FolioActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(FolioActivity.this, Constants.getWriteExternalStoragePerms(), Constants.WRITE_EXTERNAL_STORAGE_REQUEST);
+        if (ContextCompat.checkSelfPermission(FolioActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(FolioActivity.this, Constants.getWriteExternalStoragePerms(), Constants
+                    .WRITE_EXTERNAL_STORAGE_REQUEST);
         } else {
             setupBook();
         }
@@ -208,11 +210,11 @@ public class FolioActivity
             @Override
             public void onClick(View view) {
                 Toast.makeText(FolioActivity.this, "Salih says hi", Toast.LENGTH_SHORT).show();
-                String urlString = Constants.LOCALHOST + bookFileName + "/search?query=" + "Copyright";
+                String urlString = Constants.LOCALHOST + bookFileName + "/search?query=" + "ButBibles";
                 new SearchListTask().execute(urlString);
             }
         });
-        
+
         mIsNightMode = mConfig.isNightMode();
         if (mIsNightMode) {
             mToolbar.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.black));
@@ -220,11 +222,13 @@ public class FolioActivity
             audioContainer.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.night));
         }
     }
+
     class SearchListTask extends AsyncTask<String, Void, SearchQueryResults> {
+        String strUrl;
 
         @Override
         protected SearchQueryResults doInBackground(String... urls) {
-            String strUrl = urls[0];
+            strUrl = urls[0];
             try {
                 URL url = new URL(strUrl);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -232,12 +236,13 @@ public class FolioActivity
 
                 InputStream inputStream = urlConnection.getInputStream();
 
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,AppUtil.charsetNameForURLConnection(urlConnection)));
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil
+                        .charsetNameForURLConnection(urlConnection)));
                 StringBuilder stringBuilder = new StringBuilder();
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     stringBuilder.append(line);
-                    Log.d("deneme",line);
+                    Log.d("deneme", line);
                 }
 
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -251,11 +256,21 @@ public class FolioActivity
 
         @Override
         protected void onPostExecute(SearchQueryResults results) {
-            for (int i = 0;i<results.getSearchResultList().size();i++){
-                Log.d("gözde123",results.getSearchResultList().get(i).getSearchIndex()+" : "+results.getSearchResultList().get(i).getMatchString());
-                Log.d("gözdesalih",results.getSearchResultList().get(i).getSearchQuery());
+            for (int i = 0; i < results.getSearchResultList().size(); i++) {
+                Log.d("gözde123", results.getSearchResultList().get(i).getSearchIndex() + " : " + results
+                        .getSearchResultList().get(i).getMatchString());
+                Log.d("gözdesalih", results.getSearchResultList().get(i).getResource() + ":" + results
+                        .getSearchResultList().get(i).getTitle());
+                for (int j = 0; j < mSpineReferenceList.size(); j++) {
+                    if (mSpineReferenceList.get(j).getHref().equalsIgnoreCase(results.getSearchResultList().get(i)
+                            .getResource())) {
+                        mFolioPageViewPager.setCurrentItem(j);
+                    }
+                }
+                break;
             }
-            EventBus.getDefault().post(new SearchEvent("payment"));
+
+            EventBus.getDefault().post(new SearchEvent(strUrl.split("=")[1]));
 
             cancel(true);
         }
@@ -329,7 +344,8 @@ public class FolioActivity
 
             @Override
             public void onPageSelected(int position) {
-                EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, true));
+                EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition)
+                        .href, false, true));
                 mPlayPauseBtn.setImageDrawable(ContextCompat.getDrawable(FolioActivity.this, R.drawable.play_icon));
                 mChapterPosition = position;
             }
@@ -343,7 +359,8 @@ public class FolioActivity
         });
 
         if (mSpineReferenceList != null) {
-            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, bookFileName, mBookId);
+            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),
+                    mSpineReferenceList, bookFileName, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         }
 
@@ -365,14 +382,16 @@ public class FolioActivity
             @Override
             public void onClick(View v) {
                 mConfigBottomSheetDialogFragment = new ConfigBottomSheetDialogFragment();
-                mConfigBottomSheetDialogFragment.show(getSupportFragmentManager(), mConfigBottomSheetDialogFragment.getTag());
+                mConfigBottomSheetDialogFragment.show(getSupportFragmentManager(), mConfigBottomSheetDialogFragment
+                        .getTag());
             }
         });
     }
 
     private void saveBookState() {
         if (mSpineReferenceList.size() > 0) {
-            AppUtil.saveBookState(FolioActivity.this, bookFileName, mFolioPageViewPager.getCurrentItem(), mWebViewScrollPosition);
+            AppUtil.saveBookState(FolioActivity.this, bookFileName, mFolioPageViewPager.getCurrentItem(),
+                    mWebViewScrollPosition);
         }
     }
 
@@ -458,7 +477,8 @@ public class FolioActivity
                 HighlightImpl highlightImpl = data.getParcelableExtra(HIGHLIGHT_ITEM);
                 int position = highlightImpl.getPageNumber();
                 mFolioPageViewPager.setCurrentItem(position);
-                EventBus.getDefault().post(new WebViewPosition(mSpineReferenceList.get(mChapterPosition).href, highlightImpl.getRangy()));
+                EventBus.getDefault().post(new WebViewPosition(mSpineReferenceList.get(mChapterPosition).href,
+                        highlightImpl.getRangy()));
             }
         }
     }
@@ -494,6 +514,26 @@ public class FolioActivity
             }
         }
         configFolio();
+    }
+
+    @Override
+    public void onShowSearchResults(SearchQueryResults results) {
+        String query = results.getSearchResultList().get(0).getSearchQuery();
+        for (int i = 0; i < results.getSearchResultList().size(); i++) {
+//            Log.d("gözde123", results.getSearchResultList().get(i).getSearchIndex() + " : " + results
+//                    .getSearchResultList().get(i).getMatchString());
+//            Log.d("gözdesalih", results.getSearchResultList().get(i).getResource() + ":" + results
+//                    .getSearchResultList().get(i).getTitle());
+            for (int j = 0; j < mSpineReferenceList.size(); j++) {
+                if (mSpineReferenceList.get(j).getHref().equalsIgnoreCase(results.getSearchResultList().get(i)
+                        .getResource())) {
+                    mFolioPageViewPager.setCurrentItem(j);
+                }
+            }
+            break;
+        }
+
+        EventBus.getDefault().post(new SearchEvent(query));
     }
 
     private void setConfig() {
@@ -566,11 +606,13 @@ public class FolioActivity
             @Override
             public void onClick(View v) {
                 if (mIsSpeaking) {
-                    EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, false));
+                    EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get
+                            (mChapterPosition).href, false, false));
                     mPlayPauseBtn.setImageDrawable(ContextCompat.getDrawable(FolioActivity.this, R.drawable.play_icon));
                     UiUtil.setColorToImage(mContext, mConfig.getThemeColor(), mPlayPauseBtn.getDrawable());
                 } else {
-                    EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, true, false));
+                    EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get
+                            (mChapterPosition).href, true, false));
                     mPlayPauseBtn.setImageDrawable(ContextCompat.getDrawable(FolioActivity.this, R.drawable.pause_btn));
                     UiUtil.setColorToImage(mContext, mConfig.getThemeColor(), mPlayPauseBtn.getDrawable());
                 }
@@ -629,7 +671,8 @@ public class FolioActivity
                 mBackgroundColorStyle.setSelected(true);
                 mUnderlineStyle.setSelected(false);
                 mTextColorStyle.setSelected(false);
-                EventBus.getDefault().post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.DEFAULT));
+                EventBus.getDefault().post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style
+                        .DEFAULT));
             }
         });
 
@@ -639,7 +682,8 @@ public class FolioActivity
                 mBackgroundColorStyle.setSelected(false);
                 mUnderlineStyle.setSelected(true);
                 mTextColorStyle.setSelected(false);
-                EventBus.getDefault().post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.UNDERLINE));
+                EventBus.getDefault().post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style
+                        .UNDERLINE));
 
             }
         });
@@ -650,7 +694,8 @@ public class FolioActivity
                 mBackgroundColorStyle.setSelected(false);
                 mUnderlineStyle.setSelected(false);
                 mTextColorStyle.setSelected(true);
-                EventBus.getDefault().post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.BACKGROUND));
+                EventBus.getDefault().post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style
+                        .BACKGROUND));
             }
         });
 
@@ -663,7 +708,8 @@ public class FolioActivity
         mOneSpeed.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
         mUnderlineStyle.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
         mBackgroundColorStyle.setTextColor(UiUtil.getColorList(context, R.color.white, R.color.grey_color));
-        mBackgroundColorStyle.setBackgroundDrawable(UiUtil.convertColorIntoStateDrawable(this, mConfig.getThemeColor(), android.R.color.transparent));
+        mBackgroundColorStyle.setBackgroundDrawable(UiUtil.convertColorIntoStateDrawable(this, mConfig.getThemeColor
+                (), android.R.color.transparent));
         mTextColorStyle.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
         UiUtil.setColorToImage(context, mConfig.getThemeColor(), mPlayPauseBtn.getDrawable());
         UiUtil.setColorToImage(context, mConfig.getThemeColor(), mNextButton.getDrawable());
@@ -677,9 +723,12 @@ public class FolioActivity
 
     public void initColors() {
         UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_close)).getDrawable());
-        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_drawer)).getDrawable());
-        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_config)).getDrawable());
-        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_speaker)).getDrawable());
+        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_drawer)).getDrawable
+                ());
+        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_config)).getDrawable
+                ());
+        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_speaker))
+                .getDrawable());
     }
 
     private void setupBook() {
@@ -688,7 +737,8 @@ public class FolioActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[]
+            grantResults) {
         switch (requestCode) {
             case Constants.WRITE_EXTERNAL_STORAGE_REQUEST:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {

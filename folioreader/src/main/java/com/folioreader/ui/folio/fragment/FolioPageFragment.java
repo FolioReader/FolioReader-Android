@@ -1043,10 +1043,15 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private void scrollAndHighlight(String word) {
         mWebview.addJavascriptInterface(this, "Android");
         String js = String.format("javascript:(function() { console.log(document.body.innerHTML); document.body.innerHTML = " +
-                "document.body.innerHTML.replace( \'%s\',\"<span style='background-color: rgba(255, 255, " +
+                "document.body.innerHTML.replace( \'%s\',\"<span id='salihaksit123' style='background-color: rgba(255, 255, " +
                 "0, 0.8); color: blue; padding: 3px 5px; box-shadow: 0px 0px 8px 3px rgba(179,179,179,0.7); " +
                 "border-radius: 8px; font-size: 1.05em;'><b> %s </b></span>\"); console.log(document.body" +
-                ".innerHTML);})()",word,word);
+                ".innerHTML);" +
+                "var element = document.getElementById('salihaksit123');\n" +
+                "  if(element != null) {\n" +
+                "   console.log('salih78945613'); goToEl(element);\n" +
+                "  }else{ console.log('salih78945613123456'); }" +
+                "})()",word,word);
         Log.d("jssss",js);
         mWebview.loadUrl(js);
     }
