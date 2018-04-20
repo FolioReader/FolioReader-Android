@@ -95,7 +95,6 @@ public class FolioActivity
     public static final String INTENT_HIGHLIGHTS_LIST = "highlight_list";
     public static final String EXTRA_LAST_READ_CHAPTER_INDEX = "com.folioreader.extra_last_read_chapter_position";
     public static final String EXTRA_LAST_READ_SPAN_INDEX = "com.folioreader.extra_last_read_span_index";
-    public static final String ACTION_SAVE_LAST_READ_STATE = "save_last_read_state";
 
     public enum EpubSourceType {
         RAW,
@@ -339,13 +338,17 @@ public class FolioActivity
         lastReadSpanIndex = json;
     }
 
+    /**
+     * FolioActivity is waiting to get lastReadSpanIndex stored from
+     * /assets/js/Bridge.js#getFirstVisibleSpanIndex(boolean) ->
+     * {@link FolioPageFragment#storeFirstVisibleSpanIndex(String)} ->
+     * {@link #setLastReadSpanIndex(String)} to avoid any race condition.
+     * This delay on UI Thread goes unnoticed as it is onStop() and not in onPause()
+     */
     @Override
     protected void onStop() {
         super.onStop();
 
-        // Activity is waiting to get lastReadSpanIndex stored from
-        // Bridge -> FolioPageFragment -> FolioActivity to avoid any race condition.
-        // This delay goes unnoticed as it is onStop() and not in onPause()
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
@@ -355,14 +358,17 @@ public class FolioActivity
         saveLastReadState();
     }
 
+    /**
+     * Sends the broadcast to {@link FolioReader#lastReadStateReceiver}
+     */
     private void saveLastReadState() {
 
         if (mSpineReferenceList.size() > 0) {
 
-            Intent intent = new Intent(FolioActivity.ACTION_SAVE_LAST_READ_STATE);
-            intent.putExtra(FolioActivity.EXTRA_LAST_READ_CHAPTER_INDEX,
+            Intent intent = new Intent(FolioReader.ACTION_SAVE_LAST_READ_STATE);
+            intent.putExtra(FolioReader.EXTRA_LAST_READ_CHAPTER_INDEX,
                     mFolioPageViewPager.getCurrentItem());
-            intent.putExtra(FolioActivity.EXTRA_LAST_READ_SPAN_INDEX, lastReadSpanIndex);
+            intent.putExtra(FolioReader.EXTRA_LAST_READ_SPAN_INDEX, lastReadSpanIndex);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
     }

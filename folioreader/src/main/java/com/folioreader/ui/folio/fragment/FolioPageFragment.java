@@ -619,13 +619,22 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         new HtmlTask(this).execute(getWebviewUrl());
     }
 
+    /**
+     * Calls the /assets/js/Bridge.js#getFirstVisibleSpanIndex(boolean)
+     */
     @Override
     public void onPause() {
         super.onPause();
         if (isCurrentFragment())
-            mWebview.loadUrl("javascript:getFirstVisibleSpanIndex()");
+            mWebview.loadUrl("javascript:getFirstVisibleSpanIndex(false)");
     }
 
+    /**
+     * Callback method called from /assets/js/Bridge.js#getFirstVisibleSpanIndex(boolean)
+     * and then json string is forwarded to {@link FolioActivity#setLastReadSpanIndex(String)}
+     *
+     * @param json iOS compatible last read span json string
+     */
     @JavascriptInterface
     public void storeFirstVisibleSpanIndex(String json) {
         mActivityCallback.setLastReadSpanIndex(json);
