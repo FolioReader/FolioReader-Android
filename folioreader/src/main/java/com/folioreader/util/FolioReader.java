@@ -29,6 +29,9 @@ public class FolioReader {
     private LastReadStateCallback lastReadStateCallback;
     private int lastReadChapterIndex;
     private String lastReadSpanIndex;
+    public static final String ACTION_SAVE_LAST_READ_STATE = "save_last_read_state";
+    public static final String EXTRA_LAST_READ_CHAPTER_INDEX = "com.folioreader.extra_last_read_chapter_position";
+    public static final String EXTRA_LAST_READ_SPAN_INDEX = "com.folioreader.extra_last_read_span_index";
 
     private BroadcastReceiver highlightReceiver = new BroadcastReceiver() {
         @Override
@@ -47,9 +50,9 @@ public class FolioReader {
         public void onReceive(Context context, Intent intent) {
 
             int lastReadChapterIndex =
-                    intent.getIntExtra(FolioActivity.EXTRA_LAST_READ_CHAPTER_INDEX, 0);
+                    intent.getIntExtra(EXTRA_LAST_READ_CHAPTER_INDEX, 0);
             String lastReadSpanIndex =
-                    intent.getStringExtra(FolioActivity.EXTRA_LAST_READ_SPAN_INDEX);
+                    intent.getStringExtra(EXTRA_LAST_READ_SPAN_INDEX);
             if (lastReadStateCallback != null )
                 lastReadStateCallback.saveLastReadState(lastReadChapterIndex, lastReadSpanIndex);
         }
@@ -61,7 +64,7 @@ public class FolioReader {
         LocalBroadcastManager.getInstance(context).registerReceiver(highlightReceiver,
                 new IntentFilter(HighlightImpl.BROADCAST_EVENT));
         LocalBroadcastManager.getInstance(context).registerReceiver(lastReadStateReceiver,
-                new IntentFilter(FolioActivity.ACTION_SAVE_LAST_READ_STATE));
+                new IntentFilter(ACTION_SAVE_LAST_READ_STATE));
     }
 
     public void openBook(String assetOrSdcardPath) {

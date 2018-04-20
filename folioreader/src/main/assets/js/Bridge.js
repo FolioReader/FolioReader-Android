@@ -574,6 +574,12 @@ function isElementVisible(element, isHorizontal) {
         return rect.top > 0;
 }
 
+/**
+Gets the first visible span index from the displayed chapter and passes the iOS compatible last read
+span json string in FolioPageFragment#storeFirstVisibleSpanIndex(String) JavascriptInterface
+
+@param {boolean} isHorizontal Scrolling type of DirectionalViewpager#mDirection
+*/
 function getFirstVisibleSpanIndex(isHorizontal) {
 
     //Can be more specific with document.querySelectorAll('span.sentence')
@@ -592,6 +598,11 @@ function getFirstVisibleSpanIndex(isHorizontal) {
     FolioPageFragment.storeFirstVisibleSpanIndex(JSON.stringify(json));
 }
 
+/**
+Scrolls the webpage to particular span index
+
+@param {number} index
+*/
 function scrollToSpanIndex(index) {
 
     var spanCollection = document.getElementsByTagName("span");
