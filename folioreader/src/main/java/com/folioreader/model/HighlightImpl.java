@@ -2,6 +2,7 @@ package com.folioreader.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.Date;
 
@@ -120,6 +121,8 @@ public class HighlightImpl implements Parcelable, HighLight {
         this.rangy = rangy;
         this.note = note;
         this.uuid = uuid;
+
+        Log.d("gözde456",this.toString());
     }
 
     public HighlightImpl() {

@@ -45,7 +45,12 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:src="@drawable/ic_close_green_24dp" />
-
+                <ImageView
+                    android:id="@+id/btn_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:src="@android:drawable/ic_menu_search"/>
                 <ImageView
                     android:id="@+id/btn_drawer"
                     android:layout_width="wrap_content"

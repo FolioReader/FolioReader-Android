@@ -20,6 +20,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -40,6 +41,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
@@ -48,6 +51,7 @@ import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
+import com.folioreader.model.event.SearchEvent;
 import com.folioreader.model.event.WebViewPosition;
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
@@ -67,10 +71,16 @@ import org.readium.r2_streamer.model.container.Container;
 import org.readium.r2_streamer.model.container.EpubContainer;
 import org.readium.r2_streamer.model.publication.EpubPublication;
 import org.readium.r2_streamer.model.publication.link.Link;
+import org.readium.r2_streamer.model.searcher.SearchQueryResults;
 import org.readium.r2_streamer.server.EpubServer;
 import org.readium.r2_streamer.server.EpubServerSingleton;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -193,11 +203,61 @@ public class FolioActivity
             }
         });
 
+        // search
+        findViewById(R.id.btn_search).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(FolioActivity.this, "Salih says hi", Toast.LENGTH_SHORT).show();
+                String urlString = Constants.LOCALHOST + bookFileName + "/search?query=" + "Copyright";
+                new SearchListTask().execute(urlString);
+            }
+        });
+        
         mIsNightMode = mConfig.isNightMode();
         if (mIsNightMode) {
             mToolbar.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.black));
             title.setTextColor(ContextCompat.getColor(FolioActivity.this, R.color.white));
             audioContainer.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.night));
+        }
+    }
+    class SearchListTask extends AsyncTask<String, Void, SearchQueryResults> {
+
+        @Override
+        protected SearchQueryResults doInBackground(String... urls) {
+            String strUrl = urls[0];
+            try {
+                URL url = new URL(strUrl);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+
+                InputStream inputStream = urlConnection.getInputStream();
+
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,AppUtil.charsetNameForURLConnection(urlConnection)));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(line);
+                    Log.d("deneme",line);
+                }
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                return objectMapper.readValue(stringBuilder.toString(), SearchQueryResults.class);
+            } catch (IOException e) {
+                Log.e(TAG, "SearchListTask IOException " + e.toString());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(SearchQueryResults results) {
+            for (int i = 0;i<results.getSearchResultList().size();i++){
+                Log.d("gözde123",results.getSearchResultList().get(i).getSearchIndex()+" : "+results.getSearchResultList().get(i).getMatchString());
+                Log.d("gözdesalih",results.getSearchResultList().get(i).getSearchQuery());
+            }
+            EventBus.getDefault().post(new SearchEvent("payment"));
+
+            cancel(true);
         }
     }
 
