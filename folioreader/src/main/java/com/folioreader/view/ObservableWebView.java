@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.ActionMode;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MotionEvent;
@@ -25,6 +26,7 @@ public class ObservableWebView extends WebView {
     private int current_x = 0;
     private int pageCount = 0;
     private int currentPage = 0;
+    private final GestureDetector gestureDetector = new GestureDetector(new GestureListener());
 
     private ScrollListener mScrollListener;
     private SeekBarListener mSeekBarListener;
@@ -53,6 +55,51 @@ public class ObservableWebView extends WebView {
         void hideOrshowToolBar();
         void hideToolBarIfVisible();
 
+    }
+
+    private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        private static final int SWIPE_THRESHOLD = 100;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            if (mToolBarListener != null) {
+                mToolBarListener.hideOrshowToolBar();
+            }
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            //TODO handle text selection
+            super.onLongPress(e);
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            try {
+                float diffY = e2.getY() - e1.getY();
+                float diffX = e2.getX() - e1.getX();
+                if (mToolBarListener != null &&
+                        (Math.abs(diffX) < SWIPE_THRESHOLD
+                                || Math.abs(diffY) < Math.abs(diffY))) {
+                    mToolBarListener.hideOrshowToolBar();
+                }
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX > 0) {
+                            turnPageLeft();
+                        } else {
+                            turnPageRight();
+                        }
+                    }
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+            return false;
+        }
     }
 
     public ObservableWebView(Context context) {
@@ -106,33 +153,7 @@ public class ObservableWebView extends WebView {
                     break;
             }
         } else {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    mDownPosX = event.getX();
-                    if (mSeekBarListener != null) mSeekBarListener.fadeInSeekBarIfInvisible();
-                    return true;
-                case MotionEvent.ACTION_UP:
-                    float x2 = event.getX();
-                    float deltaX = x2 - mDownPosX;
-                    if (mToolBarListener != null &&
-                            (Math.abs(event.getX() - mDownPosX) < MOVE_THRESHOLD_DP
-                                    || Math.abs(event.getY() - mDownPosY) < MOVE_THRESHOLD_DP)) {
-                        mToolBarListener.hideOrshowToolBar();
-                    }
-                    if (Math.abs(deltaX) > 100) {
-                        // Left to Right swipe action
-                        if (x2 > mDownPosX) {
-                            turnPageLeft();
-                            return true;
-                        }
-                        // Right to left swipe action
-                        else {
-                            turnPageRight();
-                            return true;
-                        }
-                    }
-                    break;
-            }
+            return gestureDetector.onTouchEvent(event);
         }
         return super.onTouchEvent(event);
     }
