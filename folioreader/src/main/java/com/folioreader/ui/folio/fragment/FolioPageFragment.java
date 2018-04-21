@@ -35,6 +35,8 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
+import com.folioreader.model.ReadPosition;
+import com.folioreader.model.ReadPositionImpl;
 import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
@@ -111,7 +113,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
         void setPagerToPosition(String href);
 
-        void setLastReadSpanIndex(String json);
+        void setReadPosition(ReadPosition readPosition);
+
+        ReadPosition getEntryReadPosition();
 
         void goToChapter(String href);
     }
@@ -452,8 +456,12 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     } else if (!TextUtils.isEmpty(highlightId)) {
                         scrollToHighlightId();
                     } else if (isCurrentFragment()) {
-                        int index = AppUtil.getLastReadSpanIndex(getActivity(), mBookId, mPos);
-                        mWebview.loadUrl("javascript:scrollToSpanIndex(" + index + ")");
+
+                        ReadPosition entryReadPosition = mActivityCallback.getEntryReadPosition();
+                        if (entryReadPosition != null) {
+                            mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
+                                    entryReadPosition.isUsingId(), entryReadPosition.getValue()));
+                        }
                     }
                 }
             }
@@ -620,24 +628,28 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     }
 
     /**
-     * Calls the /assets/js/Bridge.js#getFirstVisibleSpanIndex(boolean)
+     * Calls the /assets/js/Bridge.js#getFirstVisibleSpan(boolean)
      */
     @Override
     public void onPause() {
         super.onPause();
         if (isCurrentFragment())
-            mWebview.loadUrl("javascript:getFirstVisibleSpanIndex(false)");
+            mWebview.loadUrl("javascript:getFirstVisibleSpan(false)");
     }
 
     /**
-     * Callback method called from /assets/js/Bridge.js#getFirstVisibleSpanIndex(boolean)
-     * and then json string is forwarded to {@link FolioActivity#setLastReadSpanIndex(String)}
+     * Callback method called from /assets/js/Bridge.js#getFirstVisibleSpan(boolean)
+     * and then ReadPositionImpl is forwarded to {@link FolioActivity#setReadPosition(ReadPosition)}
      *
-     * @param json iOS compatible last read span json string
+     * @param usingId if span tag has id then true or else false
+     * @param value if usingId true then span id else span index
      */
     @JavascriptInterface
-    public void storeFirstVisibleSpanIndex(String json) {
-        mActivityCallback.setLastReadSpanIndex(json);
+    public void storeFirstVisibleSpan(boolean usingId, String value) {
+
+        ReadPositionImpl readPositionImpl = new ReadPositionImpl(mBookId, mPosition,
+                spineItem.getHref(), usingId, value);
+        mActivityCallback.setReadPosition(readPositionImpl);
     }
 
     private void loadRangy(WebView view, String rangy) {
