@@ -22,17 +22,16 @@ import java.util.List;
  */
 
 public class FolioReader {
+
     public static final String INTENT_BOOK_ID = "book_id";
     private Context context;
-
     private OnHighlightListener onHighlightListener;
-
-    public FolioReader(Context context) {
-        this.context = context;
-        new DbAdapter(context);
-        LocalBroadcastManager.getInstance(context).registerReceiver(highlightReceiver,
-                new IntentFilter(HighlightImpl.BROADCAST_EVENT));
-    }
+    private LastReadStateCallback lastReadStateCallback;
+    private int lastReadChapterIndex;
+    private String lastReadSpanIndex;
+    public static final String ACTION_SAVE_LAST_READ_STATE = "save_last_read_state";
+    public static final String EXTRA_LAST_READ_CHAPTER_INDEX = "com.folioreader.extra_last_read_chapter_position";
+    public static final String EXTRA_LAST_READ_SPAN_INDEX = "com.folioreader.extra_last_read_span_index";
 
     private BroadcastReceiver highlightReceiver = new BroadcastReceiver() {
         @Override
@@ -45,6 +44,28 @@ public class FolioReader {
             }
         }
     };
+
+    private BroadcastReceiver lastReadStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            int lastReadChapterIndex =
+                    intent.getIntExtra(EXTRA_LAST_READ_CHAPTER_INDEX, 0);
+            String lastReadSpanIndex =
+                    intent.getStringExtra(EXTRA_LAST_READ_SPAN_INDEX);
+            if (lastReadStateCallback != null )
+                lastReadStateCallback.saveLastReadState(lastReadChapterIndex, lastReadSpanIndex);
+        }
+    };
+
+    public FolioReader(Context context) {
+        this.context = context;
+        new DbAdapter(context);
+        LocalBroadcastManager.getInstance(context).registerReceiver(highlightReceiver,
+                new IntentFilter(HighlightImpl.BROADCAST_EVENT));
+        LocalBroadcastManager.getInstance(context).registerReceiver(lastReadStateReceiver,
+                new IntentFilter(ACTION_SAVE_LAST_READ_STATE));
+    }
 
     public void openBook(String assetOrSdcardPath) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
@@ -99,7 +120,11 @@ public class FolioReader {
     }
 
     private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId) {
+
         Intent intent = new Intent(context, FolioActivity.class);
+        intent.putExtra(FolioActivity.EXTRA_LAST_READ_CHAPTER_INDEX, lastReadChapterIndex);
+        intent.putExtra(FolioActivity.EXTRA_LAST_READ_SPAN_INDEX, lastReadSpanIndex);
+
         if (rawId != 0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawId);
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.RAW);
@@ -110,6 +135,7 @@ public class FolioReader {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetOrSdcardPath);
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE, FolioActivity.EpubSourceType.SD_CARD);
         }
+
         return intent;
     }
 
@@ -120,6 +146,20 @@ public class FolioReader {
     public void unregisterHighlightListener() {
         LocalBroadcastManager.getInstance(context).unregisterReceiver(highlightReceiver);
         this.onHighlightListener = null;
+    }
+
+    public void setLastReadStateCallback(LastReadStateCallback lastReadStateCallback) {
+        this.lastReadStateCallback = lastReadStateCallback;
+    }
+
+    public void removeLastReadStateCallback() {
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(lastReadStateReceiver);
+        lastReadStateCallback = null;
+    }
+
+    public void setLastReadState(int lastReadChapterIndex, String lastReadSpanIndex) {
+        this.lastReadChapterIndex = lastReadChapterIndex;
+        this.lastReadSpanIndex = lastReadSpanIndex;
     }
 
     public void saveReceivedHighLights(List<HighLight> highlights, OnSaveHighlight onSaveHighlight) {

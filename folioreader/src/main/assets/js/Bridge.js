@@ -583,6 +583,55 @@ function wrappingSentencesWithinPTags(){
     guessSenetences();
 }
 
+function isElementVisible(element, isHorizontal) {
+
+    var rect = element.getBoundingClientRect();
+
+    if(isHorizontal)
+        return rect.left > 0;
+    else
+        return rect.top > 0;
+}
+
+/**
+Gets the first visible span index from the displayed chapter and passes the iOS compatible last read
+span json string in FolioPageFragment#storeFirstVisibleSpanIndex(String) JavascriptInterface
+
+@param {boolean} isHorizontal Scrolling type of DirectionalViewpager#mDirection
+*/
+function getFirstVisibleSpanIndex(isHorizontal) {
+
+    //Can be more specific with document.querySelectorAll('span.sentence')
+    var spanCollection = document.getElementsByTagName("span");
+    var json = {usingId: false, value: 0};
+
+    for (var i = 0 ; i < spanCollection.length ; i++) {
+
+        if (isElementVisible(spanCollection[i], isHorizontal)) {
+
+            json.value = i;
+            break;
+        }
+    }
+
+    FolioPageFragment.storeFirstVisibleSpanIndex(JSON.stringify(json));
+}
+
+/**
+Scrolls the webpage to particular span index
+
+@param {number} index
+*/
+function scrollToSpanIndex(index) {
+
+    var spanCollection = document.getElementsByTagName("span");
+
+    if (spanCollection.length == 0 || index < 0 || index >= spanCollection.length)
+        return;
+
+    goToEl(spanCollection[index]);
+}
+
 // Class based onClick listener
 
 function addClassBasedOnClickListener(schemeName, querySelector, attributeName, selectAll) {

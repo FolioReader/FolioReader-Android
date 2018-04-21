@@ -1,6 +1,7 @@
 package com.folioreader.util;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.folioreader.Config;
@@ -18,10 +19,10 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-import static com.folioreader.Constants.BOOK_STATE;
-import static com.folioreader.Constants.BOOK_TITLE;
-import static com.folioreader.Constants.VIEWPAGER_POSITION;
-import static com.folioreader.Constants.WEBVIEW_SCROLL_POSITION;
+import static com.folioreader.Constants.BOOK_ID;
+import static com.folioreader.Constants.LAST_READ_STATE;
+import static com.folioreader.Constants.LAST_READ_CHAPTER_INDEX;
+import static com.folioreader.Constants.LAST_READ_SPAN_INDEX;
 import static com.folioreader.util.SharedPreferenceUtil.getSharedPreferencesString;
 
 /**
@@ -88,31 +89,31 @@ public class AppUtil {
         return simpleDateFormat.format(hightlightDate);
     }
 
-    public static void saveBookState(Context context, String bookTitle, int folioPageViewPagerPosition, int webViewScrollPosition) {
-        SharedPreferenceUtil.removeSharedPreferencesKey(context, bookTitle + BOOK_STATE);
+    public static void saveLastReadState(Context context, String bookId,
+                                         int lastReadChapterIndex, String lastReadSpanIndex) {
+        SharedPreferenceUtil.removeSharedPreferencesKey(context, bookId + LAST_READ_STATE);
         JSONObject obj = new JSONObject();
         try {
-            obj.put(BOOK_TITLE, bookTitle);
-            obj.put(WEBVIEW_SCROLL_POSITION, webViewScrollPosition);
-            obj.put(VIEWPAGER_POSITION, folioPageViewPagerPosition);
-            SharedPreferenceUtil.
-                    putSharedPreferencesString(
-                            context, bookTitle + BOOK_STATE, obj.toString());
+            obj.put(BOOK_ID, bookId);
+            obj.put(LAST_READ_CHAPTER_INDEX, lastReadChapterIndex);
+            obj.put(LAST_READ_SPAN_INDEX, lastReadSpanIndex);
+            SharedPreferenceUtil.putSharedPreferencesString(
+                    context, bookId + LAST_READ_STATE, obj.toString());
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage());
         }
     }
 
-    public static boolean checkPreviousBookStateExist(Context context, String bookName) {
+    public static boolean checkBookStateExist(Context context, String bookId) {
         String json
                 = getSharedPreferencesString(
-                context, bookName + BOOK_STATE,
+                context, bookId + LAST_READ_STATE,
                 null);
         if (json != null) {
             try {
                 JSONObject jsonObject = new JSONObject(json);
-                String bookTitle = jsonObject.getString(BOOK_TITLE);
-                if (bookTitle.equals(bookName))
+                String bookTitle = jsonObject.getString(BOOK_ID);
+                if (bookTitle.equals(bookId))
                     return true;
             } catch (JSONException e) {
                 Log.e(TAG, e.getMessage());
@@ -122,15 +123,15 @@ public class AppUtil {
         return false;
     }
 
-    public static int getPreviousBookStatePosition(Context context, String bookName) {
+    public static int getLastReadChapterIndex(Context context, String bookId) {
         String json
                 = getSharedPreferencesString(context,
-                bookName + BOOK_STATE,
+                bookId + LAST_READ_STATE,
                 null);
         if (json != null) {
             try {
                 JSONObject jsonObject = new JSONObject(json);
-                return jsonObject.getInt(VIEWPAGER_POSITION);
+                return jsonObject.getInt(LAST_READ_CHAPTER_INDEX);
             } catch (JSONException e) {
                 Log.e(TAG, e.getMessage());
                 return 0;
@@ -139,17 +140,29 @@ public class AppUtil {
         return 0;
     }
 
-    public static int getPreviousBookStateWebViewPosition(Context context, String bookTitle) {
-        String json = getSharedPreferencesString(context, bookTitle + BOOK_STATE, null);
-        if (json != null) {
-            try {
-                JSONObject jsonObject = new JSONObject(json);
-                return jsonObject.getInt(WEBVIEW_SCROLL_POSITION);
-            } catch (JSONException e) {
-                Log.e(TAG, e.getMessage());
+    public static int getLastReadSpanIndex(Context context, String bookId,
+                                           int currentChapterIndex) {
+
+        String json = getSharedPreferencesString(context, bookId + LAST_READ_STATE, null);
+
+        if (TextUtils.isEmpty(json))
+            return 0;
+
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            int lastReadChapterIndex = jsonObject.getInt(LAST_READ_CHAPTER_INDEX);
+
+            if (lastReadChapterIndex != currentChapterIndex) {
                 return 0;
+            } else {
+                JSONObject webViewPositionJson = new JSONObject(
+                        jsonObject.getString(LAST_READ_SPAN_INDEX));
+                return webViewPositionJson.getInt("value");
             }
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage());
         }
+
         return 0;
     }
 

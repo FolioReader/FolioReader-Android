@@ -27,7 +27,7 @@ public class HighlightUtil {
 
     public static String createHighlightRangy(Context context,
                                               String content,
-                                              String bookTitle,
+                                              String bookId,
                                               String pageId,
                                               int pageNo,
                                               String oldRangy) {
@@ -44,7 +44,7 @@ public class HighlightUtil {
             highlightImpl.setContent(textContent);
             highlightImpl.setType(color);
             highlightImpl.setPageNumber(pageNo);
-            highlightImpl.setBookId(bookTitle);
+            highlightImpl.setBookId(bookId);
             highlightImpl.setPageId(pageId);
             highlightImpl.setRangy(rangyHighlightElement);
             highlightImpl.setDate(Calendar.getInstance().getTime());
