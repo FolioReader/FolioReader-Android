@@ -112,34 +112,43 @@
     </android.support.v7.widget.Toolbar>
 
     <RelativeLayout
-        android:visibility="gone"
         android:id="@+id/search_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbar"
         android:alpha="0.7"
         android:background="#71C851"
-        android:orientation="horizontal">
-
+        android:orientation="horizontal"
+        android:visibility="gone">
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/cancel_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:layout_marginRight="16dp"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:visibility="gone"/>
         <EditText
             android:id="@+id/search_query"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginRight="8dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             android:layout_toLeftOf="@+id/search_img"
-            android:imeOptions="actionSearch"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:textColor="@color/black"/>
+            android:textColor="@color/black"
+            android:textStyle="bold"/>
 
-        <ImageView
+        <android.support.v7.widget.AppCompatImageView
             android:id="@+id/search_img"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerInParent="true"
             android:layout_marginRight="16dp"
             android:src="@drawable/ic_search_white_24px"/>
+
+
     </RelativeLayout>
 
 

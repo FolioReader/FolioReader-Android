@@ -26,6 +26,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
@@ -114,8 +115,13 @@ public class FolioActivity
     private DirectionalViewpager mFolioPageViewPager;
     private Toolbar mToolbar;
     private RelativeLayout searchSection;
+    private AppCompatImageView searchImage;
     private SearchImageClickListener searchImageClickListener;
+    private EditText mSearchText;
 
+    private static final int SEARCH_ICON = 1;
+    private static final int DOWN_ARROW_ICON = 2;
+    
     private int mChapterPosition;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
     private int mWebViewScrollPosition;
@@ -173,10 +179,16 @@ public class FolioActivity
 
         initAudioView();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        ///////////////////search inits /////////////////////
         searchSection = (RelativeLayout) findViewById(R.id.search_section);
+        searchImage = (AppCompatImageView) findViewById(R.id.search_img);
+        searchImage.setTag(SEARCH_ICON);
+        mSearchText = (EditText) findViewById(R.id.search_query);
         searchImageClickListener = new SearchImageClickListener();
-        findViewById(R.id.search_img).setOnClickListener(searchImageClickListener);
+        searchImage.setOnClickListener(searchImageClickListener);
         searchAnimateHide();
+        ///////////////////search inits /////////////////////
 
         findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -215,6 +227,14 @@ public class FolioActivity
             }
         });
 
+        //cancel search
+        findViewById(R.id.cancel_img).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearSearchSection();
+                clearSearchHighlights();
+            }
+        });
         mIsNightMode = mConfig.isNightMode();
         if (mIsNightMode) {
             mToolbar.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.black));
@@ -223,14 +243,36 @@ public class FolioActivity
         }
     }
 
+    private void clearSearchSection() {
+        if (mSearchText != null)
+            mSearchText.getText().clear();
+        changeSearchIcon(true);
+    }
+
+    private void changeSearchIcon(boolean doSearch){
+        if (doSearch/* && (int)searchImage.getTag()== DOWN_ARROW_ICON*/){
+            searchImage.setTag(SEARCH_ICON);
+            searchImage.setImageResource(R.drawable.ic_search_white_24px);
+            findViewById(R.id.cancel_img).setVisibility(View.INVISIBLE);
+        }else if(!doSearch /*&& (int)searchImage.getTag()== SEARCH_ICON*/){
+            searchImage.setTag(DOWN_ARROW_ICON);
+            searchImage.setImageResource(R.drawable.ic_keyboard_arrow_down_white_24);
+            findViewById(R.id.cancel_img).setVisibility(View.VISIBLE);
+        }
+    }
+    private void clearSearchHighlights(){
+        // TODO: 21.04.2018
+    }
     private void search() {
         isForSearch = true;
         if (!mIsSearchSectionVisible) {
             searchAnimateShow();
+            clearSearchSection();
         } else {
             searchAnimateHide();
+            clearSearchHighlights();
         }
-
+        
     }
 
     class SearchImageClickListener implements View.OnClickListener {
@@ -251,13 +293,17 @@ public class FolioActivity
 
                         if (currentIndex > 0 && indexes.get(currentIndex - 1).equals(indexes.get(currentIndex))) {
                             isNew = false;
-                        }else{
+                        } else {
                             mFolioPageViewPager.setCurrentItem(indexes.get(currentIndex));
                         }
                         Log.d("gözde***web2", "qwe");
-                        EventBus.getDefault().post(new SearchEvent(query,isNew));
+                        EventBus.getDefault().post(new SearchEvent(query, isNew));
                         // TODO: 21.04.2018 multiple
                         currentIndex++;
+                    }else{
+                        // TODO: 21.04.2018 no more && maybe change icon
+                        currentIndex = 0;
+                        view.performClick();
                     }
                 }
             }
@@ -426,6 +472,7 @@ public class FolioActivity
 //            searchSection.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
             mIsSearchSectionVisible = true;
             searchSection.setVisibility(View.VISIBLE);
+            toolbarAnimateHide();
         }
     }
 
@@ -439,6 +486,7 @@ public class FolioActivity
     private void toolbarAnimateShow() {
         if (!mIsActionBarVisible) {
             mToolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
+            searchSection.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
             mIsActionBarVisible = true;
         }
     }
@@ -446,6 +494,8 @@ public class FolioActivity
     private void toolbarAnimateHide() {
         mIsActionBarVisible = false;
         mToolbar.animate().translationY(-mToolbar.getHeight()).setInterpolator(new AccelerateInterpolator(2)).start();
+        searchSection.animate().translationY(-mToolbar.getHeight()).setInterpolator(new AccelerateInterpolator(2))
+                .start();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -527,6 +577,7 @@ public class FolioActivity
         searchImageClickListener.query = query;
         searchImageClickListener.currentIndex = 0;
         searchImageClickListener.indexes = getSearchIndexes(results);
+        changeSearchIcon(false);
 
     }
 
@@ -547,9 +598,10 @@ public class FolioActivity
 
     @Override
     public String getSearchQuery() {
-        EditText mEditText = (EditText) findViewById(R.id.search_query);
+
         // TODO: 21.04.2018 eg. change space to %20
-        return mEditText.getText() == null ? null : Constants.LOCALHOST + bookFileName + "/search?query=" + mEditText
+        return mSearchText.getText() == null ? null : Constants.LOCALHOST + bookFileName + "/search?query=" + 
+                mSearchText
                 .getText().toString();
     }
 
