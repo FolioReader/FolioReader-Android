@@ -70,7 +70,6 @@ import org.readium.r2_streamer.model.publication.link.Link;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Locale;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -971,8 +970,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         }
     }
 
-    int count = 0;
-    String id = "";
+//    static int count = 0;
+//    String id = "";
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void setWebViewAccToSearch(SearchEvent searchEvent) {
@@ -981,14 +980,11 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
             Log.d("gözde***", "salih5");
             if (searchEvent.isNewChapter()) {
-                count = 0;
-                id = UUID.randomUUID().toString();
-                scrollAndHighlight(searchEvent.getWord(), id);
-            } else {
-                count++;
+                scrollAndHighlight(searchEvent.getWord(), searchEvent.getId());
             }
-            Log.d("salihWebview", id + "   : " + count);
-            goNextElementInTheSameChapter(id, count);
+            Log.d("salihWebview", searchEvent.getId() + "   : " + searchEvent.getCount() + "   : " + searchEvent
+                    .getWord());
+            goNextElementInTheSameChapter(searchEvent.getId(), searchEvent.getCount());
         }
     }
 
@@ -1056,8 +1052,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     }
 
     private void scrollAndHighlight(String word, String uniqueId) {
-        mWebview.addJavascriptInterface(this, "Android");
-        String js = String.format("javascript:(function() { console.log(document.body.innerHTML); document.body" +
+//        mWebview.addJavascriptInterface(this, "Android");
+        String js = String.format("javascript:$(document).ready(function() { console.log(document.body.innerHTML); " +
+                "document.body" +
                 ".innerHTML = " +
                 "document.body.innerHTML.split( \'%s\').join(\"<span name=\'%s\' style='background-color: rgba" +
                 "(255, 255, " +
@@ -1068,24 +1065,21 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 //                "  if(element != null) {\n" +
 //                "   console.log('salih78945613'); goToEl(element);\n" +
 //                "  }else{ console.log('salih78945613123456'); }" +
-                "})()", word, uniqueId, word, uniqueId);
+                "});", word, uniqueId, word);
         Log.d("jssss", js);
-        if (uniqueId!=null && !uniqueId.equalsIgnoreCase("")) {
-            mWebview.loadUrl(js);
-        }
+        mWebview.loadUrl(js);
     }
 
     int i = 0;
 
     private void goNextElementInTheSameChapter(String uniqueId, int count) {
-        String js = String.format("javascript:(function() {var element = document.getElementsByName(\'%s\')[%d];\n" +
+        String js = String.format("javascript:$(document).ready(function() {var element = document.getElementsByName" +
+                "(\'%s\')[%d];\n" +
                 "  if(element != null) {\n" +
                 "   console.log('salih78945613'); goToEl(element);\n" +
-                "  }else{ console.log('salih78945613123456'); } })()", uniqueId, count);
+                "  }else{ console.log('salih78945613123456'); } });", uniqueId, count);
         i++;
         Log.d("jssss22", i + "   :  " + js);
-        if (uniqueId!=null && !uniqueId.equalsIgnoreCase("")) {
-            mWebview.loadUrl(js);
-        }
+        mWebview.loadUrl(js);
     }
 }

@@ -77,6 +77,7 @@ import org.readium.r2_streamer.server.EpubServerSingleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static com.folioreader.Constants.CHAPTER_SELECTED;
 import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
@@ -121,7 +122,7 @@ public class FolioActivity
 
     private static final int SEARCH_ICON = 1;
     private static final int DOWN_ARROW_ICON = 2;
-    
+
     private int mChapterPosition;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
     private int mWebViewScrollPosition;
@@ -233,6 +234,7 @@ public class FolioActivity
             public void onClick(View view) {
                 clearSearchSection();
                 clearSearchHighlights();
+                isForSearch = true;
             }
         });
         mIsNightMode = mConfig.isNightMode();
@@ -249,20 +251,24 @@ public class FolioActivity
         changeSearchIcon(true);
     }
 
-    private void changeSearchIcon(boolean doSearch){
-        if (doSearch/* && (int)searchImage.getTag()== DOWN_ARROW_ICON*/){
+    private void changeSearchIcon(boolean doSearch) {
+        if (doSearch/* && (int)searchImage.getTag()== DOWN_ARROW_ICON*/) {
             searchImage.setTag(SEARCH_ICON);
             searchImage.setImageResource(R.drawable.ic_search_white_24px);
-            findViewById(R.id.cancel_img).setVisibility(View.INVISIBLE);
-        }else if(!doSearch /*&& (int)searchImage.getTag()== SEARCH_ICON*/){
+            findViewById(R.id.cancel_img).setVisibility(View.GONE);
+            searchSection.invalidate();
+        } else if (!doSearch /*&& (int)searchImage.getTag()== SEARCH_ICON*/) {
             searchImage.setTag(DOWN_ARROW_ICON);
             searchImage.setImageResource(R.drawable.ic_keyboard_arrow_down_white_24);
             findViewById(R.id.cancel_img).setVisibility(View.VISIBLE);
+            searchSection.invalidate();
         }
     }
-    private void clearSearchHighlights(){
+
+    private void clearSearchHighlights() {
         // TODO: 21.04.2018
     }
+
     private void search() {
         isForSearch = true;
         if (!mIsSearchSectionVisible) {
@@ -272,14 +278,14 @@ public class FolioActivity
             searchAnimateHide();
             clearSearchHighlights();
         }
-        
+
     }
 
     class SearchImageClickListener implements View.OnClickListener {
 
         public ArrayList<Integer> indexes;
-        private int currentIndex = 0;
-        public String query;
+        private int currentIndex = 0, count = 0;
+        public String query, uniqueID;
 
         @Override
         public void onClick(View view) {
@@ -291,16 +297,19 @@ public class FolioActivity
                     if (indexes.size() > currentIndex) {
                         boolean isNew = true;
 
-                        if (currentIndex > 0 && indexes.get(currentIndex - 1).equals(indexes.get(currentIndex))) {
+                        if (currentIndex > 0 &&(int) indexes.get(currentIndex - 1) == ((int)indexes.get(currentIndex))) {
                             isNew = false;
+                            count++;
                         } else {
+                            uniqueID = UUID.randomUUID().toString();
+                            count = 0;
                             mFolioPageViewPager.setCurrentItem(indexes.get(currentIndex));
                         }
-                        Log.d("gözde***web2", "qwe");
-                        EventBus.getDefault().post(new SearchEvent(query, isNew));
+                        Log.d("gözde***web2", "currentIndex: "+ currentIndex+" : isNew:"+isNew+" : count: "+count);
+                        EventBus.getDefault().post(new SearchEvent(query, isNew, count, uniqueID));
                         // TODO: 21.04.2018 multiple
                         currentIndex++;
-                    }else{
+                    } else {
                         // TODO: 21.04.2018 no more && maybe change icon
                         currentIndex = 0;
                         view.performClick();
@@ -593,6 +602,7 @@ public class FolioActivity
                 }
             }
         }
+        Log.d("gözde***web22",searchQueryIndexes.toString());
         return searchQueryIndexes;
     }
 
@@ -600,9 +610,9 @@ public class FolioActivity
     public String getSearchQuery() {
 
         // TODO: 21.04.2018 eg. change space to %20
-        return mSearchText.getText() == null ? null : Constants.LOCALHOST + bookFileName + "/search?query=" + 
+        return mSearchText.getText() == null ? null : Constants.LOCALHOST + bookFileName + "/search?query=" +
                 mSearchText
-                .getText().toString();
+                        .getText().toString();
     }
 
     private void setConfig() {
