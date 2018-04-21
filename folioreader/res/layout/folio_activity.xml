@@ -53,7 +53,7 @@
                     android:layout_marginBottom="16dp"
                     android:layout_marginRight="16dp"
                     android:layout_marginTop="16dp"
-                    android:src="@drawable/ic_search_white_24px"/>
+                    android:src="@drawable/ic_search_green_24px"/>
 
                 <ImageView
                     android:id="@+id/btn_drawer"
@@ -112,11 +112,12 @@
     </android.support.v7.widget.Toolbar>
 
     <RelativeLayout
+        android:visibility="gone"
         android:id="@+id/search_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/toolbar"
-        android:alpha="0.8"
+        android:alpha="0.7"
         android:background="#71C851"
         android:orientation="horizontal">
 
@@ -124,18 +125,21 @@
             android:id="@+id/search_query"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:imeOptions="actionSearch"
             android:layout_marginRight="8dp"
-            android:layout_toLeftOf="@+id/search_arr"/>
+            android:layout_toLeftOf="@+id/search_img"
+            android:imeOptions="actionSearch"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:textColor="@color/black"/>
 
         <ImageView
-            android:layout_alignParentRight="true"
-            android:id="@+id/search_arr"
+            android:id="@+id/search_img"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginRight="16dp"
+            android:layout_alignParentRight="true"
             android:layout_centerInParent="true"
-            android:src="@drawable/arrow_down"/>
+            android:layout_marginRight="16dp"
+            android:src="@drawable/ic_search_white_24px"/>
     </RelativeLayout>
 
 

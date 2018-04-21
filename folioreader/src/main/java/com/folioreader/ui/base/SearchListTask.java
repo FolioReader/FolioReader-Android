@@ -57,7 +57,7 @@ public class SearchListTask extends AsyncTask<String, Void, SearchQueryResults> 
     @Override
     protected void onPostExecute(SearchQueryResults results) {
 
-        if (results != null) {
+        if (results != null && results.getSearchCount()>0) {
             callBack.onReceiveSearchList(results);
         }else{
             callBack.onError();

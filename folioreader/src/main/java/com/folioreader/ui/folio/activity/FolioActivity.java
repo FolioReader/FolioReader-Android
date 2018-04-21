@@ -20,7 +20,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -35,14 +34,13 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
@@ -75,12 +73,7 @@ import org.readium.r2_streamer.model.searcher.SearchQueryResults;
 import org.readium.r2_streamer.server.EpubServer;
 import org.readium.r2_streamer.server.EpubServerSingleton;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,8 +108,13 @@ public class FolioActivity
     private static final String HIGHLIGHT_ITEM = "highlight_item";
 
     public boolean mIsActionBarVisible;
+    public boolean mIsSearchSectionVisible = false;
+    public boolean isForSearch = true;
+
     private DirectionalViewpager mFolioPageViewPager;
     private Toolbar mToolbar;
+    private RelativeLayout searchSection;
+    private SearchImageClickListener searchImageClickListener;
 
     private int mChapterPosition;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
@@ -175,6 +173,10 @@ public class FolioActivity
 
         initAudioView();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        searchSection = (RelativeLayout) findViewById(R.id.search_section);
+        searchImageClickListener = new SearchImageClickListener();
+        findViewById(R.id.search_img).setOnClickListener(searchImageClickListener);
+        searchAnimateHide();
 
         findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -209,9 +211,7 @@ public class FolioActivity
         findViewById(R.id.btn_search).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(FolioActivity.this, "Salih says hi", Toast.LENGTH_SHORT).show();
-                String urlString = Constants.LOCALHOST + bookFileName + "/search?query=" + "ButBibles";
-                new SearchListTask().execute(urlString);
+                search();
             }
         });
 
@@ -223,56 +223,44 @@ public class FolioActivity
         }
     }
 
-    class SearchListTask extends AsyncTask<String, Void, SearchQueryResults> {
-        String strUrl;
-
-        @Override
-        protected SearchQueryResults doInBackground(String... urls) {
-            strUrl = urls[0];
-            try {
-                URL url = new URL(strUrl);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-
-                InputStream inputStream = urlConnection.getInputStream();
-
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil
-                        .charsetNameForURLConnection(urlConnection)));
-                StringBuilder stringBuilder = new StringBuilder();
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(line);
-                    Log.d("deneme", line);
-                }
-
-                ObjectMapper objectMapper = new ObjectMapper();
-                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                return objectMapper.readValue(stringBuilder.toString(), SearchQueryResults.class);
-            } catch (IOException e) {
-                Log.e(TAG, "SearchListTask IOException " + e.toString());
-            }
-            return null;
+    private void search() {
+        isForSearch = true;
+        if (!mIsSearchSectionVisible) {
+            searchAnimateShow();
+        } else {
+            searchAnimateHide();
         }
 
+    }
+
+    class SearchImageClickListener implements View.OnClickListener {
+
+        public ArrayList<Integer> indexes;
+        private int currentIndex = 0;
+        public String query;
+
         @Override
-        protected void onPostExecute(SearchQueryResults results) {
-            for (int i = 0; i < results.getSearchResultList().size(); i++) {
-                Log.d("gözde123", results.getSearchResultList().get(i).getSearchIndex() + " : " + results
-                        .getSearchResultList().get(i).getMatchString());
-                Log.d("gözdesalih", results.getSearchResultList().get(i).getResource() + ":" + results
-                        .getSearchResultList().get(i).getTitle());
-                for (int j = 0; j < mSpineReferenceList.size(); j++) {
-                    if (mSpineReferenceList.get(j).getHref().equalsIgnoreCase(results.getSearchResultList().get(i)
-                            .getResource())) {
-                        mFolioPageViewPager.setCurrentItem(j);
+        public void onClick(View view) {
+            Log.d("gözde***web", "salih");
+            if (isForSearch) {
+                new MainPresenter(FolioActivity.this).searchQuery();
+            } else {
+                if (indexes != null && query != null) {
+                    if (indexes.size() > currentIndex) {
+                        boolean isNew = true;
+
+                        if (currentIndex > 0 && indexes.get(currentIndex - 1).equals(indexes.get(currentIndex))) {
+                            isNew = false;
+                        }else{
+                            mFolioPageViewPager.setCurrentItem(indexes.get(currentIndex));
+                        }
+                        Log.d("gözde***web2", "qwe");
+                        EventBus.getDefault().post(new SearchEvent(query,isNew));
+                        // TODO: 21.04.2018 multiple
+                        currentIndex++;
                     }
                 }
-                break;
             }
-
-            EventBus.getDefault().post(new SearchEvent(strUrl.split("=")[1]));
-
-            cancel(true);
         }
     }
 
@@ -433,6 +421,21 @@ public class FolioActivity
         }
     }
 
+    private void searchAnimateShow() {
+        if (!mIsSearchSectionVisible) {
+//            searchSection.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
+            mIsSearchSectionVisible = true;
+            searchSection.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void searchAnimateHide() {
+        mIsSearchSectionVisible = false;
+//        searchSection.animate().translationY(-searchSection.getHeight()).setInterpolator(new AccelerateInterpolator
+// (2)).start();
+        searchSection.setVisibility(View.GONE);
+    }
+
     private void toolbarAnimateShow() {
         if (!mIsActionBarVisible) {
             mToolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
@@ -518,22 +521,36 @@ public class FolioActivity
 
     @Override
     public void onShowSearchResults(SearchQueryResults results) {
+
+        isForSearch = false;
         String query = results.getSearchResultList().get(0).getSearchQuery();
+        searchImageClickListener.query = query;
+        searchImageClickListener.currentIndex = 0;
+        searchImageClickListener.indexes = getSearchIndexes(results);
+
+    }
+
+
+    private ArrayList getSearchIndexes(SearchQueryResults results) {
+        ArrayList<Integer> searchQueryIndexes = new ArrayList<>();
         for (int i = 0; i < results.getSearchResultList().size(); i++) {
-//            Log.d("gözde123", results.getSearchResultList().get(i).getSearchIndex() + " : " + results
-//                    .getSearchResultList().get(i).getMatchString());
-//            Log.d("gözdesalih", results.getSearchResultList().get(i).getResource() + ":" + results
-//                    .getSearchResultList().get(i).getTitle());
             for (int j = 0; j < mSpineReferenceList.size(); j++) {
                 if (mSpineReferenceList.get(j).getHref().equalsIgnoreCase(results.getSearchResultList().get(i)
                         .getResource())) {
-                    mFolioPageViewPager.setCurrentItem(j);
+                    searchQueryIndexes.add(j);
+                    break;
                 }
             }
-            break;
         }
+        return searchQueryIndexes;
+    }
 
-        EventBus.getDefault().post(new SearchEvent(query));
+    @Override
+    public String getSearchQuery() {
+        EditText mEditText = (EditText) findViewById(R.id.search_query);
+        // TODO: 21.04.2018 eg. change space to %20
+        return mEditText.getText() == null ? null : Constants.LOCALHOST + bookFileName + "/search?query=" + mEditText
+                .getText().toString();
     }
 
     private void setConfig() {

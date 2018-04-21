@@ -1,5 +1,7 @@
 package com.folioreader.ui.folio.presenter;
 
+import android.util.Log;
+
 import com.folioreader.ui.base.ManifestCallBack;
 import com.folioreader.ui.base.ManifestTask;
 import com.folioreader.ui.base.SearchListCallBack;
@@ -23,18 +25,26 @@ public class MainPresenter implements ManifestCallBack {
         new ManifestTask(this).execute(url);
     }
 
-    public void searchQuery(String searchUrl){
-        new SearchListTask(new SearchListCallBack() {
-            @Override
-            public void onReceiveSearchList(SearchQueryResults searchQueryResults) {
-                mainMvpView.onShowSearchResults(searchQueryResults);
-            }
+    public void searchQuery() {
+        String searchUrl = mainMvpView.getSearchQuery();
+        if (searchUrl == null) {
+            mainMvpView.onError();
+        } else {
+            new SearchListTask(new SearchListCallBack() {
+                @Override
+                public void onReceiveSearchList(SearchQueryResults searchQueryResults) {
+                    Log.d("gözde***","salih2");
+                    mainMvpView.onShowSearchResults(searchQueryResults);
+                }
 
-            @Override
-            public void onError() {
-                // TODO: 20.04.2018
-            }
-        }).execute(searchUrl);
+                @Override
+                public void onError() {
+                    Log.d("gözde***","salih3");
+                    // TODO: 20.04.2018
+                }
+            }).execute(searchUrl);
+        }
+        Log.d("gözde***","salih4");
     }
 
     @Override
