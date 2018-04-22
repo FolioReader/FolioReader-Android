@@ -86,6 +86,7 @@
 
     <string name="search_highlight">javascript:giveBackgorundToSearchItems(\'%s\')</string>
     <string name="search_item_scroll">javascript:goToSearchQuery(%d)</string>
+    <string name="search_highlight_clear">javascript:removeSearchItemBackground()</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

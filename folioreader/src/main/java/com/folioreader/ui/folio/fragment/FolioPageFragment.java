@@ -36,6 +36,7 @@ import com.folioreader.R;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.AnchorIdEvent;
+import com.folioreader.model.event.ClearSearchEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
@@ -979,23 +980,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         }
     }
 
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void setWebViewAccToSearch(final SearchEvent searchEvent) {
-        if (isAdded()) {
-            word = searchEvent.getWord();
-            uniqueId = searchEvent.getId();
-            count = searchEvent.getCount();
-            if (mWebview.getContentHeight() > 0) {
-                if (searchEvent.isNewChapter()) {
-                    giveBackgroundToSearchItems();
-                }else {
-                    goNextElementInTheSameChapter();
-                }
-            }
-        }
-    }
-
     public void setWebViewPosition(final int position) {
         mWebview.post(new Runnable() {
             @Override
@@ -1061,6 +1045,34 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
     }
 
+    /////////////////////////////////////////////SEARCH SECTION////////////////////////////////////////////////////////
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void highlightAndGoSearchItem(final SearchEvent searchEvent) {
+        if (isAdded()) {
+            if (word != null && !word.equalsIgnoreCase(searchEvent.getWord())){
+                clearSearchItemsBackground();// TODO: 22.04.2018 may remove this possibility
+            }
+            word = searchEvent.getWord();
+            uniqueId = searchEvent.getId();
+            count = searchEvent.getCount();
+            if (mWebview.getContentHeight() > 0) {
+                if (searchEvent.isNewChapter()) {
+                    giveBackgroundToSearchItems();
+                }else {
+                    goNextElementInTheSameChapter();
+                }
+            }
+        }
+    }
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void clearSearchItem( ClearSearchEvent event) {
+        if (isAdded()) {
+            clearSearchItemsBackground();
+        }
+    }
+
     private void giveBackgroundToSearchItems() {
         String js = String.format(getString(R.string.search_highlight),word);
         mWebview.loadUrl(js);
@@ -1069,5 +1081,11 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private void goNextElementInTheSameChapter() {
         String js = String.format(getString(R.string.search_item_scroll),count);
         mWebview.loadUrl(js);
+    }
+
+    private void clearSearchItemsBackground(){
+        String js = getString(R.string.search_highlight_clear);
+        mWebview.loadUrl(js);
+        mWebview.invalidate();
     }
 }

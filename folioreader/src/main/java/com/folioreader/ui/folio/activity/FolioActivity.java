@@ -47,6 +47,7 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.AnchorIdEvent;
+import com.folioreader.model.event.ClearSearchEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
@@ -248,7 +249,6 @@ public class FolioActivity
     }
 
 
-
     private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
         try {
             int portNumber = getIntent().getIntExtra(Config.INTENT_PORT, Constants.PORT_NUMBER);
@@ -407,7 +407,6 @@ public class FolioActivity
     }
 
 
-
     private void toolbarAnimateShow() {
         if (!mIsActionBarVisible) {
             mToolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
@@ -499,47 +498,11 @@ public class FolioActivity
 
         isForSearch = false;
         String query = results.getSearchResultList().get(0).getSearchQuery();
+        searchImageClickListener.clearIndexes();
         searchImageClickListener.query = query;
-        searchImageClickListener.currentIndex = 0;
         searchImageClickListener.indexes = getSearchIndexes(results);
         changeSearchIcon(false);
 
-    }
-
-
-    private ArrayList getSearchIndexes(SearchQueryResults results) {
-        ArrayList<Integer> searchQueryIndexes = new ArrayList<>();
-        for (int i = 0; i < results.getSearchResultList().size(); i++) {
-            for (int j = 0; j < mSpineReferenceList.size(); j++) {
-                if (mSpineReferenceList.get(j).getHref().equalsIgnoreCase(results.getSearchResultList().get(i)
-                        .getResource())) {
-                    searchQueryIndexes.add(j);
-                    break;
-                }
-            }
-        }
-        return searchQueryIndexes;
-    }
-
-    @Override
-    public String getSearchQuery() {
-        if (mSearchText.getText() == null){
-            return null;
-        }else{
-            String searchQuery =  mSearchText.getText().toString();
-            if (!searchQuery.isEmpty()) {
-                if (searchQuery.contains(" ")) {
-                    searchQuery = searchQuery.replaceAll(" ", "%20");
-                }
-                if (searchQuery.length() != 0) {
-                    return Constants.LOCALHOST + bookFileName + "/search?query=" +searchQuery;
-                }else{
-                    return null;
-                }
-            }else{
-                return null;
-            }
-        }
     }
 
     private void setConfig() {
@@ -757,11 +720,49 @@ public class FolioActivity
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////SEARCH SECTION////////////////////////////////////////////////////////
+
+    private ArrayList getSearchIndexes(SearchQueryResults results) {
+        ArrayList<Integer> searchQueryIndexes = new ArrayList<>();
+        for (int i = 0; i < results.getSearchResultList().size(); i++) {
+            for (int j = 0; j < mSpineReferenceList.size(); j++) {
+                if (mSpineReferenceList.get(j).getHref().equalsIgnoreCase(results.getSearchResultList().get(i)
+                        .getResource())) {
+                    searchQueryIndexes.add(j);
+                    break;
+                }
+            }
+        }
+        return searchQueryIndexes;
+    }
+
+    @Override
+    public String getSearchQuery() {
+        if (mSearchText.getText() == null) {
+            return null;
+        } else {
+            String searchQuery = mSearchText.getText().toString();
+            if (!searchQuery.isEmpty()) {
+                if (searchQuery.contains(" ")) {
+                    searchQuery = searchQuery.replaceAll(" ", "%20");
+                }
+                if (searchQuery.length() != 0) {
+                    return Constants.LOCALHOST + bookFileName + "/search?query=" + searchQuery;
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        }
+    }
+
+
     private void clearSearchSection() {
         if (mSearchText != null)
             mSearchText.getText().clear();
         changeSearchIcon(true);
+
     }
 
     private void changeSearchIcon(boolean doSearch) {
@@ -779,7 +780,7 @@ public class FolioActivity
     }
 
     private void clearSearchHighlights() {
-        // TODO: 21.04.2018
+        EventBus.getDefault().post(new ClearSearchEvent());
     }
 
     private void search() {
@@ -809,11 +810,15 @@ public class FolioActivity
     class SearchImageClickListener implements View.OnClickListener {
 
         public ArrayList<Integer> indexes;
-        private int currentIndex = 0, count = 0;
+        private int currentIndex = 0, oldIndex = 0;
+        private int count = 0;
         public String query, uniqueID;
+        private int fragmentPos;
+        private boolean onEndPos = false;
 
         @Override
         public void onClick(View view) {
+            // TODO: 22.04.2018 close keyboard if open
             if (isForSearch) {
                 new MainPresenter(FolioActivity.this).searchQuery();
             } else {
@@ -825,17 +830,43 @@ public class FolioActivity
                             isNew = false;
                             count++;
                         } else {
+                            changeCurrentIndex();
                             uniqueID = UUID.randomUUID().toString();
                             count = 0;
                             mChapterPosition = indexes.get(currentIndex);
                             mFolioPageViewPager.setCurrentItem(mChapterPosition);
                         }
+                        oldIndex = currentIndex;
                         EventBus.getDefault().post(new SearchEvent(query, isNew, count, uniqueID));
                         currentIndex++;
+                        onEndPos = false;
                     } else {
                         // TODO: 21.04.2018 change icon & no restart since it may leak
+                        onEndPos = true;
                         currentIndex = 0;
+                        oldIndex = 0;
                         view.performClick();
+                    }
+                }
+            }
+        }
+
+        public void clearIndexes() {
+            currentIndex = 0;
+            oldIndex = 0;
+            count = 0;
+            onEndPos = false;
+        }
+
+        private void changeCurrentIndex() {
+            fragmentPos = mFolioPageViewPager.getCurrentItem();
+            if (indexes != null) {
+                if (fragmentPos != indexes.get(oldIndex)) {
+                    for (int i = 0; i < indexes.size(); i++) {
+                        if (indexes.get(i) == fragmentPos && !onEndPos) {
+                            currentIndex = i;
+                            break;
+                        }
                     }
                 }
             }
