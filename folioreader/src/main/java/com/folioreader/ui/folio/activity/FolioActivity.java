@@ -182,6 +182,7 @@ public class FolioActivity
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
         ///////////////////search inits /////////////////////
+
         searchSection = (RelativeLayout) findViewById(R.id.search_section);
         searchImage = (AppCompatImageView) findViewById(R.id.search_img);
         searchImage.setTag(SEARCH_ICON);
@@ -189,6 +190,7 @@ public class FolioActivity
         searchImageClickListener = new SearchImageClickListener();
         searchImage.setOnClickListener(searchImageClickListener);
         searchAnimateHide();
+
         ///////////////////search inits /////////////////////
 
         findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
@@ -245,79 +247,7 @@ public class FolioActivity
         }
     }
 
-    private void clearSearchSection() {
-        if (mSearchText != null)
-            mSearchText.getText().clear();
-        changeSearchIcon(true);
-    }
 
-    private void changeSearchIcon(boolean doSearch) {
-        if (doSearch/* && (int)searchImage.getTag()== DOWN_ARROW_ICON*/) {
-            searchImage.setTag(SEARCH_ICON);
-            searchImage.setImageResource(R.drawable.ic_search_white_24px);
-            findViewById(R.id.cancel_img).setVisibility(View.GONE);
-            searchSection.invalidate();
-        } else if (!doSearch /*&& (int)searchImage.getTag()== SEARCH_ICON*/) {
-            searchImage.setTag(DOWN_ARROW_ICON);
-            searchImage.setImageResource(R.drawable.ic_keyboard_arrow_down_white_24);
-            findViewById(R.id.cancel_img).setVisibility(View.VISIBLE);
-            searchSection.invalidate();
-        }
-    }
-
-    private void clearSearchHighlights() {
-        // TODO: 21.04.2018
-    }
-
-    private void search() {
-        isForSearch = true;
-        if (!mIsSearchSectionVisible) {
-            searchAnimateShow();
-            clearSearchSection();
-        } else {
-            searchAnimateHide();
-            clearSearchHighlights();
-        }
-
-    }
-
-    class SearchImageClickListener implements View.OnClickListener {
-
-        public ArrayList<Integer> indexes;
-        private int currentIndex = 0, count = 0;
-        public String query, uniqueID;
-
-        @Override
-        public void onClick(View view) {
-            Log.d("gözde***web", "salih");
-            if (isForSearch) {
-                new MainPresenter(FolioActivity.this).searchQuery();
-            } else {
-                if (indexes != null && query != null) {
-                    if (indexes.size() > currentIndex) {
-                        boolean isNew = true;
-
-                        if (currentIndex > 0 &&(int) indexes.get(currentIndex - 1) == ((int)indexes.get(currentIndex))) {
-                            isNew = false;
-                            count++;
-                        } else {
-                            uniqueID = UUID.randomUUID().toString();
-                            count = 0;
-                            mFolioPageViewPager.setCurrentItem(indexes.get(currentIndex));
-                        }
-                        Log.d("gözde***web2", "currentIndex: "+ currentIndex+" : isNew:"+isNew+" : count: "+count);
-                        EventBus.getDefault().post(new SearchEvent(query, isNew, count, uniqueID));
-                        // TODO: 21.04.2018 multiple
-                        currentIndex++;
-                    } else {
-                        // TODO: 21.04.2018 no more && maybe change icon
-                        currentIndex = 0;
-                        view.performClick();
-                    }
-                }
-            }
-        }
-    }
 
     private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
         try {
@@ -476,21 +406,7 @@ public class FolioActivity
         }
     }
 
-    private void searchAnimateShow() {
-        if (!mIsSearchSectionVisible) {
-//            searchSection.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
-            mIsSearchSectionVisible = true;
-            searchSection.setVisibility(View.VISIBLE);
-            toolbarAnimateHide();
-        }
-    }
 
-    private void searchAnimateHide() {
-        mIsSearchSectionVisible = false;
-//        searchSection.animate().translationY(-searchSection.getHeight()).setInterpolator(new AccelerateInterpolator
-// (2)).start();
-        searchSection.setVisibility(View.GONE);
-    }
 
     private void toolbarAnimateShow() {
         if (!mIsActionBarVisible) {
@@ -602,17 +518,28 @@ public class FolioActivity
                 }
             }
         }
-        Log.d("gözde***web22",searchQueryIndexes.toString());
         return searchQueryIndexes;
     }
 
     @Override
     public String getSearchQuery() {
-
-        // TODO: 21.04.2018 eg. change space to %20
-        return mSearchText.getText() == null ? null : Constants.LOCALHOST + bookFileName + "/search?query=" +
-                mSearchText
-                        .getText().toString();
+        if (mSearchText.getText() == null){
+            return null;
+        }else{
+            String searchQuery =  mSearchText.getText().toString();
+            if (!searchQuery.isEmpty()) {
+                if (searchQuery.contains(" ")) {
+                    searchQuery = searchQuery.replaceAll(" ", "%20");
+                }
+                if (searchQuery.length() != 0) {
+                    return Constants.LOCALHOST + bookFileName + "/search?query=" +searchQuery;
+                }else{
+                    return null;
+                }
+            }else{
+                return null;
+            }
+        }
     }
 
     private void setConfig() {
@@ -829,4 +756,90 @@ public class FolioActivity
                 break;
         }
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void clearSearchSection() {
+        if (mSearchText != null)
+            mSearchText.getText().clear();
+        changeSearchIcon(true);
+    }
+
+    private void changeSearchIcon(boolean doSearch) {
+        if (doSearch/* && (int)searchImage.getTag()== DOWN_ARROW_ICON*/) {
+            searchImage.setTag(SEARCH_ICON);
+            searchImage.setImageResource(R.drawable.ic_search_white_24px);
+            findViewById(R.id.cancel_img).setVisibility(View.GONE);
+            searchSection.invalidate();
+        } else /* if (!doSearch && (int)searchImage.getTag()== SEARCH_ICON)*/ {
+            searchImage.setTag(DOWN_ARROW_ICON);
+            searchImage.setImageResource(R.drawable.ic_keyboard_arrow_down_white_24);
+            findViewById(R.id.cancel_img).setVisibility(View.VISIBLE);
+            searchSection.invalidate();
+        }
+    }
+
+    private void clearSearchHighlights() {
+        // TODO: 21.04.2018
+    }
+
+    private void search() {
+        isForSearch = true;
+        if (!mIsSearchSectionVisible) {
+            searchAnimateShow();
+            clearSearchSection();
+        } else {
+            searchAnimateHide();
+            clearSearchHighlights();
+        }
+    }
+
+    private void searchAnimateShow() {
+        if (!mIsSearchSectionVisible) {
+            mIsSearchSectionVisible = true;
+            searchSection.setVisibility(View.VISIBLE);
+            toolbarAnimateHide();
+        }
+    }
+
+    private void searchAnimateHide() {
+        mIsSearchSectionVisible = false;
+        searchSection.setVisibility(View.GONE);
+    }
+
+    class SearchImageClickListener implements View.OnClickListener {
+
+        public ArrayList<Integer> indexes;
+        private int currentIndex = 0, count = 0;
+        public String query, uniqueID;
+
+        @Override
+        public void onClick(View view) {
+            if (isForSearch) {
+                new MainPresenter(FolioActivity.this).searchQuery();
+            } else {
+                if (indexes != null && query != null) {
+                    if (indexes.size() > currentIndex) {
+                        boolean isNew = true;
+                        if (currentIndex > 0 && (int) indexes.get(currentIndex - 1) == ((int) indexes.get
+                                (currentIndex))) {
+                            isNew = false;
+                            count++;
+                        } else {
+                            uniqueID = UUID.randomUUID().toString();
+                            count = 0;
+                            mChapterPosition = indexes.get(currentIndex);
+                            mFolioPageViewPager.setCurrentItem(mChapterPosition);
+                        }
+                        EventBus.getDefault().post(new SearchEvent(query, isNew, count, uniqueID));
+                        currentIndex++;
+                    } else {
+                        // TODO: 21.04.2018 change icon & no restart since it may leak
+                        currentIndex = 0;
+                        view.performClick();
+                    }
+                }
+            }
+        }
+    }
+
 }

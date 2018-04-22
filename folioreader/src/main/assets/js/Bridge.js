@@ -624,6 +624,33 @@ function gotoHighlight(highlightId){
     goToEl(element);
   }
 }
+function giveBackgorundToSearchItems(word){
+    $(document).ready(function() {
+        if(!$('.mobilion')[0]){
+        document.body.innerHTML = document.body.innerHTML.split(new RegExp(word,'i')).join("<span class='mobilion' style='background-color: rgba(255, 255,0, 0.8); color: blue; padding: 3px 5px; box-shadow: 0px 0px 8px 3px rgba(179,179,179,0.7);border-radius: 8px; font-size: 1.05em;'><b>"+word+"</b></span>");
+        console.log('class created');
+        goToSearchQuery(0);
+        }else{
+        console.log('class exists');
+        }
+    });
+}
+
+function goToSearchQuery(c){
+    $(document).ready(function() {
+        var element = document.getElementsByClassName('mobilion')[c];
+        if(element != null) {
+            console.log("element is not null");
+            if(element.scrollIntoViewIfNeeded){
+               element.scrollIntoViewIfNeeded();
+            }else{
+               element.scrollIntoView();
+            }
+        }else{
+            console.log('element is null');
+        }
+    });
+}
 
 $(function(){
   window.ssReader = Class({

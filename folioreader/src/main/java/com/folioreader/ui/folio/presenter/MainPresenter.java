@@ -1,7 +1,5 @@
 package com.folioreader.ui.folio.presenter;
 
-import android.util.Log;
-
 import com.folioreader.ui.base.ManifestCallBack;
 import com.folioreader.ui.base.ManifestTask;
 import com.folioreader.ui.base.SearchListCallBack;
@@ -33,18 +31,15 @@ public class MainPresenter implements ManifestCallBack {
             new SearchListTask(new SearchListCallBack() {
                 @Override
                 public void onReceiveSearchList(SearchQueryResults searchQueryResults) {
-                    Log.d("gözde***","salih2");
                     mainMvpView.onShowSearchResults(searchQueryResults);
                 }
 
                 @Override
                 public void onError() {
-                    Log.d("gözde***","salih3");
                     // TODO: 20.04.2018
                 }
             }).execute(searchUrl);
         }
-        Log.d("gözde***","salih4");
     }
 
     @Override

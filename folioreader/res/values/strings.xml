@@ -76,7 +76,7 @@
     <string name="pattern">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>
     <!--<string name="pattern2">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>-->
     <string name="script_tag_method_call"><![CDATA[<script type=\"text/javascript\">%s</script>]]></string>
-  <string name="underline_highlights">
+    <string name="underline_highlights">
       <span style="border-bottom: 1px solid #ff0000;">%s</span>
   </string>
     <string name="edit_notes">Save your note</string>
@@ -84,8 +84,9 @@
     <string name="please_enter_note">please enter a note</string>
     <string name="contents">Contents</string>
 
-    <!--<string name="deneme">javascript: document.body.innerHTML = document.body.innerHTML.split(\'%s\').join("<span name='27$36$1$highlight_green$' style='background-color: rgba(255, 255, 0, 0.8); color: blue; padding: 3px 5px; box-shadow: 0px 0px 8px 3px rgba(179,179,179,0.7); border-radius: 8px; font-size: 1.05em;'><strong>\'%s\'</strong></span>"); goToEl(document.getElementsByName('27$36$1$highlight_green$'));</string>-->
-    <string name="deneme"><![CDATA[javascript:(function() { console.log(document.body.innerHTML); document.body.innerHTML = document.body.innerHTML.replace(\'transferable\',"<span style='background-color: rgba(255, 255, 0, 0.8); color: blue; padding: 3px 5px; box-shadow: 0px 0px 8px 3px rgba(179,179,179,0.7); border-radius: 8px; font-size: 1.05em;'><b>\'%s\'</b></span>"); console.log(document.body.innerHTML);})()]]></string>
+    <string name="search_highlight">javascript:giveBackgorundToSearchItems(\'%s\')</string>
+    <string name="search_item_scroll">javascript:goToSearchQuery(%d)</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="debug_start_drag">Starting drag!</string>

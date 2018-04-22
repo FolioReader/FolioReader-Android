@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
@@ -147,6 +146,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private MediaController mediaController;
     private Config mConfig;
     private String mBookId;
+
+    private String word;
+    private String uniqueId;
+    private int count;
 
     public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef, String bookId) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -327,7 +330,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void jumpToAnchorPoint(AnchorIdEvent event) {
-        Log.d("eventqwe", "12");
         if (isAdded() && event != null && event.getHref() != null) {
             String href = event.getHref();
             if (href != null && href.indexOf('#') != -1 && spineItem.href.equals(href.substring(0, href.lastIndexOf
@@ -452,6 +454,11 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         loadRangy(view, rangy);
                     }
                     scrollToHighlightId();
+
+                    if (word!=null && uniqueId!=null) {
+                        giveBackgroundToSearchItems();
+                        goNextElementInTheSameChapter();
+                    }
                 }
             }
 
@@ -531,18 +538,20 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     mWebview.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            Log.d("scroll y", "Scrolly" + mScrollY);
-                            mWebview.scrollTo(0, mScrollY);
+                            if (word == null && uniqueId == null) {
+                                Log.d("scroll y", "Scrolly" + mScrollY);
+                                mWebview.scrollTo(0, mScrollY);
+                            }
                         }
                     }, 100);
                 }
             }
-
-            @Override
-            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                android.util.Log.d("WebView", consoleMessage.message());
-                return true;
-            }
+            // TODO: 22.04.2018 to see js log messages
+//            @Override
+//            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+//                android.util.Log.d("WebView", consoleMessage.message());
+//                return true;
+//            }
 
 
             @Override
@@ -970,21 +979,20 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         }
     }
 
-//    static int count = 0;
-//    String id = "";
-
+    @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void setWebViewAccToSearch(SearchEvent searchEvent) {
-        if (mWebview.getContentHeight() > 0) {
-
-
-            Log.d("gözde***", "salih5");
-            if (searchEvent.isNewChapter()) {
-                scrollAndHighlight(searchEvent.getWord(), searchEvent.getId());
+    public void setWebViewAccToSearch(final SearchEvent searchEvent) {
+        if (isAdded()) {
+            word = searchEvent.getWord();
+            uniqueId = searchEvent.getId();
+            count = searchEvent.getCount();
+            if (mWebview.getContentHeight() > 0) {
+                if (searchEvent.isNewChapter()) {
+                    giveBackgroundToSearchItems();
+                }else {
+                    goNextElementInTheSameChapter();
+                }
             }
-            Log.d("salihWebview", searchEvent.getId() + "   : " + searchEvent.getCount() + "   : " + searchEvent
-                    .getWord());
-            goNextElementInTheSameChapter(searchEvent.getId(), searchEvent.getCount());
         }
     }
 
@@ -993,7 +1001,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             @Override
             public void run() {
                 if (isAdded()) {
-                    mWebview.scrollTo(0, position);
+                    if (word == null && uniqueId == null) {
+                        mWebview.scrollTo(0, position);
+                    }
                 }
             }
         });
@@ -1051,35 +1061,13 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
     }
 
-    private void scrollAndHighlight(String word, String uniqueId) {
-//        mWebview.addJavascriptInterface(this, "Android");
-        String js = String.format("javascript:$(document).ready(function() { console.log(document.body.innerHTML); " +
-                "document.body" +
-                ".innerHTML = " +
-                "document.body.innerHTML.split( \'%s\').join(\"<span name=\'%s\' style='background-color: rgba" +
-                "(255, 255, " +
-                "0, 0.8); color: blue; padding: 3px 5px; box-shadow: 0px 0px 8px 3px rgba(179,179,179,0.7); " +
-                "border-radius: 8px; font-size: 1.05em;'><b> %s </b></span>\"); console.log(document.body" +
-                ".innerHTML);" +
-//                "var element = document.getElementsByName(\'%s\')[0];\n" +
-//                "  if(element != null) {\n" +
-//                "   console.log('salih78945613'); goToEl(element);\n" +
-//                "  }else{ console.log('salih78945613123456'); }" +
-                "});", word, uniqueId, word);
-        Log.d("jssss", js);
+    private void giveBackgroundToSearchItems() {
+        String js = String.format(getString(R.string.search_highlight),word);
         mWebview.loadUrl(js);
     }
 
-    int i = 0;
-
-    private void goNextElementInTheSameChapter(String uniqueId, int count) {
-        String js = String.format("javascript:$(document).ready(function() {var element = document.getElementsByName" +
-                "(\'%s\')[%d];\n" +
-                "  if(element != null) {\n" +
-                "   console.log('salih78945613'); goToEl(element);\n" +
-                "  }else{ console.log('salih78945613123456'); } });", uniqueId, count);
-        i++;
-        Log.d("jssss22", i + "   :  " + js);
+    private void goNextElementInTheSameChapter() {
+        String js = String.format(getString(R.string.search_item_scroll),count);
         mWebview.loadUrl(js);
     }
 }
