@@ -22,11 +22,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -115,7 +113,6 @@ public class FolioActivity
     private int mChapterPosition;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
     private ReadPosition entryReadPosition;
-    private ReadPosition readPosition;
     private ConfigBottomSheetDialogFragment mConfigBottomSheetDialogFragment;
     private TextView title;
 
@@ -346,11 +343,6 @@ public class FolioActivity
     }
 
     @Override
-    public void setReadPosition(ReadPosition readPosition) {
-        this.readPosition = readPosition;
-    }
-
-    @Override
     public ReadPosition getEntryReadPosition() {
 
         if (entryReadPosition != null) {
@@ -359,39 +351,6 @@ public class FolioActivity
             return tempReadPosition;
         }
         return null;
-    }
-
-    /**
-     * FolioActivity is waiting to get ReadPosition stored from
-     * /assets/js/Bridge.js#getFirstVisibleSpan(boolean) ->
-     * {@link FolioPageFragment#storeFirstVisibleSpan(boolean, String)} ->
-     * {@link #setReadPosition(ReadPosition)} to avoid any race condition.
-     * This delay on UI Thread goes unnoticed as it is onStop() and not in onPause()
-     */
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Log.e(TAG, "-> " + e);
-        }
-
-        saveReadPosition();
-    }
-
-    /**
-     * Sends the broadcast to {@link FolioReader#readPositionReceiver}
-     */
-    private void saveReadPosition() {
-
-        if (mSpineReferenceList.size() > 0) {
-
-            Intent intent = new Intent(FolioReader.ACTION_SAVE_READ_POSITION);
-            intent.putExtra(FolioReader.EXTRA_READ_POSITION, (Parcelable) readPosition);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        }
     }
 
     @Override
