@@ -117,6 +117,13 @@ public class FolioReader {
         context.startActivity(intent);
     }
 
+    public void openBook(String assetOrSdcardPath, Config config, String bookId) {
+        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
+        intent.putExtra(Config.INTENT_CONFIG, config);
+        intent.putExtra(INTENT_BOOK_ID, bookId);
+        context.startActivity(intent);
+    }
+
     private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId) {
 
         Intent intent = new Intent(context, FolioActivity.class);
