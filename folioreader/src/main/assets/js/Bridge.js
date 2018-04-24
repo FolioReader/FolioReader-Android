@@ -574,32 +574,57 @@ function isElementVisible(element, isHorizontal) {
         return rect.top > 0;
 }
 
-function getFirstVisibleSpanIndex(isHorizontal) {
+/**
+Gets the first visible span from the displayed chapter and if it has id then usingId is true with
+value as span id else usingId is false with value as span index. usingId and value is forwarded to
+FolioPageFragment#storeFirstVisibleSpan(boolean, String) JavascriptInterface.
 
-    //Can be more specific with document.querySelectorAll('span.sentence')
+@param {boolean} isHorizontal - scrolling type of DirectionalViewpager#mDirection
+*/
+function getFirstVisibleSpan(isHorizontal) {
+
     var spanCollection = document.getElementsByTagName("span");
-    var json = {usingId: false, value: 0};
+
+    if (spanCollection.length == 0) {
+        FolioPageFragment.storeFirstVisibleSpan(false, 0);
+        return;
+    }
+
+    var spanIndex = 0;
+    var spanElement;
 
     for (var i = 0 ; i < spanCollection.length ; i++) {
-
         if (isElementVisible(spanCollection[i], isHorizontal)) {
-
-            json.value = i;
+            spanIndex = i;
+            spanElement = spanCollection[i];
             break;
         }
     }
 
-    FolioPageFragment.storeFirstVisibleSpanIndex(JSON.stringify(json));
+    var usingId = spanElement.id ? true : false;
+    var value = usingId ? spanElement.id : spanIndex;
+    FolioPageFragment.storeFirstVisibleSpan(usingId, value);
 }
 
-function scrollToSpanIndex(index) {
+/**
+Scrolls the web page to particular span using id or index
 
-    var spanCollection = document.getElementsByTagName("span");
+@param {boolean} usingId - if span tag has id then true or else false
+@param {number} value - if usingId true then span id else span index
+*/
+function scrollToSpan(usingId, value) {
 
-    if (spanCollection.length == 0 || index < 0 || index >= spanCollection.length)
-        return;
-
-    goToEl(spanCollection[index]);
+    if (usingId) {
+        var spanElement = document.getElementById(value);
+        if (spanElement)
+            goToEl(spanElement);
+    } else {
+        var spanCollection = document.getElementsByTagName("span");
+        if (spanCollection.length == 0 || value < 0 || value >= spanCollection.length
+            || value == null)
+            return;
+        goToEl(spanCollection[value]);
+    }
 }
 
 // Class based onClick listener
