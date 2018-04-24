@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,6 +36,8 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
+import com.folioreader.model.ReadPosition;
+import com.folioreader.model.ReadPositionImpl;
 import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
@@ -111,7 +114,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
         void setPagerToPosition(String href);
 
-        void setLastReadSpanIndex(String json);
+        ReadPosition getEntryReadPosition();
 
         void goToChapter(String href);
     }
@@ -373,13 +376,6 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
         }
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        mediaController.stop();
-        //TODO save last media overlay item
-    }
-
     private void initWebView() {
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
         mWebview.setSeekBarListener(FolioPageFragment.this);
@@ -452,8 +448,12 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     } else if (!TextUtils.isEmpty(highlightId)) {
                         scrollToHighlightId();
                     } else if (isCurrentFragment()) {
-                        int index = AppUtil.getLastReadSpanIndex(getActivity(), mBookId, mPos);
-                        mWebview.loadUrl("javascript:scrollToSpanIndex(" + index + ")");
+
+                        ReadPosition entryReadPosition = mActivityCallback.getEntryReadPosition();
+                        if (entryReadPosition != null) {
+                            mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
+                                    entryReadPosition.isUsingId(), entryReadPosition.getValue()));
+                        }
                     }
                 }
             }
@@ -620,24 +620,44 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     }
 
     /**
-     * Calls the /assets/js/Bridge.js#getFirstVisibleSpanIndex(boolean)
+     * Calls the /assets/js/Bridge.js#getFirstVisibleSpan(boolean)
      */
     @Override
-    public void onPause() {
-        super.onPause();
-        if (isCurrentFragment())
-            mWebview.loadUrl("javascript:getFirstVisibleSpanIndex(false)");
+    public void onStop() {
+        super.onStop();
+        mediaController.stop();
+        //TODO save last media overlay item
+
+        if (isCurrentFragment()) {
+            try {
+                synchronized (this) {
+                    mWebview.loadUrl("javascript:getFirstVisibleSpan(false)");
+                    wait(6000);
+                }
+            } catch (InterruptedException e) {
+                Log.e(TAG, "-> " + e);
+            }
+        }
     }
 
     /**
-     * Callback method called from /assets/js/Bridge.js#getFirstVisibleSpanIndex(boolean)
-     * and then json string is forwarded to {@link FolioActivity#setLastReadSpanIndex(String)}
+     * Callback method called from /assets/js/Bridge.js#getFirstVisibleSpan(boolean)
+     * and then ReadPositionImpl is broadcast to {@link FolioReader#readPositionReceiver}
      *
-     * @param json iOS compatible last read span json string
+     * @param usingId if span tag has id then true or else false
+     * @param value if usingId true then span id else span index
      */
     @JavascriptInterface
-    public void storeFirstVisibleSpanIndex(String json) {
-        mActivityCallback.setLastReadSpanIndex(json);
+    public void storeFirstVisibleSpan(boolean usingId, String value) {
+
+        synchronized (this) {
+            ReadPositionImpl readPositionImpl = new ReadPositionImpl(mBookId, mPosition,
+                    spineItem.getHref(), usingId, value);
+            Intent intent = new Intent(FolioReader.ACTION_SAVE_READ_POSITION);
+            intent.putExtra(FolioReader.EXTRA_READ_POSITION, readPositionImpl);
+            LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
+            notify();
+        }
     }
 
     private void loadRangy(WebView view, String rangy) {

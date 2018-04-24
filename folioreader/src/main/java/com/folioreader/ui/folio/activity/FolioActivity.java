@@ -25,11 +25,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -46,6 +44,7 @@ import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.HighlightImpl;
+import com.folioreader.model.ReadPosition;
 import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
@@ -93,8 +92,7 @@ public class FolioActivity
     public static final String INTENT_EPUB_SOURCE_PATH = "com.folioreader.epub_asset_path";
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
     public static final String INTENT_HIGHLIGHTS_LIST = "highlight_list";
-    public static final String EXTRA_LAST_READ_CHAPTER_INDEX = "com.folioreader.extra_last_read_chapter_position";
-    public static final String EXTRA_LAST_READ_SPAN_INDEX = "com.folioreader.extra_last_read_span_index";
+    public static final String EXTRA_READ_POSITION = "com.folioreader.extra.READ_POSITION";
 
     public enum EpubSourceType {
         RAW,
@@ -114,7 +112,7 @@ public class FolioActivity
 
     private int mChapterPosition;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
-    private String lastReadSpanIndex;
+    private ReadPosition entryReadPosition;
     private ConfigBottomSheetDialogFragment mConfigBottomSheetDialogFragment;
     private TextView title;
 
@@ -283,17 +281,28 @@ public class FolioActivity
         if (mSpineReferenceList != null) {
             mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, bookFileName, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
-        }
 
-        int lastReadChapterIndex =
-                getIntent().getIntExtra(FolioActivity.EXTRA_LAST_READ_CHAPTER_INDEX, 0);
-        String lastReadSpanIndex =
-                getIntent().getStringExtra(FolioActivity.EXTRA_LAST_READ_SPAN_INDEX);
-        if (TextUtils.isEmpty(lastReadSpanIndex))
-            lastReadSpanIndex = "{\"usingId\":false,\"value\":0}";
-        mFolioPageViewPager.setCurrentItem(lastReadChapterIndex);
-        AppUtil.saveLastReadState(
-                getApplicationContext(), mBookId, lastReadChapterIndex, lastReadSpanIndex);
+            entryReadPosition = getIntent().getParcelableExtra(FolioActivity.EXTRA_READ_POSITION);
+            if (entryReadPosition == null ||
+                    (entryReadPosition.getChapterIndex() == -1 &&
+                            entryReadPosition.getChapterHref() == null)) {
+                mFolioPageViewPager.setCurrentItem(0);
+            } else if (entryReadPosition.getChapterIndex() != -1) {
+                mFolioPageViewPager.setCurrentItem(entryReadPosition.getChapterIndex());
+            } else {
+                mFolioPageViewPager.setCurrentItem(
+                        getChapterIndex(entryReadPosition.getChapterHref()));
+            }
+        }
+    }
+
+    private int getChapterIndex(String chapterHref) {
+
+        for (int i = 0; i < mSpineReferenceList.size(); i++) {
+            if (mSpineReferenceList.get(i).getHref().equals(chapterHref))
+                return i;
+        }
+        return 0;
     }
 
     private void configDrawerLayoutButtons() {
@@ -334,43 +343,14 @@ public class FolioActivity
     }
 
     @Override
-    public void setLastReadSpanIndex(String json) {
-        lastReadSpanIndex = json;
-    }
+    public ReadPosition getEntryReadPosition() {
 
-    /**
-     * FolioActivity is waiting to get lastReadSpanIndex stored from
-     * /assets/js/Bridge.js#getFirstVisibleSpanIndex(boolean) ->
-     * {@link FolioPageFragment#storeFirstVisibleSpanIndex(String)} ->
-     * {@link #setLastReadSpanIndex(String)} to avoid any race condition.
-     * This delay on UI Thread goes unnoticed as it is onStop() and not in onPause()
-     */
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            Log.e(TAG, "-> " + e);
+        if (entryReadPosition != null) {
+            ReadPosition tempReadPosition = entryReadPosition;
+            entryReadPosition = null;
+            return tempReadPosition;
         }
-
-        saveLastReadState();
-    }
-
-    /**
-     * Sends the broadcast to {@link FolioReader#lastReadStateReceiver}
-     */
-    private void saveLastReadState() {
-
-        if (mSpineReferenceList.size() > 0) {
-
-            Intent intent = new Intent(FolioReader.ACTION_SAVE_LAST_READ_STATE);
-            intent.putExtra(FolioReader.EXTRA_LAST_READ_CHAPTER_INDEX,
-                    mFolioPageViewPager.getCurrentItem());
-            intent.putExtra(FolioReader.EXTRA_LAST_READ_SPAN_INDEX, lastReadSpanIndex);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        }
+        return null;
     }
 
     @Override
