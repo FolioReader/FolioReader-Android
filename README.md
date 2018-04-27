@@ -22,6 +22,7 @@ FolioReader-Android is an ePub reader and parser framework written in Java.
 - [ ] Book Search
 - [x] Add Notes to a Highlight
 - [ ] Better Documentation
+- [x] Last Read Position Callback
 
 ## Demo
 ##### Custom Fonts
@@ -36,7 +37,7 @@ FolioReader-Android is an ePub reader and parser framework written in Java.
 ### Gradle
 Add following dependency to your app build.gradle
 ``` java
-compile 'com.folioreader:folioreader:0.3.5'
+compile 'com.folioreader:folioreader:0.3.6'
 ```
 
 Add maven repository to your top level build.gradle
@@ -44,18 +45,19 @@ Add maven repository to your top level build.gradle
 ```groovy
 allprojects {
     repositories {
-        maven { url "http://dl.bintray.com/mobisystech/maven" }
+        maven {
+            url "http://dl.bintray.com/mobisystech/maven"
+        }
     }
 }
 ```
 
 ### Usage
 
-To use FolioReader, create object of **FolioReader** .
+To use FolioReader, get singleton object of **FolioReader**.
 
 ```java
-FolioReader folioReader = new FolioReader(context);
-
+FolioReader folioReader = FolioReader.getInstance(getApplicationContext());
 ```
 
 Call the function openBook().
@@ -63,12 +65,12 @@ Call the function openBook().
 ##### opening book from assets
 
 ```java
-folioReader.openBook(context, "file:///android_asset/adventures.epub");
+folioReader.openBook("file:///android_asset/adventures.epub");
 ```
 ##### opening book from raw
 
 ```java
-folioReader.openBook(context, R.raw.barrett);
+folioReader.openBook(R.raw.barrett);
 ```
 
 ## WIKI
