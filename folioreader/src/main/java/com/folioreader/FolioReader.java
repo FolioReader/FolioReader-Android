@@ -27,7 +27,7 @@ import java.util.List;
 public class FolioReader {
 
     @SuppressLint("StaticFieldLeak")
-    private static FolioReader folioReader = null;
+    private static FolioReader singleton = null;
     public static final String INTENT_BOOK_ID = "book_id";
     private Context context;
     private OnHighlightListener onHighlightListener;
@@ -61,17 +61,17 @@ public class FolioReader {
 
     public static FolioReader getInstance(Context context) {
 
-        if (folioReader == null) {
+        if (singleton == null) {
             synchronized (FolioReader.class) {
-                if (folioReader == null) {
+                if (singleton == null) {
                     if (context == null) {
                         throw new IllegalArgumentException("-> context cannot be null");
                     }
-                    folioReader = new FolioReader(context.getApplicationContext());
+                    singleton = new FolioReader(context.getApplicationContext());
                 }
             }
         }
-        return folioReader;
+        return singleton;
     }
 
     private FolioReader() {
@@ -89,27 +89,27 @@ public class FolioReader {
     public FolioReader openBook(String assetOrSdcardPath) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
         context.startActivity(intent);
-        return folioReader;
+        return singleton;
     }
 
     public FolioReader openBook(int rawId) {
         Intent intent = getIntentFromUrl(null, rawId);
         context.startActivity(intent);
-        return folioReader;
+        return singleton;
     }
 
     public FolioReader openBook(String assetOrSdcardPath, Config config) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
         intent.putExtra(Config.INTENT_CONFIG, config);
         context.startActivity(intent);
-        return folioReader;
+        return singleton;
     }
 
     public FolioReader openBook(int rawId, Config config) {
         Intent intent = getIntentFromUrl(null, rawId);
         intent.putExtra(Config.INTENT_CONFIG, config);
         context.startActivity(intent);
-        return folioReader;
+        return singleton;
     }
 
     public FolioReader openBook(String assetOrSdcardPath, Config config, int port) {
@@ -117,7 +117,7 @@ public class FolioReader {
         intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.INTENT_PORT, port);
         context.startActivity(intent);
-        return folioReader;
+        return singleton;
     }
 
     public FolioReader openBook(int rawId, Config config, int port) {
@@ -125,7 +125,7 @@ public class FolioReader {
         intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.INTENT_PORT, port);
         context.startActivity(intent);
-        return folioReader;
+        return singleton;
     }
 
     public FolioReader openBook(String assetOrSdcardPath, Config config, int port, String bookId) {
@@ -134,7 +134,7 @@ public class FolioReader {
         intent.putExtra(Config.INTENT_PORT, port);
         intent.putExtra(INTENT_BOOK_ID, bookId);
         context.startActivity(intent);
-        return folioReader;
+        return singleton;
     }
 
     public FolioReader openBook(int rawId, Config config, int port, String bookId) {
@@ -143,7 +143,7 @@ public class FolioReader {
         intent.putExtra(Config.INTENT_PORT, port);
         intent.putExtra(INTENT_BOOK_ID, bookId);
         context.startActivity(intent);
-        return folioReader;
+        return singleton;
     }
 
     public FolioReader openBook(String assetOrSdcardPath, Config config, String bookId) {
@@ -151,7 +151,7 @@ public class FolioReader {
         intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(INTENT_BOOK_ID, bookId);
         context.startActivity(intent);
-        return folioReader;
+        return singleton;
     }
 
     private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId) {
@@ -175,17 +175,17 @@ public class FolioReader {
 
     public FolioReader setOnHighlightListener(OnHighlightListener onHighlightListener) {
         this.onHighlightListener = onHighlightListener;
-        return folioReader;
+        return singleton;
     }
 
     public FolioReader setReadPositionListener(ReadPositionListener readPositionListener) {
         this.readPositionListener = readPositionListener;
-        return folioReader;
+        return singleton;
     }
 
     public FolioReader setReadPosition(ReadPosition readPosition) {
         this.readPosition = readPosition;
-        return folioReader;
+        return singleton;
     }
 
     public void saveReceivedHighLights(List<HighLight> highlights, OnSaveHighlight onSaveHighlight) {
@@ -194,10 +194,10 @@ public class FolioReader {
 
     public static void clear() {
 
-        if (folioReader != null) {
-            folioReader.readPosition = null;
-            folioReader.onHighlightListener = null;
-            folioReader.readPositionListener = null;
+        if (singleton != null) {
+            singleton.readPosition = null;
+            singleton.onHighlightListener = null;
+            singleton.readPositionListener = null;
         }
     }
 }
