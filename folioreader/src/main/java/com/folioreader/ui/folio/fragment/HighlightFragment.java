@@ -27,7 +27,7 @@ import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.folio.adapter.HighlightAdapter;
 import com.folioreader.util.AppUtil;
-import com.folioreader.util.FolioReader;
+import com.folioreader.FolioReader;
 import com.folioreader.util.HighlightUtil;
 
 import org.greenrobot.eventbus.EventBus;

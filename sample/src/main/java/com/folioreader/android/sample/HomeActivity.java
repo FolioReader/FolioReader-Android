@@ -29,10 +29,10 @@ import com.folioreader.model.HighLight;
 import com.folioreader.model.ReadPosition;
 import com.folioreader.model.ReadPositionImpl;
 import com.folioreader.ui.base.OnSaveHighlight;
-import com.folioreader.util.FolioReader;
+import com.folioreader.FolioReader;
 import com.folioreader.util.ObjectMapperSingleton;
 import com.folioreader.util.OnHighlightListener;
-import com.folioreader.util.ReadPositionCallback;
+import com.folioreader.util.ReadPositionListener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity
-        implements OnHighlightListener, ReadPositionCallback {
+        implements OnHighlightListener, ReadPositionListener {
 
     private static final String LOG_TAG = HomeActivity.class.getSimpleName();
     private FolioReader folioReader;
@@ -51,9 +51,10 @@ public class HomeActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        folioReader = new FolioReader(this);
-        folioReader.registerHighlightListener(this);
-        folioReader.setReadPositionCallback(this);
+
+        folioReader = FolioReader.getInstance(getApplicationContext())
+                .setOnHighlightListener(this)
+                .setReadPositionListener(this);
 
         findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,8 +167,7 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        folioReader.unregisterHighlightListener();
-        folioReader.removeReadPositionCallback();
+        FolioReader.clear();
     }
 
     @Override

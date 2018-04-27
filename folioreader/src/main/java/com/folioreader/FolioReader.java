@@ -1,5 +1,6 @@
-package com.folioreader.util;
+package com.folioreader;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -7,8 +8,6 @@ import android.content.IntentFilter;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.folioreader.Config;
-import com.folioreader.Constants;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.ReadPosition;
@@ -16,6 +15,8 @@ import com.folioreader.model.sqlite.DbAdapter;
 import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.ui.base.SaveReceivedHighlightTask;
 import com.folioreader.ui.folio.activity.FolioActivity;
+import com.folioreader.util.OnHighlightListener;
+import com.folioreader.util.ReadPositionListener;
 
 import java.util.List;
 
@@ -25,10 +26,12 @@ import java.util.List;
 
 public class FolioReader {
 
+    @SuppressLint("StaticFieldLeak")
+    private static FolioReader folioReader = null;
     public static final String INTENT_BOOK_ID = "book_id";
     private Context context;
     private OnHighlightListener onHighlightListener;
-    private ReadPositionCallback readPositionCallback;
+    private ReadPositionListener readPositionListener;
     private ReadPosition readPosition;
     public static final String ACTION_SAVE_READ_POSITION = "com.folioreader.action.SAVE_READ_POSITION";
     public static final String EXTRA_READ_POSITION = "com.folioreader.extra.READ_POSITION";
@@ -51,12 +54,30 @@ public class FolioReader {
 
             ReadPosition readPosition =
                     intent.getParcelableExtra(FolioReader.EXTRA_READ_POSITION);
-            if (readPositionCallback != null )
-                readPositionCallback.saveReadPosition(readPosition);
+            if (readPositionListener != null )
+                readPositionListener.saveReadPosition(readPosition);
         }
     };
 
-    public FolioReader(Context context) {
+    public static FolioReader getInstance(Context context) {
+
+        if (folioReader == null) {
+            synchronized (FolioReader.class) {
+                if (folioReader == null) {
+                    if (context == null) {
+                        throw new IllegalArgumentException("-> context cannot be null");
+                    }
+                    folioReader = new FolioReader(context.getApplicationContext());
+                }
+            }
+        }
+        return folioReader;
+    }
+
+    private FolioReader() {
+    }
+
+    private FolioReader(Context context) {
         this.context = context;
         new DbAdapter(context);
         LocalBroadcastManager.getInstance(context).registerReceiver(highlightReceiver,
@@ -65,63 +86,72 @@ public class FolioReader {
                 new IntentFilter(ACTION_SAVE_READ_POSITION));
     }
 
-    public void openBook(String assetOrSdcardPath) {
+    public FolioReader openBook(String assetOrSdcardPath) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
         context.startActivity(intent);
+        return folioReader;
     }
 
-    public void openBook(int rawId) {
+    public FolioReader openBook(int rawId) {
         Intent intent = getIntentFromUrl(null, rawId);
         context.startActivity(intent);
+        return folioReader;
     }
 
-    public void openBook(String assetOrSdcardPath, Config config) {
+    public FolioReader openBook(String assetOrSdcardPath, Config config) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
         intent.putExtra(Config.INTENT_CONFIG, config);
         context.startActivity(intent);
+        return folioReader;
     }
 
-    public void openBook(int rawId, Config config) {
+    public FolioReader openBook(int rawId, Config config) {
         Intent intent = getIntentFromUrl(null, rawId);
         intent.putExtra(Config.INTENT_CONFIG, config);
         context.startActivity(intent);
+        return folioReader;
     }
 
-    public void openBook(String assetOrSdcardPath, Config config, int port) {
-        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
-        intent.putExtra(Config.INTENT_CONFIG, config);
-        intent.putExtra(Config.INTENT_PORT, port);
-        context.startActivity(intent);
-    }
-
-    public void openBook(int rawId, Config config, int port) {
-        Intent intent = getIntentFromUrl(null, rawId);
-        intent.putExtra(Config.INTENT_CONFIG, config);
-        intent.putExtra(Config.INTENT_PORT, port);
-        context.startActivity(intent);
-    }
-
-    public void openBook(String assetOrSdcardPath, Config config, int port, String bookId) {
+    public FolioReader openBook(String assetOrSdcardPath, Config config, int port) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
         intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.INTENT_PORT, port);
-        intent.putExtra(INTENT_BOOK_ID, bookId);
         context.startActivity(intent);
+        return folioReader;
     }
 
-    public void openBook(int rawId, Config config, int port, String bookId) {
+    public FolioReader openBook(int rawId, Config config, int port) {
         Intent intent = getIntentFromUrl(null, rawId);
+        intent.putExtra(Config.INTENT_CONFIG, config);
+        intent.putExtra(Config.INTENT_PORT, port);
+        context.startActivity(intent);
+        return folioReader;
+    }
+
+    public FolioReader openBook(String assetOrSdcardPath, Config config, int port, String bookId) {
+        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
         intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.INTENT_PORT, port);
         intent.putExtra(INTENT_BOOK_ID, bookId);
         context.startActivity(intent);
+        return folioReader;
     }
 
-    public void openBook(String assetOrSdcardPath, Config config, String bookId) {
+    public FolioReader openBook(int rawId, Config config, int port, String bookId) {
+        Intent intent = getIntentFromUrl(null, rawId);
+        intent.putExtra(Config.INTENT_CONFIG, config);
+        intent.putExtra(Config.INTENT_PORT, port);
+        intent.putExtra(INTENT_BOOK_ID, bookId);
+        context.startActivity(intent);
+        return folioReader;
+    }
+
+    public FolioReader openBook(String assetOrSdcardPath, Config config, String bookId) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
         intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(INTENT_BOOK_ID, bookId);
         context.startActivity(intent);
+        return folioReader;
     }
 
     private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId) {
@@ -143,29 +173,31 @@ public class FolioReader {
         return intent;
     }
 
-    public void registerHighlightListener(OnHighlightListener onHighlightListener) {
+    public FolioReader setOnHighlightListener(OnHighlightListener onHighlightListener) {
         this.onHighlightListener = onHighlightListener;
+        return folioReader;
     }
 
-    public void unregisterHighlightListener() {
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(highlightReceiver);
-        this.onHighlightListener = null;
+    public FolioReader setReadPositionListener(ReadPositionListener readPositionListener) {
+        this.readPositionListener = readPositionListener;
+        return folioReader;
     }
 
-    public void setReadPositionCallback(ReadPositionCallback readPositionCallback) {
-        this.readPositionCallback = readPositionCallback;
-    }
-
-    public void removeReadPositionCallback() {
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(readPositionReceiver);
-        readPositionCallback = null;
-    }
-
-    public void setReadPosition(ReadPosition readPosition) {
+    public FolioReader setReadPosition(ReadPosition readPosition) {
         this.readPosition = readPosition;
+        return folioReader;
     }
 
     public void saveReceivedHighLights(List<HighLight> highlights, OnSaveHighlight onSaveHighlight) {
         new SaveReceivedHighlightTask(onSaveHighlight, highlights).execute();
+    }
+
+    public static void clear() {
+
+        if (folioReader != null) {
+            folioReader.readPosition = null;
+            folioReader.onHighlightListener = null;
+            folioReader.readPositionListener = null;
+        }
     }
 }
