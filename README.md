@@ -90,6 +90,7 @@ folioReader.openBook(R.raw.barrett);
 * [Highlight](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight)
     * [Highlight Action](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight-Action)
     * [Highlight Event](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight-Event)
+    * [Providing External Highlight](https://github.com/FolioReader/FolioReader-Android/wiki/Providing-External-Highlight)
 * [ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/ReadPosition)
     * [Get ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/Get-ReadPosition)
     * [Set ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/Set-ReadPosition)
