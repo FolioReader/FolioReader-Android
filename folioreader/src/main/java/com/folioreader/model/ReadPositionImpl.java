@@ -35,7 +35,8 @@ public class ReadPositionImpl implements ReadPosition, Parcelable {
     public ReadPositionImpl() {
     }
 
-    public ReadPositionImpl(String bookId, int chapterIndex, String chapterHref, boolean usingId, String value) {
+    public ReadPositionImpl(String bookId, int chapterIndex, String chapterHref, boolean usingId,
+                            String value) {
         this.bookId = bookId;
         this.chapterIndex = chapterIndex;
         this.chapterHref = chapterHref;

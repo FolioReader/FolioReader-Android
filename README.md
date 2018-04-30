@@ -2,7 +2,7 @@
 
 [![Build Status](https://api.travis-ci.org/FolioReader/FolioReader-Android.svg?branch=master)](https://travis-ci.org/FolioReader/FolioReader-Android)
 
-FolioReader-Android is an ePub reader and parser framework written in Java.
+FolioReader-Android is an ePub reader written in Java.
 
 ### Features
 
@@ -54,6 +54,15 @@ allprojects {
 
 ### Usage
 
+First add activity tag for FolioActivity in your AndroidManifest.xml
+
+```xml
+<activity
+    android:name="com.folioreader.ui.folio.activity.FolioActivity"
+    android:configChanges="orientation|screenSize"
+    android:theme="@style/AppTheme.NoActionBar"/>
+```
+
 To use FolioReader, get singleton object of **FolioReader**.
 
 ```java
@@ -75,9 +84,15 @@ folioReader.openBook(R.raw.barrett);
 
 ## WIKI
 
-* [Custom Configuration](https://github.com/FolioReader/FolioReader-Android/wiki/Custom-Configuration)
-* [Highlight Event](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight-Event)
-* [Providing External Highlight](https://github.com/FolioReader/FolioReader-Android/wiki/Providing-External-Highlight)
+* [Home](https://github.com/FolioReader/FolioReader-Android/wiki)
+* [Configuration](https://github.com/FolioReader/FolioReader-Android/wiki/Configuration)
+    * [Custom Configuration](https://github.com/FolioReader/FolioReader-Android/wiki/Custom-Configuration)
+* [Highlight](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight)
+    * [Highlight Action](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight-Action)
+    * [Highlight Event](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight-Event)
+* [ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/ReadPosition)
+    * [Get ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/Get-ReadPosition)
+    * [Set ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/Set-ReadPosition)
 
 ### Credits
 1. <a href="https://github.com/daimajia/AndroidSwipeLayout">SwipeLayout</a>
