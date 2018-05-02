@@ -40,8 +40,10 @@ public class HtmlTask extends AsyncTask<String, Void, String> {
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                stringBuilder.append(line);
+                stringBuilder.append(line).append('\n');
             }
+            if (stringBuilder.length() > 0)
+                stringBuilder.deleteCharAt(stringBuilder.length() - 1);
             return stringBuilder.toString();
         } catch (IOException e) {
             Log.e(TAG, "HtmlTask failed", e);
