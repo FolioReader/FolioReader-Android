@@ -1,16 +1,11 @@
 package com.folioreader.view;
 
 import android.animation.ObjectAnimator;
-import android.annotation.TargetApi;
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.view.ActionMode;
-import android.view.GestureDetector;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.webkit.WebView;
 
@@ -18,7 +13,7 @@ import com.folioreader.Constants;
 import com.folioreader.util.SharedPreferenceUtil;
 
 /**
- * Created by mahavir on 3/31/16.
+ * @author by mahavir on 3/31/16.
  */
 public class ObservableWebView extends WebView {
     private float mDownPosX = 0;
@@ -26,12 +21,12 @@ public class ObservableWebView extends WebView {
     private int current_x = 0;
     private int pageCount = 0;
     private int currentPage = 0;
-    private final GestureDetector gestureDetector = new GestureDetector(new GestureListener());
 
     private ScrollListener mScrollListener;
     private SeekBarListener mSeekBarListener;
     private ToolBarListener mToolBarListener;
-    private PageChangeListner pageChangeListner;
+    private PageChangeListener pageChangeListener;
+    float MOVE_THRESHOLD_DP = 0;
 
     public void scrollToCurrentPage() {
         scrollTo(current_x, 0);
@@ -40,7 +35,7 @@ public class ObservableWebView extends WebView {
         void onScrollChange(int percent);
 
     }
-    public interface PageChangeListner {
+    public interface PageChangeListener {
 
         void nextPage();
         void previousPage();
@@ -52,72 +47,28 @@ public class ObservableWebView extends WebView {
     }
     public interface ToolBarListener {
 
-        void hideOrshowToolBar();
+        void hideOrShowToolBar();
         void hideToolBarIfVisible();
 
     }
 
-    private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
-        private static final int SWIPE_THRESHOLD = 100;
-        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            if (mToolBarListener != null) {
-                mToolBarListener.hideOrshowToolBar();
-            }
-            return true;
-        }
-
-        @Override
-        public void onLongPress(MotionEvent e) {
-            //TODO handle text selection
-            super.onLongPress(e);
-        }
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            try {
-                float diffY = e2.getY() - e1.getY();
-                float diffX = e2.getX() - e1.getX();
-                if (mToolBarListener != null &&
-                        (Math.abs(diffX) < SWIPE_THRESHOLD
-                                || Math.abs(diffY) < Math.abs(diffY))) {
-                    mToolBarListener.hideOrshowToolBar();
-                }
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                        if (diffX > 0) {
-                            turnPageLeft();
-                        } else {
-                            turnPageRight();
-                        }
-                    }
-                }
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-            return false;
-        }
-    }
-
     public ObservableWebView(Context context) {
         super(context);
+        init();
+    }
+
+    private void init() {
+        MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
     }
 
     public ObservableWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public ObservableWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public ObservableWebView(Context context, AttributeSet attrs,
-                             int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        init();
     }
 
     public void setScrollListener(ScrollListener listener) {
@@ -132,30 +83,69 @@ public class ObservableWebView extends WebView {
         mToolBarListener = listener;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         final int action = event.getAction();
-        float MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
         if (SharedPreferenceUtil.getPagerOrientation(getContext()).equals(Constants.ORIENTATION.VERTICAL.toString())) {
-
-            switch (action) {
-                case MotionEvent.ACTION_DOWN:
-                    mDownPosX = event.getX();
-                    mDownPosY = event.getY();
-                    if (mSeekBarListener != null) mSeekBarListener.fadeInSeekBarIfInvisible();
-                    break;
-                case MotionEvent.ACTION_UP:
-                    if (mToolBarListener != null &&
-                            (Math.abs(event.getX() - mDownPosX) < MOVE_THRESHOLD_DP
-                                    || Math.abs(event.getY() - mDownPosY) < MOVE_THRESHOLD_DP)) {
-                        mToolBarListener.hideOrshowToolBar();
-                    }
-                    break;
-            }
+            handleVerticalScrolling(event, action);
         } else {
-            return gestureDetector.onTouchEvent(event);
+            Boolean x = handleHorizontalScrolling(event);
+            if (x != null) return x;
         }
         return super.onTouchEvent(event);
+    }
+
+    @Nullable
+    private Boolean handleHorizontalScrolling(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_MOVE:
+                super.onTouchEvent(event);
+                break;
+            case MotionEvent.ACTION_DOWN:
+                mDownPosX = event.getX();
+                if (mSeekBarListener != null) mSeekBarListener.fadeInSeekBarIfInvisible();
+                return super.onTouchEvent(event);
+            case MotionEvent.ACTION_UP:
+                float x2 = event.getX();
+                float deltaX = x2 - mDownPosX;
+                hideOrShowToolBar(event);
+                // TODO mask vertical swipes
+                if (Math.abs(deltaX) > 100) {
+                    // Left to Right swipe action
+                    if (x2 > mDownPosX) {
+                        turnPageLeft();
+                    }
+                    // Right to left swipe action
+                    else {
+                        turnPageRight();
+                    }
+                }
+            default:
+                super.onTouchEvent(event);
+        }
+        return null;
+    }
+
+    private void hideOrShowToolBar(MotionEvent event) {
+        if (mToolBarListener != null &&
+                (Math.abs(event.getX() - mDownPosX) < MOVE_THRESHOLD_DP
+                        || Math.abs(event.getY() - mDownPosY) < MOVE_THRESHOLD_DP)) {
+            mToolBarListener.hideOrShowToolBar();
+        }
+    }
+
+    private void handleVerticalScrolling(MotionEvent event, int action) {
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                mDownPosX = event.getX();
+                mDownPosY = event.getY();
+                if (mSeekBarListener != null) mSeekBarListener.fadeInSeekBarIfInvisible();
+                break;
+            case MotionEvent.ACTION_UP:
+                hideOrShowToolBar(event);
+                break;
+        }
     }
 
     private void turnPageLeft() {
@@ -165,7 +155,7 @@ public class ObservableWebView extends WebView {
             current_x = scrollX;
             scrollTo(scrollX, 0);
         } else {
-            pageChangeListner.previousPage();
+            pageChangeListener.previousPage();
         }
     }
 
@@ -181,7 +171,7 @@ public class ObservableWebView extends WebView {
             current_x = scrollX + paddingOffset;
             scrollTo(scrollX + paddingOffset, 0);
         } else {
-            pageChangeListner.nextPage();
+            pageChangeListener.nextPage();
         }
     }
 
@@ -216,74 +206,7 @@ public class ObservableWebView extends WebView {
         return this.getMeasuredHeight();
     }
 
-    @Override
-    public ActionMode startActionMode(ActionMode.Callback callback, int type) {
-        return this.dummyActionMode();
-    }
-
-    @Override
-    public ActionMode startActionMode(ActionMode.Callback callback) {
-        return this.dummyActionMode();
-    }
-
-    public void setPageChangeListner(PageChangeListner pageChangeListner) {
-        this.pageChangeListner = pageChangeListner;
-    }
-
-    public ActionMode dummyActionMode() {
-        return new ActionMode() {
-            @Override
-            public void setTitle(CharSequence title) {
-            }
-
-            @Override
-            public void setTitle(int resId) {
-            }
-
-            @Override
-            public void setSubtitle(CharSequence subtitle) {
-            }
-
-            @Override
-            public void setSubtitle(int resId) {
-            }
-
-            @Override
-            public void setCustomView(View view) {
-            }
-
-            @Override
-            public void invalidate() {
-            }
-
-            @Override
-            public void finish() {
-            }
-
-            @Override
-            public Menu getMenu() {
-                return null;
-            }
-
-            @Override
-            public CharSequence getTitle() {
-                return null;
-            }
-
-            @Override
-            public CharSequence getSubtitle() {
-                return null;
-            }
-
-            @Override
-            public View getCustomView() {
-                return null;
-            }
-
-            @Override
-            public MenuInflater getMenuInflater() {
-                return null;
-            }
-        };
+    public void setPageChangeListener(PageChangeListener pageChangeListener) {
+        this.pageChangeListener = pageChangeListener;
     }
 }

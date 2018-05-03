@@ -327,7 +327,7 @@ public class FolioActivity
     }
 
     @Override
-    public void hideOrshowToolBar() {
+    public void hideOrShowToolBar() {
         if (mIsActionBarVisible) {
             toolbarAnimateHide();
         } else {

@@ -56,7 +56,6 @@ import com.folioreader.util.AppUtil;
 import com.folioreader.util.FolioReader;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.util.SMILParser;
-import com.folioreader.util.SharedPreferenceUtil;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
@@ -79,7 +78,7 @@ import java.util.regex.Pattern;
 public class FolioPageFragment
         extends Fragment
         implements HtmlTaskCallback,
-        MediaControllerCallbacks, ObservableWebView.SeekBarListener,ObservableWebView.PageChangeListner {
+        MediaControllerCallbacks, ObservableWebView.SeekBarListener,ObservableWebView.PageChangeListener {
 
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.ui.folio.fragment.FolioPageFragment.POSITION";
     public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.BOOK_TITLE";
@@ -406,7 +405,7 @@ public class FolioPageFragment
     private void initWebView() {
         mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
 
-        mWebview.setPageChangeListner(this);
+        mWebview.setPageChangeListener(this);
 
         if (getActivity() instanceof ObservableWebView.ToolBarListener)
             mWebview.setToolBarListener((ObservableWebView.ToolBarListener) getActivity());
