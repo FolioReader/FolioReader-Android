@@ -19,14 +19,19 @@ public interface ReadPosition {
     String getBookId();
 
     /**
+     * Returns the idref of the spine item.
+     */
+    String getChapterId();
+
+    /**
+     * Returns the href of the manifest item.
+     */
+    String getChapterHref();
+
+    /**
      * Returns the chapter index from spine tag
      */
     int getChapterIndex();
-
-    /**
-     * Returns the chapter location from the book's root folder
-     */
-    String getChapterHref();
 
     /**
      * Returns true if span tag has id
