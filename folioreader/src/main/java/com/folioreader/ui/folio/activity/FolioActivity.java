@@ -28,6 +28,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -42,6 +43,7 @@ import android.widget.Toast;
 
 import com.folioreader.Config;
 import com.folioreader.Constants;
+import com.folioreader.FolioReader;
 import com.folioreader.R;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.ReadPosition;
@@ -56,7 +58,6 @@ import com.folioreader.ui.folio.presenter.MainMvpView;
 import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
-import com.folioreader.FolioReader;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
@@ -283,24 +284,48 @@ public class FolioActivity
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
 
             entryReadPosition = getIntent().getParcelableExtra(FolioActivity.EXTRA_READ_POSITION);
-            if (entryReadPosition == null ||
-                    (entryReadPosition.getChapterIndex() == -1 &&
-                            entryReadPosition.getChapterHref() == null)) {
-                mFolioPageViewPager.setCurrentItem(0);
-            } else if (entryReadPosition.getChapterIndex() != -1) {
-                mFolioPageViewPager.setCurrentItem(entryReadPosition.getChapterIndex());
-            } else {
-                mFolioPageViewPager.setCurrentItem(
-                        getChapterIndex(entryReadPosition.getChapterHref()));
-            }
+            mFolioPageViewPager.setCurrentItem(getChapterIndex(entryReadPosition));
         }
     }
 
-    private int getChapterIndex(String chapterHref) {
+    /**
+     * Returns the index of the chapter by following priority -
+     * 1. id
+     * 2. href
+     * 3. index
+     * @param readPosition Last read position
+     * @return index of the chapter
+     */
+    private int getChapterIndex(ReadPosition readPosition) {
+
+        if (readPosition == null) {
+            return 0;
+
+        } else if (!TextUtils.isEmpty(readPosition.getChapterId())) {
+            return getChapterIndex("id", readPosition.getChapterId());
+
+        } else if (!TextUtils.isEmpty(readPosition.getChapterHref())) {
+            return getChapterIndex("href", readPosition.getChapterHref());
+
+        } else if (readPosition.getChapterIndex() > -1
+                && readPosition.getChapterIndex() < mSpineReferenceList.size()) {
+            return readPosition.getChapterIndex();
+        }
+
+        return 0;
+    }
+
+    private int getChapterIndex(String caseString, String value) {
 
         for (int i = 0; i < mSpineReferenceList.size(); i++) {
-            if (mSpineReferenceList.get(i).getHref().equals(chapterHref))
-                return i;
+            switch (caseString) {
+                case "id":
+                    if (mSpineReferenceList.get(i).getId().equals(value))
+                        return i;
+                case "href":
+                    if (mSpineReferenceList.get(i).getOriginalHref().equals(value))
+                        return i;
+            }
         }
         return 0;
     }

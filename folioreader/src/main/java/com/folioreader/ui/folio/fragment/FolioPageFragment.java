@@ -632,7 +632,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             try {
                 synchronized (this) {
                     mWebview.loadUrl("javascript:getFirstVisibleSpan(false)");
-                    wait(6000);
+                    wait(2000);
                 }
             } catch (InterruptedException e) {
                 Log.e(TAG, "-> " + e);
@@ -651,8 +651,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     public void storeFirstVisibleSpan(boolean usingId, String value) {
 
         synchronized (this) {
-            ReadPositionImpl readPositionImpl = new ReadPositionImpl(mBookId, mPosition,
-                    spineItem.getHref(), usingId, value);
+            ReadPositionImpl readPositionImpl = new ReadPositionImpl(mBookId, spineItem.getId(),
+                    spineItem.getOriginalHref(), mPosition, usingId, value);
             Intent intent = new Intent(FolioReader.ACTION_SAVE_READ_POSITION);
             intent.putExtra(FolioReader.EXTRA_READ_POSITION, readPositionImpl);
             LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
