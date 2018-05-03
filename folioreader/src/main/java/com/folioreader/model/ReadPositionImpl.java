@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.folioreader.util.ObjectMapperSingleton;
@@ -11,6 +12,7 @@ import com.folioreader.util.ObjectMapperSingleton;
 /**
  * Created by Hrishikesh Kadam on 20/04/2018.
  */
+@JsonPropertyOrder({"bookId", "chapterId", "chapterHref", "chapterIndex", "usingId", "value"})
 public class ReadPositionImpl implements ReadPosition, Parcelable {
 
     public static final Creator<ReadPositionImpl> CREATOR = new Creator<ReadPositionImpl>() {
@@ -27,40 +29,42 @@ public class ReadPositionImpl implements ReadPosition, Parcelable {
 
     private static final String LOG_TAG = ReadPositionImpl.class.getSimpleName();
     private String bookId;
-    private int chapterIndex = -1;
+    private String chapterId;
     private String chapterHref;
+    private int chapterIndex = -1;
     private boolean usingId;
     private String value;
 
     public ReadPositionImpl() {
     }
 
-    public ReadPositionImpl(String bookId, int chapterIndex, String chapterHref, boolean usingId,
-                            String value) {
+    public ReadPositionImpl(String bookId, String chapterId, String chapterHref, int chapterIndex,
+                            boolean usingId, String value) {
         this.bookId = bookId;
-        this.chapterIndex = chapterIndex;
+        this.chapterId = chapterId;
         this.chapterHref = chapterHref;
+        this.chapterIndex = chapterIndex;
         this.usingId = usingId;
         this.value = value;
     }
 
     protected ReadPositionImpl(Parcel in) {
         bookId = in.readString();
-        chapterIndex = in.readInt();
+        chapterId = in.readString();
         chapterHref = in.readString();
+        chapterIndex = in.readInt();
         usingId = in.readByte() != 0;
         value = in.readString();
     }
 
     @Override
-    public String toString() {
-        return "ReadPositionImpl{" +
-                "bookId='" + bookId + '\'' +
-                ", chapterIndex=" + chapterIndex +
-                ", chapterHref='" + chapterHref + '\'' +
-                ", usingId=" + usingId +
-                ", value='" + value + '\'' +
-                '}';
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(bookId);
+        dest.writeString(chapterId);
+        dest.writeString(chapterHref);
+        dest.writeInt(chapterIndex);
+        dest.writeByte((byte) (usingId ? 1 : 0));
+        dest.writeString(value);
     }
 
     @Override
@@ -70,6 +74,15 @@ public class ReadPositionImpl implements ReadPosition, Parcelable {
 
     public void setBookId(String bookId) {
         this.bookId = bookId;
+    }
+
+    @Override
+    public String getChapterId() {
+        return chapterId;
+    }
+
+    public void setChapterId(String chapterId) {
+        this.chapterId = chapterId;
     }
 
     @Override
@@ -122,15 +135,5 @@ public class ReadPositionImpl implements ReadPosition, Parcelable {
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-
-        dest.writeString(bookId);
-        dest.writeInt(chapterIndex);
-        dest.writeString(chapterHref);
-        dest.writeByte((byte) (usingId ? 1 : 0));
-        dest.writeString(value);
     }
 }
