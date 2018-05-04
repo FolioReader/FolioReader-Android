@@ -22,7 +22,7 @@ FolioReader-Android is an ePub reader written in Java.
 - [ ] Book Search
 - [x] Add Notes to a Highlight
 - [ ] Better Documentation
-- [x] Last Read Position Callback
+- [x] Last Read Position Listener
 
 ## Demo
 ##### Custom Fonts
@@ -37,7 +37,7 @@ FolioReader-Android is an ePub reader written in Java.
 ### Gradle
 Add following dependency to your app build.gradle
 ``` java
-compile 'com.folioreader:folioreader:0.3.7'
+compile 'com.folioreader:folioreader:0.3.8'
 ```
 
 Add maven repository to your top level build.gradle
@@ -94,6 +94,7 @@ folioReader.openBook(R.raw.barrett);
 * [ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/ReadPosition)
     * [Get ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/Get-ReadPosition)
     * [Set ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/Set-ReadPosition)
+* [Clean up code](https://github.com/FolioReader/FolioReader-Android/wiki/Clean-up-code)
 
 ### Credits
 1. <a href="https://github.com/daimajia/AndroidSwipeLayout">SwipeLayout</a>
