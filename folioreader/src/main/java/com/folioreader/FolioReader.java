@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -157,6 +158,8 @@ public class FolioReader {
     private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId) {
 
         Intent intent = new Intent(context, FolioActivity.class);
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M)
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         intent.putExtra(FolioActivity.EXTRA_READ_POSITION, (Parcelable) readPosition);
 
         if (rawId != 0) {
