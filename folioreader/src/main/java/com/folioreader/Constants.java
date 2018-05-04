@@ -11,14 +11,9 @@ public class Constants {
     public static final String CHAPTER_SELECTED = "chapter_selected";
     public static final String HIGHLIGHT_SELECTED = "highlight_selected";
     public static final String BOOK_TITLE = "book_title";
-    public static final String WEBVIEW_SCROLL_POSITION = "webView_scroll_position";
-    public static final String VIEWPAGER_POSITION = "view_pager_position";
+
     public static final String VIEWPAGER_ORIENTATION = "pager_orientation";
-    public static final String BOOK_STATE = "book_state";
-    public static final String BOOK_ID = "book_id";
-    public static final String LAST_READ_SPAN_INDEX = "last_read_span_index";
-    public static final String LAST_READ_CHAPTER_INDEX = "last_read_chapter_index";
-    public static final String LAST_READ_STATE = "_last_read_state";
+
     public static final int PORT_NUMBER = 8080;
     public static final String LOCALHOST = "http://127.0.0.1:" + PORT_NUMBER + "/";
     public static final String SELECTED_WORD = "selected_word";

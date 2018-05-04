@@ -1,7 +1,6 @@
 package com.folioreader.util;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.folioreader.Config;
@@ -19,10 +18,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-import static com.folioreader.Constants.BOOK_ID;
-import static com.folioreader.Constants.LAST_READ_STATE;
-import static com.folioreader.Constants.LAST_READ_CHAPTER_INDEX;
-import static com.folioreader.Constants.LAST_READ_SPAN_INDEX;
 import static com.folioreader.util.SharedPreferenceUtil.getSharedPreferencesString;
 
 /**
@@ -88,84 +83,6 @@ public class AppUtil {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault());
         return simpleDateFormat.format(hightlightDate);
     }
-
-    public static void saveLastReadState(Context context, String bookId,
-                                         int lastReadChapterIndex, String lastReadSpanIndex) {
-        SharedPreferenceUtil.removeSharedPreferencesKey(context, bookId + LAST_READ_STATE);
-        JSONObject obj = new JSONObject();
-        try {
-            obj.put(BOOK_ID, bookId);
-            obj.put(LAST_READ_CHAPTER_INDEX, lastReadChapterIndex);
-            obj.put(LAST_READ_SPAN_INDEX, lastReadSpanIndex);
-            SharedPreferenceUtil.putSharedPreferencesString(
-                    context, bookId + LAST_READ_STATE, obj.toString());
-        } catch (JSONException e) {
-            Log.e(TAG, e.getMessage());
-        }
-    }
-
-    public static boolean checkBookStateExist(Context context, String bookId) {
-        String json
-                = getSharedPreferencesString(
-                context, bookId + LAST_READ_STATE,
-                null);
-        if (json != null) {
-            try {
-                JSONObject jsonObject = new JSONObject(json);
-                String bookTitle = jsonObject.getString(BOOK_ID);
-                if (bookTitle.equals(bookId))
-                    return true;
-            } catch (JSONException e) {
-                Log.e(TAG, e.getMessage());
-                return false;
-            }
-        }
-        return false;
-    }
-
-    public static int getLastReadChapterIndex(Context context, String bookId) {
-        String json
-                = getSharedPreferencesString(context,
-                bookId + LAST_READ_STATE,
-                null);
-        if (json != null) {
-            try {
-                JSONObject jsonObject = new JSONObject(json);
-                return jsonObject.getInt(LAST_READ_CHAPTER_INDEX);
-            } catch (JSONException e) {
-                Log.e(TAG, e.getMessage());
-                return 0;
-            }
-        }
-        return 0;
-    }
-
-    public static int getLastReadSpanIndex(Context context, String bookId,
-                                           int currentChapterIndex) {
-
-        String json = getSharedPreferencesString(context, bookId + LAST_READ_STATE, null);
-
-        if (TextUtils.isEmpty(json))
-            return 0;
-
-        try {
-            JSONObject jsonObject = new JSONObject(json);
-            int lastReadChapterIndex = jsonObject.getInt(LAST_READ_CHAPTER_INDEX);
-
-            if (lastReadChapterIndex != currentChapterIndex) {
-                return 0;
-            } else {
-                JSONObject webViewPositionJson = new JSONObject(
-                        jsonObject.getString(LAST_READ_SPAN_INDEX));
-                return webViewPositionJson.getInt("value");
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, e.getMessage());
-        }
-
-        return 0;
-    }
-
 
     public static void saveConfig(Context context, Config config) {
         JSONObject obj = new JSONObject();

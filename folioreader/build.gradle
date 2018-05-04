@@ -15,7 +15,7 @@ ext {
     siteUrl = 'https://github.com/FolioReader/FolioReader-Android'
     gitUrl = 'https://github.com/FolioReader/FolioReader-Android.git'
 
-    libraryVersion = '0.3.3'
+    libraryVersion = '0.3.7'
 
     developerId = 'mobisystech'
     developerName = 'Folio Reader'
@@ -92,7 +92,7 @@ dependencies {
 
     compile 'com.daimajia.swipelayout:library:1.2.0@aar'
     // r2-streamer
-    final R2_STREAMER_VERSION = '0.1.3'
+    final R2_STREAMER_VERSION = '0.1.4'
 
     compile "org.readium:r2-fetcher:$R2_STREAMER_VERSION"
     compile "org.readium:r2-parser:$R2_STREAMER_VERSION"
