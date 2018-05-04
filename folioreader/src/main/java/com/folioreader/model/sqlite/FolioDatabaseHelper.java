@@ -30,6 +30,10 @@ public class FolioDatabaseHelper extends SQLiteOpenHelper {
         return mInstance;
     }
 
+    public static void clearInstance() {
+        mInstance = null;
+    }
+
     public SQLiteDatabase getMyWritableDatabase() {
         if ((myWritableDb == null) || (!myWritableDb.isOpen())) {
             myWritableDb = this.getWritableDatabase();

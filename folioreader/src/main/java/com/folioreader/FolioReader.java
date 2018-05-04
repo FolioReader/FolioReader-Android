@@ -80,7 +80,7 @@ public class FolioReader {
 
     private FolioReader(Context context) {
         this.context = context;
-        new DbAdapter(context);
+        DbAdapter.initialize(context);
         LocalBroadcastManager.getInstance(context).registerReceiver(highlightReceiver,
                 new IntentFilter(HighlightImpl.BROADCAST_EVENT));
         LocalBroadcastManager.getInstance(context).registerReceiver(readPositionReceiver,
@@ -195,12 +195,37 @@ public class FolioReader {
         new SaveReceivedHighlightTask(onSaveHighlight, highlights).execute();
     }
 
-    public static void clear() {
+    /**
+     * Nullifies readPosition and listeners.
+     * This method ideally should be used in onDestroy() of Activity or Fragment.
+     * Use this method if you want to use FolioReader singleton instance again in the application,
+     * else use {@link #stop()} which destruct the FolioReader singleton instance.
+     */
+    public static synchronized void clear() {
 
         if (singleton != null) {
             singleton.readPosition = null;
             singleton.onHighlightListener = null;
             singleton.readPositionListener = null;
         }
+    }
+
+    /**
+     * Destructs the FolioReader singleton instance.
+     * Use this method only if you are sure that you won't need to use
+     * FolioReader singleton instance again in application, else use {@link #clear()}.
+     */
+    public static synchronized void stop() {
+
+        if (singleton != null) {
+            DbAdapter.terminate();
+            singleton.unregisterListeners();
+            singleton = null;
+        }
+    }
+
+    private void unregisterListeners() {
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(highlightReceiver);
+        LocalBroadcastManager.getInstance(context).unregisterReceiver(readPositionReceiver);
     }
 }
