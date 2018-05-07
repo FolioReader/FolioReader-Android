@@ -15,7 +15,7 @@ import com.folioreader.util.SharedPreferenceUtil;
 /**
  * @author by mahavir on 3/31/16.
  */
-public class ObservableWebView extends WebView {
+public class FolioWebView extends WebView {
     private float mDownPosX = 0;
     private float mDownPosY = 0;
     private int current_x = 0;
@@ -31,28 +31,34 @@ public class ObservableWebView extends WebView {
     public void scrollToCurrentPage() {
         scrollTo(current_x, 0);
     }
+
     public interface ScrollListener {
         void onScrollChange(int percent);
 
     }
+
     public interface PageChangeListener {
 
         void nextPage();
+
         void previousPage();
 
     }
+
     public interface SeekBarListener {
         void fadeInSeekBarIfInvisible();
 
     }
+
     public interface ToolBarListener {
 
         void hideOrShowToolBar();
+
         void hideToolBarIfVisible();
 
     }
 
-    public ObservableWebView(Context context) {
+    public FolioWebView(Context context) {
         super(context);
         init();
     }
@@ -61,12 +67,12 @@ public class ObservableWebView extends WebView {
         MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
     }
 
-    public ObservableWebView(Context context, AttributeSet attrs) {
+    public FolioWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public ObservableWebView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public FolioWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
@@ -111,14 +117,15 @@ public class ObservableWebView extends WebView {
                 float deltaX = x2 - mDownPosX;
                 hideOrShowToolBar(event);
                 // TODO mask vertical swipes
-                if (Math.abs(deltaX) > 100) {
+                if (Math.abs(deltaX) > 30) {
+                    //TODO compare deltaX with percentage of screen resolution change.
                     // Left to Right swipe action
                     if (x2 > mDownPosX) {
-                        turnPageLeft();
+                        turnPageLeft(deltaX);
                     }
                     // Right to left swipe action
                     else {
-                        turnPageRight();
+                        turnPageRight(deltaX);
                     }
                 }
             default:
@@ -148,10 +155,10 @@ public class ObservableWebView extends WebView {
         }
     }
 
-    private void turnPageLeft() {
+    private void turnPageLeft(float deltaX) {
         if (currentPage > 0) {
             int scrollX = getPrevPagePosition();
-            loadAnimation(scrollX);
+            loadAnimation(scrollX, deltaX);
             current_x = scrollX;
             scrollTo(scrollX, 0);
         } else {
@@ -163,11 +170,11 @@ public class ObservableWebView extends WebView {
         return (int) Math.ceil(--currentPage * this.getMeasuredWidth());
     }
 
-    private void turnPageRight() {
+    private void turnPageRight(float deltaX) {
         if (currentPage < pageCount - 1) {
             int paddingOffset = 10;
             int scrollX = getNextPagePosition();
-            loadAnimation(scrollX + paddingOffset);
+            loadAnimation(scrollX + paddingOffset, deltaX);
             current_x = scrollX + paddingOffset;
             scrollTo(scrollX + paddingOffset, 0);
         } else {
@@ -175,9 +182,9 @@ public class ObservableWebView extends WebView {
         }
     }
 
-    private void loadAnimation(int scrollX) {
+    private void loadAnimation(int scrollX, float deltaX) {
         ObjectAnimator anim = ObjectAnimator.ofInt(this, "scrollX",
-                current_x, scrollX);
+                current_x - (int) deltaX, scrollX);
         anim.setDuration(500);
         anim.setInterpolator(new LinearInterpolator());
         anim.start();

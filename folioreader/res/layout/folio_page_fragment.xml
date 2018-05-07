@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <com.folioreader.view.ObservableWebView
+    <com.folioreader.view.FolioWebView
         android:id="@+id/contentWebView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

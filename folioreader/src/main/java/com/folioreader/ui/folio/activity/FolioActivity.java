@@ -62,7 +62,7 @@ import com.folioreader.util.FileUtil;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
-import com.folioreader.view.ObservableWebView;
+import com.folioreader.view.FolioWebView;
 import com.folioreader.view.StyleableTextView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -85,7 +85,7 @@ import static com.folioreader.Constants.TYPE;
 public class FolioActivity
         extends AppCompatActivity
         implements FolioPageFragment.FolioPageFragmentCallback,
-        ObservableWebView.ToolBarListener,
+        FolioWebView.ToolBarListener,
         ConfigBottomSheetDialogFragment.ConfigDialogCallback,
         MainMvpView {
 

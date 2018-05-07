@@ -60,7 +60,7 @@ import com.folioreader.FolioReader;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.util.SMILParser;
 import com.folioreader.util.UiUtil;
-import com.folioreader.view.ObservableWebView;
+import com.folioreader.view.FolioWebView;
 import com.folioreader.view.VerticalSeekbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -81,7 +81,7 @@ import java.util.regex.Pattern;
 public class FolioPageFragment
         extends Fragment
         implements HtmlTaskCallback,
-        MediaControllerCallbacks, ObservableWebView.SeekBarListener,ObservableWebView.PageChangeListener {
+        MediaControllerCallbacks, FolioWebView.SeekBarListener, FolioWebView.PageChangeListener {
 
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.ui.folio.fragment.FolioPageFragment.POSITION";
     public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.BOOK_TITLE";
@@ -125,7 +125,7 @@ public class FolioPageFragment
     private View mRootView;
 
     private VerticalSeekbar mScrollSeekbar;
-    private ObservableWebView mWebview;
+    private FolioWebView mWebview;
     private TextSelectionSupport mTextSelectionSupport;
     private TextView mPagesLeftTextView, mMinutesLeftTextView;
     private FolioPageFragmentCallback mActivityCallback;
@@ -398,12 +398,12 @@ public class FolioPageFragment
     }
 
     private void initWebView() {
-        mWebview = (ObservableWebView) mRootView.findViewById(R.id.contentWebView);
+        mWebview = (FolioWebView) mRootView.findViewById(R.id.contentWebView);
 
         mWebview.setPageChangeListener(this);
 
-        if (getActivity() instanceof ObservableWebView.ToolBarListener)
-            mWebview.setToolBarListener((ObservableWebView.ToolBarListener) getActivity());
+        if (getActivity() instanceof FolioWebView.ToolBarListener)
+            mWebview.setToolBarListener((FolioWebView.ToolBarListener) getActivity());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
@@ -430,7 +430,7 @@ public class FolioPageFragment
         mWebview.addJavascriptInterface(this, "Highlight");
         mWebview.addJavascriptInterface(this, "FolioPageFragment");
 
-        mWebview.setScrollListener(new ObservableWebView.ScrollListener() {
+        mWebview.setScrollListener(new FolioWebView.ScrollListener() {
             @Override
             public void onScrollChange(int percent) {
 
