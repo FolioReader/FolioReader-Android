@@ -56,6 +56,9 @@ public final class HtmlUtil {
                 jsPath + String.format(context.getString(R.string.script_tag_method_call),
                         "setMediaOverlayStyleColors('#C0ED72','#C0ED72')");
 
+        jsPath =
+                jsPath + "<meta name=\"viewport\" content=\"height=device-height, user-scalable=no\" />";
+
         String toInject = "\n" + cssPath + "\n" + jsPath + "\n</head>";
         htmlContent = htmlContent.replace("</head>", toInject);
 
