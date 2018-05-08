@@ -9,12 +9,14 @@ import android.database.sqlite.SQLiteDatabase;
 public class DbAdapter {
     private static final String TAG = "DBAdapter";
 
-    private Context mContext;
     public static SQLiteDatabase mDatabase;
 
-    public DbAdapter(Context ctx) {
-        this.mContext = ctx;
+    public static void initialize(Context mContext) {
         mDatabase = FolioDatabaseHelper.getInstance(mContext).getMyWritableDatabase();
+    }
+
+    public static void terminate() {
+        FolioDatabaseHelper.clearInstance();
     }
 
     public static boolean insert(String table, ContentValues contentValues) {
