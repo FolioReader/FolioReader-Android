@@ -27,6 +27,7 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.util.AppUtil;
+import com.folioreader.util.SharedPreferenceUtil;
 import com.folioreader.util.UiUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -127,7 +128,13 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         mNightButton.setTag(NIGHT_BUTTON);
         mDayButton.setOnClickListener(this);
         mNightButton.setOnClickListener(this);
-        mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(true);
+        if (UiUtil.isOrientationHorizontal(getContext())) {
+            mDialogView.findViewById(R.id.btn_horizontal_orentation).setSelected(true);
+            mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(false);
+        } else {
+            mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(true);
+            mDialogView.findViewById(R.id.btn_horizontal_orentation).setSelected(false);
+        }
     }
 
 
@@ -168,18 +175,22 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         mDialogView.findViewById(R.id.btn_horizontal_orentation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferenceUtil.setOrientation(ConfigBottomSheetDialogFragment.this.getContext(), Constants.ORIENTATION.HORIZONTAL.toString());
                 mConfigDialogCallback.onOrientationChange(1);
                 mDialogView.findViewById(R.id.btn_horizontal_orentation).setSelected(true);
                 mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(false);
+                //EventBus.getDefault().post(new ReloadDataEvent());
             }
         });
 
         mDialogView.findViewById(R.id.btn_vertical_orentation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferenceUtil.setOrientation(ConfigBottomSheetDialogFragment.this.getContext(), Constants.ORIENTATION.VERTICAL.toString());
                 mConfigDialogCallback.onOrientationChange(0);
                 mDialogView.findViewById(R.id.btn_horizontal_orentation).setSelected(false);
                 mDialogView.findViewById(R.id.btn_vertical_orentation).setSelected(true);
+                //EventBus.getDefault().post(new ReloadDataEvent());
             }
         });
     }
@@ -210,7 +221,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
         mConfig.setFont(selectedFont);
         //if (mConfigDialogCallback != null) mConfigDialogCallback.onConfigChange();
         if (isAdded() && isReloadNeeded) {
-            AppUtil.saveConfig(getActivity(),mConfig);
+            AppUtil.saveConfig(getActivity(), mConfig);
             EventBus.getDefault().post(new ReloadDataEvent());
         }
     }
@@ -243,7 +254,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             public void onAnimationEnd(Animator animator) {
                 mIsNightMode = !mIsNightMode;
                 mConfig.setNightMode(mIsNightMode);
-                AppUtil.saveConfig(getActivity(),mConfig);
+                AppUtil.saveConfig(getActivity(), mConfig);
                 EventBus.getDefault().post(new ReloadDataEvent());
             }
 
@@ -270,7 +281,7 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mConfig.setFontSize(progress);
-                AppUtil.saveConfig(getActivity(),mConfig);
+                AppUtil.saveConfig(getActivity(), mConfig);
                 EventBus.getDefault().post(new ReloadDataEvent());
             }
 

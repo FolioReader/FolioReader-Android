@@ -272,6 +272,23 @@ function removeAllClasses(className) {
     }
 }
 
+function initializeHorizontalOrientation() {
+    var d = document.getElementsByTagName('body')[0];
+    var ourH = window.innerHeight - 40;
+    var ourW = window.innerWidth - 40;
+    var fullH = d.offsetHeight;
+    var pageCount = Math.floor(fullH/ourH)+1;
+    var currentPage = 0;
+    var newW = pageCount*window.innerWidth - 40;
+    d.style.height = ourH+'px';
+    d.style.width = newW+'px';
+    d.style.margin = 0;
+    d.style.webkitColumnCount = pageCount;
+    d.style.webkitColumnGap = '40px';
+
+    return "horizontalPageCount:" + pageCount;
+}
+
 /**
  Audio Mark ID - marks an element with an ID with the given class and scrolls to it
  */
@@ -293,9 +310,9 @@ function setMediaOverlayStyle(style){
 
 function setMediaOverlayStyleColors(color, colorHighlight) {
     var stylesheet = document.styleSheets[document.styleSheets.length-1];
-    stylesheet.insertRule(".mediaOverlayStyle0 span.epub-media-overlay-playing { background: "+colorHighlight+" !important }")
-    stylesheet.insertRule(".mediaOverlayStyle1 span.epub-media-overlay-playing { border-color: "+color+" !important }")
-    stylesheet.insertRule(".mediaOverlayStyle2 span.epub-media-overlay-playing { color: "+color+" !important }")
+//    stylesheet.insertRule(".mediaOverlayStyle0 span.epub-media-overlay-playing { background: "+colorHighlight+" !important }")
+//    stylesheet.insertRule(".mediaOverlayStyle1 span.epub-media-overlay-playing { border-color: "+color+" !important }")
+//    stylesheet.insertRule(".mediaOverlayStyle2 span.epub-media-overlay-playing { color: "+color+" !important }")
 }
 
 var currentIndex = -1;

@@ -37,16 +37,18 @@ html {
 }
 
 body {
-    padding: 40px 20px !important;
+    padding: 20px 20px !important;
     overflow: !important;
 }
 
 /* Custom padding for tablets */
+/*
 @media only screen and (min-device-width: 768px){
     body {
         padding: 60px 80px !important;
     }
 }
+*/
 
 /* Table */
 table {

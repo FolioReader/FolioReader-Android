@@ -58,10 +58,11 @@ import com.folioreader.ui.folio.presenter.MainMvpView;
 import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
+
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
-import com.folioreader.view.ObservableWebView;
+import com.folioreader.view.FolioWebView;
 import com.folioreader.view.StyleableTextView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -84,7 +85,7 @@ import static com.folioreader.Constants.TYPE;
 public class FolioActivity
         extends AppCompatActivity
         implements FolioPageFragment.FolioPageFragmentCallback,
-        ObservableWebView.ToolBarListener,
+        FolioWebView.ToolBarListener,
         ConfigBottomSheetDialogFragment.ConfigDialogCallback,
         MainMvpView {
 
@@ -257,6 +258,18 @@ public class FolioActivity
         }
     }
 
+    public void nextPage() {
+        if(mChapterPosition < mSpineReferenceList.size()) {
+            mFolioPageViewPager.setCurrentItem(mChapterPosition + 1);
+        }
+    }
+
+    public void previousPage() {
+        if(mChapterPosition > 0) {
+            mFolioPageViewPager.setCurrentItem(mChapterPosition - 1);
+        }
+    }
+
     private void configFolio() {
         mFolioPageViewPager = findViewById(R.id.folioPageViewPager);
         mFolioPageViewPager.setOnPageChangeListener(new DirectionalViewpager.OnPageChangeListener() {
@@ -348,7 +361,7 @@ public class FolioActivity
     }
 
     @Override
-    public void hideOrshowToolBar() {
+    public void hideOrShowToolBar() {
         if (mIsActionBarVisible) {
             toolbarAnimateHide();
         } else {
