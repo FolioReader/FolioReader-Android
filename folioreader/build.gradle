@@ -1,6 +1,8 @@
 apply plugin: 'com.android.library'
 apply from: '../config/quality/quality.gradle'
 apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 ext {
     bintrayRepo = 'maven'
@@ -28,14 +30,14 @@ ext {
 
 android {
     useLibrary 'org.apache.http.legacy'
-    compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         versionCode 1
         versionName "1.0"
         minSdkVersion 14
-        targetSdkVersion 26
+        targetSdkVersion 27
     }
 
     sourceSets {
@@ -78,28 +80,28 @@ android {
     }
 }
 
-dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':webViewMarker')
-
-    final ANDROID_LIB_VERSION = '26.0.2'
-
-    //noinspection GradleDependency
-    compile "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
-    compile "com.android.support:recyclerview-v7:$ANDROID_LIB_VERSION"
-    compile "com.android.support:support-v4:$ANDROID_LIB_VERSION"
-    compile "com.android.support:design:$ANDROID_LIB_VERSION"
-
-    compile 'com.daimajia.swipelayout:library:1.2.0@aar'
-    // r2-streamer
-    final R2_STREAMER_VERSION = '0.1.4'
-
-    compile "org.readium:r2-fetcher:$R2_STREAMER_VERSION"
-    compile "org.readium:r2-parser:$R2_STREAMER_VERSION"
-    compile "org.readium:r2-server:$R2_STREAMER_VERSION"
-
-    compile 'org.greenrobot:eventbus:3.1.1'
-}
 
 apply from: '../folioreader/bintray/installv1.gradle'
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':webViewMarker')
+
+    //noinspection GradleDependency
+    implementation "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
+    implementation "com.android.support:recyclerview-v7:$ANDROID_LIB_VERSION"
+    implementation "com.android.support:support-v4:$ANDROID_LIB_VERSION"
+    implementation "com.android.support:design:$ANDROID_LIB_VERSION"
+
+    implementation 'com.daimajia.swipelayout:library:1.2.0@aar'
+
+    //Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
+
+    // r2-streamer
+    api "org.readium:r2-fetcher:$R2_STREAMER_VERSION"
+    api "org.readium:r2-parser:$R2_STREAMER_VERSION"
+    api "org.readium:r2-server:$R2_STREAMER_VERSION"
+
+    implementation 'org.greenrobot:eventbus:3.1.1'
+}
 apply from: '../folioreader/bintray/bintrayv1.gradle'
