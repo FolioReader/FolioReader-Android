@@ -2,9 +2,11 @@ package com.folioreader.view;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.animation.LinearInterpolator;
 import android.webkit.WebView;
@@ -21,6 +23,7 @@ public class FolioWebView extends WebView {
     private int current_x = 0;
     private int pageCount = 0;
     private int currentPage = 0;
+    private int delta = 30;
 
     private ScrollListener mScrollListener;
     private SeekBarListener mSeekBarListener;
@@ -65,6 +68,7 @@ public class FolioWebView extends WebView {
 
     private void init() {
         MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
+        setDelta();
     }
 
     public FolioWebView(Context context, AttributeSet attrs) {
@@ -102,6 +106,12 @@ public class FolioWebView extends WebView {
         return super.onTouchEvent(event);
     }
 
+    private void setDelta() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        delta = (int) (displayMetrics.widthPixels * 0.04);
+    }
+
     @Nullable
     private Boolean handleHorizontalScrolling(MotionEvent event) {
         switch (event.getAction()) {
@@ -116,9 +126,7 @@ public class FolioWebView extends WebView {
                 float x2 = event.getX();
                 float deltaX = x2 - mDownPosX;
                 hideOrShowToolBar(event);
-                // TODO mask vertical swipes
-                if (Math.abs(deltaX) > 30) {
-                    //TODO compare deltaX with percentage of screen resolution change.
+                if (Math.abs(deltaX) > delta) {
                     // Left to Right swipe action
                     if (x2 > mDownPosX) {
                         turnPageLeft(deltaX);
