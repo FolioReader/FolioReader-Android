@@ -60,6 +60,7 @@ import com.folioreader.FolioReader;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.util.SMILParser;
 import com.folioreader.util.UiUtil;
+import com.folioreader.view.MediaControllerView;
 import com.folioreader.view.ObservableWebView;
 import com.folioreader.view.VerticalSeekbar;
 
@@ -242,7 +243,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     /**
      * [EVENT BUS FUNCTION]
-     * Function triggered from {@link FolioActivity#initAudioView()} when speed
+     * Function triggered from {@link MediaControllerView#initListeners()} when speed
      * change buttons are clicked
      *
      * @param event of type {@link MediaOverlaySpeedEvent} contains selected speed
@@ -256,7 +257,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     /**
      * [EVENT BUS FUNCTION]
-     * Function triggered from {@link FolioActivity#initAudioView()} when new
+     * Function triggered from {@link MediaControllerView#initListeners()} when new
      * style is selected on button click.
      *
      * @param event of type {@link MediaOverlaySpeedEvent} contains selected style
