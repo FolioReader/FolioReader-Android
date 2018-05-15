@@ -107,7 +107,7 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
             setToolBarColor()
             setAudioPlayerBackground()
         }
-        btn_vertical_orientation.isSelected = true
+        view_config_btn_vertical_orientation.isSelected = true
     }
 
     private fun configFonts() {
@@ -115,20 +115,22 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
         view_config_font_lato.setTextColor(UiUtil.getColorList(activity, config.themeColor, R.color.grey_color))
         view_config_font_lora.setTextColor(UiUtil.getColorList(activity, config.themeColor, R.color.grey_color))
         view_config_font_raleway.setTextColor(UiUtil.getColorList(activity, config.themeColor, R.color.grey_color))
+        view_config_btn_vertical_orientation.setTextColor(UiUtil.getColorList(activity, config.themeColor, R.color.grey_color))
+        view_config_btn_horizontal_orientation.setTextColor(UiUtil.getColorList(activity, config.themeColor, R.color.grey_color))
         view_config_font_andada.setOnClickListener { selectFont(Constants.FONT_ANDADA, true) }
         view_config_font_lato.setOnClickListener { selectFont(Constants.FONT_LATO, true) }
         view_config_font_lora.setOnClickListener { selectFont(Constants.FONT_LORA, true) }
         view_config_font_raleway.setOnClickListener { selectFont(Constants.FONT_RALEWAY, true) }
-        btn_horizontal_orientation.setOnClickListener {
+        view_config_btn_vertical_orientation.setOnClickListener {
             callback.onOrientationChange(1)
-            btn_horizontal_orientation.isSelected = true
-            btn_vertical_orientation.isSelected = false
+            view_config_btn_horizontal_orientation.isSelected = false
+            view_config_btn_vertical_orientation.isSelected = true
         }
 
-        btn_vertical_orientation.setOnClickListener {
+        view_config_btn_horizontal_orientation.setOnClickListener {
             callback.onOrientationChange(0)
-            btn_horizontal_orientation.isSelected = false
-            btn_vertical_orientation.isSelected = true
+            view_config_btn_horizontal_orientation.isSelected = true
+            view_config_btn_vertical_orientation.isSelected = false
         }
     }
 
