@@ -180,8 +180,8 @@ public class FolioActivity
     }
 
     @Override
-    public void onOrientationChange(int orentation) {
-        if (orentation == 0) {
+    public void onOrientationChange(int orientation) {
+        if (orientation == 0) {
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
             mFolioPageFragmentAdapter =
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
