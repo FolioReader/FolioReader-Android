@@ -159,7 +159,7 @@ public class FolioReader {
 
         Intent intent = new Intent(context, FolioActivity.class);
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M)
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(FolioActivity.EXTRA_READ_POSITION, (Parcelable) readPosition);
 
         if (rawId != 0) {
