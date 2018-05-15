@@ -319,19 +319,9 @@ public class ConfigBottomSheetDialogFragment extends BottomSheetDialogFragment i
 
     private void setToolBarColor() {
         if (mIsNightMode) {
-            ((Activity) getContext()).
-                    findViewById(R.id.toolbar).
-                    setBackgroundColor(getContext().getResources().getColor(R.color.white));
-            ((TextView) ((Activity) getContext()).
-                    findViewById(R.id.lbl_center)).
-                    setTextColor(getResources().getColor(R.color.black));
+            ((FolioToolbar) ((Activity) getContext()).findViewById(R.id.toolbar)).setNightMode();
         } else {
-            ((Activity) getContext()).
-                    findViewById(R.id.toolbar).
-                    setBackgroundColor(getContext().getResources().getColor(R.color.black));
-            ((TextView) ((Activity) getContext()).
-                    findViewById(R.id.lbl_center)).
-                    setTextColor(getResources().getColor(R.color.white));
+            ((FolioToolbar) ((Activity) getContext()).findViewById(R.id.toolbar)).setDayMode();
         }
 
     }

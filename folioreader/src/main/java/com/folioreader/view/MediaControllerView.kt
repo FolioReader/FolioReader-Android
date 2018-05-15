@@ -31,9 +31,10 @@ class MediaControllerView : RelativeLayout {
     constructor(context: Context, attributes: AttributeSet?) : this(context, attributes, 0)
     constructor(context: Context, attributes: AttributeSet?, defStyle: Int) : super(context, attributes, defStyle) {
         LayoutInflater.from(context).inflate(R.layout.view_audio_player, this)
+        init()
     }
 
-    fun onInit() {
+    private fun init() {
         config = AppUtil.getSavedConfig(context)
         btn_one_and_half_speed.text = Html.fromHtml(context.getString(R.string.one_and_half_speed))
         btn_half_speed.text = Html.fromHtml(context.getString(R.string.half_speed_text))
@@ -42,6 +43,7 @@ class MediaControllerView : RelativeLayout {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             playback_speed_Layout.visibility = View.GONE
         }
+        if (config.isNightMode) setNightMode()
         initColors()
         initListeners()
     }
@@ -132,7 +134,7 @@ class MediaControllerView : RelativeLayout {
         play_button.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.play_icon))
     }
 
-    fun setNightMode() {
+    private fun setNightMode() {
         container.setBackgroundColor(ContextCompat.getColor(context, R.color.night))
     }
 

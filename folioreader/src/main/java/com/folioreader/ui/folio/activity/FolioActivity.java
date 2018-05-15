@@ -16,23 +16,15 @@
 package com.folioreader.ui.folio.activity;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.folioreader.Config;
@@ -50,9 +42,10 @@ import com.folioreader.ui.folio.presenter.MainMvpView;
 import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
-import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
+import com.folioreader.view.FolioToolbar;
+import com.folioreader.view.FolioToolbarCallback;
 import com.folioreader.view.MediaControllerCallback;
 import com.folioreader.view.MediaControllerView;
 import com.folioreader.view.ObservableWebView;
@@ -80,7 +73,8 @@ public class FolioActivity
         ObservableWebView.ToolBarListener,
         ConfigBottomSheetDialogFragment.ConfigDialogCallback,
         MainMvpView,
-        MediaControllerCallback{
+        MediaControllerCallback,
+        FolioToolbarCallback {
 
     private static final String TAG = "FolioActivity";
 
@@ -99,20 +93,16 @@ public class FolioActivity
     private String bookFileName;
     private static final String HIGHLIGHT_ITEM = "highlight_item";
 
-    public boolean mIsActionBarVisible;
     private DirectionalViewpager mFolioPageViewPager;
-    private Toolbar mToolbar;
+    private FolioToolbar toolbar;
 
     private int mChapterPosition;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
     private ReadPosition entryReadPosition;
-    private ConfigBottomSheetDialogFragment mConfigBottomSheetDialogFragment;
-    private TextView title;
 
     private List<Link> mSpineReferenceList = new ArrayList<>();
     private EpubServer mEpubServer;
 
-    private boolean mIsNightMode;
     private Config mConfig;
     private String mBookId;
     private String mEpubFilePath;
@@ -122,6 +112,7 @@ public class FolioActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setConfig();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
 
@@ -134,18 +125,8 @@ public class FolioActivity
             mEpubFilePath = getIntent().getExtras()
                     .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         }
-        setConfig();
         mediaControllerView = findViewById(R.id.media_controller_view);
-        mediaControllerView.onInit();
         mediaControllerView.setListeners(this);
-
-        if (!mConfig.isShowTts()) {
-            findViewById(R.id.btn_speaker).setVisibility(View.GONE);
-        }
-
-        title = (TextView) findViewById(R.id.lbl_center);
-
-        initColors();
 
         if (ContextCompat.checkSelfPermission(FolioActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(FolioActivity.this, Constants.getWriteExternalStoragePerms(), Constants.WRITE_EXTERNAL_STORAGE_REQUEST);
@@ -153,33 +134,23 @@ public class FolioActivity
             setupBook();
         }
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setListeners(this);
+    }
 
-        findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
-                intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
-                intent.putExtra(FolioReader.INTENT_BOOK_ID, mBookId);
-                intent.putExtra(Constants.BOOK_TITLE, bookFileName);
-                startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
-                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
-            }
-        });
+    @Override
+    public void showMediaController() {
+        mediaControllerView.show();
+    }
 
-        findViewById(R.id.btn_speaker).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mediaControllerView.show();
-            }
-        });
-
-        mIsNightMode = mConfig.isNightMode();
-        if (mIsNightMode) {
-            mToolbar.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.black));
-            title.setTextColor(ContextCompat.getColor(FolioActivity.this, R.color.white));
-            mediaControllerView.setNightMode();
-        }
+    @Override
+    public void startContentHighlightActivity() {
+        Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
+        intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
+        intent.putExtra(FolioReader.INTENT_BOOK_ID, mBookId);
+        intent.putExtra(Constants.BOOK_TITLE, bookFileName);
+        startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
+        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
     }
 
     private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
@@ -206,12 +177,6 @@ public class FolioActivity
     }
 
     private void getEpubResource() {
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        configDrawerLayoutButtons();
     }
 
     @Override
@@ -252,7 +217,7 @@ public class FolioActivity
             @Override
             public void onPageScrollStateChanged(int state) {
                 if (state == DirectionalViewpager.SCROLL_STATE_IDLE) {
-                    title.setText(mSpineReferenceList.get(mChapterPosition).bookTitle);
+                    toolbar.setTitle(mSpineReferenceList.get(mChapterPosition).bookTitle);
                 }
             }
         });
@@ -271,11 +236,11 @@ public class FolioActivity
      * 1. id
      * 2. href
      * 3. index
+     *
      * @param readPosition Last read position
      * @return index of the chapter
      */
     private int getChapterIndex(ReadPosition readPosition) {
-
         if (readPosition == null) {
             return 0;
 
@@ -294,7 +259,6 @@ public class FolioActivity
     }
 
     private int getChapterIndex(String caseString, String value) {
-
         for (int i = 0; i < mSpineReferenceList.size(); i++) {
             switch (caseString) {
                 case "id":
@@ -308,37 +272,14 @@ public class FolioActivity
         return 0;
     }
 
-    private void configDrawerLayoutButtons() {
-        findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-
-        findViewById(R.id.btn_config).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mConfigBottomSheetDialogFragment = new ConfigBottomSheetDialogFragment();
-                mConfigBottomSheetDialogFragment.show(getSupportFragmentManager(), mConfigBottomSheetDialogFragment.getTag());
-            }
-        });
+    @Override
+    public void showConfigBottomSheetDialogFragment() {
+        new ConfigBottomSheetDialogFragment().show(getSupportFragmentManager(), ConfigBottomSheetDialogFragment.class.getSimpleName());
     }
 
     @Override
-    public void hideOrshowToolBar() {
-        if (mIsActionBarVisible) {
-            toolbarAnimateHide();
-        } else {
-            toolbarAnimateShow();
-        }
-    }
-
-    @Override
-    public void hideToolBarIfVisible() {
-        if (mIsActionBarVisible) {
-            toolbarAnimateHide();
-        }
+    public void hideOrShowToolBar() {
+        toolbar.showOrHideIfVisible();
     }
 
     @Override
@@ -347,7 +288,6 @@ public class FolioActivity
 
     @Override
     public ReadPosition getEntryReadPosition() {
-
         if (entryReadPosition != null) {
             ReadPosition tempReadPosition = entryReadPosition;
             entryReadPosition = null;
@@ -363,34 +303,10 @@ public class FolioActivity
             if (spine.href.contains(href)) {
                 mChapterPosition = mSpineReferenceList.indexOf(spine);
                 mFolioPageViewPager.setCurrentItem(mChapterPosition);
-                title.setText(spine.getChapterTitle());
+                toolbar.setTitle(spine.getChapterTitle());
                 break;
             }
         }
-    }
-
-    private void toolbarAnimateShow() {
-        if (!mIsActionBarVisible) {
-            mToolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
-            mIsActionBarVisible = true;
-        }
-    }
-
-    private void toolbarAnimateHide() {
-        mIsActionBarVisible = false;
-        mToolbar.animate().translationY(-mToolbar.getHeight()).setInterpolator(new AccelerateInterpolator(2)).start();
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void toolbarSetElevation(float elevation) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mToolbar.setElevation(elevation);
-        }
-    }
-
-    public HighlightImpl setCurrentPagerPostion(HighlightImpl highlightImpl) {
-//        highlight.setCurrentPagerPostion(mFolioPageViewPager.getCurrentItem());
-        return highlightImpl;
     }
 
     @Override
@@ -404,7 +320,7 @@ public class FolioActivity
                     if (selectedChapterHref.contains(spine.href)) {
                         mChapterPosition = mSpineReferenceList.indexOf(spine);
                         mFolioPageViewPager.setCurrentItem(mChapterPosition);
-                        title.setText(data.getStringExtra(Constants.BOOK_TITLE));
+                        toolbar.setTitle(data.getStringExtra(Constants.BOOK_TITLE));
                         EventBus.getDefault().post(new AnchorIdEvent(selectedChapterHref));
                         break;
                     }
@@ -435,7 +351,7 @@ public class FolioActivity
     public void onLoadPublication(EpubPublication publication) {
         mSpineReferenceList.addAll(publication.spines);
         if (publication.metadata.title != null) {
-            title.setText(publication.metadata.title);
+            toolbar.setTitle(publication.metadata.title);
         }
 
         if (mBookId == null) {
@@ -476,14 +392,6 @@ public class FolioActivity
 
     @Override
     public void onError() {
-    }
-
-
-    public void initColors() {
-        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_close)).getDrawable());
-        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_drawer)).getDrawable());
-        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_config)).getDrawable());
-        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_speaker)).getDrawable());
     }
 
     private void setupBook() {
