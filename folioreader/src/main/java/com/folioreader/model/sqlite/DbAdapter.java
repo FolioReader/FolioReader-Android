@@ -30,7 +30,7 @@ public class DbAdapter {
     }
 
     public static Cursor getHighLightsForBookId(String bookId) {
-        return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.COL_BOOK_ID + " = '" + bookId + "'", null);
+        return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.COL_BOOK_ID + " = \"" + bookId + "\"", null);
     }
 
     public boolean deleteAll(String table) {
@@ -96,6 +96,6 @@ public class DbAdapter {
     }
 
     public static Cursor getHighlightsForId(int id) {
-        return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.ID + " = '" + id + "'", null);
+        return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.ID + " = \"" + id + "\"", null);
     }
 }
