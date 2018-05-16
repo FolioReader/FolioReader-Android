@@ -178,6 +178,7 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
     }
 
     @Override
+    @SuppressWarnings("PMD.InefficientEmptyStringCheck")
     public void onWikipediaDataReceived(Wikipedia wikipedia) {
         wikiWord.setText(wikipedia.getWord());
         if (wikipedia.getDefinition().trim().isEmpty()) {

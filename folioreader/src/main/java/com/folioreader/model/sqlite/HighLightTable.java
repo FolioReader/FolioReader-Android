@@ -106,7 +106,7 @@ public class HighLightTable {
     }
 
     public static boolean deleteHighlight(String rangy) {
-        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
+        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = \"" + rangy + "\"";
         int id = DbAdapter.getIdForQuery(query);
         return id != -1 && deleteHighlight(id);
     }
@@ -116,7 +116,7 @@ public class HighLightTable {
     }
 
     public static List<String> getHighlightsForPageId(String pageId) {
-        String query = "SELECT " + COL_RANGY + " FROM " + TABLE_NAME + " WHERE " + COL_PAGE_ID + " = '" + pageId + "'";
+        String query = "SELECT " + COL_RANGY + " FROM " + TABLE_NAME + " WHERE " + COL_PAGE_ID + " = \"" + pageId + "\"";
         Cursor c = DbAdapter.getHighlightsForPageId(query, pageId);
         List<String> rangyList = new ArrayList<>();
         while (c.moveToNext()) {
@@ -149,7 +149,7 @@ public class HighLightTable {
     }
 
     public static HighlightImpl updateHighlightStyle(String rangy, String style) {
-        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
+        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = \"" + rangy + "\"";
         int id = DbAdapter.getIdForQuery(query);
         if (id != -1 && update(id, updateRangy(rangy, style), style.replace("highlight_", ""))) {
             return getHighlightId(id);
@@ -158,7 +158,7 @@ public class HighLightTable {
     }
 
     public static HighlightImpl getHighlightForRangy(String rangy) {
-        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = '" + rangy + "'";
+        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = \"" + rangy + "\"";
         return getHighlightId(DbAdapter.getIdForQuery(query));
     }
 
@@ -188,7 +188,7 @@ public class HighLightTable {
     }
 
     public static void saveHighlightIfNotExists(HighLight highLight) {
-        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_UUID + " = '" + highLight.getUUID() + "'";
+        String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_UUID + " = \"" + highLight.getUUID() + "\"";
         int id = DbAdapter.getIdForQuery(query);
         if (id == -1) {
             DbAdapter.saveHighLight(getHighlightContentValues(highLight));
