@@ -562,7 +562,11 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                             }
                         }
                     } else if (TextUtils.isDigitsOnly(message)) {
-                        mTotalMinutes = Integer.parseInt(message);
+                        try {
+                            mTotalMinutes = Integer.parseInt(message);
+                        } catch (NumberFormatException e) {
+                            mTotalMinutes = 0;
+                        }
                     } else {
                         pattern = Pattern.compile(getString(R.string.pattern));
                         matcher = pattern.matcher(message);
