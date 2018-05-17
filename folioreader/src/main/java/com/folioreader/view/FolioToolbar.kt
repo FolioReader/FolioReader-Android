@@ -32,7 +32,7 @@ class FolioToolbar : RelativeLayout {
 
     private fun init() {
         config = AppUtil.getSavedConfig(context)
-        if (config.isNightMode) setNightMode()
+        if (config.isNightMode) setNightMode() else setDayMode()
         if (!config.isShowTts) btn_speaker.visibility = View.GONE
         initColors()
         initListeners()
