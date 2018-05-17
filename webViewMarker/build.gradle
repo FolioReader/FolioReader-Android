@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/FolioReader/FolioReader-Android'
     gitUrl = 'https://github.com/FolioReader/FolioReader-Android.git'
 
-    libraryVersion = '0.3.8'
+    libraryVersion = '0.3.9'
 
     developerId = 'mobisystech'
     developerName = 'Folio Reader'
@@ -25,8 +25,8 @@ ext {
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         versionCode Integer.parseInt(project.VERSION_CODE)

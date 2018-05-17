@@ -285,8 +285,7 @@ function initializeHorizontalOrientation() {
     d.style.margin = 0;
     d.style.webkitColumnCount = pageCount;
     d.style.webkitColumnGap = '40px';
-
-    return "horizontalPageCount:" + pageCount;
+    FolioPageFragment.horizontalPageCount(pageCount)
 }
 
 /**

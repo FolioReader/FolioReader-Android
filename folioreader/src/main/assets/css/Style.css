@@ -248,17 +248,17 @@ html.nightMode .highlight_underline {border-bottom: 2px solid rgba(240, 40, 20, 
     src: url('file:///android_asset/fonts/raleway/Raleway-Regular.ttf');
 }
 
-.andada, .andada p, .andada span, .andada div {
-     font-family: "andada", sans-serif !important;
+.andada {
+     font-family: "andada", sans-serif;
  }
-.lato, .lato p, .lato span, .lato div {
-     font-family: "lato", serif !important;
+.lato {
+     font-family: "lato", serif;
  }
-.lora, .lora p, .lora span, .lora div {
-     font-family: "lora", serif !important;
+.lora {
+     font-family: "lora", serif;
  }
-.raleway, .raleway p, .raleway span, .raleway div {
-     font-family: "raleway", sans-serif !important;
+.raleway {
+     font-family: "raleway", sans-serif;
  }
 
 html.textSizeOne { font-size: 13px !important; }

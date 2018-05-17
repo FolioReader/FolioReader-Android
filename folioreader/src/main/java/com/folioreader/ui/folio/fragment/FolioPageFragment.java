@@ -33,6 +33,7 @@ import android.widget.Toast;
 import com.bossturban.webviewmarker.TextSelectionSupport;
 import com.folioreader.Config;
 import com.folioreader.Constants;
+import com.folioreader.FolioReader;
 import com.folioreader.R;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
@@ -56,11 +57,11 @@ import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.ui.folio.mediaoverlay.MediaController;
 import com.folioreader.ui.folio.mediaoverlay.MediaControllerCallbacks;
 import com.folioreader.util.AppUtil;
-import com.folioreader.FolioReader;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.util.SMILParser;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.FolioWebView;
+import com.folioreader.view.MediaControllerView;
 import com.folioreader.view.VerticalSeekbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -229,7 +230,7 @@ public class FolioPageFragment
 
     /**
      * [EVENT BUS FUNCTION]
-     * Function triggered from {@link FolioActivity#initAudioView()} when pause/play
+     * Function triggered from {@link MediaControllerView#initListeners()} when pause/play
      * button is clicked
      *
      * @param event of type {@link MediaOverlayPlayPauseEvent} contains if paused/played
@@ -245,7 +246,7 @@ public class FolioPageFragment
 
     /**
      * [EVENT BUS FUNCTION]
-     * Function triggered from {@link FolioActivity#initAudioView()} when speed
+     * Function triggered from {@link MediaControllerView#initListeners()} when speed
      * change buttons are clicked
      *
      * @param event of type {@link MediaOverlaySpeedEvent} contains selected speed
@@ -259,7 +260,7 @@ public class FolioPageFragment
 
     /**
      * [EVENT BUS FUNCTION]
-     * Function triggered from {@link FolioActivity#initAudioView()} when new
+     * Function triggered from {@link MediaControllerView#initListeners()} when new
      * style is selected on button click.
      *
      * @param event of type {@link MediaOverlaySpeedEvent} contains selected style
@@ -478,7 +479,7 @@ public class FolioPageFragment
                         }
                     }
                     if (UiUtil.isOrientationHorizontal(getContext())) {
-                        mWebview.loadUrl("javascript:alert(initializeHorizontalOrientation())");
+                        mWebview.loadUrl("javascript:initializeHorizontalOrientation()");
                     }
                     scrollToHighlightId();
                 }
@@ -588,10 +589,6 @@ public class FolioPageFragment
                         }
                     } else if (TextUtils.isDigitsOnly(message)) {
                         mTotalMinutes = Integer.parseInt(message);
-                    } else if (message.contains("horizontalPageCount")) {
-                        int pageCount = Integer.parseInt(message.split(":")[1]);
-                        mWebview.setPageCount(pageCount);
-                        mWebview.scrollToCurrentPage();
                     } else {
                         pattern = Pattern.compile(getString(R.string.pattern));
                         matcher = pattern.matcher(message);
@@ -688,6 +685,12 @@ public class FolioPageFragment
             LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
             notify();
         }
+    }
+
+    @JavascriptInterface
+    public void horizontalPageCount(int pageCount) {
+        mWebview.setPageCount(pageCount);
+        mWebview.scrollToCurrentPage();
     }
 
     private void loadRangy(WebView view, String rangy) {
