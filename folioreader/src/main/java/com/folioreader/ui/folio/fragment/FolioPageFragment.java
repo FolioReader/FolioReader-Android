@@ -82,7 +82,7 @@ import java.util.regex.Pattern;
 public class FolioPageFragment
         extends Fragment
         implements HtmlTaskCallback,
-        MediaControllerCallbacks, FolioWebView.SeekBarListener, FolioWebView.PageChangeListener {
+        MediaControllerCallbacks, FolioWebView.SeekBarListener {
 
     public static final String KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.ui.folio.fragment.FolioPageFragment.POSITION";
     public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.BOOK_TITLE";
@@ -112,7 +112,7 @@ public class FolioPageFragment
     private String rangy = "";
     private String highlightId;
 
-    public interface FolioPageFragmentCallback {
+    public interface FolioActivityCallback {
 
         int getChapterPosition();
 
@@ -129,7 +129,7 @@ public class FolioPageFragment
     private FolioWebView mWebview;
     private TextSelectionSupport mTextSelectionSupport;
     private TextView mPagesLeftTextView, mMinutesLeftTextView;
-    private FolioPageFragmentCallback mActivityCallback;
+    private FolioActivityCallback mActivityCallback;
 
     private int mScrollY;
     private int mTotalMinutes;
@@ -165,8 +165,8 @@ public class FolioPageFragment
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        if (getActivity() instanceof FolioPageFragmentCallback)
-            mActivityCallback = (FolioPageFragmentCallback) getActivity();
+        if (getActivity() instanceof FolioActivityCallback)
+            mActivityCallback = (FolioActivityCallback) getActivity();
 
         EventBus.getDefault().register(this);
         if ((savedInstanceState != null)
@@ -380,35 +380,17 @@ public class FolioPageFragment
         }
     }
 
-    @Override
-    public void nextPage() {
-        if(isAdded()) {
-            if(getActivity() instanceof FolioActivity) {
-                ((FolioActivity) getActivity()).nextPage();
-            }
-        }
-    }
-
-    @Override
-    public void previousPage() {
-        if(isAdded()) {
-            if(getActivity() instanceof FolioActivity) {
-                ((FolioActivity) getActivity()).previousPage();
-            }
-        }
-    }
-
     private void initWebView() {
-        mWebview = (FolioWebView) mRootView.findViewById(R.id.contentWebView);
+        mWebview = mRootView.findViewById(R.id.contentWebView);
 
-        mWebview.setPageChangeListener(this);
+        if (getActivity() instanceof FolioWebView.PageChangeListener)
+            mWebview.setPageChangeListener((FolioWebView.PageChangeListener) getActivity());
 
         if (getActivity() instanceof FolioWebView.ToolBarListener)
             mWebview.setToolBarListener((FolioWebView.ToolBarListener) getActivity());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
             WebView.setWebContentsDebuggingEnabled(true);
-        }
 
         setupScrollBar();
         mWebview.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
@@ -588,7 +570,11 @@ public class FolioPageFragment
                             }
                         }
                     } else if (TextUtils.isDigitsOnly(message)) {
-                        mTotalMinutes = Integer.parseInt(message);
+                        try {
+                            mTotalMinutes = Integer.parseInt(message);
+                        } catch (NumberFormatException e) {
+                            mTotalMinutes = 0;
+                        }
                     } else {
                         pattern = Pattern.compile(getString(R.string.pattern));
                         matcher = pattern.matcher(message);

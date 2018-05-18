@@ -18,57 +18,21 @@ import com.folioreader.util.SharedPreferenceUtil;
  * @author by mahavir on 3/31/16.
  */
 public class FolioWebView extends WebView {
+    private float MOVE_THRESHOLD_DP = 0;
     private float mDownPosX = 0;
     private float mDownPosY = 0;
     private int current_x = 0;
     private int pageCount = 0;
     private int currentPage = 0;
     private int delta = 30;
-
     private ScrollListener mScrollListener;
     private SeekBarListener mSeekBarListener;
     private ToolBarListener mToolBarListener;
-    private PageChangeListener pageChangeListener;
-    float MOVE_THRESHOLD_DP = 0;
-
-    public void scrollToCurrentPage() {
-        scrollTo(current_x, 0);
-    }
-
-    public interface ScrollListener {
-        void onScrollChange(int percent);
-
-    }
-
-    public interface PageChangeListener {
-
-        void nextPage();
-
-        void previousPage();
-
-    }
-
-    public interface SeekBarListener {
-        void fadeInSeekBarIfInvisible();
-
-    }
-
-    public interface ToolBarListener {
-
-        void hideOrShowToolBar();
-
-        void hideToolBarIfVisible();
-
-    }
+    private PageChangeListener pageChangeListener = null;
 
     public FolioWebView(Context context) {
         super(context);
         init();
-    }
-
-    private void init() {
-        MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
-        setDelta();
     }
 
     public FolioWebView(Context context, AttributeSet attrs) {
@@ -79,6 +43,19 @@ public class FolioWebView extends WebView {
     public FolioWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
+    }
+
+    public void scrollToCurrentPage() {
+        scrollTo(current_x, 0);
+    }
+
+    private void init() {
+        MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
+        setDelta();
+    }
+
+    public void setPageChangeListener(PageChangeListener pageChangeListener) {
+        this.pageChangeListener = pageChangeListener;
     }
 
     public void setScrollListener(ScrollListener listener) {
@@ -179,7 +156,7 @@ public class FolioWebView extends WebView {
     }
 
     private void turnPageRight(float deltaX) {
-        if (currentPage < pageCount - 1) {
+        if (currentPage < pageCount) {
             int paddingOffset = 10;
             int scrollX = getNextPagePosition();
             loadAnimation(scrollX + paddingOffset, deltaX);
@@ -221,7 +198,23 @@ public class FolioWebView extends WebView {
         return this.getMeasuredHeight();
     }
 
-    public void setPageChangeListener(PageChangeListener pageChangeListener) {
-        this.pageChangeListener = pageChangeListener;
+    public interface ScrollListener {
+        void onScrollChange(int percent);
+    }
+
+    public interface PageChangeListener {
+        void nextPage();
+
+        void previousPage();
+    }
+
+    public interface SeekBarListener {
+        void fadeInSeekBarIfInvisible();
+    }
+
+    public interface ToolBarListener {
+        void hideOrShowToolBar();
+
+        void hideToolBarIfVisible();
     }
 }

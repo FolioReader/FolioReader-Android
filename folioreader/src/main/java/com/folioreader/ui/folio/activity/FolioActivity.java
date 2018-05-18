@@ -69,12 +69,13 @@ import static com.folioreader.Constants.TYPE;
 
 public class FolioActivity
         extends AppCompatActivity
-        implements FolioPageFragment.FolioPageFragmentCallback,
+        implements FolioPageFragment.FolioActivityCallback,
         FolioWebView.ToolBarListener,
         ConfigBottomSheetDialogFragment.ConfigDialogCallback,
         MainMvpView,
         MediaControllerCallback,
-        FolioToolbarCallback {
+        FolioToolbarCallback,
+        FolioWebView.PageChangeListener {
 
     private static final String TAG = "FolioActivity";
 
@@ -200,12 +201,14 @@ public class FolioActivity
         }
     }
 
+    @Override
     public void nextPage() {
         if(mChapterPosition < mSpineReferenceList.size()) {
             mFolioPageViewPager.setCurrentItem(mChapterPosition + 1);
         }
     }
 
+    @Override
     public void previousPage() {
         if(mChapterPosition > 0) {
             mFolioPageViewPager.setCurrentItem(mChapterPosition - 1);

@@ -277,7 +277,7 @@ function initializeHorizontalOrientation() {
     var ourH = window.innerHeight - 40;
     var ourW = window.innerWidth - 40;
     var fullH = d.offsetHeight;
-    var pageCount = Math.floor(fullH/ourH)+1;
+    var pageCount = Math.ceil(fullH/ourH);
     var currentPage = 0;
     var newW = pageCount*window.innerWidth - 40;
     d.style.height = ourH+'px';
