@@ -273,18 +273,18 @@ function removeAllClasses(className) {
 }
 
 function initializeHorizontalOrientation() {
-    var d = document.getElementsByTagName('body')[0];
+    var bodyElement = document.getElementsByTagName('body')[0];
     var ourH = window.innerHeight - 40;
     var ourW = window.innerWidth - 40;
-    var fullH = d.offsetHeight;
+    var fullH = bodyElement.offsetHeight;
     var pageCount = Math.ceil(fullH/ourH);
     var currentPage = 0;
     var newW = pageCount*window.innerWidth - 40;
-    d.style.height = ourH+'px';
-    d.style.width = newW+'px';
-    d.style.margin = 0;
-    d.style.webkitColumnCount = pageCount;
-    d.style.webkitColumnGap = '40px';
+    bodyElement.style.height = ourH+'px';
+    bodyElement.style.width = newW+'px';
+    bodyElement.style.margin = 0;
+    bodyElement.style.webkitColumnCount = pageCount;
+    bodyElement.style.webkitColumnGap = '40px';
     FolioPageFragment.horizontalPageCount(pageCount)
 }
 

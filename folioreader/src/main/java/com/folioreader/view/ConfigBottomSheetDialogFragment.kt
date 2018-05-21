@@ -33,7 +33,7 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var isNightMode = false
 
     interface ConfigDialogCallback {
-        fun onOrientationChange(orientation: Int)
+        fun onDirectionChange(orientation: String)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -126,16 +126,17 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
         view_config_font_lato.setOnClickListener { selectFont(Constants.FONT_LATO, true) }
         view_config_font_lora.setOnClickListener { selectFont(Constants.FONT_LORA, true) }
         view_config_font_raleway.setOnClickListener { selectFont(Constants.FONT_RALEWAY, true) }
+
         view_config_btn_vertical_orientation.setOnClickListener {
-            SharedPreferenceUtil.setOrientation(context, Constants.ORIENTATION.VERTICAL.toString())
-            callback.onOrientationChange(0)
+            SharedPreferenceUtil.setPagerOrientation(context, DirectionalViewpager.Direction.VERTICAL.toString())
+            callback.onDirectionChange(DirectionalViewpager.Direction.VERTICAL.toString())
             view_config_btn_horizontal_orientation.isSelected = false
             view_config_btn_vertical_orientation.isSelected = true
         }
 
         view_config_btn_horizontal_orientation.setOnClickListener {
-            SharedPreferenceUtil.setOrientation(context, Constants.ORIENTATION.HORIZONTAL.toString())
-            callback.onOrientationChange(1)
+            SharedPreferenceUtil.setPagerOrientation(context, DirectionalViewpager.Direction.HORIZONTAL.toString())
+            callback.onDirectionChange(DirectionalViewpager.Direction.HORIZONTAL.toString())
             view_config_btn_horizontal_orientation.isSelected = true
             view_config_btn_vertical_orientation.isSelected = false
         }

@@ -11,7 +11,6 @@ import android.view.MotionEvent;
 import android.view.animation.LinearInterpolator;
 import android.webkit.WebView;
 
-import com.folioreader.Constants;
 import com.folioreader.util.SharedPreferenceUtil;
 
 /**
@@ -74,7 +73,8 @@ public class FolioWebView extends WebView {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         final int action = event.getAction();
-        if (SharedPreferenceUtil.getPagerOrientation(getContext()).equals(Constants.ORIENTATION.VERTICAL.toString())) {
+        if (SharedPreferenceUtil.getPagerOrientation(getContext())
+                .equals(DirectionalViewpager.Direction.VERTICAL.toString())) {
             handleVerticalScrolling(event, action);
         } else {
             Boolean x = handleHorizontalScrolling(event);

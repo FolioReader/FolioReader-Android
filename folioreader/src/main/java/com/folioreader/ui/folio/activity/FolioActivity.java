@@ -17,8 +17,10 @@ package com.folioreader.ui.folio.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -42,6 +44,8 @@ import com.folioreader.ui.folio.presenter.MainMvpView;
 import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
+import com.folioreader.util.SharedPreferenceUtil;
+import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
 import com.folioreader.view.FolioWebView;
@@ -75,7 +79,8 @@ public class FolioActivity
         MainMvpView,
         MediaControllerCallback,
         FolioToolbarCallback,
-        FolioWebView.PageChangeListener {
+        FolioWebView.PageChangeListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = "FolioActivity";
 
@@ -116,6 +121,9 @@ public class FolioActivity
         setConfig();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
+        //TODO: -> Check memory leak
+        PreferenceManager.getDefaultSharedPreferences(this).
+                registerOnSharedPreferenceChangeListener(this);
 
         mBookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
         mEpubSourceType = (EpubSourceType)
@@ -181,8 +189,8 @@ public class FolioActivity
     }
 
     @Override
-    public void onOrientationChange(int orientation) {
-        if (orientation == 0) {
+    public void onDirectionChange(@NonNull String direction) {
+        if (direction.equals(DirectionalViewpager.Direction.VERTICAL.toString())) {
             mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
             mFolioPageFragmentAdapter =
                     new FolioPageFragmentAdapter(getSupportFragmentManager(),
@@ -201,9 +209,11 @@ public class FolioActivity
         }
     }
 
+    //TODO: -> is nextPage and previousPage needed?
     @Override
     public void nextPage() {
         if(mChapterPosition < mSpineReferenceList.size()) {
+            Log.d(TAG, "-> nextPage -> " + mChapterPosition + ", " + mSpineReferenceList);
             mFolioPageViewPager.setCurrentItem(mChapterPosition + 1);
         }
     }
@@ -211,80 +221,9 @@ public class FolioActivity
     @Override
     public void previousPage() {
         if(mChapterPosition > 0) {
+            Log.d(TAG, "-> previousPage -> " + mChapterPosition);
             mFolioPageViewPager.setCurrentItem(mChapterPosition - 1);
         }
-    }
-
-    private void configFolio() {
-        mFolioPageViewPager = findViewById(R.id.folioPageViewPager);
-        mFolioPageViewPager.setOnPageChangeListener(new DirectionalViewpager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, true));
-                mediaControllerView.setPlayButtonDrawable();
-                mChapterPosition = position;
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                if (state == DirectionalViewpager.SCROLL_STATE_IDLE) {
-                    toolbar.setTitle(mSpineReferenceList.get(mChapterPosition).bookTitle);
-                }
-            }
-        });
-
-        if (mSpineReferenceList != null) {
-            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, bookFileName, mBookId);
-            mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
-
-            entryReadPosition = getIntent().getParcelableExtra(FolioActivity.EXTRA_READ_POSITION);
-            mFolioPageViewPager.setCurrentItem(getChapterIndex(entryReadPosition));
-        }
-    }
-
-    /**
-     * Returns the index of the chapter by following priority -
-     * 1. id
-     * 2. href
-     * 3. index
-     *
-     * @param readPosition Last read position
-     * @return index of the chapter
-     */
-    private int getChapterIndex(ReadPosition readPosition) {
-        if (readPosition == null) {
-            return 0;
-
-        } else if (!TextUtils.isEmpty(readPosition.getChapterId())) {
-            return getChapterIndex("id", readPosition.getChapterId());
-
-        } else if (!TextUtils.isEmpty(readPosition.getChapterHref())) {
-            return getChapterIndex("href", readPosition.getChapterHref());
-
-        } else if (readPosition.getChapterIndex() > -1
-                && readPosition.getChapterIndex() < mSpineReferenceList.size()) {
-            return readPosition.getChapterIndex();
-        }
-
-        return 0;
-    }
-
-    private int getChapterIndex(String caseString, String value) {
-        for (int i = 0; i < mSpineReferenceList.size(); i++) {
-            switch (caseString) {
-                case "id":
-                    if (mSpineReferenceList.get(i).getId().equals(value))
-                        return i;
-                case "href":
-                    if (mSpineReferenceList.get(i).getOriginalHref().equals(value))
-                        return i;
-            }
-        }
-        return 0;
     }
 
     @Override
@@ -388,6 +327,84 @@ public class FolioActivity
         configFolio();
     }
 
+    private void configFolio() {
+        mFolioPageViewPager = findViewById(R.id.folioPageViewPager);
+        mFolioPageViewPager.setOnPageChangeListener(new DirectionalViewpager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, true));
+                mediaControllerView.setPlayButtonDrawable();
+                mChapterPosition = position;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (state == DirectionalViewpager.SCROLL_STATE_IDLE) {
+                    toolbar.setTitle(mSpineReferenceList.get(mChapterPosition).bookTitle);
+                }
+            }
+        });
+
+        if (mSpineReferenceList != null) {
+            if (UiUtil.isOrientationHorizontal(this)) {
+                mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
+            } else {
+                mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
+            }
+            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),
+                    mSpineReferenceList, bookFileName, mBookId);
+            mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
+
+            entryReadPosition = getIntent().getParcelableExtra(FolioActivity.EXTRA_READ_POSITION);
+            mFolioPageViewPager.setCurrentItem(getChapterIndex(entryReadPosition));
+        }
+    }
+
+    /**
+     * Returns the index of the chapter by following priority -
+     * 1. id
+     * 2. href
+     * 3. index
+     *
+     * @param readPosition Last read position
+     * @return index of the chapter
+     */
+    private int getChapterIndex(ReadPosition readPosition) {
+        if (readPosition == null) {
+            return 0;
+
+        } else if (!TextUtils.isEmpty(readPosition.getChapterId())) {
+            return getChapterIndex("id", readPosition.getChapterId());
+
+        } else if (!TextUtils.isEmpty(readPosition.getChapterHref())) {
+            return getChapterIndex("href", readPosition.getChapterHref());
+
+        } else if (readPosition.getChapterIndex() > -1
+                && readPosition.getChapterIndex() < mSpineReferenceList.size()) {
+            return readPosition.getChapterIndex();
+        }
+
+        return 0;
+    }
+
+    private int getChapterIndex(String caseString, String value) {
+        for (int i = 0; i < mSpineReferenceList.size(); i++) {
+            switch (caseString) {
+                case "id":
+                    if (mSpineReferenceList.get(i).getId().equals(value))
+                        return i;
+                case "href":
+                    if (mSpineReferenceList.get(i).getOriginalHref().equals(value))
+                        return i;
+            }
+        }
+        return 0;
+    }
+
     private void setConfig() {
         if (AppUtil.getSavedConfig(this) != null) {
             mConfig = AppUtil.getSavedConfig(this);
@@ -429,6 +446,17 @@ public class FolioActivity
                     Toast.makeText(this, getString(R.string.cannot_access_epub_message), Toast.LENGTH_LONG).show();
                     finish();
                 }
+                break;
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        switch(key) {
+            case Constants.VIEWPAGER_DIRECTION_KEY:
+                Log.d(TAG, "-> onSharedPreferenceChanged -> key: " + key + " value: " +
+                        sharedPreferences.getString(key, DirectionalViewpager.Direction.VERTICAL.toString()));
                 break;
         }
     }
