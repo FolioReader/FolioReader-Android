@@ -618,20 +618,32 @@ function getHighlightString(style) {
     Highlight.getHighlightJson(JSON.stringify(params));
 }
 
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+}
 function gotoHighlight(highlightId){
   var element = document.getElementById(highlightId.toString());
   if(element != null) {
     goToEl(element);
   }
 }
-function giveBackgorundToSearchItems(word){
+function giveBackgroundToSearchItems(word){
     $(document).ready(function() {
         if(!$('.mobilion')[0]){
-        document.body.innerHTML = document.body.innerHTML.split(new RegExp(word,'i')).join("<span class='mobilion' style='background-color: rgba(255, 255,0, 0.8); padding: 3px 5px; box-shadow: 0px 0px 8px 3px rgba(179,179,179,0.7);border-radius: 8px; font-size: 1.05em;'>"+word+"</span>");
-        console.log('class created');
-        goToSearchQuery(0);
+            var allMatches = document.body.innerHTML.match(new RegExp(word,'gi'));
+            if(allMatches != null){
+                var uniqueItems = allMatches.filter( onlyUnique );
+                for(var i = 0 ; i<uniqueItems.length ; i++){
+                    document.body.innerHTML = document.body.innerHTML.split(uniqueItems[i]).join("<span class='mobilion' style='background-color: rgba(255, 255,0, 0.8); padding: 3px 5px; box-shadow: 0px 0px 8px 3px rgba(179,179,179,0.7);border-radius: 8px; font-size: 1.05em;'>"+uniqueItems[i]+"</span>");
+                }
+                console.log('class created & allmatches is not null');
+                goToSearchQuery(0);
+            }else{
+                console.log('allmatches is null');
+            }
+
         }else{
-        console.log('class exists');
+            console.log('class exists');
         }
     });
 }
