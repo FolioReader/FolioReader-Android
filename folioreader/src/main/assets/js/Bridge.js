@@ -272,20 +272,66 @@ function removeAllClasses(className) {
     }
 }
 
-function initializeHorizontalOrientation() {
+function initHorizontalDirection() {
+    var pageCount = preInitHorizontalDirection();
+    postInitHorizontalDirection();
+    FolioPageFragment.horizontalPageCount(pageCount);
+}
+
+function preInitHorizontalDirection() {
+
+    //console.log(window);
+    //console.log("-> " + document.getElementsByTagName('title')[0].innerText);
+    var htmlElement = document.getElementsByTagName('html')[0];
     var bodyElement = document.getElementsByTagName('body')[0];
-    var ourH = window.innerHeight - 40;
-    var ourW = window.innerWidth - 40;
-    var fullH = bodyElement.offsetHeight;
-    var pageCount = Math.ceil(fullH/ourH);
-    var currentPage = 0;
-    var newW = pageCount*window.innerWidth - 40;
-    bodyElement.style.height = ourH+'px';
-    bodyElement.style.width = newW+'px';
-    bodyElement.style.margin = 0;
-    bodyElement.style.webkitColumnCount = pageCount;
-    bodyElement.style.webkitColumnGap = '40px';
-    FolioPageFragment.horizontalPageCount(pageCount)
+
+    var bodyStyle = bodyElement.currentStyle || window.getComputedStyle(bodyElement);
+    var paddingTop = parseInt(bodyStyle.paddingTop, 10);
+    var paddingRight = parseInt(bodyStyle.paddingRight, 10);
+    var paddingBottom = parseInt(bodyStyle.paddingBottom, 10);
+    var paddingLeft = parseInt(bodyStyle.paddingLeft, 10);
+    //console.log("-> padding = " + paddingTop + ", " + paddingRight + ", " + paddingBottom + ", " + paddingLeft);
+
+    //window.innerWidth excluding x scrollbar width
+    var pageWidth = bodyElement.offsetWidth - (paddingLeft + paddingRight);
+    //document.documentElement.clientHeight is window.innerHeight excluding y scrollbar height
+    var pageHeight = document.documentElement.clientHeight - (paddingTop + paddingBottom);
+    var chapterHeight = bodyElement.offsetHeight - (paddingTop + paddingBottom);
+    var pageCount = Math.ceil(chapterHeight / pageHeight);
+
+    bodyElement.style.webkitColumnGap = (paddingLeft + paddingRight) + 'px';
+    bodyElement.style.webkitColumnWidth = pageWidth + 'px';
+
+    //console.log("-> window.innerWidth = " + window.innerWidth);
+    //console.log("-> window.innerHeight = " + window.innerHeight);
+    //console.log("-> bodyElement.offsetWidth = " + bodyElement.offsetWidth);
+    //console.log("-> bodyElement.offsetHeight = " + bodyElement.offsetHeight);
+    //console.log("-> pageWidth = " + pageWidth);
+    //console.log("-> pageHeight = " + pageHeight);
+    //console.log("-> chapterHeight = " + chapterHeight);
+    //console.log("-> pageCount = " + pageCount);
+
+    htmlElement.style.height = (pageHeight + (paddingTop + paddingBottom)) + 'px';
+    bodyElement.style.height = pageHeight + 'px';
+
+    return pageCount;
+}
+
+function postInitHorizontalDirection() {
+
+    var htmlElement = document.getElementsByTagName('html')[0];
+    var bodyElement = document.getElementsByTagName('body')[0];
+    var bodyStyle = bodyElement.currentStyle || window.getComputedStyle(bodyElement);
+    var paddingTop = parseInt(bodyStyle.paddingTop, 10);
+    var paddingRight = parseInt(bodyStyle.paddingRight, 10);
+    var paddingBottom = parseInt(bodyStyle.paddingBottom, 10);
+    var paddingLeft = parseInt(bodyStyle.paddingLeft, 10);
+
+    var newWidth = document.documentElement.scrollWidth - paddingRight;
+
+    htmlElement.style.width = (newWidth + (paddingLeft + paddingRight)) + 'px';
+    bodyElement.style.width = newWidth + 'px';
+    //console.log("-> newWidth = " + newWidth);
 }
 
 /**

@@ -460,8 +460,9 @@ public class FolioPageFragment
                                     entryReadPosition.isUsingId(), entryReadPosition.getValue()));
                         }
                     }
+                    //TODO: -> Rearrange below code
                     if (UiUtil.isOrientationHorizontal(getContext())) {
-                        mWebview.loadUrl("javascript:initializeHorizontalOrientation()");
+                        mWebview.loadUrl("javascript:initHorizontalDirection()");
                     }
                     scrollToHighlightId();
                 }
