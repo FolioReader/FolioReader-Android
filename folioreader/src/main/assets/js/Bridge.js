@@ -273,8 +273,8 @@ function removeAllClasses(className) {
 }
 
 function initHorizontalDirection() {
-    var pageCount = preInitHorizontalDirection();
-    postInitHorizontalDirection();
+    preInitHorizontalDirection();
+    var pageCount = postInitHorizontalDirection();
     FolioPageFragment.horizontalPageCount(pageCount);
 }
 
@@ -296,8 +296,6 @@ function preInitHorizontalDirection() {
     var pageWidth = bodyElement.offsetWidth - (paddingLeft + paddingRight);
     //document.documentElement.clientHeight is window.innerHeight excluding y scrollbar height
     var pageHeight = document.documentElement.clientHeight - (paddingTop + paddingBottom);
-    var chapterHeight = bodyElement.offsetHeight - (paddingTop + paddingBottom);
-    var pageCount = Math.ceil(chapterHeight / pageHeight);
 
     bodyElement.style.webkitColumnGap = (paddingLeft + paddingRight) + 'px';
     bodyElement.style.webkitColumnWidth = pageWidth + 'px';
@@ -308,13 +306,9 @@ function preInitHorizontalDirection() {
     //console.log("-> bodyElement.offsetHeight = " + bodyElement.offsetHeight);
     //console.log("-> pageWidth = " + pageWidth);
     //console.log("-> pageHeight = " + pageHeight);
-    //console.log("-> chapterHeight = " + chapterHeight);
-    //console.log("-> pageCount = " + pageCount);
 
     htmlElement.style.height = (pageHeight + (paddingTop + paddingBottom)) + 'px';
     bodyElement.style.height = pageHeight + 'px';
-
-    return pageCount;
 }
 
 function postInitHorizontalDirection() {
@@ -326,12 +320,20 @@ function postInitHorizontalDirection() {
     var paddingRight = parseInt(bodyStyle.paddingRight, 10);
     var paddingBottom = parseInt(bodyStyle.paddingBottom, 10);
     var paddingLeft = parseInt(bodyStyle.paddingLeft, 10);
+    var windowVisibleWidth = bodyElement.offsetWidth;
 
-    var newWidth = document.documentElement.scrollWidth - paddingRight;
+    var scrollWidth = document.documentElement.scrollWidth + paddingRight;
+    var newBodyWidth = scrollWidth - (paddingLeft + paddingRight);
 
-    htmlElement.style.width = (newWidth + (paddingLeft + paddingRight)) + 'px';
-    bodyElement.style.width = newWidth + 'px';
-    //console.log("-> newWidth = " + newWidth);
+    htmlElement.style.width = scrollWidth + 'px';
+    bodyElement.style.width = newBodyWidth + 'px';
+
+    var pageCount = Math.round(scrollWidth / windowVisibleWidth);
+    //console.log("-> scrollWidth = " + scrollWidth);
+    //console.log("-> newBodyWidth = " + newBodyWidth);
+    //console.log("-> pageCount = " + pageCount);
+
+    return pageCount;
 }
 
 /**

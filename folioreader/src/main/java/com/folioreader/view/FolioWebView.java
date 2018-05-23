@@ -2,21 +2,26 @@ package com.folioreader.view;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.Nullable;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.animation.LinearInterpolator;
 import android.webkit.WebView;
 
-import com.folioreader.util.SharedPreferenceUtil;
+import com.folioreader.Constants;
 
 /**
  * @author by mahavir on 3/31/16.
  */
-public class FolioWebView extends WebView {
+public class FolioWebView extends WebView
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+    private static final String LOG_TAG = FolioWebView.class.getSimpleName();
+    private DirectionalViewpager.Direction direction;
     private float MOVE_THRESHOLD_DP = 0;
     private float mDownPosX = 0;
     private float mDownPosY = 0;
@@ -24,6 +29,7 @@ public class FolioWebView extends WebView {
     private int pageCount = 0;
     private int currentPage = 0;
     private int delta = 30;
+    private float density;
     private ScrollListener mScrollListener;
     private SeekBarListener mSeekBarListener;
     private ToolBarListener mToolBarListener;
@@ -49,8 +55,16 @@ public class FolioWebView extends WebView {
     }
 
     private void init() {
-        MOVE_THRESHOLD_DP = 20 * getResources().getDisplayMetrics().density;
-        setDelta();
+        SharedPreferences sharedPreferences = PreferenceManager.
+                getDefaultSharedPreferences(getContext());
+        //TODO: -> Check memory leak
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        onSharedPreferenceChanged(sharedPreferences, Constants.VIEWPAGER_DIRECTION_KEY);
+
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        MOVE_THRESHOLD_DP = 20 * displayMetrics.density;
+        delta = (int) (displayMetrics.widthPixels * 0.04);
+        density = displayMetrics.density;
     }
 
     public void setPageChangeListener(PageChangeListener pageChangeListener) {
@@ -69,36 +83,43 @@ public class FolioWebView extends WebView {
         mToolBarListener = listener;
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        switch (key) {
+            case Constants.VIEWPAGER_DIRECTION_KEY:
+                String directionString = sharedPreferences.getString(key,
+                        DirectionalViewpager.Direction.VERTICAL.toString());
+                //Log.d(LOG_TAG, "-> onSharedPreferenceChanged -> key: " + key + " value: " + directionString);
+                if (directionString.equals(DirectionalViewpager.Direction.VERTICAL.toString())) {
+                    direction = DirectionalViewpager.Direction.VERTICAL;
+                } else {
+                    direction = DirectionalViewpager.Direction.HORIZONTAL;
+                }
+                break;
+        }
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        final int action = event.getAction();
-        if (SharedPreferenceUtil.getPagerOrientation(getContext())
-                .equals(DirectionalViewpager.Direction.VERTICAL.toString())) {
-            handleVerticalScrolling(event, action);
+
+        if (direction == DirectionalViewpager.Direction.VERTICAL) {
+            handleVerticalScrolling(event);
         } else {
-            Boolean x = handleHorizontalScrolling(event);
-            if (x != null) return x;
+            handleHorizontalScrolling(event);
         }
         return super.onTouchEvent(event);
     }
 
-    private void setDelta() {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        delta = (int) (displayMetrics.widthPixels * 0.04);
-    }
+    private void handleHorizontalScrolling(MotionEvent event) {
 
-    @Nullable
-    private Boolean handleHorizontalScrolling(MotionEvent event) {
         switch (event.getAction()) {
-            case MotionEvent.ACTION_MOVE:
-                super.onTouchEvent(event);
-                break;
             case MotionEvent.ACTION_DOWN:
                 mDownPosX = event.getX();
-                if (mSeekBarListener != null) mSeekBarListener.fadeInSeekBarIfInvisible();
-                return super.onTouchEvent(event);
+                if (mSeekBarListener != null)
+                    mSeekBarListener.fadeInSeekBarIfInvisible();
+                break;
             case MotionEvent.ACTION_UP:
                 float x2 = event.getX();
                 float deltaX = x2 - mDownPosX;
@@ -113,10 +134,8 @@ public class FolioWebView extends WebView {
                         turnPageRight(deltaX);
                     }
                 }
-            default:
-                super.onTouchEvent(event);
+                break;
         }
-        return null;
     }
 
     private void hideOrShowToolBar(MotionEvent event) {
@@ -127,8 +146,8 @@ public class FolioWebView extends WebView {
         }
     }
 
-    private void handleVerticalScrolling(MotionEvent event, int action) {
-        switch (action) {
+    private void handleVerticalScrolling(MotionEvent event) {
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDownPosX = event.getX();
                 mDownPosY = event.getY();
@@ -152,19 +171,30 @@ public class FolioWebView extends WebView {
     }
 
     private int getPrevPagePosition() {
-        return (int) Math.ceil(--currentPage * this.getMeasuredWidth());
+        Log.d(LOG_TAG, "-> getPrevPagePosition");
+        double widthDp = Math.ceil((getMeasuredWidth() / density));
+        double widthPixels = widthDp * density;
+        double prevPagePosition = --currentPage * widthPixels;
+        return (int) prevPagePosition;
     }
 
     private void turnPageRight(float deltaX) {
         if (currentPage < pageCount) {
-            int paddingOffset = 10;
             int scrollX = getNextPagePosition();
-            loadAnimation(scrollX + paddingOffset, deltaX);
-            current_x = scrollX + paddingOffset;
-            scrollTo(scrollX + paddingOffset, 0);
+            loadAnimation(scrollX, deltaX);
+            current_x = scrollX;
+            scrollTo(scrollX, 0);
         } else {
             pageChangeListener.nextPage();
         }
+    }
+
+    private int getNextPagePosition() {
+        Log.d(LOG_TAG, "-> getNextPagePosition");
+        double widthDp = Math.ceil((getMeasuredWidth() / density));
+        double widthPixels = widthDp * density;
+        double nextPagePosition = ++currentPage * widthPixels;
+        return (int) nextPagePosition;
     }
 
     private void loadAnimation(int scrollX, float deltaX) {
@@ -173,10 +203,6 @@ public class FolioWebView extends WebView {
         anim.setDuration(500);
         anim.setInterpolator(new LinearInterpolator());
         anim.start();
-    }
-
-    private int getNextPagePosition() {
-        return (int) Math.ceil(++currentPage * this.getMeasuredWidth());
     }
 
     public void setPageCount(int pageCount) {

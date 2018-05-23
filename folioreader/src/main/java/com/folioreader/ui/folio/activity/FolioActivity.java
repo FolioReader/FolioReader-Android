@@ -213,8 +213,8 @@ public class FolioActivity
     @Override
     public void nextPage() {
         if(mChapterPosition < mSpineReferenceList.size()) {
-            Log.d(TAG, "-> nextPage -> " + mChapterPosition + ", " + mSpineReferenceList);
-            mFolioPageViewPager.setCurrentItem(mChapterPosition + 1);
+            Log.d(TAG, "-> nextPage -> " + mChapterPosition);
+            //mFolioPageViewPager.setCurrentItem(mChapterPosition + 1);
         }
     }
 
@@ -222,7 +222,7 @@ public class FolioActivity
     public void previousPage() {
         if(mChapterPosition > 0) {
             Log.d(TAG, "-> previousPage -> " + mChapterPosition);
-            mFolioPageViewPager.setCurrentItem(mChapterPosition - 1);
+            //mFolioPageViewPager.setCurrentItem(mChapterPosition - 1);
         }
     }
 
