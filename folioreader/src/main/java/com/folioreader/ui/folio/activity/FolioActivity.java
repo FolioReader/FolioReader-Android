@@ -79,7 +79,6 @@ public class FolioActivity
         MainMvpView,
         MediaControllerCallback,
         FolioToolbarCallback,
-        FolioWebView.PageChangeListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = "FolioActivity";
@@ -206,23 +205,6 @@ public class FolioActivity
                             mSpineReferenceList, bookFileName, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
             mFolioPageViewPager.setCurrentItem(mChapterPosition);
-        }
-    }
-
-    //TODO: -> is nextPage and previousPage needed?
-    @Override
-    public void nextPage() {
-        if(mChapterPosition < mSpineReferenceList.size()) {
-            Log.d(TAG, "-> nextPage -> " + mChapterPosition);
-            //mFolioPageViewPager.setCurrentItem(mChapterPosition + 1);
-        }
-    }
-
-    @Override
-    public void previousPage() {
-        if(mChapterPosition > 0) {
-            Log.d(TAG, "-> previousPage -> " + mChapterPosition);
-            //mFolioPageViewPager.setCurrentItem(mChapterPosition - 1);
         }
     }
 

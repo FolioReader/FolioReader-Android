@@ -88,7 +88,7 @@ public class FolioPageFragment
     public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.BOOK_TITLE";
     public static final String KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.ui.folio.fragment.FolioPageFragment.EPUB_FILE_NAME";
     private static final String KEY_IS_SMIL_AVAILABLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.IS_SMIL_AVAILABLE";
-    public static final String TAG = FolioPageFragment.class.getSimpleName();
+    public static final String LOG_TAG = FolioPageFragment.class.getSimpleName();
 
     private static final int ACTION_ID_COPY = 1001;
     private static final int ACTION_ID_SHARE = 1002;
@@ -381,10 +381,7 @@ public class FolioPageFragment
     }
 
     private void initWebView() {
-        mWebview = mRootView.findViewById(R.id.contentWebView);
-
-        if (getActivity() instanceof FolioWebView.PageChangeListener)
-            mWebview.setPageChangeListener((FolioWebView.PageChangeListener) getActivity());
+        mWebview = mRootView.findViewById(R.id.folioWebView);
 
         if (getActivity() instanceof FolioWebView.ToolBarListener)
             mWebview.setToolBarListener((FolioWebView.ToolBarListener) getActivity());
@@ -491,7 +488,7 @@ public class FolioPageFragment
                                                 getActivity())));
                             }
                         } catch (UnsupportedEncodingException e) {
-                            Log.d(TAG, e.getMessage());
+                            Log.d(LOG_TAG, e.getMessage());
                         }
                     } else {
                         if (url.contains("storage")) {
@@ -515,7 +512,7 @@ public class FolioPageFragment
                     try {
                         return new WebResourceResponse("image/png", null, null);
                     } catch (Exception e) {
-                        Log.e(TAG, "shouldInterceptRequest failed", e);
+                        Log.e(LOG_TAG, "shouldInterceptRequest failed", e);
                     }
                 }
                 return null;
@@ -529,7 +526,7 @@ public class FolioPageFragment
                     try {
                         return new WebResourceResponse("image/png", null, null);
                     } catch (Exception e) {
-                        Log.e(TAG, "shouldInterceptRequest failed", e);
+                        Log.e(LOG_TAG, "shouldInterceptRequest failed", e);
                     }
                 }
                 return null;
@@ -614,6 +611,7 @@ public class FolioPageFragment
 
             @Override
             public void selectionChanged(String text) {
+                Log.d(LOG_TAG, "-> selectionChanged -> " + text);
                 mSelectedText = text;
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
@@ -649,7 +647,7 @@ public class FolioPageFragment
                     wait(2000);
                 }
             } catch (InterruptedException e) {
-                Log.e(TAG, "-> " + e);
+                Log.e(LOG_TAG, "-> " + e);
             }
         }
     }
@@ -661,6 +659,7 @@ public class FolioPageFragment
      * @param usingId if span tag has id then true or else false
      * @param value if usingId true then span id else span index
      */
+    @SuppressWarnings("unused")
     @JavascriptInterface
     public void storeFirstVisibleSpan(boolean usingId, String value) {
 
@@ -674,6 +673,7 @@ public class FolioPageFragment
         }
     }
 
+    @SuppressWarnings("unused")
     @JavascriptInterface
     public void horizontalPageCount(int pageCount) {
         mWebview.setPageCount(pageCount);
