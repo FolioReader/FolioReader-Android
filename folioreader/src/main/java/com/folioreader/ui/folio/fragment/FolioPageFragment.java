@@ -27,6 +27,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -381,7 +382,9 @@ public class FolioPageFragment
     }
 
     private void initWebView() {
-        mWebview = mRootView.findViewById(R.id.folioWebView);
+
+        FrameLayout webViewLayout = mRootView.findViewById(R.id.webViewLayout);
+        mWebview = webViewLayout.findViewById(R.id.folioWebView);
 
         if (getActivity() instanceof FolioWebView.ToolBarListener)
             mWebview.setToolBarListener((FolioWebView.ToolBarListener) getActivity());
@@ -677,7 +680,6 @@ public class FolioPageFragment
     @JavascriptInterface
     public void horizontalPageCount(int pageCount) {
         mWebview.setPageCount(pageCount);
-        mWebview.scrollToCurrentPage();
     }
 
     private void loadRangy(WebView view, String rangy) {

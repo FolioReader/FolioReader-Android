@@ -120,7 +120,6 @@ public class FolioActivity
         setConfig();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
-        //TODO: -> Check memory leak
         PreferenceManager.getDefaultSharedPreferences(this).
                 registerOnSharedPreferenceChangeListener(this);
 
