@@ -26,7 +26,7 @@ public class FolioWebView extends WebView
 
     private static final String LOG_TAG = FolioWebView.class.getSimpleName();
     private DirectionalViewpager.Direction direction;
-    private float TOUCH_SLOP = 0;
+    private float touchSlop = 0;
     private int pageCount = 0;
     private float density;
     private ScrollListener mScrollListener;
@@ -40,17 +40,20 @@ public class FolioWebView extends WebView
 
     public FolioWebView(Context context) {
         super(context);
-        init();
+        if (!isInEditMode())
+            init();
     }
 
     public FolioWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        if (!isInEditMode())
+            init();
     }
 
     public FolioWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        if (!isInEditMode())
+            init();
     }
 
     private void init() {
@@ -65,7 +68,7 @@ public class FolioWebView extends WebView
         onSharedPreferenceChanged(sharedPreferences, Constants.VIEWPAGER_DIRECTION_KEY);
 
         density = getResources().getDisplayMetrics().density;
-        TOUCH_SLOP = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+        touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
     }
 
     @Override
@@ -149,12 +152,11 @@ public class FolioWebView extends WebView
                 break;
 
             case MotionEvent.ACTION_UP:
-                if (mToolBarListener != null) {
-                    if ((Math.abs(event.getY() - eventActionDown.getY()) < TOUCH_SLOP) &&
-                            (Math.abs(event.getX() - eventActionDown.getX()) < TOUCH_SLOP)) {
-                        //SingleTap
-                        mToolBarListener.hideOrShowToolBar();
-                    }
+                if (mToolBarListener != null &&
+                        ((Math.abs(event.getY() - eventActionDown.getY()) < touchSlop) &&
+                                (Math.abs(event.getX() - eventActionDown.getX()) < touchSlop))) {
+                    //SingleTap
+                    mToolBarListener.hideOrShowToolBar();
                 }
                 break;
         }
