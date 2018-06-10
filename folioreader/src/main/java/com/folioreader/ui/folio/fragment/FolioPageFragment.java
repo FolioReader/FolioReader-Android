@@ -71,6 +71,7 @@ import org.readium.r2_streamer.model.publication.link.Link;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -209,6 +210,13 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
 
     private String getWebviewUrl() {
+        //return Constants.LOCALHOST + mBookTitle + "/" + spineItem.href;
+        try{
+            return Constants.LOCALHOST + URLEncoder.encode(mBookTitle, "UTF-8") + "/" + spineItem.href;
+        }
+        catch (Exception ex){
+
+        }
         return Constants.LOCALHOST + mBookTitle + "/" + spineItem.href;
     }
 
@@ -227,7 +235,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     /**
      * [EVENT BUS FUNCTION]
-     * Function triggered from {@link FolioActivity#initAudioView()} when pause/play
+     * Function triggered from {@link FolioActivity} when pause/play
      * button is clicked
      *
      * @param event of type {@link MediaOverlayPlayPauseEvent} contains if paused/played
@@ -368,8 +376,17 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             if (forwardSlashLastIndex != -1)
                 path = ref.substring(0, forwardSlashLastIndex + 1);
 
+            String title;
+            try{
+                title = URLEncoder.encode(mBookTitle, "UTF-8");
+            }
+            catch(Exception ex){
+                title = mBookTitle;
+            }
+
             mWebview.loadDataWithBaseURL(
-                    Constants.LOCALHOST + mBookTitle + "/" + path,
+                    // Constants.LOCALHOST + mBookTitle + "/" + path,
+                    Constants.LOCALHOST + title + "/" + path,
                     HtmlUtil.getHtmlContent(getActivity(), mHtmlString, mConfig),
                     "text/html",
                     "UTF-8",
