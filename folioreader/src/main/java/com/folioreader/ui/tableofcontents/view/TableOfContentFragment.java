@@ -23,6 +23,7 @@ import com.folioreader.ui.tableofcontents.presenter.TOCMvpView;
 import com.folioreader.ui.tableofcontents.presenter.TableOfContentsPresenter;
 import com.folioreader.util.AppUtil;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import static com.folioreader.Constants.BOOK_TITLE;
@@ -72,7 +73,15 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
         super.onViewCreated(view, savedInstanceState);
         mTableOfContentsRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_menu);
         errorView = (TextView) view.findViewById(R.id.tv_error);
-        String urlString = Constants.LOCALHOST + mBookTitle + "/manifest";
+
+        String bookTitle;
+        try{
+            bookTitle = URLEncoder.encode(mBookTitle, "UTF-8");
+        }
+        catch(Exception ex){
+            bookTitle = mBookTitle;
+        }
+        String urlString = Constants.LOCALHOST + bookTitle + "/manifest";
 
         configRecyclerViews();
         presenter.getTOCContent(urlString);

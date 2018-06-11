@@ -59,6 +59,7 @@ import org.readium.r2_streamer.server.EpubServer;
 import org.readium.r2_streamer.server.EpubServerSingleton;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -162,7 +163,7 @@ public class FolioActivity
                     mEpubRawId, mEpubFileName);
             addEpub(path);
 
-            String urlString = Constants.LOCALHOST + bookFileName + "/manifest";
+            String urlString = Constants.LOCALHOST + URLEncoder.encode(bookFileName, "UTF-8") + "/manifest";
             new MainPresenter(this).parseManifest(urlString);
 
         } catch (IOException e) {
