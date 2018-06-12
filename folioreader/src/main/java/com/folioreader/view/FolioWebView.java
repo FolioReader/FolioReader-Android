@@ -2,9 +2,7 @@ package com.folioreader.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -13,21 +11,18 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.webkit.WebView;
 
-import com.folioreader.Constants;
 import com.folioreader.R;
+import com.folioreader.ui.folio.activity.FolioActivityCallback;
 
 /**
  * @author by mahavir on 3/31/16.
  */
 public class FolioWebView extends WebView
-        implements SharedPreferences.OnSharedPreferenceChangeListener,
-        GestureDetector.OnGestureListener,
-        GestureDetector.OnDoubleTapListener {
+        implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
     private static final String LOG_TAG = FolioWebView.class.getSimpleName();
-    private DirectionalViewpager.Direction direction;
     private float touchSlop = 0;
-    private int pageCount = 0;
+    private int horizontalPageCount = 0;
     private float density;
     private ScrollListener mScrollListener;
     private SeekBarListener mSeekBarListener;
@@ -37,6 +32,7 @@ public class FolioWebView extends WebView
     private int pageWidthCssPixels;
     private WebViewPager webViewPager;
     private Handler handler;
+    private FolioActivityCallback folioActivityCallback;
 
     public FolioWebView(Context context) {
         super(context);
@@ -61,14 +57,12 @@ public class FolioWebView extends WebView
         handler = new Handler();
         gestureDetector = new GestureDetectorCompat(getContext(), this);
         gestureDetector.setOnDoubleTapListener(this);
-
-        SharedPreferences sharedPreferences = PreferenceManager.
-                getDefaultSharedPreferences(getContext());
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        onSharedPreferenceChanged(sharedPreferences, Constants.VIEWPAGER_DIRECTION_KEY);
-
         density = getResources().getDisplayMetrics().density;
         touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+    }
+
+    public void setFolioActivityCallback(FolioActivityCallback folioActivityCallback) {
+        this.folioActivityCallback = folioActivityCallback;
     }
 
     @Override
@@ -91,23 +85,6 @@ public class FolioWebView extends WebView
         mToolBarListener = listener;
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-        switch (key) {
-            case Constants.VIEWPAGER_DIRECTION_KEY:
-                String directionString = sharedPreferences.getString(key,
-                        DirectionalViewpager.Direction.VERTICAL.toString());
-                //Log.v(LOG_TAG, "-> onSharedPreferenceChanged -> key: " + key + " value: " + directionString);
-                if (directionString.equals(DirectionalViewpager.Direction.VERTICAL.toString())) {
-                    direction = DirectionalViewpager.Direction.VERTICAL;
-                } else {
-                    direction = DirectionalViewpager.Direction.HORIZONTAL;
-                }
-                break;
-        }
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -115,7 +92,7 @@ public class FolioWebView extends WebView
 
         hideOrShowToolBar(event);
 
-        if (direction == DirectionalViewpager.Direction.HORIZONTAL) {
+        if (folioActivityCallback.getDirection() == DirectionalViewpager.Direction.HORIZONTAL) {
             return computeHorizontalScroll(event);
         } else {
             return computeVerticalScroll(event);
@@ -162,8 +139,8 @@ public class FolioWebView extends WebView
         }
     }
 
-    public void setPageCount(int pageCount) {
-        this.pageCount = pageCount;
+    public void setHorizontalPageCount(int horizontalPageCount) {
+        this.horizontalPageCount = horizontalPageCount;
 
         handler.post(new Runnable() {
             @Override
@@ -171,7 +148,7 @@ public class FolioWebView extends WebView
                 if (webViewPager == null)
                     webViewPager = ((View) getParent()).findViewById(R.id.webViewPager);
 
-                webViewPager.setPageCount(FolioWebView.this.pageCount);
+                webViewPager.setHorizontalPageCount(FolioWebView.this.horizontalPageCount);
             }
         });
     }
@@ -205,6 +182,7 @@ public class FolioWebView extends WebView
                            float velocityX, float velocityY) {
 
         if (!webViewPager.isScrolling()) {
+            //TODO: -> check for right edge to left flings from right edge
             // Need to complete the scroll as ViewPager thinks these touch events should not
             // scroll it's pages.
             //Log.d(LOG_TAG, "-> onFling -> completing scroll");

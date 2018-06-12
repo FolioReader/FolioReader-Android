@@ -39,17 +39,15 @@ import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.WebViewPosition;
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
-import com.folioreader.ui.folio.fragment.FolioPageFragment;
 import com.folioreader.ui.folio.presenter.MainMvpView;
 import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
-import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
-import com.folioreader.view.FolioWebView;
 import com.folioreader.view.FolioToolbar;
 import com.folioreader.view.FolioToolbarCallback;
+import com.folioreader.view.FolioWebView;
 import com.folioreader.view.MediaControllerCallback;
 import com.folioreader.view.MediaControllerView;
 
@@ -72,15 +70,14 @@ import static com.folioreader.Constants.TYPE;
 
 public class FolioActivity
         extends AppCompatActivity
-        implements FolioPageFragment.FolioActivityCallback,
+        implements FolioActivityCallback,
         FolioWebView.ToolBarListener,
-        ConfigBottomSheetDialogFragment.ConfigDialogCallback,
         MainMvpView,
         MediaControllerCallback,
         FolioToolbarCallback,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String TAG = "FolioActivity";
+    private static final String LOG_TAG = "FolioActivity";
 
     public static final String INTENT_EPUB_SOURCE_PATH = "com.folioreader.epub_asset_path";
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
@@ -113,14 +110,17 @@ public class FolioActivity
     private EpubSourceType mEpubSourceType;
     int mEpubRawId = 0;
     private MediaControllerView mediaControllerView;
+    private DirectionalViewpager.Direction direction = DirectionalViewpager.Direction.VERTICAL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setConfig();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
-        PreferenceManager.getDefaultSharedPreferences(this).
-                registerOnSharedPreferenceChangeListener(this);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        onSharedPreferenceChanged(sharedPreferences, Constants.VIEWPAGER_DIRECTION_KEY);
 
         mBookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
         mEpubSourceType = (EpubSourceType)
@@ -172,7 +172,7 @@ public class FolioActivity
             new MainPresenter(this).parseManifest(urlString);
 
         } catch (IOException e) {
-            Log.e(TAG, "initBook failed", e);
+            Log.e(LOG_TAG, "initBook failed", e);
         }
     }
 
@@ -186,24 +186,18 @@ public class FolioActivity
     }
 
     @Override
-    public void onDirectionChange(@NonNull String direction) {
-        if (direction.equals(DirectionalViewpager.Direction.VERTICAL.toString())) {
-            mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
-            mFolioPageFragmentAdapter =
-                    new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, bookFileName, mBookId);
-            mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
-            mFolioPageViewPager.setOffscreenPageLimit(1);
-            mFolioPageViewPager.setCurrentItem(mChapterPosition);
+    public void onDirectionChange(@NonNull DirectionalViewpager.Direction direction) {
 
-        } else {
-            mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
-            mFolioPageFragmentAdapter =
-                    new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, bookFileName, mBookId);
-            mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
-            mFolioPageViewPager.setCurrentItem(mChapterPosition);
-        }
+        mFolioPageViewPager.setDirection(direction);
+        mFolioPageFragmentAdapter =
+                new FolioPageFragmentAdapter(getSupportFragmentManager(),
+                        mSpineReferenceList, bookFileName, mBookId);
+        mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
+        mFolioPageViewPager.setCurrentItem(mChapterPosition);
+
+        //TODO: -> check if this is required
+        if (direction == DirectionalViewpager.Direction.VERTICAL)
+            mFolioPageViewPager.setOffscreenPageLimit(1);
     }
 
     @Override
@@ -330,11 +324,8 @@ public class FolioActivity
         });
 
         if (mSpineReferenceList != null) {
-            if (UiUtil.isOrientationHorizontal(this)) {
-                mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
-            } else {
-                mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
-            }
+
+            mFolioPageViewPager.setDirection(direction);
             mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),
                     mSpineReferenceList, bookFileName, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
@@ -433,11 +424,22 @@ public class FolioActivity
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
-        switch(key) {
+        switch (key) {
             case Constants.VIEWPAGER_DIRECTION_KEY:
-                Log.d(TAG, "-> onSharedPreferenceChanged -> key: " + key + " value: " +
-                        sharedPreferences.getString(key, DirectionalViewpager.Direction.VERTICAL.toString()));
+                String directionString = sharedPreferences.getString(key,
+                        DirectionalViewpager.Direction.VERTICAL.toString());
+                Log.v(LOG_TAG, "-> onSharedPreferenceChanged -> key: " + key + " value: " + directionString);
+                if (directionString.equals(DirectionalViewpager.Direction.HORIZONTAL.toString())) {
+                    direction = DirectionalViewpager.Direction.HORIZONTAL;
+                } else {
+                    direction = DirectionalViewpager.Direction.VERTICAL;
+                }
                 break;
         }
+    }
+
+    @Override
+    public DirectionalViewpager.Direction getDirection() {
+        return direction;
     }
 }

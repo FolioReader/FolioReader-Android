@@ -176,9 +176,4 @@ public class UiUtil {
     public static int pxToDp(int px) {
         return (int) (px / Resources.getSystem().getDisplayMetrics().density);
     }
-
-    public static boolean isOrientationHorizontal(Context context) {
-        return SharedPreferenceUtil.getPagerOrientation(context)
-                .equals(DirectionalViewpager.Direction.HORIZONTAL.toString());
-    }
 }

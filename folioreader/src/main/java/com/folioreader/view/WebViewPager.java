@@ -1,24 +1,30 @@
 package com.folioreader.view;
 
 import android.content.Context;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.JavascriptInterface;
+import android.widget.TextView;
 
 import com.folioreader.R;
 
 public class WebViewPager extends ViewPager {
 
     private static final String LOG_TAG = WebViewPager.class.getSimpleName();
-    private int pageCount;
+    private int horizontalPageCount;
     private FolioWebView folioWebView;
     private boolean takeOverScrolling;
     private boolean scrolling;
+    private Handler handler;
 
     public WebViewPager(@NonNull Context context) {
         super(context);
@@ -31,6 +37,9 @@ public class WebViewPager extends ViewPager {
     }
 
     private void init() {
+
+        handler = new Handler();
+
         addOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -53,7 +62,7 @@ public class WebViewPager extends ViewPager {
 
             @Override
             public void onPageSelected(int position) {
-                //Log.d(LOG_TAG, "-> onPageSelected -> " + position);
+                Log.d(LOG_TAG, "-> onPageSelected -> " + position);
             }
 
             @Override
@@ -79,14 +88,27 @@ public class WebViewPager extends ViewPager {
         }
     }
 
-    public void setPageCount(int pageCount) {
-        //Log.d(LOG_TAG, "-> pageCount = " + pageCount);
+    public void setHorizontalPageCount(int horizontalPageCount) {
+        //Log.d(LOG_TAG, "-> horizontalPageCount = " + horizontalPageCount);
 
-        this.pageCount = pageCount;
+        this.horizontalPageCount = horizontalPageCount;
         setAdapter(new WebViewPagerAdapter());
 
         if (folioWebView == null)
             folioWebView = ((View) getParent()).findViewById(R.id.folioWebView);
+    }
+
+    @SuppressWarnings("unused")
+    @JavascriptInterface
+    public void setCurrentPage(final int pageIndex) {
+        Log.d(LOG_TAG, "-> setCurrentItem -> pageIndex = " + pageIndex);
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                setCurrentItem(pageIndex, false);
+            }
+        });
     }
 
     @Override
@@ -105,7 +127,7 @@ public class WebViewPager extends ViewPager {
 
         @Override
         public int getCount() {
-            return pageCount;
+            return horizontalPageCount;
         }
 
         @Override
@@ -117,9 +139,18 @@ public class WebViewPager extends ViewPager {
         @Override
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
 
-            View view = new View(container.getContext());
-            view.setClickable(false);
-            view.setFocusable(false);
+            View view = LayoutInflater.from(container.getContext())
+                    .inflate(R.layout.view_webview_pager, container, false);
+
+            if (position % 2 == 0) {
+                view.setBackgroundResource(R.drawable.green_border_background);
+            } else {
+                view.setBackgroundResource(R.drawable.blue_border_background);
+            }
+
+            TextView textView = view.findViewById(R.id.textView);
+            textView.setText(Integer.toString(position));
+
             container.addView(view);
             return view;
         }

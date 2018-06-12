@@ -18,6 +18,8 @@ import com.folioreader.Config
 import com.folioreader.Constants
 import com.folioreader.R
 import com.folioreader.model.event.ReloadDataEvent
+import com.folioreader.ui.folio.activity.FolioActivity
+import com.folioreader.ui.folio.activity.FolioActivityCallback
 import com.folioreader.util.AppUtil
 import com.folioreader.util.SharedPreferenceUtil
 import com.folioreader.util.UiUtil
@@ -28,13 +30,9 @@ import org.greenrobot.eventbus.EventBus
  * Created by mobisys2 on 11/16/2016.
  */
 class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
-    private lateinit var callback: ConfigDialogCallback
     private lateinit var config: Config
     private var isNightMode = false
-
-    interface ConfigDialogCallback {
-        fun onDirectionChange(orientation: String)
-    }
+    private lateinit var activityCallback: FolioActivityCallback
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.view_config, container)
@@ -42,6 +40,10 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (activity is FolioActivity)
+            activityCallback = activity as FolioActivity
+
         view.viewTreeObserver.addOnGlobalLayoutListener {
             val dialog = dialog as BottomSheetDialog
             val bottomSheet = dialog.findViewById<View>(android.support.design.R.id.design_bottom_sheet) as FrameLayout?
@@ -83,8 +85,6 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
             UiUtil.setColorToImage(activity, config.themeColor, view_config_ib_day_mode!!.drawable)
             UiUtil.setColorToImage(activity, R.color.app_gray, view_config_ib_night_mode.drawable)
         }
-
-        callback = activity as ConfigDialogCallback
     }
 
     private fun inflateView() {
@@ -108,7 +108,7 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
             setToolBarColor()
             setAudioPlayerBackground()
         }
-        if (UiUtil.isOrientationHorizontal(context)) {
+        if (activityCallback.direction == DirectionalViewpager.Direction.HORIZONTAL) {
             view_config_btn_horizontal_orientation.isSelected = true
         } else {
             view_config_btn_vertical_orientation.isSelected = true
@@ -129,14 +129,14 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         view_config_btn_vertical_orientation.setOnClickListener {
             SharedPreferenceUtil.setPagerOrientation(context, DirectionalViewpager.Direction.VERTICAL.toString())
-            callback.onDirectionChange(DirectionalViewpager.Direction.VERTICAL.toString())
+            activityCallback.onDirectionChange(DirectionalViewpager.Direction.VERTICAL)
             view_config_btn_horizontal_orientation.isSelected = false
             view_config_btn_vertical_orientation.isSelected = true
         }
 
         view_config_btn_horizontal_orientation.setOnClickListener {
             SharedPreferenceUtil.setPagerOrientation(context, DirectionalViewpager.Direction.HORIZONTAL.toString())
-            callback.onDirectionChange(DirectionalViewpager.Direction.HORIZONTAL.toString())
+            activityCallback.onDirectionChange(DirectionalViewpager.Direction.HORIZONTAL)
             view_config_btn_horizontal_orientation.isSelected = true
             view_config_btn_vertical_orientation.isSelected = false
         }
