@@ -30,4 +30,5 @@
     <string name="OK">Ok</string>
     <string name="SetSizeTitle">Painel superior</string>
     <string name="LanguageChooserTitle">Escolha 2 linguagens</string>
+    <string name="cant_open_file">Can\'t open file</string>
 </resources>

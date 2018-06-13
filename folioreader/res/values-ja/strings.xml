@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">folioreader</string>
+    <string name="share">共有</string>
+    <string name="copy">コピー</string>
+    <string name="send_to">送信先：</string>
+    <string name="copied">コピーしました</string>
+    <string name="less_than_minute">1分未満 ·&#160;</string>
+    <string name="minutes_left">%1$d 分 ·&#160;</string>
+    <string name="minute_left">%1$d 分 ·&#160;</string>
+    <string name="highlight">ハイライト</string>
+    <string name="define">定義</string>
+    <string name="highlights">ハイライト</string>
+    <string name="style">スタイル</string>
+    <string name="Cancel">キャンセル</string>
+    <string name="loading">読み込み中</string>
+    <string name="please_wait">しばらくお待ちください</string>
+    <string name="edit_notes">編集</string>
+    <string name="save_note">保存</string>
+    <string name="please_enter_note">入力してください</string>
+    <string name="contents">目次</string>
+    <string name="dictionary">辞書</string>
+    <string name="cannot_access_epub_message">epubを開くことができません。ストレージアクセスが必要です !</string>
+    <string name="pages_left">残り %1$d ページ</string>
+    <string name="page_left">残り %1$d ページ</string>
+    <string name="change_Font">フォントの変更e</string>
+    <string name="change_Font_Color">フォント色</string>
+    <string name="changeStyle">スタイルの変更</string>
+    <string name="error_CannotChangeStyle">スタイルを変更できません!</string>
+    <string name="OK">Ok</string>
+    <string name="SetSizeTitle">上部パネルサイズ:</string>
+    <string name="LanguageChooserTitle">2つの言語を選択する:</string>
+    <string name="cant_open_file">このフィルは開けません。</string>
+</resources>

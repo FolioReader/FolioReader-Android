@@ -60,6 +60,8 @@ import org.readium.r2_streamer.server.EpubServerSingleton;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -132,7 +134,10 @@ public class FolioActivity
         if (ContextCompat.checkSelfPermission(FolioActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(FolioActivity.this, Constants.getWriteExternalStoragePerms(), Constants.WRITE_EXTERNAL_STORAGE_REQUEST);
         } else {
-            setupBook();
+            if(setupBook() == false){
+                Toast.makeText(this, R.string.cant_open_file, Toast.LENGTH_LONG);
+                finish();
+            }
         }
 
         toolbar = findViewById(R.id.toolbar);
@@ -154,27 +159,52 @@ public class FolioActivity
         overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
     }
 
-    private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
+    private Boolean initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
+        Log.v(TAG, "initBook >>");
+        Boolean result = false;
         try {
             int portNumber = getIntent().getIntExtra(Config.INTENT_PORT, Constants.PORT_NUMBER);
             mEpubServer = EpubServerSingleton.getEpubServerInstance(portNumber);
             mEpubServer.start();
             String path = FileUtil.saveEpubFileAndLoadLazyBook(FolioActivity.this, mEpubSourceType, mEpubFilePath,
                     mEpubRawId, mEpubFileName);
-            addEpub(path);
 
-            String urlString = Constants.LOCALHOST + URLEncoder.encode(bookFileName, "UTF-8") + "/manifest";
-            new MainPresenter(this).parseManifest(urlString);
+            if(addEpub(path)){
 
+                String urlString = Constants.LOCALHOST + URLEncoder.encode(bookFileName, "UTF-8") + "/manifest";
+                Log.v(TAG, "initBook urlString = " + urlString);
+                new MainPresenter(this).parseManifest(urlString);
+
+                result = true;
+            }
         } catch (IOException e) {
             Log.e(TAG, "initBook failed", e);
         }
+        Log.v(TAG, "initBook <<");
+
+        return result;
     }
 
-    private void addEpub(String path) throws IOException {
+    private Boolean addEpub(String path) throws IOException {
+        Log.v(TAG, "addEpub >>");
+        Log.v(TAG, "addEpub path = " + path);
+        Log.v(TAG, "addEpub bookFileName = " + bookFileName);
+
+        Boolean result = true;
+
         Container epubContainer = new EpubContainer(path);
-        mEpubServer.addEpub(epubContainer, "/" + bookFileName);
+        try{
+            mEpubServer.addEpub(epubContainer, "/" + URLEncoder.encode(bookFileName));
+        }
+        catch(Exception ex){
+            Log.e(TAG, "addEpub error = " +  ex.getMessage());
+            result = false;
+        }
         getEpubResource();
+
+        Log.v(TAG, "addEpub <<");
+
+        return result;
     }
 
     private void getEpubResource() {
@@ -370,15 +400,22 @@ public class FolioActivity
     }
 
     private void setConfig() {
-        if (AppUtil.getSavedConfig(this) != null) {
-            mConfig = AppUtil.getSavedConfig(this);
-        } else if (getIntent().getParcelableExtra(Config.INTENT_CONFIG) != null) {
+        Log.v(TAG, "setConfig >>");
+
+        Bundle args = getIntent().getExtras();
+        Log.v(TAG, "setConfig args = " + args.toString());
+
+        if (getIntent().getParcelableExtra(Config.INTENT_CONFIG) != null) {
             mConfig = getIntent().getParcelableExtra(Config.INTENT_CONFIG);
             AppUtil.saveConfig(this, mConfig);
+            Log.v(TAG, "setConfig (2) isShowTts = " + mConfig.isShowTts());
+        } else         if (AppUtil.getSavedConfig(this) != null) {
+            mConfig = AppUtil.getSavedConfig(this);
         } else {
             mConfig = new Config.ConfigBuilder().build();
             AppUtil.saveConfig(this, mConfig);
         }
+        Log.v(TAG, "setConfig <<");
     }
 
     @Override
@@ -395,9 +432,29 @@ public class FolioActivity
     public void onError() {
     }
 
-    private void setupBook() {
-        bookFileName = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
-        initBook(bookFileName, mEpubRawId, mEpubFilePath, mEpubSourceType);
+    public String md5(String s) {
+        try {
+            // Create MD5 Hash
+            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            digest.update(s.getBytes());
+            byte messageDigest[] = digest.digest();
+
+            // Create Hex String
+            StringBuffer hexString = new StringBuffer();
+            for (int i=0; i<messageDigest.length; i++)
+                hexString.append(String.format("%02x", messageDigest[i] & 0xff));
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private Boolean setupBook() {
+        //bookFileName = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
+        bookFileName = md5(mEpubFilePath);
+        return initBook(bookFileName, mEpubRawId, mEpubFilePath, mEpubSourceType);
     }
 
     @Override

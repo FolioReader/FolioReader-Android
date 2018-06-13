@@ -41,5 +41,6 @@
     <string name="save_note">Сохранить заметку</string>
     <string name="please_enter_note">пожалуйста введите заметку</string>
     <string name="contents">Содержание</string>
+    <string name="cant_open_file">Can\'t open file</string>
 
 </resources>
