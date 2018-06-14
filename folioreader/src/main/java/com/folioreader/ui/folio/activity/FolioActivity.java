@@ -16,6 +16,7 @@
 package com.folioreader.ui.folio.activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -39,6 +40,7 @@ import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.WebViewPosition;
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
+import com.folioreader.ui.folio.fragment.FolioPageFragment;
 import com.folioreader.ui.folio.presenter.MainMvpView;
 import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
@@ -83,6 +85,8 @@ public class FolioActivity
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
     public static final String INTENT_HIGHLIGHTS_LIST = "highlight_list";
     public static final String EXTRA_READ_POSITION = "com.folioreader.extra.READ_POSITION";
+    private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE =
+            "com.folioreader.ui.folio.fragment.FolioPageFragment.BUNDLE_READ_POSITION_CONFIG_CHANGE";
 
     public enum EpubSourceType {
         RAW,
@@ -100,6 +104,9 @@ public class FolioActivity
     private int mChapterPosition;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
     private ReadPosition entryReadPosition;
+    private ReadPosition lastReadPosition;
+    private Bundle outState;
+    private Bundle savedInstanceState;
 
     private List<Link> mSpineReferenceList = new ArrayList<>();
     private EpubServer mEpubServer;
@@ -117,6 +124,7 @@ public class FolioActivity
         setConfig();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
+        this.savedInstanceState = savedInstanceState;
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -186,18 +194,20 @@ public class FolioActivity
     }
 
     @Override
-    public void onDirectionChange(@NonNull DirectionalViewpager.Direction direction) {
+    public void onDirectionChange(@NonNull DirectionalViewpager.Direction newDirection) {
+        Log.d(LOG_TAG, "-> onDirectionChange");
 
-        mFolioPageViewPager.setDirection(direction);
-        mFolioPageFragmentAdapter =
-                new FolioPageFragmentAdapter(getSupportFragmentManager(),
+        FolioPageFragment folioPageFragment = (FolioPageFragment)
+                mFolioPageFragmentAdapter.getItem(mFolioPageViewPager.getCurrentItem());
+        entryReadPosition = folioPageFragment.getLastReadPosition();
+
+        direction = newDirection;
+
+        mFolioPageViewPager.setDirection(newDirection);
+        mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),
                         mSpineReferenceList, bookFileName, mBookId);
         mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         mFolioPageViewPager.setCurrentItem(mChapterPosition);
-
-        //TODO: -> check if this is required
-        if (direction == DirectionalViewpager.Direction.VERTICAL)
-            mFolioPageViewPager.setOffscreenPageLimit(1);
     }
 
     @Override
@@ -270,6 +280,10 @@ public class FolioActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        if (outState != null)
+            outState.putParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE, lastReadPosition);
+
         if (mEpubServer != null) {
             mEpubServer.stop();
         }
@@ -330,8 +344,15 @@ public class FolioActivity
                     mSpineReferenceList, bookFileName, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
 
-            entryReadPosition = getIntent().getParcelableExtra(FolioActivity.EXTRA_READ_POSITION);
-            mFolioPageViewPager.setCurrentItem(getChapterIndex(entryReadPosition));
+            ReadPosition readPosition;
+            if (savedInstanceState == null) {
+                readPosition = getIntent().getParcelableExtra(FolioActivity.EXTRA_READ_POSITION);
+                entryReadPosition = readPosition;
+            } else {
+                readPosition = savedInstanceState.getParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE);
+                lastReadPosition = readPosition;
+            }
+            mFolioPageViewPager.setCurrentItem(getChapterIndex(readPosition));
         }
     }
 
@@ -374,6 +395,27 @@ public class FolioActivity
             }
         }
         return 0;
+    }
+
+    /**
+     * If called, this method will occur after onStop() for applications targeting platforms
+     * starting with Build.VERSION_CODES.P. For applications targeting earlier platform versions
+     * this method will occur before onStop() and there are no guarantees about whether it will
+     * occur before or after onPause()
+     *
+     * @see Activity#onSaveInstanceState(Bundle) of Build.VERSION_CODES.P
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(LOG_TAG, "-> onSaveInstanceState");
+        this.outState = outState;
+    }
+
+    @Override
+    public void storeLastReadPosition(ReadPosition lastReadPosition) {
+        Log.d(LOG_TAG, "-> storeLastReadPosition");
+        this.lastReadPosition = lastReadPosition;
     }
 
     private void setConfig() {

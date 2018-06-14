@@ -128,15 +128,15 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
         view_config_font_raleway.setOnClickListener { selectFont(Constants.FONT_RALEWAY, true) }
 
         view_config_btn_vertical_orientation.setOnClickListener {
-            SharedPreferenceUtil.setPagerOrientation(context, DirectionalViewpager.Direction.VERTICAL.toString())
             activityCallback.onDirectionChange(DirectionalViewpager.Direction.VERTICAL)
+            SharedPreferenceUtil.setPagerOrientation(context, DirectionalViewpager.Direction.VERTICAL.toString())
             view_config_btn_horizontal_orientation.isSelected = false
             view_config_btn_vertical_orientation.isSelected = true
         }
 
         view_config_btn_horizontal_orientation.setOnClickListener {
-            SharedPreferenceUtil.setPagerOrientation(context, DirectionalViewpager.Direction.HORIZONTAL.toString())
             activityCallback.onDirectionChange(DirectionalViewpager.Direction.HORIZONTAL)
+            SharedPreferenceUtil.setPagerOrientation(context, DirectionalViewpager.Direction.HORIZONTAL.toString())
             view_config_btn_horizontal_orientation.isSelected = true
             view_config_btn_vertical_orientation.isSelected = false
         }

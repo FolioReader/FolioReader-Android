@@ -15,5 +15,7 @@ public interface FolioActivityCallback {
 
     DirectionalViewpager.Direction getDirection();
 
-    void onDirectionChange(DirectionalViewpager.Direction direction);
+    void onDirectionChange(DirectionalViewpager.Direction newDirection);
+
+    void storeLastReadPosition(ReadPosition lastReadPosition);
 }

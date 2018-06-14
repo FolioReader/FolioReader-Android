@@ -60,7 +60,6 @@ import com.folioreader.ui.folio.mediaoverlay.MediaControllerCallbacks;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.util.SMILParser;
-import com.folioreader.util.SharedPreferenceUtil;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.DirectionalViewpager;
 import com.folioreader.view.FolioWebView;
@@ -122,7 +121,7 @@ public class FolioPageFragment
     private Date beforeWait;
     private Date beforeNotify;
 
-    private ReadPositionImpl lastReadPosition;
+    private ReadPosition lastReadPosition;
     private Bundle outState;
     private Bundle savedInstanceState;
 
@@ -202,6 +201,7 @@ public class FolioPageFragment
             }
         }
         highlightStyle = HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal);
+        //TODO: -> root null ???
         mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
         mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
@@ -491,8 +491,10 @@ public class FolioPageFragment
 
                     ReadPosition readPosition;
                     if (savedInstanceState == null) {
+                        Log.d(LOG_TAG, "-> onPageFinished -> took from getEntryReadPosition");
                         readPosition = mActivityCallback.getEntryReadPosition();
                     } else {
+                        Log.d(LOG_TAG, "-> onPageFinished -> took from bundle");
                         readPosition = savedInstanceState.getParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE);
                         savedInstanceState.remove(BUNDLE_READ_POSITION_CONFIG_CHANGE);
                     }
@@ -646,22 +648,27 @@ public class FolioPageFragment
         mediaController.stop();
         //TODO save last media overlay item
 
-        if (isCurrentFragment()) {
-            try {
-                synchronized (this) {
+        if (isCurrentFragment())
+            getLastReadPosition();
+    }
 
-                    boolean isHorizontal = mActivityCallback.getDirection() ==
-                            DirectionalViewpager.Direction.HORIZONTAL;
-                    mWebview.loadUrl("javascript:getFirstVisibleSpan(" + isHorizontal +")");
+    public ReadPosition getLastReadPosition() {
+        Log.d(LOG_TAG, "-> getLastReadPosition -> " + spineItem.originalHref);
 
-                    Log.d(LOG_TAG, "-> onStop -> getFirstVisibleSpan");
-                    beforeWait = new Date();
-                    wait(2000);
-                }
-            } catch (InterruptedException e) {
-                Log.e(LOG_TAG, "-> " + e);
+        try {
+            synchronized (this) {
+
+                boolean isHorizontal = mActivityCallback.getDirection() ==
+                        DirectionalViewpager.Direction.HORIZONTAL;
+                mWebview.loadUrl("javascript:getFirstVisibleSpan(" + isHorizontal +")");
+                beforeWait = new Date();
+                wait(2000);
             }
+        } catch (InterruptedException e) {
+            Log.e(LOG_TAG, "-> " + e);
         }
+
+        return lastReadPosition;
     }
 
     /**
@@ -1100,7 +1107,11 @@ public class FolioPageFragment
     public void onDestroy() {
         super.onDestroy();
 
-        outState.putParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE, lastReadPosition);
+        if (isCurrentFragment()) {
+            if (outState != null)
+                outState.putParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE, lastReadPosition);
+            mActivityCallback.storeLastReadPosition(lastReadPosition);
+        }
         if (mWebview != null) mWebview.destroy();
     }
 

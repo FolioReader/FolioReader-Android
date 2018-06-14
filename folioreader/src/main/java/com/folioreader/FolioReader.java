@@ -159,7 +159,7 @@ public class FolioReader {
 
         Intent intent = new Intent(context, FolioActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(FolioActivity.EXTRA_READ_POSITION, (Parcelable) readPosition);
+        intent.putExtra(FolioActivity.EXTRA_READ_POSITION, readPosition);
 
         if (rawId != 0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawId);
