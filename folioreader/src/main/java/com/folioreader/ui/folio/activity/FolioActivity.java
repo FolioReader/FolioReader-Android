@@ -85,8 +85,8 @@ public class FolioActivity
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
     public static final String INTENT_HIGHLIGHTS_LIST = "highlight_list";
     public static final String EXTRA_READ_POSITION = "com.folioreader.extra.READ_POSITION";
-    private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE =
-            "com.folioreader.ui.folio.fragment.FolioPageFragment.BUNDLE_READ_POSITION_CONFIG_CHANGE";
+    private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE = "BUNDLE_READ_POSITION_CONFIG_CHANGE";
+    private static final String BUNDLE_TOOLBAR_IS_VISIBLE = "BUNDLE_TOOLBAR_IS_VISIBLE";
 
     public enum EpubSourceType {
         RAW,
@@ -150,6 +150,13 @@ public class FolioActivity
 
         toolbar = findViewById(R.id.toolbar);
         toolbar.setListeners(this);
+        if (savedInstanceState != null) {
+            toolbar.setVisible(savedInstanceState.getBoolean(BUNDLE_TOOLBAR_IS_VISIBLE));
+            if (toolbar.getVisible())
+                toolbar.show();
+            else
+                toolbar.hide();
+        }
     }
 
     @Override
@@ -410,6 +417,8 @@ public class FolioActivity
         super.onSaveInstanceState(outState);
         Log.d(LOG_TAG, "-> onSaveInstanceState");
         this.outState = outState;
+
+        outState.putBoolean(BUNDLE_TOOLBAR_IS_VISIBLE, toolbar.getVisible());
     }
 
     @Override

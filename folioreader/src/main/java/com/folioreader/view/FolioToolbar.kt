@@ -1,7 +1,10 @@
 package com.folioreader.view
 
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
+import android.os.Parcel
+import android.os.Parcelable
 import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -20,7 +23,7 @@ import kotlinx.android.synthetic.main.folio_toolbar.view.*
  */
 class FolioToolbar : RelativeLayout {
     private lateinit var config: Config
-    private var visible: Boolean = false
+    var visible: Boolean = true
     lateinit var callback: FolioToolbarCallback
 
     constructor(context: Context) : this(context, null, 0)
@@ -79,7 +82,7 @@ class FolioToolbar : RelativeLayout {
         visible = !visible
     }
 
-    private fun show() {
+    fun show() {
         this.animate().translationY(0f)
                 .setInterpolator(DecelerateInterpolator(2f))
                 .start()
@@ -95,10 +98,10 @@ class FolioToolbar : RelativeLayout {
         label_center.setTextColor(ContextCompat.getColor(context, R.color.black))
     }
 
-    private fun hide() {
-        this.animate().translationY((-this.height)
+    fun hide() {
+        post({ this.animate().translationY((-this.height)
                 .toFloat())
                 .setInterpolator(AccelerateInterpolator(2f))
-                .start()
+                .start() })
     }
 }

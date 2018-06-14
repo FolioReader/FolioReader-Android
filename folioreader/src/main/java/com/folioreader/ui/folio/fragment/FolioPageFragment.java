@@ -92,8 +92,7 @@ public class FolioPageFragment
     public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.BOOK_TITLE";
     public static final String KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.ui.folio.fragment.FolioPageFragment.EPUB_FILE_NAME";
     private static final String KEY_IS_SMIL_AVAILABLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.IS_SMIL_AVAILABLE";
-    private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE =
-            "com.folioreader.ui.folio.fragment.FolioPageFragment.BUNDLE_READ_POSITION_CONFIG_CHANGE";
+    private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE = "BUNDLE_READ_POSITION_CONFIG_CHANGE";
 
     private static final int ACTION_ID_COPY = 1001;
     private static final int ACTION_ID_SHARE = 1002;

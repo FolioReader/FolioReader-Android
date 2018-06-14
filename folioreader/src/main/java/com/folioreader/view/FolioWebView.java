@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,7 +22,7 @@ public class FolioWebView extends WebView
         implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
     private static final String LOG_TAG = FolioWebView.class.getSimpleName();
-    private float touchSlop = 0;
+    private float touchSlop;
     private int horizontalPageCount = 0;
     private float density;
     private ScrollListener mScrollListener;
