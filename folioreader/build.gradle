@@ -28,8 +28,8 @@ ext {
 
 android {
     useLibrary 'org.apache.http.legacy'
-    compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         versionCode 1
@@ -82,7 +82,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':webViewMarker')
 
-    final ANDROID_LIB_VERSION = '26.0.2'
+    final ANDROID_LIB_VERSION = '27.+'
 
     //noinspection GradleDependency
     compile "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
