@@ -561,7 +561,7 @@ public class FolioPageFragment
                         @Override
                         public void run() {
                             Log.d("scroll y", "Scrolly" + mScrollY);
-                            mWebview.scrollTo(0, mScrollY);
+                            mWebview.scrollTo(mWebview.getScrollX(), mScrollY);
                         }
                     }, 100);
                 }
@@ -1037,7 +1037,7 @@ public class FolioPageFragment
             @Override
             public void run() {
                 if (isAdded()) {
-                    mWebview.scrollTo(0, position);
+                    mWebview.scrollTo(mWebview.getScrollX(), position);
                 }
             }
         });
