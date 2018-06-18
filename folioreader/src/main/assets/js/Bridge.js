@@ -233,32 +233,52 @@ function playAudioFragmentID(fragmentID) {
     window.location = URLBase + (fragmentID?encodeURIComponent(fragmentID):"")
 }
 
+function bodyOrHtml() {
+    if ('scrollingElement' in document) {
+        return document.scrollingElement;
+    }
+    // Fallback for legacy browsers
+    if (navigator.userAgent.indexOf('WebKit') != -1) {
+        return document.body;
+    }
+    return document.documentElement;
+}
+
 /**
  Go To Element - scrolls the webview to the requested element
  */
-function goToEl(el) {
-    var top = document.body.scrollTop;
-    var elTop = el.offsetTop - 20;
-    var bottom = window.innerHeight + document.body.scrollTop;
-    var elBottom = el.offsetHeight + el.offsetTop + 60
+function goToElement(element) {
 
-    if(elBottom > bottom || elTop < top) {
-        document.body.scrollTop = el.offsetTop - 20
+    var scrollingElement = bodyOrHtml();
+    var top = scrollingElement.scrollTop;
+    var elementTop = element.offsetTop - 20;
+    var bottom = window.innerHeight + top;
+    var elementBottom = element.offsetHeight + element.offsetTop + 60;
+
+    //console.log(window);
+    //console.log("-> top = " + top);
+    //console.log("-> elementTop = " + elementTop);
+    //console.log("-> bottom = " + bottom);
+    //console.log("-> elementBottom = " + elementBottom);
+
+    if (FolioPageFragment.getDirection() == "VERTICAL" &&
+            (elementBottom > bottom || elementTop < top)) {
+
+        var newScrollTop = elementTop;
+        //console.log("-> newScrollTop = " + newScrollTop);
+        scrollingElement.scrollTop = newScrollTop;
+
+    } else if (FolioPageFragment.getDirection() == "HORIZONTAL" && top == 0) {
+
+        var windowVisibleWidth = document.documentElement.clientWidth;
+        var pageIndex = Math.floor(element.offsetLeft / windowVisibleWidth);
+        var newScrollLeft = windowVisibleWidth * pageIndex;
+        //console.log("-> newScrollLeft = " + newScrollLeft);
+        scrollingElement.scrollLeft = newScrollLeft;
+        WebViewPager.setCurrentPage(pageIndex);
     }
 
-    /* Set scroll left in case horz scroll is activated.
-
-        The following works because el.offsetTop accounts for each page turned
-        as if the document was scrolling vertical. We then divide by the window
-        height to figure out what page the element should appear on and set scroll left
-        to scroll to that page.
-    */
-    if( document.body.scrollTop == 0 ){
-        var elLeft = document.body.clientWidth * Math.floor(el.offsetTop / window.innerHeight);
-        document.body.scrollLeft = elLeft;
-    }
-
-    return el;
+    return element;
 }
 
 /**
@@ -272,21 +292,81 @@ function removeAllClasses(className) {
     }
 }
 
-function initializeHorizontalOrientation() {
-    var d = document.getElementsByTagName('body')[0];
-    var ourH = window.innerHeight - 40;
-    var ourW = window.innerWidth - 40;
-    var fullH = d.offsetHeight;
-    var pageCount = Math.floor(fullH/ourH)+1;
-    var currentPage = 0;
-    var newW = pageCount*window.innerWidth - 40;
-    d.style.height = ourH+'px';
-    d.style.width = newW+'px';
-    d.style.margin = 0;
-    d.style.webkitColumnCount = pageCount;
-    d.style.webkitColumnGap = '40px';
+//For testing purpose only
+function sleep(seconds)
+{
+  var e = new Date().getTime() + (seconds * 1000);
+  while (new Date().getTime() <= e) {}
+}
 
-    return "horizontalPageCount:" + pageCount;
+function initHorizontalDirection() {
+    preInitHorizontalDirection();
+    var pageCount = postInitHorizontalDirection();
+    FolioPageFragment.setHorizontalPageCount(pageCount);
+}
+
+function preInitHorizontalDirection() {
+
+    //console.log(window);
+    //console.log("-> " + document.getElementsByTagName('title')[0].innerText);
+    var htmlElement = document.getElementsByTagName('html')[0];
+    var bodyElement = document.getElementsByTagName('body')[0];
+
+	htmlElement.style.width = null;
+    bodyElement.style.width = null;
+    htmlElement.style.height = null;
+    bodyElement.style.height = null;
+
+    var bodyStyle = bodyElement.currentStyle || window.getComputedStyle(bodyElement);
+    var paddingTop = parseInt(bodyStyle.paddingTop, 10);
+    var paddingRight = parseInt(bodyStyle.paddingRight, 10);
+    var paddingBottom = parseInt(bodyStyle.paddingBottom, 10);
+    var paddingLeft = parseInt(bodyStyle.paddingLeft, 10);
+    //console.log("-> padding = " + paddingTop + ", " + paddingRight + ", " + paddingBottom + ", " + paddingLeft);
+
+    //document.documentElement.clientWidth is window.innerWidth excluding x scrollbar width
+    var pageWidth = document.documentElement.clientWidth - (paddingLeft + paddingRight);
+    //document.documentElement.clientHeight is window.innerHeight excluding y scrollbar height
+    var pageHeight = document.documentElement.clientHeight - (paddingTop + paddingBottom);
+
+    bodyElement.style.webkitColumnGap = (paddingLeft + paddingRight) + 'px';
+    bodyElement.style.webkitColumnWidth = pageWidth + 'px';
+
+    //console.log("-> window.innerWidth = " + window.innerWidth);
+    //console.log("-> window.innerHeight = " + window.innerHeight);
+    //console.log("-> bodyElement.offsetWidth = " + bodyElement.offsetWidth);
+    //console.log("-> bodyElement.offsetHeight = " + bodyElement.offsetHeight);
+    //console.log("-> pageWidth = " + pageWidth);
+    //console.log("-> pageHeight = " + pageHeight);
+
+    htmlElement.style.height = (pageHeight + (paddingTop + paddingBottom)) + 'px';
+    bodyElement.style.height = pageHeight + 'px';
+}
+
+function postInitHorizontalDirection() {
+
+    var htmlElement = document.getElementsByTagName('html')[0];
+    var bodyElement = document.getElementsByTagName('body')[0];
+    var bodyStyle = bodyElement.currentStyle || window.getComputedStyle(bodyElement);
+    var paddingTop = parseInt(bodyStyle.paddingTop, 10);
+    var paddingRight = parseInt(bodyStyle.paddingRight, 10);
+    var paddingBottom = parseInt(bodyStyle.paddingBottom, 10);
+    var paddingLeft = parseInt(bodyStyle.paddingLeft, 10);
+    var windowVisibleWidth = document.documentElement.clientWidth;
+
+    var scrollWidth = document.documentElement.scrollWidth + paddingRight;
+    var newBodyWidth = scrollWidth - (paddingLeft + paddingRight);
+
+    htmlElement.style.width = scrollWidth + 'px';
+    bodyElement.style.width = newBodyWidth + 'px';
+
+    var pageCount = Math.round(scrollWidth / windowVisibleWidth);
+    //console.log("-> scrollWidth = " + scrollWidth);
+    //console.log("-> windowVisibleWidth = " + windowVisibleWidth);
+    //console.log("-> newBodyWidth = " + newBodyWidth);
+    //console.log("-> pageCount = " + pageCount);
+
+    return pageCount;
 }
 
 /**
@@ -299,7 +379,7 @@ function audioMarkID(className, id) {
     audioMarkClass = className
     var el = document.getElementById(id);
 
-    goToEl(el);
+    goToElement(el);
     el.classList.add(className)
 }
 
@@ -391,7 +471,7 @@ function getSentenceWithIndex(className) {
 
     var text = sentence.innerText || sentence.textContent;
 
-    goToEl(sentence);
+    goToElement(sentence);
 
     if (audioMarkClass){
         removeAllClasses(audioMarkClass);
@@ -634,13 +714,13 @@ function scrollToSpan(usingId, value) {
     if (usingId) {
         var spanElement = document.getElementById(value);
         if (spanElement)
-            goToEl(spanElement);
+            goToElement(spanElement);
     } else {
         var spanCollection = document.getElementsByTagName("span");
         if (spanCollection.length == 0 || value < 0 || value >= spanCollection.length
             || value == null)
             return;
-        goToEl(spanCollection[value]);
+        goToElement(spanCollection[value]);
     }
 }
 
@@ -701,7 +781,7 @@ function getHighlightString(style) {
 function gotoHighlight(highlightId){
   var element = document.getElementById(highlightId.toString());
   if(element != null) {
-    goToEl(element);
+    goToElement(element);
   }
 }
 

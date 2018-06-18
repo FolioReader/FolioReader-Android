@@ -16,29 +16,18 @@
 package com.folioreader.ui.folio.activity;
 
 import android.Manifest;
-import android.annotation.TargetApi;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.folioreader.Config;
@@ -48,9 +37,7 @@ import com.folioreader.R;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.ReadPosition;
 import com.folioreader.model.event.AnchorIdEvent;
-import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
-import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.event.WebViewPosition;
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
@@ -58,12 +45,13 @@ import com.folioreader.ui.folio.presenter.MainMvpView;
 import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
-
-import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
+import com.folioreader.view.FolioToolbar;
+import com.folioreader.view.FolioToolbarCallback;
 import com.folioreader.view.FolioWebView;
-import com.folioreader.view.StyleableTextView;
+import com.folioreader.view.MediaControllerCallback;
+import com.folioreader.view.MediaControllerView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.readium.r2_streamer.model.container.Container;
@@ -84,17 +72,21 @@ import static com.folioreader.Constants.TYPE;
 
 public class FolioActivity
         extends AppCompatActivity
-        implements FolioPageFragment.FolioPageFragmentCallback,
+        implements FolioActivityCallback,
         FolioWebView.ToolBarListener,
-        ConfigBottomSheetDialogFragment.ConfigDialogCallback,
-        MainMvpView {
+        MainMvpView,
+        MediaControllerCallback,
+        FolioToolbarCallback,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String TAG = "FolioActivity";
+    private static final String LOG_TAG = "FolioActivity";
 
     public static final String INTENT_EPUB_SOURCE_PATH = "com.folioreader.epub_asset_path";
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
     public static final String INTENT_HIGHLIGHTS_LIST = "highlight_list";
     public static final String EXTRA_READ_POSITION = "com.folioreader.extra.READ_POSITION";
+    private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE = "BUNDLE_READ_POSITION_CONFIG_CHANGE";
+    private static final String BUNDLE_TOOLBAR_IS_VISIBLE = "BUNDLE_TOOLBAR_IS_VISIBLE";
 
     public enum EpubSourceType {
         RAW,
@@ -102,38 +94,41 @@ public class FolioActivity
         SD_CARD
     }
 
-    private boolean isOpen = true;
-
     public static final int ACTION_CONTENT_HIGHLIGHT = 77;
     private String bookFileName;
     private static final String HIGHLIGHT_ITEM = "highlight_item";
 
-    public boolean mIsActionBarVisible;
     private DirectionalViewpager mFolioPageViewPager;
-    private Toolbar mToolbar;
+    private FolioToolbar toolbar;
 
     private int mChapterPosition;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
     private ReadPosition entryReadPosition;
-    private ConfigBottomSheetDialogFragment mConfigBottomSheetDialogFragment;
-    private TextView title;
+    private ReadPosition lastReadPosition;
+    private Bundle outState;
+    private Bundle savedInstanceState;
 
     private List<Link> mSpineReferenceList = new ArrayList<>();
     private EpubServer mEpubServer;
 
-    private Animation slide_down;
-    private Animation slide_up;
-    private boolean mIsNightMode;
     private Config mConfig;
     private String mBookId;
     private String mEpubFilePath;
     private EpubSourceType mEpubSourceType;
     int mEpubRawId = 0;
+    private MediaControllerView mediaControllerView;
+    private DirectionalViewpager.Direction direction = DirectionalViewpager.Direction.VERTICAL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setConfig();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
+        this.savedInstanceState = savedInstanceState;
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        onSharedPreferenceChanged(sharedPreferences, Constants.VIEWPAGER_DIRECTION_KEY);
 
         mBookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
         mEpubSourceType = (EpubSourceType)
@@ -144,20 +139,8 @@ public class FolioActivity
             mEpubFilePath = getIntent().getExtras()
                     .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         }
-
-        setConfig();
-
-        if (!mConfig.isShowTts()) {
-            findViewById(R.id.btn_speaker).setVisibility(View.GONE);
-        }
-
-        title = (TextView) findViewById(R.id.lbl_center);
-        slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.slide_down);
-        slide_up = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.slide_up);
-
-        initColors();
+        mediaControllerView = findViewById(R.id.media_controller_view);
+        mediaControllerView.setListeners(this);
 
         if (ContextCompat.checkSelfPermission(FolioActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(FolioActivity.this, Constants.getWriteExternalStoragePerms(), Constants.WRITE_EXTERNAL_STORAGE_REQUEST);
@@ -165,44 +148,30 @@ public class FolioActivity
             setupBook();
         }
 
-        initAudioView();
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-
-        findViewById(R.id.btn_drawer).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
-                intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
-                intent.putExtra(FolioReader.INTENT_BOOK_ID, mBookId);
-                intent.putExtra(Constants.BOOK_TITLE, bookFileName);
-                startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
-                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
-            }
-        });
-
-        // speaker = (ImageView) findViewById(R.id.btn_speaker);
-        findViewById(R.id.btn_speaker).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isOpen) {
-                    audioContainer.startAnimation(slide_up);
-                    audioContainer.setVisibility(View.VISIBLE);
-                    shade.setVisibility(View.VISIBLE);
-                } else {
-                    audioContainer.startAnimation(slide_down);
-                    audioContainer.setVisibility(View.INVISIBLE);
-                    shade.setVisibility(View.GONE);
-                }
-                isOpen = !isOpen;
-            }
-        });
-
-        mIsNightMode = mConfig.isNightMode();
-        if (mIsNightMode) {
-            mToolbar.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.black));
-            title.setTextColor(ContextCompat.getColor(FolioActivity.this, R.color.white));
-            audioContainer.setBackgroundColor(ContextCompat.getColor(FolioActivity.this, R.color.night));
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setListeners(this);
+        if (savedInstanceState != null) {
+            toolbar.setVisible(savedInstanceState.getBoolean(BUNDLE_TOOLBAR_IS_VISIBLE));
+            if (toolbar.getVisible())
+                toolbar.show();
+            else
+                toolbar.hide();
         }
+    }
+
+    @Override
+    public void showMediaController() {
+        mediaControllerView.show();
+    }
+
+    @Override
+    public void startContentHighlightActivity() {
+        Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
+        intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
+        intent.putExtra(FolioReader.INTENT_BOOK_ID, mBookId);
+        intent.putExtra(Constants.BOOK_TITLE, bookFileName);
+        startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
+        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
     }
 
     private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
@@ -218,7 +187,7 @@ public class FolioActivity
             new MainPresenter(this).parseManifest(urlString);
 
         } catch (IOException e) {
-            Log.e(TAG, "initBook failed", e);
+            Log.e(LOG_TAG, "initBook failed", e);
         }
     }
 
@@ -232,42 +201,125 @@ public class FolioActivity
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        configDrawerLayoutButtons();
+    public void onDirectionChange(@NonNull DirectionalViewpager.Direction newDirection) {
+        Log.d(LOG_TAG, "-> onDirectionChange");
+
+        FolioPageFragment folioPageFragment = (FolioPageFragment)
+                mFolioPageFragmentAdapter.getItem(mFolioPageViewPager.getCurrentItem());
+        entryReadPosition = folioPageFragment.getLastReadPosition();
+
+        direction = newDirection;
+
+        mFolioPageViewPager.setDirection(newDirection);
+        mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),
+                        mSpineReferenceList, bookFileName, mBookId);
+        mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
+        mFolioPageViewPager.setCurrentItem(mChapterPosition);
     }
 
     @Override
-    public void onOrientationChange(int orentation) {
-        if (orentation == 0) {
-            mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.VERTICAL);
-            mFolioPageFragmentAdapter =
-                    new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, bookFileName, mBookId);
-            mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
-            mFolioPageViewPager.setOffscreenPageLimit(1);
-            mFolioPageViewPager.setCurrentItem(mChapterPosition);
+    public void showConfigBottomSheetDialogFragment() {
+        new ConfigBottomSheetDialogFragment().show(getSupportFragmentManager(), ConfigBottomSheetDialogFragment.class.getSimpleName());
+    }
 
-        } else {
-            mFolioPageViewPager.setDirection(DirectionalViewpager.Direction.HORIZONTAL);
-            mFolioPageFragmentAdapter =
-                    new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                            mSpineReferenceList, bookFileName, mBookId);
-            mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
-            mFolioPageViewPager.setCurrentItem(mChapterPosition);
+    @Override
+    public void hideOrShowToolBar() {
+        toolbar.showOrHideIfVisible();
+    }
+
+    @Override
+    public void hideToolBarIfVisible() {
+
+    }
+
+    @Override
+    public void setPagerToPosition(String href) {
+    }
+
+    @Override
+    public ReadPosition getEntryReadPosition() {
+        if (entryReadPosition != null) {
+            ReadPosition tempReadPosition = entryReadPosition;
+            entryReadPosition = null;
+            return tempReadPosition;
+        }
+        return null;
+    }
+
+    @Override
+    public void goToChapter(String href) {
+        href = href.substring(href.indexOf(bookFileName + "/") + bookFileName.length() + 1);
+        for (Link spine : mSpineReferenceList) {
+            if (spine.href.contains(href)) {
+                mChapterPosition = mSpineReferenceList.indexOf(spine);
+                mFolioPageViewPager.setCurrentItem(mChapterPosition);
+                toolbar.setTitle(spine.getChapterTitle());
+                break;
+            }
         }
     }
 
-    public void nextPage() {
-        if(mChapterPosition < mSpineReferenceList.size()) {
-            mFolioPageViewPager.setCurrentItem(mChapterPosition + 1);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ACTION_CONTENT_HIGHLIGHT && resultCode == RESULT_OK && data.hasExtra(TYPE)) {
+
+            String type = data.getStringExtra(TYPE);
+            if (type.equals(CHAPTER_SELECTED)) {
+                String selectedChapterHref = data.getStringExtra(SELECTED_CHAPTER_POSITION);
+                for (Link spine : mSpineReferenceList) {
+                    if (selectedChapterHref.contains(spine.href)) {
+                        mChapterPosition = mSpineReferenceList.indexOf(spine);
+                        mFolioPageViewPager.setCurrentItem(mChapterPosition);
+                        toolbar.setTitle(data.getStringExtra(Constants.BOOK_TITLE));
+                        EventBus.getDefault().post(new AnchorIdEvent(selectedChapterHref));
+                        break;
+                    }
+                }
+            } else if (type.equals(HIGHLIGHT_SELECTED)) {
+                HighlightImpl highlightImpl = data.getParcelableExtra(HIGHLIGHT_ITEM);
+                int position = highlightImpl.getPageNumber();
+                mFolioPageViewPager.setCurrentItem(position);
+                EventBus.getDefault().post(new WebViewPosition(mSpineReferenceList.get(mChapterPosition).href, highlightImpl.getRangy()));
+            }
         }
     }
 
-    public void previousPage() {
-        if(mChapterPosition > 0) {
-            mFolioPageViewPager.setCurrentItem(mChapterPosition - 1);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (outState != null)
+            outState.putParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE, lastReadPosition);
+
+        if (mEpubServer != null) {
+            mEpubServer.stop();
         }
+    }
+
+    @Override
+    public int getChapterPosition() {
+        return mChapterPosition;
+    }
+
+    @Override
+    public void onLoadPublication(EpubPublication publication) {
+        mSpineReferenceList.addAll(publication.spines);
+        if (publication.metadata.title != null) {
+            toolbar.setTitle(publication.metadata.title);
+        }
+
+        if (mBookId == null) {
+            if (publication.metadata.identifier != null) {
+                mBookId = publication.metadata.identifier;
+            } else {
+                if (publication.metadata.title != null) {
+                    mBookId = String.valueOf(publication.metadata.title.hashCode());
+                } else {
+                    mBookId = String.valueOf(bookFileName.hashCode());
+                }
+            }
+        }
+        configFolio();
     }
 
     private void configFolio() {
@@ -280,24 +332,34 @@ public class FolioActivity
             @Override
             public void onPageSelected(int position) {
                 EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, true));
-                mPlayPauseBtn.setImageDrawable(ContextCompat.getDrawable(FolioActivity.this, R.drawable.play_icon));
+                mediaControllerView.setPlayButtonDrawable();
                 mChapterPosition = position;
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
                 if (state == DirectionalViewpager.SCROLL_STATE_IDLE) {
-                    title.setText(mSpineReferenceList.get(mChapterPosition).bookTitle);
+                    toolbar.setTitle(mSpineReferenceList.get(mChapterPosition).bookTitle);
                 }
             }
         });
 
         if (mSpineReferenceList != null) {
-            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(), mSpineReferenceList, bookFileName, mBookId);
+
+            mFolioPageViewPager.setDirection(direction);
+            mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),
+                    mSpineReferenceList, bookFileName, mBookId);
             mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
 
-            entryReadPosition = getIntent().getParcelableExtra(FolioActivity.EXTRA_READ_POSITION);
-            mFolioPageViewPager.setCurrentItem(getChapterIndex(entryReadPosition));
+            ReadPosition readPosition;
+            if (savedInstanceState == null) {
+                readPosition = getIntent().getParcelableExtra(FolioActivity.EXTRA_READ_POSITION);
+                entryReadPosition = readPosition;
+            } else {
+                readPosition = savedInstanceState.getParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE);
+                lastReadPosition = readPosition;
+            }
+            mFolioPageViewPager.setCurrentItem(getChapterIndex(readPosition));
         }
     }
 
@@ -306,11 +368,11 @@ public class FolioActivity
      * 1. id
      * 2. href
      * 3. index
+     *
      * @param readPosition Last read position
      * @return index of the chapter
      */
     private int getChapterIndex(ReadPosition readPosition) {
-
         if (readPosition == null) {
             return 0;
 
@@ -329,7 +391,6 @@ public class FolioActivity
     }
 
     private int getChapterIndex(String caseString, String value) {
-
         for (int i = 0; i < mSpineReferenceList.size(); i++) {
             switch (caseString) {
                 case "id":
@@ -343,148 +404,27 @@ public class FolioActivity
         return 0;
     }
 
-    private void configDrawerLayoutButtons() {
-        findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+    /**
+     * If called, this method will occur after onStop() for applications targeting platforms
+     * starting with Build.VERSION_CODES.P. For applications targeting earlier platform versions
+     * this method will occur before onStop() and there are no guarantees about whether it will
+     * occur before or after onPause()
+     *
+     * @see Activity#onSaveInstanceState(Bundle) of Build.VERSION_CODES.P
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(LOG_TAG, "-> onSaveInstanceState");
+        this.outState = outState;
 
-        findViewById(R.id.btn_config).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mConfigBottomSheetDialogFragment = new ConfigBottomSheetDialogFragment();
-                mConfigBottomSheetDialogFragment.show(getSupportFragmentManager(), mConfigBottomSheetDialogFragment.getTag());
-            }
-        });
+        outState.putBoolean(BUNDLE_TOOLBAR_IS_VISIBLE, toolbar.getVisible());
     }
 
     @Override
-    public void hideOrShowToolBar() {
-        if (mIsActionBarVisible) {
-            toolbarAnimateHide();
-        } else {
-            toolbarAnimateShow();
-        }
-    }
-
-    @Override
-    public void hideToolBarIfVisible() {
-        if (mIsActionBarVisible) {
-            toolbarAnimateHide();
-        }
-    }
-
-    @Override
-    public void setPagerToPosition(String href) {
-    }
-
-    @Override
-    public ReadPosition getEntryReadPosition() {
-
-        if (entryReadPosition != null) {
-            ReadPosition tempReadPosition = entryReadPosition;
-            entryReadPosition = null;
-            return tempReadPosition;
-        }
-        return null;
-    }
-
-    @Override
-    public void goToChapter(String href) {
-        href = href.substring(href.indexOf(bookFileName + "/") + bookFileName.length() + 1);
-        for (Link spine : mSpineReferenceList) {
-            if (spine.href.contains(href)) {
-                mChapterPosition = mSpineReferenceList.indexOf(spine);
-                mFolioPageViewPager.setCurrentItem(mChapterPosition);
-                title.setText(spine.getChapterTitle());
-                break;
-            }
-        }
-    }
-
-    private void toolbarAnimateShow() {
-        if (!mIsActionBarVisible) {
-            mToolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator(2)).start();
-            mIsActionBarVisible = true;
-        }
-    }
-
-    private void toolbarAnimateHide() {
-        mIsActionBarVisible = false;
-        mToolbar.animate().translationY(-mToolbar.getHeight()).setInterpolator(new AccelerateInterpolator(2)).start();
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void toolbarSetElevation(float elevation) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mToolbar.setElevation(elevation);
-        }
-    }
-
-    public HighlightImpl setCurrentPagerPostion(HighlightImpl highlightImpl) {
-//        highlight.setCurrentPagerPostion(mFolioPageViewPager.getCurrentItem());
-        return highlightImpl;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ACTION_CONTENT_HIGHLIGHT && resultCode == RESULT_OK && data.hasExtra(TYPE)) {
-
-            String type = data.getStringExtra(TYPE);
-            if (type.equals(CHAPTER_SELECTED)) {
-                String selectedChapterHref = data.getStringExtra(SELECTED_CHAPTER_POSITION);
-                for (Link spine : mSpineReferenceList) {
-                    if (selectedChapterHref.contains(spine.href)) {
-                        mChapterPosition = mSpineReferenceList.indexOf(spine);
-                        mFolioPageViewPager.setCurrentItem(mChapterPosition);
-                        title.setText(data.getStringExtra(Constants.BOOK_TITLE));
-                        EventBus.getDefault().post(new AnchorIdEvent(selectedChapterHref));
-                        break;
-                    }
-                }
-            } else if (type.equals(HIGHLIGHT_SELECTED)) {
-                HighlightImpl highlightImpl = data.getParcelableExtra(HIGHLIGHT_ITEM);
-                int position = highlightImpl.getPageNumber();
-                mFolioPageViewPager.setCurrentItem(position);
-                EventBus.getDefault().post(new WebViewPosition(mSpineReferenceList.get(mChapterPosition).href, highlightImpl.getRangy()));
-            }
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mEpubServer != null) {
-            mEpubServer.stop();
-        }
-    }
-
-    @Override
-    public int getChapterPosition() {
-        return mChapterPosition;
-    }
-
-    @Override
-    public void onLoadPublication(EpubPublication publication) {
-        mSpineReferenceList.addAll(publication.spines);
-        if (publication.metadata.title != null) {
-            title.setText(publication.metadata.title);
-        }
-
-        if (mBookId == null) {
-            if (publication.metadata.identifier != null) {
-                mBookId = publication.metadata.identifier;
-            } else {
-                if (publication.metadata.title != null) {
-                    mBookId = String.valueOf(publication.metadata.title.hashCode());
-                } else {
-                    mBookId = String.valueOf(bookFileName.hashCode());
-                }
-            }
-        }
-        configFolio();
+    public void storeLastReadPosition(ReadPosition lastReadPosition) {
+        Log.d(LOG_TAG, "-> storeLastReadPosition");
+        this.lastReadPosition = lastReadPosition;
     }
 
     private void setConfig() {
@@ -499,178 +439,18 @@ public class FolioActivity
         }
     }
 
-
-    //*************************************************************************//
-    //                           AUDIO PLAYER                                  //
-    //*************************************************************************//
-    private StyleableTextView mHalfSpeed, mOneSpeed, mTwoSpeed, mOneAndHalfSpeed;
-    private StyleableTextView mBackgroundColorStyle, mUnderlineStyle, mTextColorStyle;
-    private RelativeLayout audioContainer;
-    private boolean mIsSpeaking;
-    private ImageButton mPlayPauseBtn, mPreviousButton, mNextButton;
-    private RelativeLayout shade;
-
-    private void initAudioView() {
-        mHalfSpeed = findViewById(R.id.btn_half_speed);
-        mOneSpeed = findViewById(R.id.btn_one_x_speed);
-        mTwoSpeed = findViewById(R.id.btn_twox_speed);
-        audioContainer = findViewById(R.id.container);
-        shade = findViewById(R.id.shade);
-        mOneAndHalfSpeed = findViewById(R.id.btn_one_and_half_speed);
-        mPlayPauseBtn = findViewById(R.id.play_button);
-        mPreviousButton = findViewById(R.id.prev_button);
-        mNextButton = findViewById(R.id.next_button);
-        mBackgroundColorStyle = findViewById(R.id.btn_backcolor_style);
-        mUnderlineStyle = findViewById(R.id.btn_text_undeline_style);
-        mTextColorStyle = findViewById(R.id.btn_text_color_style);
-        mIsSpeaking = false;
-
-        final Context mContext = mHalfSpeed.getContext();
-        mOneAndHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.one_and_half_speed)));
-        mHalfSpeed.setText(Html.fromHtml(mContext.getString(R.string.half_speed_text)));
-        String styleUnderline =
-                mHalfSpeed.getContext().getResources().getString(R.string.style_underline);
-        mUnderlineStyle.setText(Html.fromHtml(styleUnderline));
-
-        setupColors(mContext);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            findViewById(R.id.playback_speed_Layout).setVisibility(View.GONE);
-        }
-
-        shade.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isOpen) {
-                    audioContainer.startAnimation(slide_up);
-                    audioContainer.setVisibility(View.VISIBLE);
-                    shade.setVisibility(View.VISIBLE);
-                } else {
-                    audioContainer.startAnimation(slide_down);
-                    audioContainer.setVisibility(View.INVISIBLE);
-                    shade.setVisibility(View.GONE);
-                }
-                isOpen = !isOpen;
-            }
-        });
-
-        mPlayPauseBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mIsSpeaking) {
-                    EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, false));
-                    mPlayPauseBtn.setImageDrawable(ContextCompat.getDrawable(FolioActivity.this, R.drawable.play_icon));
-                    UiUtil.setColorToImage(mContext, mConfig.getThemeColor(), mPlayPauseBtn.getDrawable());
-                } else {
-                    EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, true, false));
-                    mPlayPauseBtn.setImageDrawable(ContextCompat.getDrawable(FolioActivity.this, R.drawable.pause_btn));
-                    UiUtil.setColorToImage(mContext, mConfig.getThemeColor(), mPlayPauseBtn.getDrawable());
-                }
-                mIsSpeaking = !mIsSpeaking;
-            }
-        });
-
-        mHalfSpeed.setOnClickListener(new View.OnClickListener() {
-            @TargetApi(Build.VERSION_CODES.M)
-            @Override
-            public void onClick(View v) {
-                mHalfSpeed.setSelected(true);
-                mOneSpeed.setSelected(false);
-                mOneAndHalfSpeed.setSelected(false);
-                mTwoSpeed.setSelected(false);
-                EventBus.getDefault().post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.HALF));
-            }
-        });
-
-        mOneSpeed.setOnClickListener(new View.OnClickListener() {
-            @TargetApi(Build.VERSION_CODES.M)
-            @Override
-            public void onClick(View v) {
-                mHalfSpeed.setSelected(false);
-                mOneSpeed.setSelected(true);
-                mOneAndHalfSpeed.setSelected(false);
-                mTwoSpeed.setSelected(false);
-                EventBus.getDefault().post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.ONE));
-            }
-        });
-        mOneAndHalfSpeed.setOnClickListener(new View.OnClickListener() {
-            @TargetApi(Build.VERSION_CODES.M)
-            @Override
-            public void onClick(View v) {
-                mHalfSpeed.setSelected(false);
-                mOneSpeed.setSelected(false);
-                mOneAndHalfSpeed.setSelected(true);
-                mTwoSpeed.setSelected(false);
-                EventBus.getDefault().post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.ONE_HALF));
-            }
-        });
-        mTwoSpeed.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mHalfSpeed.setSelected(false);
-                mOneSpeed.setSelected(false);
-                mOneAndHalfSpeed.setSelected(false);
-                mTwoSpeed.setSelected(true);
-                EventBus.getDefault().post(new MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.TWO));
-            }
-        });
-
-        mBackgroundColorStyle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mBackgroundColorStyle.setSelected(true);
-                mUnderlineStyle.setSelected(false);
-                mTextColorStyle.setSelected(false);
-                EventBus.getDefault().post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.DEFAULT));
-            }
-        });
-
-        mUnderlineStyle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mBackgroundColorStyle.setSelected(false);
-                mUnderlineStyle.setSelected(true);
-                mTextColorStyle.setSelected(false);
-                EventBus.getDefault().post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.UNDERLINE));
-
-            }
-        });
-
-        mTextColorStyle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mBackgroundColorStyle.setSelected(false);
-                mUnderlineStyle.setSelected(false);
-                mTextColorStyle.setSelected(true);
-                EventBus.getDefault().post(new MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.BACKGROUND));
-            }
-        });
-
+    @Override
+    public void play() {
+        EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, true, false));
     }
 
-    private void setupColors(Context context) {
-        mHalfSpeed.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
-        mOneAndHalfSpeed.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
-        mTwoSpeed.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
-        mOneSpeed.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
-        mUnderlineStyle.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
-        mBackgroundColorStyle.setTextColor(UiUtil.getColorList(context, R.color.white, R.color.grey_color));
-        mBackgroundColorStyle.setBackgroundDrawable(UiUtil.convertColorIntoStateDrawable(this, mConfig.getThemeColor(), android.R.color.transparent));
-        mTextColorStyle.setTextColor(UiUtil.getColorList(context, mConfig.getThemeColor(), R.color.grey_color));
-        UiUtil.setColorToImage(context, mConfig.getThemeColor(), mPlayPauseBtn.getDrawable());
-        UiUtil.setColorToImage(context, mConfig.getThemeColor(), mNextButton.getDrawable());
-        UiUtil.setColorToImage(context, mConfig.getThemeColor(), mPreviousButton.getDrawable());
+    @Override
+    public void pause() {
+        EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, false));
     }
 
     @Override
     public void onError() {
-    }
-
-
-    public void initColors() {
-        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_close)).getDrawable());
-        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_drawer)).getDrawable());
-        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_config)).getDrawable());
-        UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_speaker)).getDrawable());
     }
 
     private void setupBook() {
@@ -690,5 +470,27 @@ public class FolioActivity
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        switch (key) {
+            case Constants.VIEWPAGER_DIRECTION_KEY:
+                String directionString = sharedPreferences.getString(key,
+                        DirectionalViewpager.Direction.VERTICAL.toString());
+                Log.v(LOG_TAG, "-> onSharedPreferenceChanged -> key: " + key + " value: " + directionString);
+                if (directionString.equals(DirectionalViewpager.Direction.HORIZONTAL.toString())) {
+                    direction = DirectionalViewpager.Direction.HORIZONTAL;
+                } else {
+                    direction = DirectionalViewpager.Direction.VERTICAL;
+                }
+                break;
+        }
+    }
+
+    @Override
+    public DirectionalViewpager.Direction getDirection() {
+        return direction;
     }
 }

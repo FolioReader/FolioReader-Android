@@ -4,12 +4,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <com.folioreader.view.FolioWebView
-        android:id="@+id/contentWebView"
+
+    <FrameLayout
+        android:id="@+id/webViewLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/indicatorLayout"
-        android:paddingBottom="2dp" />
+        android:layout_above="@+id/indicatorLayout">
+
+        <com.folioreader.view.WebViewPager
+            android:id="@+id/webViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.folioreader.view.FolioWebView
+            android:alpha="0.5"
+            android:id="@+id/folioWebView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
+
     <com.folioreader.view.VerticalSeekbar
         android:id="@+id/scrollSeekbar"
         android:layout_width="wrap_content"
@@ -20,6 +34,7 @@
         android:animateLayoutChanges="true"
         android:thumb="@drawable/thumb"
         android:visibility="invisible" />
+
     <LinearLayout
         android:id="@+id/indicatorLayout"
         android:layout_width="match_parent"
@@ -27,13 +42,16 @@
         android:layout_alignParentBottom="true"
         android:gravity="center"
         android:orientation="horizontal"
-        android:paddingBottom="2dp">
+        android:paddingBottom="2dp"
+        android:paddingTop="2dp">
+
         <TextView
             android:id="@+id/minutesLeft"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#888888"
             android:textSize="7sp" />
+
         <TextView
             android:id="@+id/pagesLeft"
             android:layout_width="wrap_content"

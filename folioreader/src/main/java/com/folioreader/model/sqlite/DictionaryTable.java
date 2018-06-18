@@ -53,7 +53,7 @@ public class DictionaryTable {
     public String getMeaningForWord(String word) {
         Cursor c = database.rawQuery("SELECT * FROM "
                 + TABLE_NAME +
-                " WHERE " + WORD + " = '" + word.trim() + "'", null);
+                " WHERE " + WORD + " = \"" + word.trim() + "\"", null);
         if (c.moveToFirst()) {
             String toRetuen = c.getString(2);
             c.close();

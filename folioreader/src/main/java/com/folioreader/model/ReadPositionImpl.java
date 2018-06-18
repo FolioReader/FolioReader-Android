@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.folioreader.util.ObjectMapperSingleton;
 
+import java.io.IOException;
+
 /**
  * Created by Hrishikesh Kadam on 20/04/2018.
  */
@@ -46,6 +48,20 @@ public class ReadPositionImpl implements ReadPosition, Parcelable {
         this.chapterIndex = chapterIndex;
         this.usingId = usingId;
         this.value = value;
+    }
+
+    public static ReadPosition createInstance(String jsonString) {
+
+        ReadPositionImpl readPosition = null;
+        try {
+            readPosition = ObjectMapperSingleton.getObjectMapper()
+                    .reader()
+                    .forType(ReadPositionImpl.class)
+                    .readValue(jsonString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return readPosition;
     }
 
     protected ReadPositionImpl(Parcel in) {

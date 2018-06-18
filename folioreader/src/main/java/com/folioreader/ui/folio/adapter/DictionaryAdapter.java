@@ -44,6 +44,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
     }
 
     @Override
+    @SuppressWarnings("PMD.InefficientEmptyStringCheck")
     public void onBindViewHolder(DictionaryHolder holder, int position) {
         final DictionaryResults res = results.get(position);
         if (res.getPartOfSpeech() != null) {

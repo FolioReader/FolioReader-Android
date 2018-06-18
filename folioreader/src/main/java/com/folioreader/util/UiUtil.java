@@ -25,8 +25,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.folioreader.Constants;
 import com.folioreader.R;
+import com.folioreader.view.DirectionalViewpager;
 import com.folioreader.view.UnderlinedTextView;
 
 import java.lang.ref.SoftReference;
@@ -175,9 +175,5 @@ public class UiUtil {
 
     public static int pxToDp(int px) {
         return (int) (px / Resources.getSystem().getDisplayMetrics().density);
-    }
-
-    public static boolean isOrientationHorizontal(Context context) {
-        return SharedPreferenceUtil.getPagerOrientation(context).equals(Constants.ORIENTATION.HORIZONTAL.toString());
     }
 }
