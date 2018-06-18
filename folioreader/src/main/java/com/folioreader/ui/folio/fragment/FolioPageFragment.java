@@ -492,7 +492,7 @@ public class FolioPageFragment
                     view.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
 
                 } else if (!TextUtils.isEmpty(highlightId)) {
-                    scrollToHighlightId();
+                    scrollToHighlightId(highlightId);
 
                 } else if (isCurrentFragment()) {
 
@@ -1056,30 +1056,6 @@ public class FolioPageFragment
         return mBookTitle + "$" + spineItem.href;
     }
 
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void setWebView(final WebViewPosition position) {
-        if (position.getHref().equals(spineItem.href) && isAdded()) {
-            highlightId = position.getHighlightId();
-
-            if (mWebview.getContentHeight() > 0) {
-                scrollToHighlightId();
-                //Webview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
-            }
-        }
-    }
-
-    public void setWebViewPosition(final int position) {
-        mWebview.post(new Runnable() {
-            @Override
-            public void run() {
-                if (isAdded()) {
-                    mWebview.scrollTo(0, position);
-                }
-            }
-        });
-    }
-
     @Override
     public void highLightText(String fragmentId) {
         mWebview.loadUrl(String.format(getString(R.string.audio_mark_id), fragmentId));
@@ -1134,7 +1110,8 @@ public class FolioPageFragment
     public void onError() {
     }
 
-    private void scrollToHighlightId() {
+    public void scrollToHighlightId(String highlightId) {
+        this.highlightId = highlightId;
         mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
     }
 }

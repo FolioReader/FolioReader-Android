@@ -106,6 +106,7 @@ public class WebViewPager extends ViewPager {
         handler.post(new Runnable() {
             @Override
             public void run() {
+                folioWebView.invalidate();
                 setCurrentItem(pageIndex, false);
             }
         });

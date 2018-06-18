@@ -277,9 +277,10 @@ public class FolioActivity
                 }
             } else if (type.equals(HIGHLIGHT_SELECTED)) {
                 HighlightImpl highlightImpl = data.getParcelableExtra(HIGHLIGHT_ITEM);
-                int position = highlightImpl.getPageNumber();
-                mFolioPageViewPager.setCurrentItem(position);
-                EventBus.getDefault().post(new WebViewPosition(mSpineReferenceList.get(mChapterPosition).href, highlightImpl.getRangy()));
+                mFolioPageViewPager.setCurrentItem(highlightImpl.getPageNumber());
+                FolioPageFragment folioPageFragment = (FolioPageFragment)
+                        mFolioPageFragmentAdapter.getItem(highlightImpl.getPageNumber());
+                folioPageFragment.scrollToHighlightId(highlightImpl.getRangy());
             }
         }
     }
