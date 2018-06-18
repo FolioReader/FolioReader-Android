@@ -142,7 +142,6 @@ public class FolioPageFragment
     private String mBookTitle;
     private String mEpubFileName = null;
     private boolean mIsPageReloaded;
-    private int mLastWebviewScrollpos;
 
     private String highlightStyle;
 
@@ -290,8 +289,11 @@ public class FolioPageFragment
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void reload(ReloadDataEvent reloadDataEvent) {
+
+        if (isCurrentFragment())
+            getLastReadPosition();
+
         if (isAdded()) {
-            mLastWebviewScrollpos = mWebview.getScrollY();
             mIsPageReloaded = true;
             setHtml(true);
             updatePagesLeftTextBg();
@@ -480,12 +482,18 @@ public class FolioPageFragment
                     loadRangy(view, rangy);
 
                 if (mIsPageReloaded) {
-                    setWebViewPosition(mLastWebviewScrollpos);
+                    if (isCurrentFragment()) {
+                        mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
+                                lastReadPosition.isUsingId(), lastReadPosition.getValue()));
+                    }
                     mIsPageReloaded = false;
+
                 } else if (!TextUtils.isEmpty(mAnchorId)) {
                     view.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
+
                 } else if (!TextUtils.isEmpty(highlightId)) {
                     scrollToHighlightId();
+
                 } else if (isCurrentFragment()) {
 
                     ReadPosition readPosition;
