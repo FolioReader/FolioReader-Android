@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rlContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -17,12 +18,17 @@
             android:layout_height="match_parent" />
 
         <com.folioreader.view.FolioWebView
-            android:alpha="0.5"
             android:id="@+id/folioWebView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
     </FrameLayout>
+
+    <com.folioreader.view.LoadingView
+        android:id="@+id/loadingView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:visibility="invisible" />
 
     <com.folioreader.view.VerticalSeekbar
         android:id="@+id/scrollSeekbar"

@@ -46,7 +46,6 @@ import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.event.RewindIndexEvent;
 import com.folioreader.model.event.UpdateHighlightEvent;
-import com.folioreader.model.event.WebViewPosition;
 import com.folioreader.model.quickaction.ActionItem;
 import com.folioreader.model.quickaction.QuickAction;
 import com.folioreader.model.sqlite.HighLightTable;
@@ -63,6 +62,7 @@ import com.folioreader.util.SMILParser;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.DirectionalViewpager;
 import com.folioreader.view.FolioWebView;
+import com.folioreader.view.LoadingView;
 import com.folioreader.view.MediaControllerView;
 import com.folioreader.view.VerticalSeekbar;
 import com.folioreader.view.WebViewPager;
@@ -126,6 +126,7 @@ public class FolioPageFragment
 
     private View mRootView;
 
+    private LoadingView loadingView;
     private VerticalSeekbar mScrollSeekbar;
     private FolioWebView mWebview;
     private WebViewPager webViewPager;
@@ -208,6 +209,7 @@ public class FolioPageFragment
 
         mConfig = AppUtil.getSavedConfig(activity);
 
+        loadingView = mRootView.findViewById(R.id.loadingView);
         initSeekbar();
         initAnimations();
         initWebView();
@@ -294,6 +296,8 @@ public class FolioPageFragment
             getLastReadPosition();
 
         if (isAdded()) {
+            loadingView.updateTheme();
+            loadingView.setVisibility(View.VISIBLE);
             mIsPageReloaded = true;
             setHtml(true);
             updatePagesLeftTextBg();
@@ -330,7 +334,7 @@ public class FolioPageFragment
             if (href != null && href.indexOf('#') != -1 && spineItem.href.equals(href.substring(0, href.lastIndexOf('#')))) {
                 mAnchorId = href.substring(href.lastIndexOf('#') + 1);
                 if (mWebview.getContentHeight() > 0 && mAnchorId != null) {
-                    mWebview.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
+                    mWebview.loadUrl(String.format("javascript:goToAnchor(%s)", mAnchorId));
                 }
             }
         }
@@ -417,6 +421,7 @@ public class FolioPageFragment
         mWebview.addJavascriptInterface(this, "Highlight");
         mWebview.addJavascriptInterface(this, "FolioPageFragment");
         mWebview.addJavascriptInterface(webViewPager, "WebViewPager");
+        mWebview.addJavascriptInterface(loadingView, "LoadingView");
 
         mWebview.setScrollListener(new FolioWebView.ScrollListener() {
             @Override
@@ -464,10 +469,10 @@ public class FolioPageFragment
 
             if (isAdded()) {
 
-                view.loadUrl("javascript:alert(getReadingTime())");
+                mWebview.loadUrl("javascript:alert(getReadingTime())");
 
                 if (!hasMediaOverlay)
-                    view.loadUrl("javascript:wrappingSentencesWithinPTags()");
+                    mWebview.loadUrl("javascript:wrappingSentencesWithinPTags()");
 
                 if (mActivityCallback.getDirection() == DirectionalViewpager.Direction.HORIZONTAL)
                     mWebview.loadUrl("javascript:initHorizontalDirection()");
@@ -479,7 +484,7 @@ public class FolioPageFragment
                 String rangy = HighlightUtil.generateRangyString(getPageName());
                 FolioPageFragment.this.rangy = rangy;
                 if (!rangy.isEmpty())
-                    loadRangy(view, rangy);
+                    loadRangy(mWebview, rangy);
 
                 if (mIsPageReloaded) {
                     if (isCurrentFragment()) {
@@ -489,7 +494,7 @@ public class FolioPageFragment
                     mIsPageReloaded = false;
 
                 } else if (!TextUtils.isEmpty(mAnchorId)) {
-                    view.loadUrl("javascript:document.getElementById(\"" + mAnchorId + "\").scrollIntoView()");
+                    mWebview.loadUrl(String.format("javascript:goToAnchor(%s)", mAnchorId));
 
                 } else if (!TextUtils.isEmpty(highlightId)) {
                     scrollToHighlightId(highlightId);
@@ -510,7 +515,11 @@ public class FolioPageFragment
                         Log.d(LOG_TAG, "-> scrollToSpan -> " + readPosition.getValue());
                         mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
                                 readPosition.isUsingId(), readPosition.getValue()));
+                    } else {
+                        loadingView.invisible();
                     }
+                } else {
+                    loadingView.invisible();
                 }
             }
         }

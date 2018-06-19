@@ -718,10 +718,14 @@ function scrollToSpan(usingId, value) {
     } else {
         var spanCollection = document.getElementsByTagName("span");
         if (spanCollection.length == 0 || value < 0 || value >= spanCollection.length
-            || value == null)
+            || value == null) {
+            LoadingView.invisible();
             return;
+        }
         goToElement(spanCollection[value]);
     }
+
+    LoadingView.invisible();
 }
 
 // Class based onClick listener
@@ -779,10 +783,19 @@ function getHighlightString(style) {
 }
 
 function gotoHighlight(highlightId){
-  var element = document.getElementById(highlightId.toString());
-  if(element != null) {
-    goToElement(element);
-  }
+    var element = document.getElementById(highlightId.toString());
+    if (element)
+        goToElement(element);
+
+    LoadingView.invisible();
+}
+
+function goToAnchor(anchorId) {
+    var element = document.getElementById(anchorId);
+    if (element)
+        goToElement(element);
+
+    LoadingView.invisible();
 }
 
 $(function(){

@@ -265,6 +265,7 @@ public class FolioActivity
 
             String type = data.getStringExtra(TYPE);
             if (type.equals(CHAPTER_SELECTED)) {
+                //TODO: -> try to eliminate EventBus if possible
                 String selectedChapterHref = data.getStringExtra(SELECTED_CHAPTER_POSITION);
                 for (Link spine : mSpineReferenceList) {
                     if (selectedChapterHref.contains(spine.href)) {

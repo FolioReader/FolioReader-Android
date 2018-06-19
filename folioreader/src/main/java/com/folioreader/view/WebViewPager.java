@@ -93,6 +93,7 @@ public class WebViewPager extends ViewPager {
 
         this.horizontalPageCount = horizontalPageCount;
         setAdapter(new WebViewPagerAdapter());
+        setCurrentItem(0);
 
         if (folioWebView == null)
             folioWebView = ((View) getParent()).findViewById(R.id.folioWebView);
@@ -143,14 +144,15 @@ public class WebViewPager extends ViewPager {
             View view = LayoutInflater.from(container.getContext())
                     .inflate(R.layout.view_webview_pager, container, false);
 
-            if (position % 2 == 0) {
+            //Debug code
+            /*if (position % 2 == 0) {
                 view.setBackgroundResource(R.drawable.green_border_background);
             } else {
                 view.setBackgroundResource(R.drawable.blue_border_background);
             }
 
             TextView textView = view.findViewById(R.id.textView);
-            textView.setText(Integer.toString(position));
+            textView.setText(Integer.toString(position));*/
 
             container.addView(view);
             return view;
