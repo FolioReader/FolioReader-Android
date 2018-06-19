@@ -91,6 +91,6 @@
     <string name="dictionary">Dictionary</string>
     <string name="wikipedia">Wikipedia</string>
     <string name="cannot_access_epub_message">Cannot open epub it needs storage access !</string>
-    <string name="orientation_horizontal">horizontal</string>
-    <string name="orientation_vertical">vertical</string>
+    <string name="direction_horizontal">Horizontal</string>
+    <string name="direction_vertical">Vertical</string>
 </resources>
