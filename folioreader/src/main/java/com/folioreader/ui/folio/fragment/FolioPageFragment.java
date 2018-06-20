@@ -60,7 +60,6 @@ import com.folioreader.util.AppUtil;
 import com.folioreader.util.HighlightUtil;
 import com.folioreader.util.SMILParser;
 import com.folioreader.util.UiUtil;
-import com.folioreader.view.DirectionalViewpager;
 import com.folioreader.view.FolioWebView;
 import com.folioreader.view.LoadingView;
 import com.folioreader.view.MediaControllerView;
@@ -371,7 +370,7 @@ public class FolioPageFragment
 
             mWebview.loadDataWithBaseURL(
                     Constants.LOCALHOST + mBookTitle + "/" + path,
-                    HtmlUtil.getHtmlContent(getActivity(), mHtmlString, mConfig),
+                    HtmlUtil.getHtmlContent(getContext(), mHtmlString, mConfig),
                     "text/html",
                     "UTF-8",
                     null);
@@ -489,6 +488,9 @@ public class FolioPageFragment
                     if (isCurrentFragment()) {
                         mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
                                 lastReadPosition.isUsingId(), lastReadPosition.getValue()));
+                    } else {
+                        //When config changes, make loading view invisible for all other fragments
+                        loadingView.invisible();
                     }
                     mIsPageReloaded = false;
 
@@ -518,6 +520,7 @@ public class FolioPageFragment
                         loadingView.invisible();
                     }
                 } else {
+                    //Make loading view invisible for all other fragments
                     loadingView.invisible();
                 }
             }

@@ -54,19 +54,8 @@ public class HomeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        Config config = AppUtil.getSavedConfig(this);
-        if (config == null)
-            config = new Config();
-
-        config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL)
-                .setDirection(Config.Direction.VERTICAL);
-
-        ReadPosition readPosition = getLastReadPosition();
-
         folioReader = FolioReader.getInstance(getApplicationContext())
-                .setConfig(config, true)
                 .setOnHighlightListener(this)
-                .setReadPosition(readPosition)
                 .setReadPositionListener(this);
 
         getHighlightsAndSave();
@@ -74,14 +63,33 @@ public class HomeActivity extends AppCompatActivity
         findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                folioReader.openBook(R.raw.adventures);
+
+                Config config = AppUtil.getSavedConfig(getApplicationContext());
+                if (config == null)
+                    config = new Config();
+
+                config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
+
+                folioReader.setConfig(config, true)
+                        .openBook(R.raw.adventures);
             }
         });
 
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                folioReader.openBook("file:///android_asset/TheSilverChair.epub");
+
+                ReadPosition readPosition = getLastReadPosition();
+
+                Config config = AppUtil.getSavedConfig(getApplicationContext());
+                if (config == null)
+                    config = new Config();
+
+                config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
+
+                folioReader.setReadPosition(readPosition)
+                        .setConfig(config, true)
+                        .openBook("file:///android_asset/TheSilverChair.epub");
             }
         });
     }

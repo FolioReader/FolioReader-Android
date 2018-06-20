@@ -9,6 +9,7 @@ import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.BottomSheetDialog
 import android.support.design.widget.BottomSheetDialogFragment
 import android.support.v4.content.ContextCompat
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +22,6 @@ import com.folioreader.model.event.ReloadDataEvent
 import com.folioreader.ui.folio.activity.FolioActivity
 import com.folioreader.ui.folio.activity.FolioActivityCallback
 import com.folioreader.util.AppUtil
-import com.folioreader.util.SharedPreferenceUtil
 import com.folioreader.util.UiUtil
 import kotlinx.android.synthetic.main.view_config.*
 import org.greenrobot.eventbus.EventBus
@@ -30,6 +30,12 @@ import org.greenrobot.eventbus.EventBus
  * Created by mobisys2 on 11/16/2016.
  */
 class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
+
+    companion object {
+        const val FADE_DAY_NIGHT_MODE = 500
+        @JvmField val LOG_TAG:String = ConfigBottomSheetDialogFragment::class.java.simpleName
+    }
+
     private lateinit var config: Config
     private var isNightMode = false
     private lateinit var activityCallback: FolioActivityCallback
@@ -111,8 +117,8 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
             toggleBlackTheme()
             view_config_ib_day_mode.isSelected = false
             view_config_ib_night_mode.isSelected = true
-            UiUtil.setColorToImage(activity, config.themeColor, view_config_ib_day_mode.drawable)
-            UiUtil.setColorToImage(activity, R.color.app_gray, view_config_ib_night_mode.drawable)
+            UiUtil.setColorToImage(activity, R.color.app_gray, view_config_ib_day_mode.drawable)
+            UiUtil.setColorToImage(activity, config.themeColor, view_config_ib_night_mode.drawable)
             setToolBarColor()
             setAudioPlayerBackground()
         }
@@ -243,9 +249,5 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
         } else {
             (context as Activity).findViewById<View>(R.id.container).setBackgroundColor(ContextCompat.getColor(context!!, R.color.night))
         }
-    }
-
-    companion object {
-        const val FADE_DAY_NIGHT_MODE = 500
     }
 }
