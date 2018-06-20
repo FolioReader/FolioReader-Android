@@ -200,8 +200,7 @@ public class FolioPageFragment
             }
         }
         highlightStyle = HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal);
-        //TODO: -> root null ???
-        mRootView = View.inflate(getActivity(), R.layout.folio_page_fragment, null);
+        mRootView = inflater.inflate(R.layout.folio_page_fragment, container, false);
         mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
 
