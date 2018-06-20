@@ -5,13 +5,13 @@ import android.content.Context;
 import android.os.Handler;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.webkit.WebView;
 
+import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.ui.folio.activity.FolioActivityCallback;
 
@@ -93,7 +93,7 @@ public class FolioWebView extends WebView
 
         hideOrShowToolBar(event);
 
-        if (folioActivityCallback.getDirection() == DirectionalViewpager.Direction.HORIZONTAL) {
+        if (folioActivityCallback.getDirection() == Config.Direction.HORIZONTAL) {
             return computeHorizontalScroll(event);
         } else {
             return computeVerticalScroll(event);

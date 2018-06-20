@@ -38,7 +38,6 @@ import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.ReadPosition;
 import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
-import com.folioreader.model.event.WebViewPosition;
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
 import com.folioreader.ui.folio.presenter.MainMvpView;
@@ -76,8 +75,7 @@ public class FolioActivity
         FolioWebView.ToolBarListener,
         MainMvpView,
         MediaControllerCallback,
-        FolioToolbarCallback,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        FolioToolbarCallback {
 
     private static final String LOG_TAG = "FolioActivity";
 
@@ -111,13 +109,12 @@ public class FolioActivity
     private List<Link> mSpineReferenceList = new ArrayList<>();
     private EpubServer mEpubServer;
 
-    private Config mConfig;
     private String mBookId;
     private String mEpubFilePath;
     private EpubSourceType mEpubSourceType;
     int mEpubRawId = 0;
     private MediaControllerView mediaControllerView;
-    private DirectionalViewpager.Direction direction = DirectionalViewpager.Direction.VERTICAL;
+    private Config.Direction direction = Config.Direction.VERTICAL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,10 +122,6 @@ public class FolioActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.folio_activity);
         this.savedInstanceState = savedInstanceState;
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        onSharedPreferenceChanged(sharedPreferences, Constants.VIEWPAGER_DIRECTION_KEY);
 
         mBookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
         mEpubSourceType = (EpubSourceType)
@@ -201,7 +194,7 @@ public class FolioActivity
     }
 
     @Override
-    public void onDirectionChange(@NonNull DirectionalViewpager.Direction newDirection) {
+    public void onDirectionChange(@NonNull Config.Direction newDirection) {
         Log.d(LOG_TAG, "-> onDirectionChange");
 
         FolioPageFragment folioPageFragment = (FolioPageFragment)
@@ -219,7 +212,8 @@ public class FolioActivity
 
     @Override
     public void showConfigBottomSheetDialogFragment() {
-        new ConfigBottomSheetDialogFragment().show(getSupportFragmentManager(), ConfigBottomSheetDialogFragment.class.getSimpleName());
+        new ConfigBottomSheetDialogFragment().show(getSupportFragmentManager(),
+                ConfigBottomSheetDialogFragment.class.getSimpleName());
     }
 
     @Override
@@ -430,15 +424,28 @@ public class FolioActivity
     }
 
     private void setConfig() {
-        if (AppUtil.getSavedConfig(this) != null) {
-            mConfig = AppUtil.getSavedConfig(this);
-        } else if (getIntent().getParcelableExtra(Config.INTENT_CONFIG) != null) {
-            mConfig = getIntent().getParcelableExtra(Config.INTENT_CONFIG);
-            AppUtil.saveConfig(this, mConfig);
+
+        Config config;
+        Config intentConfig = getIntent().getParcelableExtra(Config.INTENT_CONFIG);
+        boolean overrideConfig = getIntent().getBooleanExtra(Config.EXTRA_OVERRIDE_CONFIG, false);
+        Config savedConfig = AppUtil.getSavedConfig(this);
+
+        if (savedConfig == null) {
+            if (intentConfig == null) {
+                config = new Config();
+            } else {
+                config = intentConfig;
+            }
         } else {
-            mConfig = new Config.ConfigBuilder().build();
-            AppUtil.saveConfig(this, mConfig);
+            if (intentConfig != null && overrideConfig) {
+                config = intentConfig;
+            } else {
+                config = savedConfig;
+            }
         }
+
+        AppUtil.saveConfig(this, config);
+        direction = config.getDirection();
     }
 
     @Override
@@ -475,24 +482,7 @@ public class FolioActivity
     }
 
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-        switch (key) {
-            case Constants.VIEWPAGER_DIRECTION_KEY:
-                String directionString = sharedPreferences.getString(key,
-                        DirectionalViewpager.Direction.VERTICAL.toString());
-                Log.v(LOG_TAG, "-> onSharedPreferenceChanged -> key: " + key + " value: " + directionString);
-                if (directionString.equals(DirectionalViewpager.Direction.HORIZONTAL.toString())) {
-                    direction = DirectionalViewpager.Direction.HORIZONTAL;
-                } else {
-                    direction = DirectionalViewpager.Direction.VERTICAL;
-                }
-                break;
-        }
-    }
-
-    @Override
-    public DirectionalViewpager.Direction getDirection() {
+    public Config.Direction getDirection() {
         return direction;
     }
 }

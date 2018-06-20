@@ -88,6 +88,13 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     private fun inflateView() {
+
+        if (config.allowedDirection != Config.AllowedDirection.VERTICAL_AND_HORIZONTAL) {
+            view5.visibility = View.GONE
+            buttonVertical.visibility = View.GONE
+            buttonHorizontal.visibility = View.GONE
+        }
+
         view_config_ib_day_mode.setOnClickListener {
             isNightMode = true
             toggleBlackTheme()
@@ -98,6 +105,7 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
             UiUtil.setColorToImage(activity, R.color.app_gray, view_config_ib_night_mode.drawable)
             UiUtil.setColorToImage(activity, config.themeColor, view_config_ib_day_mode.drawable)
         }
+
         view_config_ib_night_mode.setOnClickListener {
             isNightMode = false
             toggleBlackTheme()
@@ -108,38 +116,46 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
             setToolBarColor()
             setAudioPlayerBackground()
         }
-        if (activityCallback.direction == DirectionalViewpager.Direction.HORIZONTAL) {
-            view_config_btn_horizontal.isSelected = true
-        } else {
-            view_config_btn_vertical.isSelected = true
+
+        if (activityCallback.direction == Config.Direction.HORIZONTAL) {
+            buttonHorizontal.isSelected = true
+        } else if (activityCallback.direction == Config.Direction.VERTICAL) {
+            buttonVertical.isSelected = true
+        }
+
+        buttonVertical.setOnClickListener {
+            config = AppUtil.getSavedConfig(context)
+            config.direction = Config.Direction.VERTICAL
+            AppUtil.saveConfig(context, config)
+            activityCallback.onDirectionChange(Config.Direction.VERTICAL)
+            buttonHorizontal.isSelected = false
+            buttonVertical.isSelected = true
+        }
+
+        buttonHorizontal.setOnClickListener {
+            config = AppUtil.getSavedConfig(context)
+            config.direction = Config.Direction.HORIZONTAL
+            AppUtil.saveConfig(context, config)
+            activityCallback.onDirectionChange(Config.Direction.HORIZONTAL)
+            buttonHorizontal.isSelected = true
+            buttonVertical.isSelected = false
         }
     }
 
     private fun configFonts() {
-        view_config_font_andada.setTextColor(UiUtil.getColorList(activity, config.themeColor, R.color.grey_color))
-        view_config_font_lato.setTextColor(UiUtil.getColorList(activity, config.themeColor, R.color.grey_color))
-        view_config_font_lora.setTextColor(UiUtil.getColorList(activity, config.themeColor, R.color.grey_color))
-        view_config_font_raleway.setTextColor(UiUtil.getColorList(activity, config.themeColor, R.color.grey_color))
-        view_config_btn_vertical.setTextColor(UiUtil.getColorList(activity, config.themeColor, R.color.grey_color))
-        view_config_btn_horizontal.setTextColor(UiUtil.getColorList(activity, config.themeColor, R.color.grey_color))
+
+        val colorStateList = UiUtil.getColorList(activity, config.themeColor, R.color.grey_color)
+        buttonVertical.setTextColor(colorStateList)
+        buttonHorizontal.setTextColor(colorStateList)
+        view_config_font_andada.setTextColor(colorStateList)
+        view_config_font_lato.setTextColor(colorStateList)
+        view_config_font_lora.setTextColor(colorStateList)
+        view_config_font_raleway.setTextColor(colorStateList)
+
         view_config_font_andada.setOnClickListener { selectFont(Constants.FONT_ANDADA, true) }
         view_config_font_lato.setOnClickListener { selectFont(Constants.FONT_LATO, true) }
         view_config_font_lora.setOnClickListener { selectFont(Constants.FONT_LORA, true) }
         view_config_font_raleway.setOnClickListener { selectFont(Constants.FONT_RALEWAY, true) }
-
-        view_config_btn_vertical.setOnClickListener {
-            activityCallback.onDirectionChange(DirectionalViewpager.Direction.VERTICAL)
-            SharedPreferenceUtil.setPagerOrientation(context, DirectionalViewpager.Direction.VERTICAL.toString())
-            view_config_btn_horizontal.isSelected = false
-            view_config_btn_vertical.isSelected = true
-        }
-
-        view_config_btn_horizontal.setOnClickListener {
-            activityCallback.onDirectionChange(DirectionalViewpager.Direction.HORIZONTAL)
-            SharedPreferenceUtil.setPagerOrientation(context, DirectionalViewpager.Direction.HORIZONTAL.toString())
-            view_config_btn_horizontal.isSelected = true
-            view_config_btn_vertical.isSelected = false
-        }
     }
 
     private fun selectFont(selectedFont: Int, isReloadNeeded: Boolean) {

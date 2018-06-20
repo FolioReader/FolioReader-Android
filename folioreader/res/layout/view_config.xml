@@ -135,13 +135,13 @@
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:background="@color/grey_color"
-        app:layout_constraintBottom_toTopOf="@+id/view_config_btn_vertical"
+        app:layout_constraintBottom_toTopOf="@+id/buttonVertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_config_font_size_seek_bar" />
 
     <com.folioreader.util.StyleableTextView
-        android:id="@+id/view_config_btn_vertical"
+        android:id="@+id/buttonVertical"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:gravity="center"
@@ -149,12 +149,12 @@
         android:textSize="17sp"
         app:folio_font="@string/lato_font"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/view_config_btn_horizontal"
+        app:layout_constraintEnd_toStartOf="@+id/buttonHorizontal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view5" />
 
     <com.folioreader.util.StyleableTextView
-        android:id="@+id/view_config_btn_horizontal"
+        android:id="@+id/buttonHorizontal"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:gravity="center"
@@ -163,7 +163,7 @@
         app:folio_font="@string/lato_font"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/view_config_btn_vertical"
+        app:layout_constraintStart_toEndOf="@+id/buttonVertical"
         app:layout_constraintTop_toBottomOf="@+id/view5" />
 
 </android.support.constraint.ConstraintLayout>

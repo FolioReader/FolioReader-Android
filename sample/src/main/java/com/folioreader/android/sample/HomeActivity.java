@@ -1,18 +1,18 @@
 /*
-* Copyright (C) 2016 Pedro Paulo de Amorim
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (C) 2016 Pedro Paulo de Amorim
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.folioreader.android.sample;
 
 import android.os.Bundle;
@@ -25,11 +25,13 @@ import android.widget.Toast;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.folioreader.Config;
+import com.folioreader.FolioReader;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.ReadPosition;
 import com.folioreader.model.ReadPositionImpl;
 import com.folioreader.ui.base.OnSaveHighlight;
-import com.folioreader.FolioReader;
+import com.folioreader.util.AppUtil;
 import com.folioreader.util.ObjectMapperSingleton;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadPositionListener;
@@ -52,9 +54,22 @@ public class HomeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        Config config = AppUtil.getSavedConfig(this);
+        if (config == null)
+            config = new Config();
+
+        config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL)
+                .setDirection(Config.Direction.VERTICAL);
+
+        ReadPosition readPosition = getLastReadPosition();
+
         folioReader = FolioReader.getInstance(getApplicationContext())
+                .setConfig(config, true)
                 .setOnHighlightListener(this)
+                .setReadPosition(readPosition)
                 .setReadPositionListener(this);
+
+        getHighlightsAndSave();
 
         findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,30 +84,21 @@ public class HomeActivity extends AppCompatActivity
                 folioReader.openBook("file:///android_asset/TheSilverChair.epub");
             }
         });
-
-        getHighlightsAndSave();
-        getLastReadPosition();
     }
 
-    private void getLastReadPosition() {
+    private ReadPosition getLastReadPosition() {
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+        ReadPosition readPosition = null;
+        ObjectReader objectReader = ObjectMapperSingleton.getObjectMapper().reader();
 
-                ObjectReader objectReader = ObjectMapperSingleton.getObjectMapper().reader();
-                ReadPosition readPosition = null;
+        try {
+            readPosition = objectReader.forType(ReadPositionImpl.class)
+                    .readValue(getAssets().open("read_positions/read_position.json"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-                try {
-                    readPosition = objectReader.forType(ReadPositionImpl.class)
-                            .readValue(getAssets().open("read_positions/read_position.json"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                folioReader.setReadPosition(readPosition);
-            }
-        }).start();
+        return readPosition;
     }
 
     @Override

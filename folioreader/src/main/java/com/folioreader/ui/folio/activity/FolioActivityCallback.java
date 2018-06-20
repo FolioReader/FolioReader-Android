@@ -1,7 +1,7 @@
 package com.folioreader.ui.folio.activity;
 
+import com.folioreader.Config;
 import com.folioreader.model.ReadPosition;
-import com.folioreader.view.DirectionalViewpager;
 
 public interface FolioActivityCallback {
 
@@ -13,9 +13,9 @@ public interface FolioActivityCallback {
 
     void goToChapter(String href);
 
-    DirectionalViewpager.Direction getDirection();
+    Config.Direction getDirection();
 
-    void onDirectionChange(DirectionalViewpager.Direction newDirection);
+    void onDirectionChange(Config.Direction newDirection);
 
     void storeLastReadPosition(ReadPosition lastReadPosition);
 }

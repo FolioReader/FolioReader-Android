@@ -4,9 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.folioreader.Constants;
-import com.folioreader.view.DirectionalViewpager;
-
 import java.util.Set;
 
 /**
@@ -93,18 +90,5 @@ public class SharedPreferenceUtil {
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove(key);
         return editor.commit();
-    }
-
-    public static String getPagerOrientation(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getString(Constants.VIEWPAGER_DIRECTION_KEY,
-                DirectionalViewpager.Direction.VERTICAL.toString());
-    }
-
-    public static void setPagerOrientation(Context context, String orientation) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor edit = preferences.edit();
-        edit.putString(Constants.VIEWPAGER_DIRECTION_KEY, orientation);
-        edit.apply();
     }
 }

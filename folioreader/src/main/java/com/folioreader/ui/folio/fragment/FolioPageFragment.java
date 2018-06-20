@@ -474,7 +474,7 @@ public class FolioPageFragment
                 if (!hasMediaOverlay)
                     mWebview.loadUrl("javascript:wrappingSentencesWithinPTags()");
 
-                if (mActivityCallback.getDirection() == DirectionalViewpager.Direction.HORIZONTAL)
+                if (mActivityCallback.getDirection() == Config.Direction.HORIZONTAL)
                     mWebview.loadUrl("javascript:initHorizontalDirection()");
 
                 view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
@@ -675,7 +675,7 @@ public class FolioPageFragment
             synchronized (this) {
 
                 boolean isHorizontal = mActivityCallback.getDirection() ==
-                        DirectionalViewpager.Direction.HORIZONTAL;
+                        Config.Direction.HORIZONTAL;
                 mWebview.loadUrl("javascript:getFirstVisibleSpan(" + isHorizontal +")");
                 beforeWait = new Date();
                 wait(2000);
