@@ -19,6 +19,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.TypedArray;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -140,6 +142,11 @@ public class FolioActivity
             setupBook();
         }
 
+        initToolbar(savedInstanceState);
+    }
+
+    private void initToolbar(Bundle savedInstanceState) {
+
         toolbar = findViewById(R.id.toolbar);
         toolbar.setListeners(this);
         if (savedInstanceState != null) {
@@ -148,6 +155,19 @@ public class FolioActivity
                 toolbar.show();
             else
                 toolbar.hide();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Config config = AppUtil.getSavedConfig(getApplicationContext());
+            int color;
+            if (config.isNightMode()) {
+                color = ContextCompat.getColor(this, R.color.black);
+            } else {
+                int[] attrs = {android.R.attr.navigationBarColor};
+                TypedArray typedArray = getTheme().obtainStyledAttributes(attrs);
+                color = typedArray.getColor(0, ContextCompat.getColor(this, R.color.white));
+            }
+            getWindow().setNavigationBarColor(color);
         }
     }
 

@@ -4,12 +4,12 @@ import android.animation.Animator
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.app.Activity
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.BottomSheetDialog
 import android.support.design.widget.BottomSheetDialogFragment
 import android.support.v4.content.ContextCompat
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -186,11 +186,14 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     private fun toggleBlackTheme() {
+
         val day = ContextCompat.getColor(context!!, R.color.white)
         val night = ContextCompat.getColor(context!!, R.color.night)
+
         val colorAnimation = ValueAnimator.ofObject(ArgbEvaluator(),
                 if (isNightMode) night else day, if (isNightMode) day else night)
         colorAnimation.duration = FADE_DAY_NIGHT_MODE.toLong()
+
         colorAnimation.addUpdateListener { animator ->
             val value = animator.animatedValue as Int
             container.setBackgroundColor(value)
@@ -212,6 +215,28 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
         })
 
         colorAnimation.duration = FADE_DAY_NIGHT_MODE.toLong()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+            val attrs = intArrayOf(android.R.attr.navigationBarColor)
+            val typedArray = activity?.theme?.obtainStyledAttributes(attrs)
+            val defaultNavigationBarColor = typedArray?.getColor(0,
+                    ContextCompat.getColor(context!!, R.color.white))
+            val black = ContextCompat.getColor(context!!, R.color.black)
+
+            val navigationColorAnim = ValueAnimator.ofObject(ArgbEvaluator(),
+                    if (isNightMode) black else defaultNavigationBarColor,
+                    if (isNightMode) defaultNavigationBarColor else black)
+
+            navigationColorAnim.addUpdateListener { valueAnimator ->
+                val value = valueAnimator.animatedValue as Int
+                activity?.window?.navigationBarColor = value
+            }
+
+            navigationColorAnim.duration = FADE_DAY_NIGHT_MODE.toLong()
+            navigationColorAnim.start()
+        }
+
         colorAnimation.start()
     }
 
