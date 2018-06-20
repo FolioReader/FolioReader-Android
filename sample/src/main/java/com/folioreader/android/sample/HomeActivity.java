@@ -104,7 +104,7 @@ public class HomeActivity extends AppCompatActivity
     @Override
     public void saveReadPosition(ReadPosition readPosition) {
 
-        Toast.makeText(this, "ReadPosition = " + readPosition.toJson(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "ReadPosition = " + readPosition.toJson(), Toast.LENGTH_SHORT).show();
         Log.i(LOG_TAG, "-> ReadPosition = " + readPosition.toJson());
     }
 

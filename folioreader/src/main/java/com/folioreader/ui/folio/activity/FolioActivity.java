@@ -18,10 +18,8 @@ package com.folioreader.ui.folio.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -118,8 +116,9 @@ public class FolioActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setConfig();
         super.onCreate(savedInstanceState);
+        setConfig(savedInstanceState);
+
         setContentView(R.layout.folio_activity);
         this.savedInstanceState = savedInstanceState;
 
@@ -423,19 +422,23 @@ public class FolioActivity
         this.lastReadPosition = lastReadPosition;
     }
 
-    private void setConfig() {
+    private void setConfig(Bundle savedInstanceState) {
 
         Config config;
         Config intentConfig = getIntent().getParcelableExtra(Config.INTENT_CONFIG);
         boolean overrideConfig = getIntent().getBooleanExtra(Config.EXTRA_OVERRIDE_CONFIG, false);
         Config savedConfig = AppUtil.getSavedConfig(this);
 
-        if (savedConfig == null) {
+        if (savedInstanceState != null) {
+            config = savedConfig;
+
+        } else if (savedConfig == null) {
             if (intentConfig == null) {
                 config = new Config();
             } else {
                 config = intentConfig;
             }
+
         } else {
             if (intentConfig != null && overrideConfig) {
                 config = intentConfig;
@@ -443,6 +446,11 @@ public class FolioActivity
                 config = savedConfig;
             }
         }
+
+        // Code would never enter this if, just added for any unexpected error
+        // and to avoid lint warning
+        if (config == null)
+            config = new Config();
 
         AppUtil.saveConfig(this, config);
         direction = config.getDirection();
