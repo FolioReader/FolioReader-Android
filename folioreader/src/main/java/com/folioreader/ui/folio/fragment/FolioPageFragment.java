@@ -203,9 +203,7 @@ public class FolioPageFragment
         mPagesLeftTextView = (TextView) mRootView.findViewById(R.id.pagesLeft);
         mMinutesLeftTextView = (TextView) mRootView.findViewById(R.id.minutesLeft);
 
-        Activity activity = getActivity();
-
-        mConfig = AppUtil.getSavedConfig(activity);
+        mConfig = AppUtil.getSavedConfig(getContext());
 
         loadingView = mRootView.findViewById(R.id.loadingView);
         initSeekbar();
@@ -361,7 +359,7 @@ public class FolioPageFragment
                 mediaController.setSMILItems(SMILParser.parseSMIL(mHtmlString));
                 mediaController.setUpMediaPlayer(spineItem.mediaOverlay, spineItem.mediaOverlay.getAudioPath(spineItem.href), mBookTitle);
             }
-            mConfig = AppUtil.getSavedConfig(getActivity());
+            mConfig = AppUtil.getSavedConfig(getContext());
 
             String path = "";
             int forwardSlashLastIndex = ref.lastIndexOf('/');
@@ -381,6 +379,28 @@ public class FolioPageFragment
     @JavascriptInterface
     public String getDirection() {
         return mActivityCallback.getDirection().toString();
+    }
+
+    public void scrollToLast() {
+
+        boolean isPageLoading = loadingView == null || loadingView.getVisibility() == View.VISIBLE;
+        Log.d(LOG_TAG, "-> scrollToLast -> isPageLoading = " + isPageLoading);
+
+        if (!isPageLoading) {
+            loadingView.setVisibility(View.VISIBLE);
+            mWebview.loadUrl("javascript:scrollToLast()");
+        }
+    }
+
+    public void scrollToFirst() {
+
+        boolean isPageLoading = loadingView == null || loadingView.getVisibility() == View.VISIBLE;
+        Log.d(LOG_TAG, "-> scrollToFirst -> isPageLoading = " + isPageLoading);
+
+        if (!isPageLoading) {
+            loadingView.setVisibility(View.VISIBLE);
+            mWebview.loadUrl("javascript:scrollToFirst()");
+        }
     }
 
     private void initWebView() {
@@ -485,13 +505,21 @@ public class FolioPageFragment
                     loadRangy(mWebview, rangy);
 
                 if (mIsPageReloaded) {
+
                     if (isCurrentFragment()) {
                         mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
                                 lastReadPosition.isUsingId(), lastReadPosition.getValue()));
+
                     } else {
-                        //When config changes, make loading view invisible for all other fragments
-                        loadingView.invisible();
+                        if (mPosition == mActivityCallback.getChapterPosition() - 1) {
+                            // Scroll to last, the page before current page
+                            mWebview.loadUrl("javascript:scrollToLast()");
+                        } else {
+                            // Make loading view invisible for all other fragments
+                            loadingView.invisible();
+                        }
                     }
+
                     mIsPageReloaded = false;
 
                 } else if (!TextUtils.isEmpty(mAnchorId)) {
@@ -519,9 +547,16 @@ public class FolioPageFragment
                     } else {
                         loadingView.invisible();
                     }
+
                 } else {
-                    //Make loading view invisible for all other fragments
-                    loadingView.invisible();
+
+                    if (mPosition == mActivityCallback.getChapterPosition() - 1) {
+                        // Scroll to last, the page before current page
+                            mWebview.loadUrl("javascript:scrollToLast()");
+                    } else {
+                        // Make loading view invisible for all other fragments
+                        loadingView.invisible();
+                    }
                 }
             }
         }
@@ -595,9 +630,9 @@ public class FolioPageFragment
     };
 
     private WebChromeClient webChromeClient = new WebChromeClient() {
+
         @Override
         public void onProgressChanged(WebView view, int progress) {
-
         }
 
         @Override

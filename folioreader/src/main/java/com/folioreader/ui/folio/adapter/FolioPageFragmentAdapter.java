@@ -51,6 +51,9 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
 
+        if (mSpineReferences.size() == 0 || position < 0 || position >= mSpineReferences.size())
+            return null;
+
         Fragment fragment = fragments.get(position);
         if (fragment == null) {
             fragment = FolioPageFragment.newInstance(position,

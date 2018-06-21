@@ -120,8 +120,8 @@ var getRectForSelectedText = function(elm) {
 // Method that call that a hightlight was clicked
 // with URL scheme and rect informations
 var callHighlightURL = function(elm) {
-	event.stopPropagation();
-	var URLBase = "highlight://";
+    event.stopPropagation();
+    var URLBase = "highlight://";
     var currentHighlightRect = getRectForSelectedText(elm);
     thisHighlight = elm;
 
@@ -299,6 +299,93 @@ function sleep(seconds)
   while (new Date().getTime() <= e) {}
 }
 
+// Mock objects for testing purpose
+/*var FolioPageFragment = {
+
+    setHorizontalPageCount : function(pageCount) {
+        console.warn("-> Mock call to FolioPageFragment.setHorizontalPageCount(" + pageCount + ")");
+    },
+
+    storeFirstVisibleSpan : function(usingId, value) {
+        console.warn("-> Mock call to FolioPageFragment.storeFirstVisibleSpan(" + usingId + ", " + value + ")");
+    },
+
+    getDirection : function() {
+        var direction = "VERTICAL";
+        //var direction = "HORIZONTAL";
+        console.warn("-> Mock call to FolioPageFragment.getDirection(), return " + direction);
+        return direction;
+    }
+};
+
+var WebViewPager = {
+
+    setCurrentPage : function(pageIndex) {
+        console.warn("-> Mock call to WebViewPager.setCurrentPage(" + pageIndex + ")");
+    },
+
+    setPageToLast : function() {
+        console.warn("-> Mock call to WebViewPager.setPageToLast()");
+    },
+
+    setPageToFirst : function() {
+        console.warn("-> Mock call to WebViewPager.setPageToFirst()");
+    }
+};
+
+var LoadingView = {
+    invisible : function() {
+        console.warn("-> Mock call to LoadingView.invisible()");
+    }
+};*/
+
+// Testing purpose calls
+function test() {
+
+    wrappingSentencesWithinPTags();
+
+    if (FolioPageFragment.getDirection() == "HORIZONTAL")
+        initHorizontalDirection();
+
+    scrollToFirst();
+}
+
+function scrollToLast() {
+    console.log("-> scrollToLast");
+
+    var direction = FolioPageFragment.getDirection();
+    var scrollingElement = bodyOrHtml();
+
+    if (direction == "VERTICAL") {
+        scrollingElement.scrollTop =
+        scrollingElement.scrollHeight - document.documentElement.clientHeight;
+
+    } else if (direction == "HORIZONTAL") {
+        scrollingElement.scrollLeft =
+        scrollingElement.scrollWidth - document.documentElement.clientWidth;
+        WebViewPager.setPageToLast();
+    }
+
+    LoadingView.invisible();
+}
+
+function scrollToFirst() {
+    console.log("-> scrollToFirst");
+
+    var direction = FolioPageFragment.getDirection();
+    var scrollingElement = bodyOrHtml();
+
+    if (direction == "VERTICAL") {
+        scrollingElement.scrollTop = 0;
+
+    } else if (direction == "HORIZONTAL") {
+        scrollingElement.scrollLeft = 0;
+        WebViewPager.setPageToFirst();
+    }
+
+    LoadingView.invisible();
+}
+
 function initHorizontalDirection() {
     preInitHorizontalDirection();
     var pageCount = postInitHorizontalDirection();
@@ -312,7 +399,7 @@ function preInitHorizontalDirection() {
     var htmlElement = document.getElementsByTagName('html')[0];
     var bodyElement = document.getElementsByTagName('body')[0];
 
-	htmlElement.style.width = null;
+    htmlElement.style.width = null;
     bodyElement.style.width = null;
     htmlElement.style.height = null;
     bodyElement.style.height = null;
@@ -731,36 +818,36 @@ function scrollToSpan(usingId, value) {
 // Class based onClick listener
 
 function addClassBasedOnClickListener(schemeName, querySelector, attributeName, selectAll) {
-	if (selectAll) {
-		// Get all elements with the given query selector
-		var elements = document.querySelectorAll(querySelector);
-		for (elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			var element = elements[elementIndex];
-			addClassBasedOnClickListenerToElement(element, schemeName, attributeName);
-		}
-	} else {
-		// Get the first element with the given query selector
-		var element = document.querySelector(querySelector);
-		addClassBasedOnClickListenerToElement(element, schemeName, attributeName);
-	}
+    if (selectAll) {
+        // Get all elements with the given query selector
+        var elements = document.querySelectorAll(querySelector);
+        for (elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+            var element = elements[elementIndex];
+            addClassBasedOnClickListenerToElement(element, schemeName, attributeName);
+        }
+    } else {
+        // Get the first element with the given query selector
+        var element = document.querySelector(querySelector);
+        addClassBasedOnClickListenerToElement(element, schemeName, attributeName);
+    }
 }
 
 function addClassBasedOnClickListenerToElement(element, schemeName, attributeName) {
-	// Get the content from the given attribute name
-	var attributeContent = element.getAttribute(attributeName);
-	// Add the on click logic
-	element.setAttribute("onclick", "onClassBasedListenerClick(\"" + schemeName + "\", \"" + encodeURIComponent(attributeContent) + "\");");
+    // Get the content from the given attribute name
+    var attributeContent = element.getAttribute(attributeName);
+    // Add the on click logic
+    element.setAttribute("onclick", "onClassBasedListenerClick(\"" + schemeName + "\", \"" + encodeURIComponent(attributeContent) + "\");");
 }
 
 var onClassBasedListenerClick = function(schemeName, attributeContent) {
-	// Prevent the browser from performing the default on click behavior
-	event.preventDefault();
-	// Don't pass the click event to other elemtents
-	event.stopPropagation();
-	// Create parameters containing the click position inside the web view.
-	var positionParameterString = "/clientX=" + event.clientX + "&clientY=" + event.clientY;
-	// Set the custom link URL to the event
-	window.location = schemeName + "://" + attributeContent + positionParameterString;
+    // Prevent the browser from performing the default on click behavior
+    event.preventDefault();
+    // Don't pass the click event to other elemtents
+    event.stopPropagation();
+    // Create parameters containing the click position inside the web view.
+    var positionParameterString = "/clientX=" + event.clientX + "&clientY=" + event.clientY;
+    // Set the custom link URL to the event
+    window.location = schemeName + "://" + attributeContent + positionParameterString;
 }
 
 function getHighlightString(style) {

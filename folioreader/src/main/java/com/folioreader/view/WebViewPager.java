@@ -107,8 +107,34 @@ public class WebViewPager extends ViewPager {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                folioWebView.invalidate();
+                folioWebView.postInvalidate();
                 setCurrentItem(pageIndex, false);
+            }
+        });
+    }
+
+    @SuppressWarnings("unused")
+    @JavascriptInterface
+    public void setPageToLast() {
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                folioWebView.postInvalidate();
+                setCurrentItem(horizontalPageCount - 1);
+            }
+        });
+    }
+
+    @SuppressWarnings("unused")
+    @JavascriptInterface
+    public void setPageToFirst() {
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                folioWebView.postInvalidate();
+                setCurrentItem(0);
             }
         });
     }
@@ -144,7 +170,8 @@ public class WebViewPager extends ViewPager {
             View view = LayoutInflater.from(container.getContext())
                     .inflate(R.layout.view_webview_pager, container, false);
 
-            //Debug code
+            // Debug code
+            // Set alpha for folioWebView in folio_page_fragment.xml to 0.5f also.
             /*if (position % 2 == 0) {
                 view.setBackgroundResource(R.drawable.green_border_background);
             } else {

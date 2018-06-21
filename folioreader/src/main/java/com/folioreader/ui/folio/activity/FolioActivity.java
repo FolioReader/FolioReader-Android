@@ -338,7 +338,9 @@ public class FolioActivity
     }
 
     private void configFolio() {
+
         mFolioPageViewPager = findViewById(R.id.folioPageViewPager);
+        // Replacing with addOnPageChangeListener(), onPageSelected() is not invoked
         mFolioPageViewPager.setOnPageChangeListener(new DirectionalViewpager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -346,15 +348,32 @@ public class FolioActivity
 
             @Override
             public void onPageSelected(int position) {
-                EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, true));
+                Log.d(LOG_TAG, "-> onPageSelected -> DirectionalViewpager -> position = " + position);
+
+                EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(
+                        mSpineReferenceList.get(mChapterPosition).href, false, true));
                 mediaControllerView.setPlayButtonDrawable();
                 mChapterPosition = position;
+                toolbar.setTitle(mSpineReferenceList.get(mChapterPosition).bookTitle);
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
+
                 if (state == DirectionalViewpager.SCROLL_STATE_IDLE) {
-                    toolbar.setTitle(mSpineReferenceList.get(mChapterPosition).bookTitle);
+                    int position = mFolioPageViewPager.getCurrentItem();
+                    Log.d(LOG_TAG, "-> onPageScrollStateChanged -> DirectionalViewpager -> " +
+                            "position = " + position);
+
+                    FolioPageFragment folioPageFragment =
+                            (FolioPageFragment) mFolioPageFragmentAdapter.getItem(position - 1);
+                    if (folioPageFragment != null)
+                        folioPageFragment.scrollToLast();
+
+                    folioPageFragment =
+                            (FolioPageFragment) mFolioPageFragmentAdapter.getItem(position + 1);
+                    if (folioPageFragment != null)
+                        folioPageFragment.scrollToFirst();
                 }
             }
         });
