@@ -270,9 +270,9 @@ function goToElement(element) {
 
     } else if (FolioPageFragment.getDirection() == "HORIZONTAL" && top == 0) {
 
-        var windowVisibleWidth = document.documentElement.clientWidth;
-        var pageIndex = Math.floor(element.offsetLeft / windowVisibleWidth);
-        var newScrollLeft = windowVisibleWidth * pageIndex;
+        var clientWidth = document.documentElement.clientWidth;
+        var pageIndex = Math.floor(element.offsetLeft / clientWidth);
+        var newScrollLeft = clientWidth * pageIndex;
         //console.log("-> newScrollLeft = " + newScrollLeft);
         scrollingElement.scrollLeft = newScrollLeft;
         WebViewPager.setCurrentPage(pageIndex);
@@ -346,8 +346,6 @@ function test() {
 
     if (FolioPageFragment.getDirection() == "HORIZONTAL")
         initHorizontalDirection();
-
-    scrollToFirst();
 }
 
 function scrollToLast() {
@@ -399,6 +397,7 @@ function preInitHorizontalDirection() {
     var htmlElement = document.getElementsByTagName('html')[0];
     var bodyElement = document.getElementsByTagName('body')[0];
 
+    // TODO: -> Check if this is needed
     htmlElement.style.width = null;
     bodyElement.style.width = null;
     htmlElement.style.height = null;
@@ -421,6 +420,8 @@ function preInitHorizontalDirection() {
 
     //console.log("-> window.innerWidth = " + window.innerWidth);
     //console.log("-> window.innerHeight = " + window.innerHeight);
+    //console.log("-> clientWidth = " + document.documentElement.clientWidth);
+    //console.log("-> clientHeight = " + document.documentElement.clientHeight);
     //console.log("-> bodyElement.offsetWidth = " + bodyElement.offsetWidth);
     //console.log("-> bodyElement.offsetHeight = " + bodyElement.offsetHeight);
     //console.log("-> pageWidth = " + pageWidth);
@@ -439,17 +440,26 @@ function postInitHorizontalDirection() {
     var paddingRight = parseInt(bodyStyle.paddingRight, 10);
     var paddingBottom = parseInt(bodyStyle.paddingBottom, 10);
     var paddingLeft = parseInt(bodyStyle.paddingLeft, 10);
-    var windowVisibleWidth = document.documentElement.clientWidth;
+    var clientWidth = document.documentElement.clientWidth;
 
-    var scrollWidth = document.documentElement.scrollWidth + paddingRight;
+    var scrollWidth = document.documentElement.scrollWidth;
+    if (scrollWidth > clientWidth)
+        scrollWidth += paddingRight;
     var newBodyWidth = scrollWidth - (paddingLeft + paddingRight);
 
     htmlElement.style.width = scrollWidth + 'px';
     bodyElement.style.width = newBodyWidth + 'px';
 
-    var pageCount = Math.round(scrollWidth / windowVisibleWidth);
+    // pageCount deliberately rounded instead of ceiling to avoid any unexpected error
+    var pageCount = Math.round(scrollWidth / clientWidth);
+    var pageCountFloat = scrollWidth / clientWidth;
+
+    if (pageCount != pageCountFloat) {
+        console.warn("-> pageCount = " + pageCount + ", pageCountFloat = " + pageCountFloat
+            + ", Something wrong in pageCount calculation");
+    }
+
     //console.log("-> scrollWidth = " + scrollWidth);
-    //console.log("-> windowVisibleWidth = " + windowVisibleWidth);
     //console.log("-> newBodyWidth = " + newBodyWidth);
     //console.log("-> pageCount = " + pageCount);
 

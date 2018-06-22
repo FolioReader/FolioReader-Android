@@ -127,7 +127,7 @@ public class Config implements Parcelable {
                 return AllowedDirection.VERTICAL_AND_HORIZONTAL;
             default:
                 Log.w(LOG_TAG, "-> Illegal argument allowedDirectionString = " + allowedDirectionString
-                        + ", defaulting direction to " + AllowedDirection.ONLY_VERTICAL.toString());
+                        + ", defaulting allowedDirection to " + AllowedDirection.ONLY_VERTICAL.toString());
                 return AllowedDirection.ONLY_VERTICAL;
         }
     }
