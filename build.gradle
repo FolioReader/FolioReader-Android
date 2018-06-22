@@ -2,7 +2,7 @@ buildscript {
     ext.KOTLIN_VERSION= '1.2.41'
 
     ext.ANDROID_LIB_VERSION = '27.1.1'
-    ext.R2_STREAMER_VERSION = '0.1.5'
+    ext.R2_STREAMER_VERSION = '0.1.6'
     def KOTLIN_VERSION = ext.KOTLIN_VERSION
 
     repositories {
