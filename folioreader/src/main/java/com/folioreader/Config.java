@@ -48,10 +48,10 @@ public class Config implements Parcelable {
         nightMode = configBuilder.mNightMode;
         themeColor = configBuilder.mThemeColor;
         showTts = configBuilder.mShowTts;
-        this.actionCopy = configBuilder.mActionCopy;
-        this.actionShare = configBuilder.mActionShare;
-        this.actionDefine = configBuilder.mActionDefine;
-        this.actionHighlight = configBuilder.mActionHighlight;
+        actionCopy = configBuilder.mActionCopy;
+        actionShare = configBuilder.mActionShare;
+        actionDefine = configBuilder.mActionDefine;
+        actionHighlight = configBuilder.mActionHighlight;
     }
 
     public Config(JSONObject jsonObject) {
@@ -60,10 +60,10 @@ public class Config implements Parcelable {
         nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHTMODE);
         themeColor = jsonObject.optInt(CONFIG_IS_THEMECOLOR);
         showTts = jsonObject.optBoolean(CONFIG_IS_TTS);
-        this.actionCopy = jsonObject.optBoolean(CONFIG_IS_ACTION_COPY);
-        this.actionShare = jsonObject.optBoolean(CONFIG_IS_ACTION_SHARE);
-        this.actionDefine = jsonObject.optBoolean(CONFIG_IS_ACTION_DEFINE);
-        this.actionHighlight = jsonObject.optBoolean(CONFIG_IS_ACTION_HIGHLIGHT);
+        actionCopy = jsonObject.optBoolean(CONFIG_IS_ACTION_COPY);
+        actionShare = jsonObject.optBoolean(CONFIG_IS_ACTION_SHARE);
+        actionDefine = jsonObject.optBoolean(CONFIG_IS_ACTION_DEFINE);
+        actionHighlight = jsonObject.optBoolean(CONFIG_IS_ACTION_HIGHLIGHT);
     }
 
     private Config() {
