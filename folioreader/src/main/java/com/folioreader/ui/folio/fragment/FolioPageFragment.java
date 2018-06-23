@@ -821,18 +821,21 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
         view.setX(x);
         view.setY(y);
-        final QuickAction quickAction =
-                new QuickAction(getActivity(), QuickAction.HORIZONTAL);
-        quickAction.addActionItem(new ActionItem(ACTION_ID_COPY,
-                getString(R.string.copy)));
-        quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT,
-                getString(R.string.highlight)));
-        if (!mSelectedText.trim().contains(" ")) {
-            quickAction.addActionItem(new ActionItem(ACTION_ID_DEFINE,
-                    getString(R.string.define)));
+        final QuickAction quickAction = new QuickAction(getActivity(), QuickAction.HORIZONTAL);
+        if(mConfig.isActionCopy()) {
+            quickAction.addActionItem(new ActionItem(ACTION_ID_COPY, getString(R.string.copy)));
         }
-        quickAction.addActionItem(new ActionItem(ACTION_ID_SHARE,
-                getString(R.string.share)));
+        if(mConfig.isActionHighlight()) {
+            quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT, getString(R.string.highlight)));
+        }
+        if(mConfig.isActionDefine()) {
+            if (!mSelectedText.trim().contains(" ")) {
+                quickAction.addActionItem(new ActionItem(ACTION_ID_DEFINE, getString(R.string.define)));
+            }
+        }
+        if(mConfig.isActionShare()) {
+            quickAction.addActionItem(new ActionItem(ACTION_ID_SHARE, getString(R.string.share)));
+        }
         quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
             public void onItemClick(QuickAction source, int pos, int actionId) {
@@ -894,8 +897,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                 getResources().getDrawable(R.drawable.colors_marker)));
         quickAction.addActionItem(new ActionItem(ACTION_ID_DELETE,
                 getResources().getDrawable(R.drawable.ic_action_discard)));
-        quickAction.addActionItem(new ActionItem(ACTION_ID_SHARE,
-                getResources().getDrawable(R.drawable.ic_action_share)));
+        if(mConfig.isActionShare()) {
+            quickAction.addActionItem(new ActionItem(ACTION_ID_SHARE,
+                    getResources().getDrawable(R.drawable.ic_action_share)));
+        }
         final ViewGroup finalRoot = root;
         quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
