@@ -149,9 +149,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private Config mConfig;
     private String mBookId;
 
-    private String word;
-    private String uniqueId;
-    private int count;
+    private String mQuery;
+    private String mUniqueId;
+    private int mCount;
 
     public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef, String bookId) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -310,7 +310,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     /**
      * [EVENT BUS FUNCTION]
-     *
+     * <p>
      * Function triggered when highlight is deleted and page is needed to
      * be updated.
      *
@@ -318,8 +318,8 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
      */
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void updateHighlight(UpdateHighlightEvent event){
-        if(isAdded()) {
+    public void updateHighlight(UpdateHighlightEvent event) {
+        if (isAdded()) {
             this.rangy = HighlightUtil.generateRangyString(getPageName());
             loadRangy(mWebview, this.rangy);
         }
@@ -463,7 +463,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                         }
                     }
 
-                    if (word!=null && uniqueId!=null) {
+                    if (mQuery != null && mUniqueId != null) {
                         giveBackgroundToSearchItems();
                         goNextElementInTheSameChapter();
                     }
@@ -513,7 +513,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             // prevent favicon.ico to be loaded automatically
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-                if(url.toLowerCase().contains("/favicon.ico")) {
+                if (url.toLowerCase().contains("/favicon.ico")) {
                     try {
                         return new WebResourceResponse("image/png", null, null);
                     } catch (Exception e) {
@@ -527,7 +527,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             @Override
             @SuppressLint("NewApi")
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                if(!request.isForMainFrame() && request.getUrl().getPath().endsWith("/favicon.ico")) {
+                if (!request.isForMainFrame() && request.getUrl().getPath().endsWith("/favicon.ico")) {
                     try {
                         return new WebResourceResponse("image/png", null, null);
                     } catch (Exception e) {
@@ -546,7 +546,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     mWebview.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            if (word == null && uniqueId == null) {
+                            if (mQuery == null && mUniqueId == null) {
                                 Log.d("scroll y", "Scrolly" + mScrollY);
                                 mWebview.scrollTo(0, mScrollY);
                             }
@@ -663,7 +663,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
      * and then ReadPositionImpl is broadcast to {@link FolioReader#readPositionReceiver}
      *
      * @param usingId if span tag has id then true or else false
-     * @param value if usingId true then span id else span index
+     * @param value   if usingId true then span id else span index
      */
     @JavascriptInterface
     public void storeFirstVisibleSpan(boolean usingId, String value) {
@@ -1025,7 +1025,7 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             @Override
             public void run() {
                 if (isAdded()) {
-                    if (word == null && uniqueId == null) {
+                    if (mQuery == null && mUniqueId == null) {
                         mWebview.scrollTo(0, position);
                     }
                 }
@@ -1084,45 +1084,47 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private void scrollToHighlightId() {
         mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
     }
-    /////////////////////////////////////////////SEARCH SECTION////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////SEARCH SECTION///////////////////////////////////
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void highlightAndGoSearchItem(final SearchEvent searchEvent) {
         if (isAdded()) {
-            if (word != null && !word.equalsIgnoreCase(searchEvent.getWord())){
+            if (mQuery != null && !mQuery.equalsIgnoreCase(searchEvent.getWord())) {
                 clearSearchItemsBackground();// TODO: 22.04.2018 may remove this possibility
             }
-            word = searchEvent.getWord();
-            uniqueId = searchEvent.getId();
-            count = searchEvent.getCount();
+            mQuery = searchEvent.getWord();
+            mUniqueId = searchEvent.getId();
+            mCount = searchEvent.getCount();
             if (mWebview.getContentHeight() > 0) {
                 if (searchEvent.isNewChapter()) {
                     giveBackgroundToSearchItems();
-                }else {
+                } else {
                     goNextElementInTheSameChapter();
                 }
             }
         }
     }
+
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void clearSearchItem( ClearSearchEvent event) {
+    public void clearSearchItem(ClearSearchEvent event) {
         if (isAdded()) {
             clearSearchItemsBackground();
         }
     }
 
     private void giveBackgroundToSearchItems() {
-        String js = String.format(getString(R.string.search_highlight),word);
+        String js = String.format(getString(R.string.search_highlight), mQuery);
         mWebview.loadUrl(js);
     }
 
     private void goNextElementInTheSameChapter() {
-        String js = String.format(getString(R.string.search_item_scroll),count);
+        String js = String.format(getString(R.string.search_item_scroll), mCount);
         mWebview.loadUrl(js);
     }
 
-    private void clearSearchItemsBackground(){
+    private void clearSearchItemsBackground() {
         String js = getString(R.string.search_highlight_clear);
         mWebview.loadUrl(js);
         mWebview.invalidate();

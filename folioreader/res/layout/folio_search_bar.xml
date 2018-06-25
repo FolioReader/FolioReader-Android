@@ -8,7 +8,7 @@
     android:orientation="horizontal">
 
     <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/cancel_img"
+        android:id="@+id/btn_disable"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -18,14 +18,14 @@
         android:visibility="visible" />
 
     <EditText
-        android:id="@+id/search_query"
+        android:id="@+id/edit_query"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="16dp"
-        android:layout_toLeftOf="@+id/search_img"
-        android:layout_toRightOf="@+id/cancel_img"
+        android:layout_toLeftOf="@+id/btn_query_search"
+        android:layout_toRightOf="@+id/btn_disable"
         android:imeOptions="actionSearch"
         android:inputType="text"
         android:maxLines="1"
@@ -33,7 +33,7 @@
         android:textStyle="bold" />
 
     <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/search_img"
+        android:id="@+id/btn_query_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

@@ -433,13 +433,12 @@ public class FolioActivity
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////
     public ArrayList<Integer> indexes;
-    private int currentIndex = 0, oldIndex = 0;
-    private int count = 0;
+    private int mCurIndex = 0, mOldIndex = 0;
+    private int mCount = 0;
     public String query, uniqueID;
-    private int fragmentPos;
-    private boolean onEndPos = false;
+    private boolean mOnEndPos = false;
     public boolean mIsSearchSectionVisible = false;
 
     private void searchAnimateShow() {
@@ -479,35 +478,37 @@ public class FolioActivity
     public void showSearch(@Nullable String query) {
         if (query != null) {
             hideKeyboard(FolioActivity.this);
-            new MainPresenter(FolioActivity.this).searchQuery(Constants.LOCALHOST + bookFileName + "/search?query=" + query);
+            new MainPresenter(FolioActivity.this)
+                    .searchQuery(
+                            Constants.LOCALHOST + bookFileName + "/search?query=" + query);
         }
     }
 
     @Override
     public void goNextResult() {
         if (indexes != null && query != null) {
-            if (indexes.size() > currentIndex) {
+            if (indexes.size() > mCurIndex) {
                 boolean isNew = true;
-                if (currentIndex > 0 && (int) indexes.get(currentIndex - 1) == ((int) indexes.get
-                        (currentIndex))) {
+                if (mCurIndex > 0 && indexes.get(mCurIndex - 1) == ((int) indexes.get
+                        (mCurIndex))) {
                     isNew = false;
-                    count++;
+                    mCount++;
                 } else {
                     changeCurrentIndex();
                     uniqueID = UUID.randomUUID().toString();
-                    count = 0;
-                    mChapterPosition = indexes.get(currentIndex);
+                    mCount = 0;
+                    mChapterPosition = indexes.get(mCurIndex);
                     mFolioPageViewPager.setCurrentItem(mChapterPosition);
                 }
-                oldIndex = currentIndex;
-                EventBus.getDefault().post(new SearchEvent(query, isNew, count, ""));
-                currentIndex++;
-                onEndPos = false;
+                mOldIndex = mCurIndex;
+                EventBus.getDefault().post(new SearchEvent(query, isNew, mCount, ""));
+                mCurIndex++;
+                mOnEndPos = false;
             } else {
                 // TODO: 21.04.2018 change icon & no restart since it may leak
-                onEndPos = true;
-                currentIndex = 0;
-                oldIndex = 0;
+                mOnEndPos = true;
+                mCurIndex = 0;
+                mOldIndex = 0;
                 folioSearchBar.callback.goNextResult();
             }
         }
@@ -523,12 +524,12 @@ public class FolioActivity
         folioSearchBar.changeSearchIcon(false);
     }
 
-    private ArrayList getSearchIndexes(SearchQueryResults results) {
+    private ArrayList<Integer> getSearchIndexes(SearchQueryResults results) {
         ArrayList<Integer> searchQueryIndexes = new ArrayList<>();
         for (int i = 0; i < results.getSearchResultList().size(); i++) {
             for (int j = 0; j < mSpineReferenceList.size(); j++) {
-                if (mSpineReferenceList.get(j).getHref().equalsIgnoreCase(results.getSearchResultList().get(i)
-                        .getResource())) {
+                if (mSpineReferenceList.get(j).getHref().equalsIgnoreCase(
+                        results.getSearchResultList().get(i).getResource())) {
                     searchQueryIndexes.add(j);
                     break;
                 }
@@ -538,19 +539,19 @@ public class FolioActivity
     }
 
     public void clearIndexes() {
-        currentIndex = 0;
-        oldIndex = 0;
-        count = 0;
-        onEndPos = false;
+        mCurIndex = 0;
+        mOldIndex = 0;
+        mCount = 0;
+        mOnEndPos = false;
     }
 
     private void changeCurrentIndex() {
-        fragmentPos = mFolioPageViewPager.getCurrentItem();
+        int fragmentPos = mFolioPageViewPager.getCurrentItem();
         if (indexes != null) {
-            if (fragmentPos != indexes.get(oldIndex)) {
+            if (fragmentPos != indexes.get(mOldIndex)) {
                 for (int i = 0; i < indexes.size(); i++) {
-                    if (indexes.get(i) == fragmentPos && !onEndPos) {
-                        currentIndex = i;
+                    if (indexes.get(i) == fragmentPos && !mOnEndPos) {
+                        mCurIndex = i;
                         break;
                     }
                 }
@@ -559,10 +560,11 @@ public class FolioActivity
     }
 
     private void hideKeyboard(Activity activity) {
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager imm =
+                (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
         View view = activity.getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        //If no view currently has focus, create a new one, just so we can grab a window token
         if (view == null) {
             view = new View(activity);
         }

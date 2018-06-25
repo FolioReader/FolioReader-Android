@@ -1,7 +1,6 @@
 package com.folioreader.view
 
 import android.content.Context
-import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -12,14 +11,11 @@ import android.widget.RelativeLayout
 import com.folioreader.Config
 import com.folioreader.R
 import com.folioreader.util.AppUtil
-import com.folioreader.util.UiUtil
 import kotlinx.android.synthetic.main.folio_search_bar.view.*
-import kotlinx.android.synthetic.main.folio_toolbar.view.*
 
 
 class FolioSearchBar : RelativeLayout {
     private lateinit var config: Config
-    private var visible: Boolean = false
     var isForSearch: Boolean = true
     lateinit var callback: FolioSearchBarCallback
 
@@ -35,11 +31,11 @@ class FolioSearchBar : RelativeLayout {
         if (config.isNightMode) setNightMode() else setDayMode()
         initColors()
         initListeners()
-        search_query.setOnEditorActionListener() { v, actionId, event ->
+        edit_query.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                search_img.performClick()
+                btn_query_search.performClick()
                 true
-            }
+            }else
             false
         }
     }
@@ -50,10 +46,10 @@ class FolioSearchBar : RelativeLayout {
     }
 
     private fun initListeners() {
-        cancel_img.setOnClickListener {
+        btn_disable.setOnClickListener {
             callback.disableSearch()
         }
-        search_img.setOnClickListener {
+        btn_query_search.setOnClickListener {
             if (isForSearch)
                 callback.showSearch(getSearchQuery())
             else
@@ -67,15 +63,15 @@ class FolioSearchBar : RelativeLayout {
 
     fun changeSearchIcon(doSearch: Boolean) {
         if (doSearch) {
-            search_img.setImageResource(R.drawable.ic_search_white_24px)
+            btn_query_search.setImageResource(R.drawable.ic_search_white_24px)
         } else {
-            search_img.setImageResource(R.drawable.ic_keyboard_arrow_down_white_24)
+            btn_query_search.setImageResource(R.drawable.ic_keyboard_arrow_down_white_24)
         }
     }
 
     fun clearSearchSection() {
-        if (search_query != null)
-            search_query.text.clear()
+        if (edit_query != null)
+            edit_query.text.clear()
         changeSearchIcon(true)
 
     }
@@ -88,11 +84,11 @@ class FolioSearchBar : RelativeLayout {
 
     }
 
-    fun setNightMode() {
+    private fun setNightMode() {
 //        search_bar_container.setBackgroundColor(ContextCompat.getColor(context, R.color.black))
     }
 
-    fun setDayMode() {
+    private fun setDayMode() {
 //        search_bar_container.setBackgroundColor(ContextCompat.getColor(context, R.color.white))
     }
 
@@ -104,22 +100,22 @@ class FolioSearchBar : RelativeLayout {
                 .start()
     }
 
-    fun getSearchQuery(): String? {
-        if (search_query.text == null) {
+    private fun getSearchQuery(): String? {
+        if (edit_query.text == null) {
             return null
         } else {
-            var searchQuery: String = search_query.text.toString().trim()
-            if (!searchQuery.isEmpty()) {
+            var searchQuery: String = edit_query.text.toString().trim()
+            return if (!searchQuery.isEmpty()) {
                 if (searchQuery.contains(" ")) {
                     searchQuery = searchQuery.replace(" ", "%20")
                 }
                 if (searchQuery.isNotEmpty()) {
-                    return searchQuery
+                    searchQuery
                 } else {
-                    return null
+                    null
                 }
             } else {
-                return null
+                null
             }
         }
     }

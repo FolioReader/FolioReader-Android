@@ -21,25 +21,24 @@ public class SearchListTask extends AsyncTask<String, Void, SearchQueryResults> 
 
     private static final String TAG = "SearchListTask";
 
-    private SearchListCallBack callBack;
-    String strUrl;
+    private SearchListCallBack mCallBack;
 
-    public SearchListTask(SearchListCallBack callBack) {
-        this.callBack = callBack;
+    public SearchListTask(SearchListCallBack mCallBack) {
+        this.mCallBack = mCallBack;
     }
 
     @Override
     protected SearchQueryResults doInBackground(String... urls) {
-        strUrl = urls[0];
+        String mUrl = urls[0];
         try {
-            URL url = new URL(strUrl);
+            URL url = new URL(mUrl);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
 
             InputStream inputStream = urlConnection.getInputStream();
 
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil
-                    .charsetNameForURLConnection(urlConnection)));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,
+                    AppUtil.charsetNameForURLConnection(urlConnection)));
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -59,9 +58,9 @@ public class SearchListTask extends AsyncTask<String, Void, SearchQueryResults> 
     protected void onPostExecute(SearchQueryResults results) {
 
         if (results != null && results.getSearchCount() > 0) {
-            callBack.onReceiveSearchList(results);
+            mCallBack.onReceiveSearchList(results);
         } else {
-            callBack.onError();
+            mCallBack.onError();
         }
         cancel(true);
     }

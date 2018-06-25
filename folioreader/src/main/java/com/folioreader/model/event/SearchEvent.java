@@ -2,36 +2,36 @@ package com.folioreader.model.event;
 
 public class SearchEvent {
 
-    private String word;
-    private String id;
-    private boolean isNewChapter;
-    private int count;
+    private String mWord;
+    private String mId;
+    private boolean mNewChapter;
+    private int mCount;
 
     public SearchEvent() {
 
     }
 
-    public SearchEvent(String word, boolean isNewChapter, int count, String uniqueId) {
-        this.id = uniqueId;
-        this.word = word;
-        this.count = count;
-        this.isNewChapter = isNewChapter;
+    public SearchEvent(String mWord, boolean mNewChapter, int mCount, String mUniqueId) {
+        this.mId = mUniqueId;
+        this.mWord = mWord;
+        this.mCount = mCount;
+        this.mNewChapter = mNewChapter;
     }
 
     public String getWord() {
-        return word;
+        return mWord;
     }
 
 
     public boolean isNewChapter() {
-        return isNewChapter;
+        return mNewChapter;
     }
 
     public String getId() {
-        return id;
+        return mId;
     }
 
     public int getCount() {
-        return count;
+        return mCount;
     }
 }
