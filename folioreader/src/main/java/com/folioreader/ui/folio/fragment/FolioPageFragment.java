@@ -39,11 +39,13 @@ import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.ReadPosition;
 import com.folioreader.model.ReadPositionImpl;
 import com.folioreader.model.event.AnchorIdEvent;
+import com.folioreader.model.event.ClearSearchEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.event.RewindIndexEvent;
+import com.folioreader.model.event.SearchEvent;
 import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.event.WebViewPosition;
 import com.folioreader.model.quickaction.ActionItem;
@@ -146,6 +148,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
     private MediaController mediaController;
     private Config mConfig;
     private String mBookId;
+
+    private String word;
+    private String uniqueId;
+    private int count;
 
     public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef, String bookId) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -456,6 +462,11 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                                     entryReadPosition.isUsingId(), entryReadPosition.getValue()));
                         }
                     }
+
+                    if (word!=null && uniqueId!=null) {
+                        giveBackgroundToSearchItems();
+                        goNextElementInTheSameChapter();
+                    }
                 }
             }
 
@@ -535,8 +546,10 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
                     mWebview.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            Log.d("scroll y", "Scrolly" + mScrollY);
-                            mWebview.scrollTo(0, mScrollY);
+                            if (word == null && uniqueId == null) {
+                                Log.d("scroll y", "Scrolly" + mScrollY);
+                                mWebview.scrollTo(0, mScrollY);
+                            }
                         }
                     }, 100);
                 }
@@ -1012,7 +1025,9 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
             @Override
             public void run() {
                 if (isAdded()) {
-                    mWebview.scrollTo(0, position);
+                    if (word == null && uniqueId == null) {
+                        mWebview.scrollTo(0, position);
+                    }
                 }
             }
         });
@@ -1068,5 +1083,48 @@ public class FolioPageFragment extends Fragment implements HtmlTaskCallback, Med
 
     private void scrollToHighlightId() {
         mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
+    }
+    /////////////////////////////////////////////SEARCH SECTION////////////////////////////////////////////////////////
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void highlightAndGoSearchItem(final SearchEvent searchEvent) {
+        if (isAdded()) {
+            if (word != null && !word.equalsIgnoreCase(searchEvent.getWord())){
+                clearSearchItemsBackground();// TODO: 22.04.2018 may remove this possibility
+            }
+            word = searchEvent.getWord();
+            uniqueId = searchEvent.getId();
+            count = searchEvent.getCount();
+            if (mWebview.getContentHeight() > 0) {
+                if (searchEvent.isNewChapter()) {
+                    giveBackgroundToSearchItems();
+                }else {
+                    goNextElementInTheSameChapter();
+                }
+            }
+        }
+    }
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void clearSearchItem( ClearSearchEvent event) {
+        if (isAdded()) {
+            clearSearchItemsBackground();
+        }
+    }
+
+    private void giveBackgroundToSearchItems() {
+        String js = String.format(getString(R.string.search_highlight),word);
+        mWebview.loadUrl(js);
+    }
+
+    private void goNextElementInTheSameChapter() {
+        String js = String.format(getString(R.string.search_item_scroll),count);
+        mWebview.loadUrl(js);
+    }
+
+    private void clearSearchItemsBackground(){
+        String js = getString(R.string.search_highlight_clear);
+        mWebview.loadUrl(js);
+        mWebview.invalidate();
     }
 }

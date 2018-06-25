@@ -12,5 +12,4 @@ import org.readium.r2_streamer.model.searcher.SearchQueryResults;
 public interface MainMvpView extends BaseMvpView {
     void onLoadPublication(EpubPublication publication);
     void onShowSearchResults(SearchQueryResults results);
-    String getSearchQuery();
 }

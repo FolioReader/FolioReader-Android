@@ -681,6 +681,13 @@ function getHighlightString(style) {
     Highlight.getHighlightJson(JSON.stringify(params));
 }
 
+function gotoHighlight(highlightId){
+  var element = document.getElementById(highlightId.toString());
+  if(element != null) {
+    goToEl(element);
+  }
+}
+
 function onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
 }

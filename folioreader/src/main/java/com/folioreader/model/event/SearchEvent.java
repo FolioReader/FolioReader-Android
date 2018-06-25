@@ -11,7 +11,7 @@ public class SearchEvent {
 
     }
 
-    public SearchEvent(String word, boolean isNewChapter, int count,String uniqueId) {
+    public SearchEvent(String word, boolean isNewChapter, int count, String uniqueId) {
         this.id = uniqueId;
         this.word = word;
         this.count = count;

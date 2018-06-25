@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.util.AppUtil;
 
+
 import org.readium.r2_streamer.model.searcher.SearchQueryResults;
 
 import java.io.BufferedReader;
@@ -57,9 +58,9 @@ public class SearchListTask extends AsyncTask<String, Void, SearchQueryResults> 
     @Override
     protected void onPostExecute(SearchQueryResults results) {
 
-        if (results != null && results.getSearchCount()>0) {
+        if (results != null && results.getSearchCount() > 0) {
             callBack.onReceiveSearchList(results);
-        }else{
+        } else {
             callBack.onError();
         }
         cancel(true);

@@ -120,8 +120,6 @@ public class HighlightImpl implements Parcelable, HighLight {
         this.rangy = rangy;
         this.note = note;
         this.uuid = uuid;
-
-
     }
 
     public HighlightImpl() {
