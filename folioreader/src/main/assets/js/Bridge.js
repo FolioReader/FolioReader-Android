@@ -564,6 +564,69 @@ function wrappingSentencesWithinPTags(){
     guessSenetences();
 }
 
+function isElementVisible(element, isHorizontal) {
+
+    var rect = element.getBoundingClientRect();
+
+    if(isHorizontal)
+        return rect.left > 0;
+    else
+        return rect.top > 0;
+}
+
+/**
+Gets the first visible span from the displayed chapter and if it has id then usingId is true with
+value as span id else usingId is false with value as span index. usingId and value is forwarded to
+FolioPageFragment#storeFirstVisibleSpan(boolean, String) JavascriptInterface.
+
+@param {boolean} isHorizontal - scrolling type of DirectionalViewpager#mDirection
+*/
+function getFirstVisibleSpan(isHorizontal) {
+
+    var spanCollection = document.getElementsByTagName("span");
+
+    if (spanCollection.length == 0) {
+        FolioPageFragment.storeFirstVisibleSpan(false, 0);
+        return;
+    }
+
+    var spanIndex = 0;
+    var spanElement;
+
+    for (var i = 0 ; i < spanCollection.length ; i++) {
+        if (isElementVisible(spanCollection[i], isHorizontal)) {
+            spanIndex = i;
+            spanElement = spanCollection[i];
+            break;
+        }
+    }
+
+    var usingId = spanElement.id ? true : false;
+    var value = usingId ? spanElement.id : spanIndex;
+    FolioPageFragment.storeFirstVisibleSpan(usingId, value);
+}
+
+/**
+Scrolls the web page to particular span using id or index
+
+@param {boolean} usingId - if span tag has id then true or else false
+@param {number} value - if usingId true then span id else span index
+*/
+function scrollToSpan(usingId, value) {
+
+    if (usingId) {
+        var spanElement = document.getElementById(value);
+        if (spanElement)
+            goToEl(spanElement);
+    } else {
+        var spanCollection = document.getElementsByTagName("span");
+        if (spanCollection.length == 0 || value < 0 || value >= spanCollection.length
+            || value == null)
+            return;
+        goToEl(spanCollection[value]);
+    }
+}
+
 // Class based onClick listener
 
 function addClassBasedOnClickListener(schemeName, querySelector, attributeName, selectAll) {

@@ -9,12 +9,14 @@ import android.database.sqlite.SQLiteDatabase;
 public class DbAdapter {
     private static final String TAG = "DBAdapter";
 
-    private Context mContext;
     public static SQLiteDatabase mDatabase;
 
-    public DbAdapter(Context ctx) {
-        this.mContext = ctx;
+    public static void initialize(Context mContext) {
         mDatabase = FolioDatabaseHelper.getInstance(mContext).getMyWritableDatabase();
+    }
+
+    public static void terminate() {
+        FolioDatabaseHelper.clearInstance();
     }
 
     public static boolean insert(String table, ContentValues contentValues) {
@@ -28,7 +30,7 @@ public class DbAdapter {
     }
 
     public static Cursor getHighLightsForBookId(String bookId) {
-        return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.COL_BOOK_ID + " = '" + bookId + "'", null);
+        return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.COL_BOOK_ID + " = \"" + bookId + "\"", null);
     }
 
     public boolean deleteAll(String table) {
@@ -94,6 +96,6 @@ public class DbAdapter {
     }
 
     public static Cursor getHighlightsForId(int id) {
-        return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.ID + " = '" + id + "'", null);
+        return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.ID + " = \"" + id + "\"", null);
     }
 }

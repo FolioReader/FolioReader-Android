@@ -24,10 +24,15 @@ import android.widget.Toast;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.folioreader.model.HighLight;
+import com.folioreader.model.ReadPosition;
+import com.folioreader.model.ReadPositionImpl;
 import com.folioreader.ui.base.OnSaveHighlight;
-import com.folioreader.util.FolioReader;
+import com.folioreader.FolioReader;
+import com.folioreader.util.ObjectMapperSingleton;
 import com.folioreader.util.OnHighlightListener;
+import com.folioreader.util.ReadPositionListener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,29 +41,65 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity implements OnHighlightListener {
+public class HomeActivity extends AppCompatActivity
+        implements OnHighlightListener, ReadPositionListener {
 
+    private static final String LOG_TAG = HomeActivity.class.getSimpleName();
     private FolioReader folioReader;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        folioReader = new FolioReader(this);
-        folioReader.registerHighlightListener(this);
+
+        folioReader = FolioReader.getInstance(getApplicationContext())
+                .setOnHighlightListener(this)
+                .setReadPositionListener(this);
+
+        findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                folioReader.openBook(R.raw.adventures);
+            }
+        });
+
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 folioReader.openBook("file:///android_asset/TheSilverChair.epub");
             }
         });
-        findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                folioReader.openBook(R.raw.aayesha);
-            }
-        });
+
         getHighlightsAndSave();
+        getLastReadPosition();
+    }
+
+    private void getLastReadPosition() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                ObjectReader objectReader = ObjectMapperSingleton.getObjectMapper().reader();
+                ReadPosition readPosition = null;
+
+                try {
+                    readPosition = objectReader.forType(ReadPositionImpl.class)
+                            .readValue(getAssets().open("read_positions/read_position.json"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                folioReader.setReadPosition(readPosition);
+            }
+        }).start();
+    }
+
+    @Override
+    public void saveReadPosition(ReadPosition readPosition) {
+
+        Toast.makeText(this, "ReadPosition = " + readPosition.toJson(), Toast.LENGTH_SHORT).show();
+        Log.i(LOG_TAG, "-> ReadPosition = " + readPosition.toJson());
     }
 
     /*
@@ -126,7 +167,7 @@ public class HomeActivity extends AppCompatActivity implements OnHighlightListen
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        folioReader.unregisterHighlightListener();
+        FolioReader.clear();
     }
 
     @Override

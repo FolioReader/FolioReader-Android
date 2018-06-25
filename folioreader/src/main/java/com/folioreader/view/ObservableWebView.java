@@ -28,8 +28,7 @@ public class ObservableWebView extends WebView {
     }
 
     public interface ToolBarListener {
-        void hideOrshowToolBar();
-        void hideToolBarIfVisible();
+        void hideOrShowToolBar();
     }
 
     private ScrollListener mScrollListener;
@@ -81,7 +80,7 @@ public class ObservableWebView extends WebView {
                 if (mToolBarListener != null &&
                         (Math.abs(event.getX() - mDownPosX) < MOVE_THRESHOLD_DP
                                 || Math.abs(event.getY() - mDownPosY) < MOVE_THRESHOLD_DP)) {
-                    mToolBarListener.hideOrshowToolBar();
+                    mToolBarListener.hideOrShowToolBar();
                 }
                 break;
         }
@@ -90,7 +89,7 @@ public class ObservableWebView extends WebView {
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        if (mToolBarListener != null) mToolBarListener.hideToolBarIfVisible();
+        if (mToolBarListener != null) mToolBarListener.hideOrShowToolBar();
         if (mScrollListener != null) mScrollListener.onScrollChange(t);
         super.onScrollChanged(l, t, oldl, oldt);
     }

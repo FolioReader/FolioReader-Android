@@ -14,7 +14,7 @@ import com.folioreader.R;
 import com.folioreader.ui.folio.fragment.HighlightFragment;
 import com.folioreader.ui.tableofcontents.view.TableOfContentFragment;
 import com.folioreader.util.AppUtil;
-import com.folioreader.util.FolioReader;
+import com.folioreader.FolioReader;
 import com.folioreader.util.UiUtil;
 
 public class ContentHighlightActivity extends AppCompatActivity {

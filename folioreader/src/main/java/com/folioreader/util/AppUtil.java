@@ -18,10 +18,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-import static com.folioreader.Constants.BOOK_STATE;
-import static com.folioreader.Constants.BOOK_TITLE;
-import static com.folioreader.Constants.VIEWPAGER_POSITION;
-import static com.folioreader.Constants.WEBVIEW_SCROLL_POSITION;
 import static com.folioreader.util.SharedPreferenceUtil.getSharedPreferencesString;
 
 /**
@@ -87,72 +83,6 @@ public class AppUtil {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.getDefault());
         return simpleDateFormat.format(hightlightDate);
     }
-
-    public static void saveBookState(Context context, String bookTitle, int folioPageViewPagerPosition, int webViewScrollPosition) {
-        SharedPreferenceUtil.removeSharedPreferencesKey(context, bookTitle + BOOK_STATE);
-        JSONObject obj = new JSONObject();
-        try {
-            obj.put(BOOK_TITLE, bookTitle);
-            obj.put(WEBVIEW_SCROLL_POSITION, webViewScrollPosition);
-            obj.put(VIEWPAGER_POSITION, folioPageViewPagerPosition);
-            SharedPreferenceUtil.
-                    putSharedPreferencesString(
-                            context, bookTitle + BOOK_STATE, obj.toString());
-        } catch (JSONException e) {
-            Log.e(TAG, e.getMessage());
-        }
-    }
-
-    public static boolean checkPreviousBookStateExist(Context context, String bookName) {
-        String json
-                = getSharedPreferencesString(
-                context, bookName + BOOK_STATE,
-                null);
-        if (json != null) {
-            try {
-                JSONObject jsonObject = new JSONObject(json);
-                String bookTitle = jsonObject.getString(BOOK_TITLE);
-                if (bookTitle.equals(bookName))
-                    return true;
-            } catch (JSONException e) {
-                Log.e(TAG, e.getMessage());
-                return false;
-            }
-        }
-        return false;
-    }
-
-    public static int getPreviousBookStatePosition(Context context, String bookName) {
-        String json
-                = getSharedPreferencesString(context,
-                bookName + BOOK_STATE,
-                null);
-        if (json != null) {
-            try {
-                JSONObject jsonObject = new JSONObject(json);
-                return jsonObject.getInt(VIEWPAGER_POSITION);
-            } catch (JSONException e) {
-                Log.e(TAG, e.getMessage());
-                return 0;
-            }
-        }
-        return 0;
-    }
-
-    public static int getPreviousBookStateWebViewPosition(Context context, String bookTitle) {
-        String json = getSharedPreferencesString(context, bookTitle + BOOK_STATE, null);
-        if (json != null) {
-            try {
-                JSONObject jsonObject = new JSONObject(json);
-                return jsonObject.getInt(WEBVIEW_SCROLL_POSITION);
-            } catch (JSONException e) {
-                Log.e(TAG, e.getMessage());
-                return 0;
-            }
-        }
-        return 0;
-    }
-
 
     public static void saveConfig(Context context, Config config) {
         JSONObject obj = new JSONObject();
