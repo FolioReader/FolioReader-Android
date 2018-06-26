@@ -76,7 +76,7 @@ a { -webkit-touch-callout: none; } /* Disable link callback */
 * { -webkit-user-select: text; }
 img { -webkit-user-select: none; }
 p {
-    margin: 1.3em 0 1.5em 0;
+    margin: 1.3em 0 1.5em 0 !important;
     line-height: 1.40em !important;
     text-indent: 1.25em;
 }

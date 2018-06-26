@@ -366,10 +366,17 @@ public class FolioPageFragment
             if (forwardSlashLastIndex != -1)
                 path = ref.substring(0, forwardSlashLastIndex + 1);
 
+            String mimeType;
+            if (spineItem.typeLink.equalsIgnoreCase(getString(R.string.xhtml_mime_type))) {
+                mimeType = getString(R.string.xhtml_mime_type);
+            } else {
+                mimeType = getString(R.string.html_mime_type);
+            }
+
             mWebview.loadDataWithBaseURL(
                     Constants.LOCALHOST + mBookTitle + "/" + path,
                     HtmlUtil.getHtmlContent(getContext(), mHtmlString, mConfig),
-                    "text/html",
+                    mimeType,
                     "UTF-8",
                     null);
         }
@@ -440,6 +447,7 @@ public class FolioPageFragment
         mWebview.addJavascriptInterface(this, "FolioPageFragment");
         mWebview.addJavascriptInterface(webViewPager, "WebViewPager");
         mWebview.addJavascriptInterface(loadingView, "LoadingView");
+        mWebview.addJavascriptInterface(mWebview, "FolioWebView");
 
         mWebview.setScrollListener(new FolioWebView.ScrollListener() {
             @Override
@@ -487,6 +495,7 @@ public class FolioPageFragment
 
             if (isAdded()) {
 
+                mWebview.loadUrl("javascript:getCompatMode()");
                 mWebview.loadUrl("javascript:alert(getReadingTime())");
 
                 if (!hasMediaOverlay)

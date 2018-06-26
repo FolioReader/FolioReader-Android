@@ -5,10 +5,12 @@ import android.content.Context;
 import android.os.Handler;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.folioreader.Config;
@@ -60,6 +62,17 @@ public class FolioWebView extends WebView
         gestureDetector.setOnDoubleTapListener(this);
         density = getResources().getDisplayMetrics().density;
         touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+    }
+
+    @SuppressWarnings("unused")
+    @JavascriptInterface
+    public void setCompatMode(String compatMode) {
+        Log.d(LOG_TAG, "-> setCompatMode -> compatMode = " + compatMode);
+        if (compatMode.equals(getContext().getString(R.string.back_compat))) {
+            Log.e(LOG_TAG, "-> Web page loaded in Quirks mode. Please report to developer " +
+                    "for debugging with current EPUB file as many features might stop working " +
+                    "(ex. Horizontal scroll feature).");
+        }
     }
 
     public void setFolioActivityCallback(FolioActivityCallback folioActivityCallback) {

@@ -311,10 +311,17 @@ function sleep(seconds)
     },
 
     getDirection : function() {
-        var direction = "VERTICAL";
-        //var direction = "HORIZONTAL";
+        //var direction = "VERTICAL";
+        var direction = "HORIZONTAL";
         console.warn("-> Mock call to FolioPageFragment.getDirection(), return " + direction);
         return direction;
+    }
+};
+
+var FolioWebView = {
+
+    setCompatMode : function(compatMode) {
+        console.warn("-> Mock call to FolioWebView.setCompatMode(" + compatMode + ")");
     }
 };
 
@@ -382,6 +389,10 @@ function scrollToFirst() {
     }
 
     LoadingView.invisible();
+}
+
+function getCompatMode() {
+    FolioWebView.setCompatMode(document.compatMode);
 }
 
 function initHorizontalDirection() {
