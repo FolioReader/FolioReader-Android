@@ -27,10 +27,10 @@ public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
 
     private static final String TAG = "ManifestTask";
 
-    private ManifestCallBack manifestCallBack;
+    private ManifestCallBack mCallBack;
 
-    public ManifestTask(ManifestCallBack manifestCallBack) {
-        this.manifestCallBack = manifestCallBack;
+    public ManifestTask(ManifestCallBack mCallBack) {
+        this.mCallBack = mCallBack;
     }
 
     @Override
@@ -41,7 +41,8 @@ public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
             URL url = new URL(strUrl);
             URLConnection urlConnection = url.openConnection();
             InputStream inputStream = urlConnection.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil.charsetNameForURLConnection(urlConnection)));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,
+                    AppUtil.charsetNameForURLConnection(urlConnection)));
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -65,9 +66,9 @@ public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
                     setBookTitle(link, publication);
                 }
             }
-            manifestCallBack.onReceivePublication(publication);
+            mCallBack.onReceivePublication(publication);
         } else {
-            manifestCallBack.onError();
+            mCallBack.onError();
         }
         cancel(true);
     }

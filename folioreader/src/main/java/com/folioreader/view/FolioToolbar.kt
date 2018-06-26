@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.folio_toolbar.view.*
  */
 class FolioToolbar : RelativeLayout {
     private lateinit var config: Config
-    private var visible: Boolean = false
+    var visible: Boolean = false
     lateinit var callback: FolioToolbarCallback
 
     constructor(context: Context) : this(context, null, 0)
@@ -43,6 +43,7 @@ class FolioToolbar : RelativeLayout {
         UiUtil.setColorToImage(context, config.themeColor, btn_drawer.drawable)
         UiUtil.setColorToImage(context, config.themeColor, btn_config.drawable)
         UiUtil.setColorToImage(context, config.themeColor, btn_speaker.drawable)
+        UiUtil.setColorToImage(context, config.themeColor, btn_search.drawable)
     }
 
     private fun initListeners() {
@@ -57,6 +58,9 @@ class FolioToolbar : RelativeLayout {
         }
         btn_speaker.setOnClickListener {
             callback.showMediaController()
+        }
+        btn_search.setOnClickListener {
+            callback.search()
         }
     }
 
@@ -79,7 +83,7 @@ class FolioToolbar : RelativeLayout {
         visible = !visible
     }
 
-    private fun show() {
+    fun show() {
         this.animate().translationY(0f)
                 .setInterpolator(DecelerateInterpolator(2f))
                 .start()
@@ -95,7 +99,7 @@ class FolioToolbar : RelativeLayout {
         label_center.setTextColor(ContextCompat.getColor(context, R.color.black))
     }
 
-    private fun hide() {
+    fun hide() {
         this.animate().translationY((-this.height)
                 .toFloat())
                 .setInterpolator(AccelerateInterpolator(2f))

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tool="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:id="@+id/toolbar_container"
+    android:layout_width="match_parent"
     android:layout_height="?android:attr/actionBarSize">
 
     <LinearLayout
@@ -26,6 +27,17 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
             android:src="@drawable/ic_drawer_green_24dp" />
+
+        <ImageView
+            android:id="@+id/btn_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/ic_search_green_24px" />
+
+
     </LinearLayout>
 
     <TextView
