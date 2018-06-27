@@ -286,6 +286,7 @@ public class FolioActivity
                         toolbar.setTitle(data.getStringExtra(Constants.BOOK_TITLE));
                         FolioPageFragment folioPageFragment = (FolioPageFragment)
                                 mFolioPageFragmentAdapter.getItem(mChapterPosition);
+                        folioPageFragment.scrollToFirst();
                         folioPageFragment.scrollToAnchorId(selectedChapterHref);
                         break;
                     }
