@@ -66,7 +66,7 @@ public class HomeActivity extends AppCompatActivity
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                folioReader.openBook("file:///android_asset/TheSilverChair.epub");
+                folioReader.openBook("file:///android_asset/jpn.epub");
             }
         });
 
