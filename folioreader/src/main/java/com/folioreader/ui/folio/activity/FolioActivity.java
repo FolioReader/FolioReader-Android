@@ -36,7 +36,6 @@ import com.folioreader.FolioReader;
 import com.folioreader.R;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.ReadPosition;
-import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
@@ -277,15 +276,17 @@ public class FolioActivity
         if (requestCode == ACTION_CONTENT_HIGHLIGHT && resultCode == RESULT_OK && data.hasExtra(TYPE)) {
 
             String type = data.getStringExtra(TYPE);
+
             if (type.equals(CHAPTER_SELECTED)) {
-                //TODO: -> try to eliminate EventBus if possible
                 String selectedChapterHref = data.getStringExtra(SELECTED_CHAPTER_POSITION);
                 for (Link spine : mSpineReferenceList) {
                     if (selectedChapterHref.contains(spine.href)) {
                         mChapterPosition = mSpineReferenceList.indexOf(spine);
                         mFolioPageViewPager.setCurrentItem(mChapterPosition);
                         toolbar.setTitle(data.getStringExtra(Constants.BOOK_TITLE));
-                        EventBus.getDefault().post(new AnchorIdEvent(selectedChapterHref));
+                        FolioPageFragment folioPageFragment = (FolioPageFragment)
+                                mFolioPageFragmentAdapter.getItem(mChapterPosition);
+                        folioPageFragment.scrollToAnchorId(selectedChapterHref);
                         break;
                     }
                 }

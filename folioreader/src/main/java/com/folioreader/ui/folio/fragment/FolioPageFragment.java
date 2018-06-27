@@ -39,7 +39,6 @@ import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.ReadPosition;
 import com.folioreader.model.ReadPositionImpl;
-import com.folioreader.model.event.AnchorIdEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
@@ -52,7 +51,6 @@ import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.base.HtmlTask;
 import com.folioreader.ui.base.HtmlTaskCallback;
 import com.folioreader.ui.base.HtmlUtil;
-import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.ui.folio.activity.FolioActivityCallback;
 import com.folioreader.ui.folio.mediaoverlay.MediaController;
 import com.folioreader.ui.folio.mediaoverlay.MediaControllerCallbacks;
@@ -317,24 +315,13 @@ public class FolioPageFragment
         }
     }
 
-    /**
-     * [EVENT BUS FUNCTION]
-     * Function triggered from {@link FolioActivity#onActivityResult(int, int, Intent)} when any item in toc clicked.
-     *
-     * @param event of type {@link AnchorIdEvent} contains selected chapter href.
-     */
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void jumpToAnchorPoint(AnchorIdEvent event) {
-        if (isAdded() && event != null && event.getHref() != null) {
-            String href = event.getHref();
-            if (href != null && href.indexOf('#') != -1 && spineItem.href.equals(href.substring(0, href.lastIndexOf('#')))) {
-                mAnchorId = href.substring(href.lastIndexOf('#') + 1);
-                if (mWebview.getContentHeight() > 0 && mAnchorId != null
-                        && loadingView != null && loadingView.getVisibility() != View.VISIBLE) {
-                    mWebview.loadUrl(String.format("javascript:goToAnchor(%s)", mAnchorId));
-                    mAnchorId = null;
-                }
+    public void scrollToAnchorId(String href) {
+
+        if (!TextUtils.isEmpty(href) && href.indexOf('#') != -1) {
+            mAnchorId = href.substring(href.lastIndexOf('#') + 1);
+            if (loadingView != null && loadingView.getVisibility() != View.VISIBLE) {
+                mWebview.loadUrl(String.format("javascript:goToAnchor(%s)", mAnchorId));
+                mAnchorId = null;
             }
         }
     }
