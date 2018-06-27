@@ -627,7 +627,9 @@ public class FolioPageFragment
         @Override
         @SuppressLint("NewApi")
         public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-            if (!request.isForMainFrame() && request.getUrl().getPath().endsWith("/favicon.ico")) {
+            if (!request.isForMainFrame()
+                    && request.getUrl().getPath() != null
+                    && request.getUrl().getPath().endsWith("/favicon.ico")) {
                 try {
                     return new WebResourceResponse("image/png", null, null);
                 } catch (Exception e) {

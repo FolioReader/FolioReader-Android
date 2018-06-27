@@ -349,6 +349,7 @@ var LoadingView = {
 // Testing purpose calls
 function test() {
 
+    getCompatMode();
     wrappingSentencesWithinPTags();
 
     if (FolioPageFragment.getDirection() == "HORIZONTAL")
@@ -395,10 +396,23 @@ function getCompatMode() {
     FolioWebView.setCompatMode(document.compatMode);
 }
 
+var scrollWidth;
+
 function initHorizontalDirection() {
+
     preInitHorizontalDirection();
-    var pageCount = postInitHorizontalDirection();
-    FolioPageFragment.setHorizontalPageCount(pageCount);
+    postInitHorizontalDirection();
+
+    setTimeout(function() {
+        if (window.scrollWidth != document.documentElement.scrollWidth) {
+            // Rare condition
+            // This might happen when document.documentElement.scrollWidth gives incorrect value
+            // when the webview is busy re-drawing contents.
+            console.warn("-> scrollWidth changed from " + window.scrollWidth + " to " +
+                document.documentElement.scrollWidth);
+            postInitHorizontalDirection();
+        }
+    }, 1000);
 }
 
 function preInitHorizontalDirection() {
@@ -457,6 +471,7 @@ function postInitHorizontalDirection() {
     if (scrollWidth > clientWidth)
         scrollWidth += paddingRight;
     var newBodyWidth = scrollWidth - (paddingLeft + paddingRight);
+    window.scrollWidth = scrollWidth;
 
     htmlElement.style.width = scrollWidth + 'px';
     bodyElement.style.width = newBodyWidth + 'px';
@@ -474,7 +489,7 @@ function postInitHorizontalDirection() {
     //console.log("-> newBodyWidth = " + newBodyWidth);
     //console.log("-> pageCount = " + pageCount);
 
-    return pageCount;
+    FolioPageFragment.setHorizontalPageCount(pageCount);
 }
 
 /**
