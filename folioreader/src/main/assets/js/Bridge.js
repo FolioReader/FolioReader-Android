@@ -397,22 +397,35 @@ function getCompatMode() {
 }
 
 var scrollWidth;
+var horizontalInterval;
+var horizontalIntervalPeriod = 1000;
+var horizontalIntervalCounter = 0;
+var horizontalIntervalLimit = 3000;
+
+function horizontalRecheck() {
+
+    horizontalIntervalCounter += horizontalIntervalPeriod;
+
+    if (window.scrollWidth != document.documentElement.scrollWidth) {
+        // Rare condition
+        // This might happen when document.documentElement.scrollWidth gives incorrect value
+        // when the webview is busy re-drawing contents.
+        //console.log("-> horizontalIntervalCounter = " + horizontalIntervalCounter);
+        console.warn("-> scrollWidth changed from " + window.scrollWidth + " to " +
+        document.documentElement.scrollWidth);
+        postInitHorizontalDirection();
+    }
+
+    if (horizontalIntervalCounter >= horizontalIntervalLimit)
+        clearInterval(horizontalInterval);
+}
 
 function initHorizontalDirection() {
 
     preInitHorizontalDirection();
     postInitHorizontalDirection();
 
-    setTimeout(function() {
-        if (window.scrollWidth != document.documentElement.scrollWidth) {
-            // Rare condition
-            // This might happen when document.documentElement.scrollWidth gives incorrect value
-            // when the webview is busy re-drawing contents.
-            console.warn("-> scrollWidth changed from " + window.scrollWidth + " to " +
-                document.documentElement.scrollWidth);
-            postInitHorizontalDirection();
-        }
-    }, 1000);
+    horizontalInterval = setInterval(horizontalRecheck, horizontalIntervalPeriod);
 }
 
 function preInitHorizontalDirection() {
@@ -468,8 +481,11 @@ function postInitHorizontalDirection() {
     var clientWidth = document.documentElement.clientWidth;
 
     var scrollWidth = document.documentElement.scrollWidth;
-    if (scrollWidth > clientWidth)
+    //console.log("-> document.documentElement.offsetWidth = " + document.documentElement.offsetWidth);
+    if (scrollWidth > clientWidth
+        && scrollWidth > document.documentElement.offsetWidth) {
         scrollWidth += paddingRight;
+    }
     var newBodyWidth = scrollWidth - (paddingLeft + paddingRight);
     window.scrollWidth = scrollWidth;
 

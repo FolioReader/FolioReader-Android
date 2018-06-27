@@ -194,7 +194,6 @@ html .highlight_yellow, html .highlight_green, html .highlight_blue, html .highl
  */
 
 html {
-    -webkit-transition: all 0.6s ease;
     background-color: #FFFFFF !important;
 }
 
