@@ -323,14 +323,17 @@ public class FolioPageFragment
      *
      * @param event of type {@link AnchorIdEvent} contains selected chapter href.
      */
+    @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void jumpToAnchorPoint(AnchorIdEvent event) {
         if (isAdded() && event != null && event.getHref() != null) {
             String href = event.getHref();
             if (href != null && href.indexOf('#') != -1 && spineItem.href.equals(href.substring(0, href.lastIndexOf('#')))) {
                 mAnchorId = href.substring(href.lastIndexOf('#') + 1);
-                if (mWebview.getContentHeight() > 0 && mAnchorId != null) {
+                if (mWebview.getContentHeight() > 0 && mAnchorId != null
+                        && loadingView != null && loadingView.getVisibility() != View.VISIBLE) {
                     mWebview.loadUrl(String.format("javascript:goToAnchor(%s)", mAnchorId));
+                    mAnchorId = null;
                 }
             }
         }
@@ -533,9 +536,11 @@ public class FolioPageFragment
 
                 } else if (!TextUtils.isEmpty(mAnchorId)) {
                     mWebview.loadUrl(String.format("javascript:goToAnchor(%s)", mAnchorId));
+                    mAnchorId = null;
 
                 } else if (!TextUtils.isEmpty(highlightId)) {
-                    scrollToHighlightId(highlightId);
+                    mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
+                    highlightId = null;
 
                 } else if (isCurrentFragment()) {
 
@@ -1169,6 +1174,10 @@ public class FolioPageFragment
 
     public void scrollToHighlightId(String highlightId) {
         this.highlightId = highlightId;
-        mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
+
+        if (loadingView != null && loadingView.getVisibility() != View.VISIBLE) {
+            mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
+            this.highlightId = null;
+        }
     }
 }

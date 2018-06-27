@@ -49,7 +49,8 @@
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingBottom="2dp"
-        android:paddingTop="2dp">
+        android:paddingTop="2dp"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/minutesLeft"
