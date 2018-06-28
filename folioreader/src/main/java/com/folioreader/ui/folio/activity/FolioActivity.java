@@ -213,7 +213,7 @@ public class FolioActivity
 
     @Override
     public void onDirectionChange(@NonNull Config.Direction newDirection) {
-        Log.d(LOG_TAG, "-> onDirectionChange");
+        Log.v(LOG_TAG, "-> onDirectionChange");
 
         FolioPageFragment folioPageFragment = (FolioPageFragment)
                 mFolioPageFragmentAdapter.getItem(mFolioPageViewPager.getCurrentItem());
@@ -349,7 +349,7 @@ public class FolioActivity
 
             @Override
             public void onPageSelected(int position) {
-                Log.d(LOG_TAG, "-> onPageSelected -> DirectionalViewpager -> position = " + position);
+                Log.v(LOG_TAG, "-> onPageSelected -> DirectionalViewpager -> position = " + position);
 
                 EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(
                         mSpineReferenceList.get(mChapterPosition).href, false, true));
@@ -363,7 +363,7 @@ public class FolioActivity
 
                 if (state == DirectionalViewpager.SCROLL_STATE_IDLE) {
                     int position = mFolioPageViewPager.getCurrentItem();
-                    Log.d(LOG_TAG, "-> onPageScrollStateChanged -> DirectionalViewpager -> " +
+                    Log.v(LOG_TAG, "-> onPageScrollStateChanged -> DirectionalViewpager -> " +
                             "position = " + position);
 
                     FolioPageFragment folioPageFragment =
@@ -450,7 +450,7 @@ public class FolioActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.d(LOG_TAG, "-> onSaveInstanceState");
+        Log.v(LOG_TAG, "-> onSaveInstanceState");
         this.outState = outState;
 
         outState.putBoolean(BUNDLE_TOOLBAR_IS_VISIBLE, toolbar.getVisible());
@@ -458,7 +458,7 @@ public class FolioActivity
 
     @Override
     public void storeLastReadPosition(ReadPosition lastReadPosition) {
-        Log.d(LOG_TAG, "-> storeLastReadPosition");
+        Log.v(LOG_TAG, "-> storeLastReadPosition");
         this.lastReadPosition = lastReadPosition;
     }
 

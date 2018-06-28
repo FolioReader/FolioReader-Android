@@ -67,7 +67,7 @@ public class FolioWebView extends WebView
     @SuppressWarnings("unused")
     @JavascriptInterface
     public void setCompatMode(String compatMode) {
-        Log.d(LOG_TAG, "-> setCompatMode -> compatMode = " + compatMode);
+        Log.v(LOG_TAG, "-> setCompatMode -> compatMode = " + compatMode);
         if (compatMode.equals(getContext().getString(R.string.back_compat))) {
             Log.e(LOG_TAG, "-> Web page loaded in Quirks mode. Please report to developer " +
                     "for debugging with current EPUB file as many features might stop working " +
@@ -99,7 +99,6 @@ public class FolioWebView extends WebView
         mToolBarListener = listener;
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //Log.v(LOG_TAG, "-> onTouchEvent -> " + AppUtil.actionToString(event.getAction()));

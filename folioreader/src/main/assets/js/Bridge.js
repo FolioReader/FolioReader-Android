@@ -425,7 +425,7 @@ function horizontalRecheck() {
         // when the webview is busy re-drawing contents.
         //console.log("-> horizontalIntervalCounter = " + horizontalIntervalCounter);
         console.warn("-> scrollWidth changed from " + window.scrollWidth + " to " +
-        document.documentElement.scrollWidth);
+            document.documentElement.scrollWidth);
         postInitHorizontalDirection();
     }
 
@@ -448,7 +448,8 @@ function preInitHorizontalDirection() {
     var htmlElement = document.getElementsByTagName('html')[0];
     var bodyElement = document.getElementsByTagName('body')[0];
 
-    // TODO: -> Check if this is needed
+    // Required when initHorizontalDirection() is called multiple times.
+    // Currently it is called only once per page.
     htmlElement.style.width = null;
     bodyElement.style.width = null;
     htmlElement.style.height = null;

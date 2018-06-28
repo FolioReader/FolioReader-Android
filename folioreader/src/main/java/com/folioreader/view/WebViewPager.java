@@ -62,7 +62,7 @@ public class WebViewPager extends ViewPager {
 
             @Override
             public void onPageSelected(int position) {
-                Log.d(LOG_TAG, "-> onPageSelected -> " + position);
+                Log.v(LOG_TAG, "-> onPageSelected -> " + position);
             }
 
             @Override
@@ -102,7 +102,7 @@ public class WebViewPager extends ViewPager {
     @SuppressWarnings("unused")
     @JavascriptInterface
     public void setCurrentPage(final int pageIndex) {
-        Log.d(LOG_TAG, "-> setCurrentItem -> pageIndex = " + pageIndex);
+        Log.v(LOG_TAG, "-> setCurrentItem -> pageIndex = " + pageIndex);
 
         handler.post(new Runnable() {
             @Override

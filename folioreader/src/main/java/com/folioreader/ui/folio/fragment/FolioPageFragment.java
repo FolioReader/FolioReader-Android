@@ -113,10 +113,6 @@ public class FolioPageFragment
     private String rangy = "";
     private String highlightId;
 
-    //TODO: -> remove after debugging
-    private Date beforeWait;
-    private Date beforeNotify;
-
     private ReadPosition lastReadPosition;
     private Bundle outState;
     private Bundle savedInstanceState;
@@ -183,9 +179,6 @@ public class FolioPageFragment
             spineItem = (Link) getArguments().getSerializable(SPINE_ITEM);
             mBookId = getArguments().getString(FolioReader.INTENT_BOOK_ID);
         }
-
-        if (isCurrentFragment())
-            Log.d(LOG_TAG, "-> onCreateView");
 
         if (spineItem != null) {
             if (spineItem.properties.contains("media-overlay")) {
@@ -382,7 +375,7 @@ public class FolioPageFragment
     public void scrollToLast() {
 
         boolean isPageLoading = loadingView == null || loadingView.getVisibility() == View.VISIBLE;
-        Log.d(LOG_TAG, "-> scrollToLast -> isPageLoading = " + isPageLoading);
+        Log.v(LOG_TAG, "-> scrollToLast -> isPageLoading = " + isPageLoading);
 
         if (!isPageLoading) {
             loadingView.show();
@@ -393,7 +386,7 @@ public class FolioPageFragment
     public void scrollToFirst() {
 
         boolean isPageLoading = loadingView == null || loadingView.getVisibility() == View.VISIBLE;
-        Log.d(LOG_TAG, "-> scrollToFirst -> isPageLoading = " + isPageLoading);
+        Log.v(LOG_TAG, "-> scrollToFirst -> isPageLoading = " + isPageLoading);
 
         if (!isPageLoading) {
             loadingView.show();
@@ -460,7 +453,6 @@ public class FolioPageFragment
 
             @Override
             public void selectionChanged(String text) {
-                Log.d(LOG_TAG, "-> selectionChanged -> " + text);
                 mSelectedText = text;
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
@@ -533,16 +525,16 @@ public class FolioPageFragment
 
                     ReadPosition readPosition;
                     if (savedInstanceState == null) {
-                        Log.d(LOG_TAG, "-> onPageFinished -> took from getEntryReadPosition");
+                        Log.v(LOG_TAG, "-> onPageFinished -> took from getEntryReadPosition");
                         readPosition = mActivityCallback.getEntryReadPosition();
                     } else {
-                        Log.d(LOG_TAG, "-> onPageFinished -> took from bundle");
+                        Log.v(LOG_TAG, "-> onPageFinished -> took from bundle");
                         readPosition = savedInstanceState.getParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE);
                         savedInstanceState.remove(BUNDLE_READ_POSITION_CONFIG_CHANGE);
                     }
 
                     if (readPosition != null) {
-                        Log.d(LOG_TAG, "-> scrollToSpan -> " + readPosition.getValue());
+                        Log.v(LOG_TAG, "-> scrollToSpan -> " + readPosition.getValue());
                         mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
                                 readPosition.isUsingId(), readPosition.getValue()));
                     } else {
@@ -699,7 +691,7 @@ public class FolioPageFragment
     @Override
     public void onStop() {
         super.onStop();
-        Log.d(LOG_TAG, "-> onStop -> " + spineItem.originalHref + " -> " + isCurrentFragment());
+        Log.v(LOG_TAG, "-> onStop -> " + spineItem.originalHref + " -> " + isCurrentFragment());
 
         mediaController.stop();
         //TODO save last media overlay item
@@ -709,15 +701,14 @@ public class FolioPageFragment
     }
 
     public ReadPosition getLastReadPosition() {
-        Log.d(LOG_TAG, "-> getLastReadPosition -> " + spineItem.originalHref);
+        Log.v(LOG_TAG, "-> getLastReadPosition -> " + spineItem.originalHref);
 
         try {
             synchronized (this) {
-
                 boolean isHorizontal = mActivityCallback.getDirection() ==
                         Config.Direction.HORIZONTAL;
                 mWebview.loadUrl("javascript:getFirstVisibleSpan(" + isHorizontal +")");
-                beforeWait = new Date();
+
                 wait(2000);
             }
         } catch (InterruptedException e) {
@@ -745,10 +736,6 @@ public class FolioPageFragment
             intent.putExtra(FolioReader.EXTRA_READ_POSITION, lastReadPosition);
             LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
 
-            beforeNotify = new Date();
-            Log.i(LOG_TAG, "-> storeFirstVisibleSpan -> time taken for last read position evaluation = "
-                    + (beforeNotify.getTime() - beforeWait.getTime()));
-
             notify();
         }
     }
@@ -756,9 +743,8 @@ public class FolioPageFragment
     @SuppressWarnings("unused")
     @JavascriptInterface
     public void setHorizontalPageCount(int horizontalPageCount) {
-
-        if (isCurrentFragment())
-            Log.d(LOG_TAG, "-> setHorizontalPageCount = " + horizontalPageCount);
+        Log.v(LOG_TAG, "-> setHorizontalPageCount = " + horizontalPageCount
+                + " -> " + spineItem.originalHref);
 
         mWebview.setHorizontalPageCount(horizontalPageCount);
     }
@@ -900,7 +886,7 @@ public class FolioPageFragment
         this.outState = outState;
 
         if (isCurrentFragment())
-            Log.d(LOG_TAG, "-> onSaveInstanceState");
+            Log.v(LOG_TAG, "-> onSaveInstanceState");
 
         outState.putInt(KEY_FRAGMENT_FOLIO_POSITION, mPosition);
         outState.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, mBookTitle);
