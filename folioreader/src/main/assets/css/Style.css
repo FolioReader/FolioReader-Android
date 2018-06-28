@@ -33,10 +33,12 @@ footer, header, hgroup, menu, nav, section {
 /* ePUB */
 html {
     -webkit-text-size-adjust: none; /* Never autoresize text */
+    margin: 0 !important;
     padding: 0 0 !important;
 }
 
 body {
+    margin: 0 !important;
     padding: 20px 20px !important;
     overflow: !important;
 }
