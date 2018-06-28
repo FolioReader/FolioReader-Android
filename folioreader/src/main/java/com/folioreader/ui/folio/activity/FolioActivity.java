@@ -283,7 +283,6 @@ public class FolioActivity
                     if (selectedChapterHref.contains(spine.href)) {
                         mChapterPosition = mSpineReferenceList.indexOf(spine);
                         mFolioPageViewPager.setCurrentItem(mChapterPosition);
-                        toolbar.setTitle(data.getStringExtra(Constants.BOOK_TITLE));
                         FolioPageFragment folioPageFragment = (FolioPageFragment)
                                 mFolioPageFragmentAdapter.getItem(mChapterPosition);
                         folioPageFragment.scrollToFirst();
