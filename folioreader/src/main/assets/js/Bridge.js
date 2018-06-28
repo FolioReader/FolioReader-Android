@@ -921,7 +921,7 @@ function getHighlightString(style) {
     Highlight.getHighlightJson(JSON.stringify(params));
 }
 
-function gotoHighlight(highlightId){
+function goToHighlight(highlightId){
     var element = document.getElementById(highlightId.toString());
     if (element)
         goToElement(element);

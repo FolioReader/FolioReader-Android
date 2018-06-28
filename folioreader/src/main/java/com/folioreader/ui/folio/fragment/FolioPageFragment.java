@@ -320,7 +320,7 @@ public class FolioPageFragment
         if (!TextUtils.isEmpty(href) && href.indexOf('#') != -1) {
             mAnchorId = href.substring(href.lastIndexOf('#') + 1);
             if (loadingView != null && loadingView.getVisibility() != View.VISIBLE) {
-                mWebview.loadUrl(String.format("javascript:goToAnchor(%s)", mAnchorId));
+                mWebview.loadUrl(String.format(getString(R.string.go_to_anchor), mAnchorId));
                 mAnchorId = null;
             }
         }
@@ -522,11 +522,11 @@ public class FolioPageFragment
                     mIsPageReloaded = false;
 
                 } else if (!TextUtils.isEmpty(mAnchorId)) {
-                    mWebview.loadUrl(String.format("javascript:goToAnchor(%s)", mAnchorId));
+                    mWebview.loadUrl(String.format(getString(R.string.go_to_anchor), mAnchorId));
                     mAnchorId = null;
 
                 } else if (!TextUtils.isEmpty(highlightId)) {
-                    mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
+                    mWebview.loadUrl(String.format(getString(R.string.go_to_highlight), highlightId));
                     highlightId = null;
 
                 } else if (isCurrentFragment()) {
@@ -1163,7 +1163,7 @@ public class FolioPageFragment
         this.highlightId = highlightId;
 
         if (loadingView != null && loadingView.getVisibility() != View.VISIBLE) {
-            mWebview.loadUrl(String.format(getString(R.string.goto_highlight), highlightId));
+            mWebview.loadUrl(String.format(getString(R.string.go_to_highlight), highlightId));
             this.highlightId = null;
         }
     }

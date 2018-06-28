@@ -65,9 +65,7 @@ class FolioToolbar : RelativeLayout {
     }
 
     fun setTitle(title: String?) {
-        title?.let {
-            label_center?.text = title
-        }
+        label_center?.text = title
     }
 
     fun showOrHideIfVisible() {
