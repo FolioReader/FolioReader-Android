@@ -341,6 +341,19 @@ var WebViewPager = {
 };
 
 var LoadingView = {
+
+    show : function() {
+        console.warn("-> Mock call to LoadingView.show()");
+    },
+
+    hide : function() {
+        console.warn("-> Mock call to LoadingView.hide()");
+    },
+
+    visible : function() {
+        console.warn("-> Mock call to LoadingView.visible()");
+    },
+
     invisible : function() {
         console.warn("-> Mock call to LoadingView.invisible()");
     }
@@ -372,7 +385,7 @@ function scrollToLast() {
         WebViewPager.setPageToLast();
     }
 
-    LoadingView.invisible();
+    LoadingView.hide();
 }
 
 function scrollToFirst() {
@@ -389,7 +402,7 @@ function scrollToFirst() {
         WebViewPager.setPageToFirst();
     }
 
-    LoadingView.invisible();
+    LoadingView.hide();
 }
 
 function getCompatMode() {
@@ -858,13 +871,13 @@ function scrollToSpan(usingId, value) {
         var spanCollection = document.getElementsByTagName("span");
         if (spanCollection.length == 0 || value < 0 || value >= spanCollection.length
             || value == null) {
-            LoadingView.invisible();
+            LoadingView.hide();
             return;
         }
         goToElement(spanCollection[value]);
     }
 
-    LoadingView.invisible();
+    LoadingView.hide();
 }
 
 // Class based onClick listener
@@ -926,7 +939,7 @@ function goToHighlight(highlightId){
     if (element)
         goToElement(element);
 
-    LoadingView.invisible();
+    LoadingView.hide();
 }
 
 function goToAnchor(anchorId) {
@@ -934,7 +947,7 @@ function goToAnchor(anchorId) {
     if (element)
         goToElement(element);
 
-    LoadingView.invisible();
+    LoadingView.hide();
 }
 
 $(function(){

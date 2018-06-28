@@ -291,7 +291,7 @@ public class FolioPageFragment
 
         if (isAdded()) {
             loadingView.updateTheme();
-            loadingView.setVisibility(View.VISIBLE);
+            loadingView.show();
             mIsPageReloaded = true;
             setHtml(true);
             updatePagesLeftTextBg();
@@ -320,6 +320,7 @@ public class FolioPageFragment
         if (!TextUtils.isEmpty(href) && href.indexOf('#') != -1) {
             mAnchorId = href.substring(href.lastIndexOf('#') + 1);
             if (loadingView != null && loadingView.getVisibility() != View.VISIBLE) {
+                loadingView.show();
                 mWebview.loadUrl(String.format(getString(R.string.go_to_anchor), mAnchorId));
                 mAnchorId = null;
             }
@@ -384,7 +385,7 @@ public class FolioPageFragment
         Log.d(LOG_TAG, "-> scrollToLast -> isPageLoading = " + isPageLoading);
 
         if (!isPageLoading) {
-            loadingView.setVisibility(View.VISIBLE);
+            loadingView.show();
             mWebview.loadUrl("javascript:scrollToLast()");
         }
     }
@@ -395,7 +396,7 @@ public class FolioPageFragment
         Log.d(LOG_TAG, "-> scrollToFirst -> isPageLoading = " + isPageLoading);
 
         if (!isPageLoading) {
-            loadingView.setVisibility(View.VISIBLE);
+            loadingView.show();
             mWebview.loadUrl("javascript:scrollToFirst()");
         }
     }
@@ -508,14 +509,13 @@ public class FolioPageFragment
                     if (isCurrentFragment()) {
                         mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
                                 lastReadPosition.isUsingId(), lastReadPosition.getValue()));
-
                     } else {
                         if (mPosition == mActivityCallback.getChapterPosition() - 1) {
                             // Scroll to last, the page before current page
                             mWebview.loadUrl("javascript:scrollToLast()");
                         } else {
                             // Make loading view invisible for all other fragments
-                            loadingView.invisible();
+                            loadingView.hide();
                         }
                     }
 
@@ -546,17 +546,17 @@ public class FolioPageFragment
                         mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
                                 readPosition.isUsingId(), readPosition.getValue()));
                     } else {
-                        loadingView.invisible();
+                        loadingView.hide();
                     }
 
                 } else {
 
                     if (mPosition == mActivityCallback.getChapterPosition() - 1) {
                         // Scroll to last, the page before current page
-                            mWebview.loadUrl("javascript:scrollToLast()");
+                        mWebview.loadUrl("javascript:scrollToLast()");
                     } else {
                         // Make loading view invisible for all other fragments
-                        loadingView.invisible();
+                        loadingView.hide();
                     }
                 }
             }
@@ -1163,6 +1163,7 @@ public class FolioPageFragment
         this.highlightId = highlightId;
 
         if (loadingView != null && loadingView.getVisibility() != View.VISIBLE) {
+            loadingView.show();
             mWebview.loadUrl(String.format(getString(R.string.go_to_highlight), highlightId));
             this.highlightId = null;
         }
