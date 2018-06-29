@@ -16,8 +16,8 @@ public class Config implements Parcelable {
     public static final String EXTRA_OVERRIDE_CONFIG = "com.folioreader.extra.OVERRIDE_CONFIG";
     public static final String CONFIG_FONT = "font";
     public static final String CONFIG_FONT_SIZE = "font_size";
-    public static final String CONFIG_IS_NIGHTMODE = "is_night_mode";
-    public static final String CONFIG_IS_THEMECOLOR = "theme_color";
+    public static final String CONFIG_IS_NIGHT_MODE = "is_night_mode";
+    public static final String CONFIG_IS_THEME_COLOR = "theme_color";
     public static final String CONFIG_IS_TTS = "is_tts";
     public static final String CONFIG_ALLOWED_DIRECTION = "allowed_direction";
     public static final String CONFIG_DIRECTION = "direction";
@@ -27,8 +27,10 @@ public class Config implements Parcelable {
     private boolean nightMode;
     private int themeColor = R.color.app_green;
     private boolean showTts = true;
-    private AllowedDirection allowedDirection = AllowedDirection.ONLY_VERTICAL;
-    private Direction direction = Direction.VERTICAL;
+    private static final AllowedDirection DEFAULT_ALLOWED_DIRECTION = AllowedDirection.ONLY_VERTICAL;
+    private static final Direction DEFAULT_DIRECTION = Direction.VERTICAL;
+    private AllowedDirection allowedDirection = DEFAULT_ALLOWED_DIRECTION;
+    private Direction direction = DEFAULT_DIRECTION;
 
     public enum AllowedDirection {
         ONLY_VERTICAL, ONLY_HORIZONTAL, VERTICAL_AND_HORIZONTAL
@@ -93,8 +95,8 @@ public class Config implements Parcelable {
     public Config(JSONObject jsonObject) {
         font = jsonObject.optInt(CONFIG_FONT);
         fontSize = jsonObject.optInt(CONFIG_FONT_SIZE);
-        nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHTMODE);
-        themeColor = jsonObject.optInt(CONFIG_IS_THEMECOLOR);
+        nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHT_MODE);
+        themeColor = jsonObject.optInt(CONFIG_IS_THEME_COLOR);
         showTts = jsonObject.optBoolean(CONFIG_IS_TTS);
         allowedDirection = getAllowedDirectionFromString(LOG_TAG,
                 jsonObject.optString(CONFIG_ALLOWED_DIRECTION));
@@ -109,9 +111,9 @@ public class Config implements Parcelable {
             case "HORIZONTAL":
                 return Direction.HORIZONTAL;
             default:
-                Log.w(LOG_TAG, "-> Illegal argument directionString = " + directionString
-                        + ", defaulting direction to " + Direction.VERTICAL.toString());
-                return Direction.VERTICAL;
+                Log.w(LOG_TAG, "-> Illegal argument directionString = `" + directionString
+                        + "`, defaulting direction to " + DEFAULT_DIRECTION);
+                return DEFAULT_DIRECTION;
         }
     }
 
@@ -126,9 +128,10 @@ public class Config implements Parcelable {
             case "VERTICAL_AND_HORIZONTAL":
                 return AllowedDirection.VERTICAL_AND_HORIZONTAL;
             default:
-                Log.w(LOG_TAG, "-> Illegal argument allowedDirectionString = " + allowedDirectionString
-                        + ", defaulting allowedDirection to " + AllowedDirection.ONLY_VERTICAL.toString());
-                return AllowedDirection.ONLY_VERTICAL;
+                Log.w(LOG_TAG, "-> Illegal argument allowedDirectionString = `"
+                        + allowedDirectionString + "`, defaulting allowedDirection to "
+                        + DEFAULT_ALLOWED_DIRECTION);
+                return DEFAULT_ALLOWED_DIRECTION;
         }
     }
 
@@ -183,14 +186,22 @@ public class Config implements Parcelable {
 
     public Config setDirection(Direction direction) {
 
-        if (allowedDirection == AllowedDirection.ONLY_VERTICAL && direction != Direction.VERTICAL) {
+        if (allowedDirection == AllowedDirection.VERTICAL_AND_HORIZONTAL && direction == null) {
+            this.direction = DEFAULT_DIRECTION;
+            Log.w(LOG_TAG, "-> direction cannot be `null` when allowedDirection is " +
+                    allowedDirection + ", defaulting direction to " + this.direction);
+
+        } else if (allowedDirection == AllowedDirection.ONLY_VERTICAL && direction != Direction.VERTICAL) {
             this.direction = Direction.VERTICAL;
+            Log.w(LOG_TAG, "-> direction cannot be `" + direction + "` when allowedDirection is " +
+                    allowedDirection + ", defaulting direction to " + this.direction);
 
         } else if (allowedDirection == AllowedDirection.ONLY_HORIZONTAL && direction != Direction.HORIZONTAL) {
             this.direction = Direction.HORIZONTAL;
+            Log.w(LOG_TAG, "-> direction cannot be `" + direction + "` when allowedDirection is " +
+                    allowedDirection + ", defaulting direction to " + this.direction);
 
         } else {
-            this.allowedDirection = AllowedDirection.VERTICAL_AND_HORIZONTAL;
             this.direction = direction;
         }
 
@@ -206,17 +217,21 @@ public class Config implements Parcelable {
         this.allowedDirection = allowedDirection;
 
         if (allowedDirection == null) {
-            this.allowedDirection = AllowedDirection.VERTICAL_AND_HORIZONTAL;
+            this.allowedDirection = DEFAULT_ALLOWED_DIRECTION;
+            direction = DEFAULT_DIRECTION;
+            Log.w(LOG_TAG, "-> allowedDirection cannot be null, defaulting " +
+                    "allowedDirection to " + DEFAULT_ALLOWED_DIRECTION + " and direction to " +
+                    DEFAULT_DIRECTION);
 
         } else if (allowedDirection == AllowedDirection.ONLY_VERTICAL && direction != Direction.VERTICAL) {
             direction = Direction.VERTICAL;
-            Log.w(LOG_TAG, "-> Allowed direction is " + allowedDirection.toString()
-                    + " so defaulting direction to " + direction.toString());
+            Log.w(LOG_TAG, "-> allowedDirection is " + allowedDirection +
+                    ", defaulting direction to " + direction);
 
         } else if (allowedDirection == AllowedDirection.ONLY_HORIZONTAL && direction != Direction.HORIZONTAL) {
             direction = Direction.HORIZONTAL;
-            Log.w(LOG_TAG, "-> Allowed direction is " + allowedDirection.toString()
-                    + " so defaulting direction to " + direction.toString());
+            Log.w(LOG_TAG, "-> allowedDirection is " + allowedDirection
+                    + ", defaulting direction to " + direction);
         }
 
         return this;

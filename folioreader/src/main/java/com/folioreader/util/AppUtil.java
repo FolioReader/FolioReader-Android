@@ -91,8 +91,8 @@ public class AppUtil {
         try {
             obj.put(Config.CONFIG_FONT, config.getFont());
             obj.put(Config.CONFIG_FONT_SIZE, config.getFontSize());
-            obj.put(Config.CONFIG_IS_NIGHTMODE, config.isNightMode());
-            obj.put(Config.CONFIG_IS_THEMECOLOR, config.getThemeColor());
+            obj.put(Config.CONFIG_IS_NIGHT_MODE, config.isNightMode());
+            obj.put(Config.CONFIG_IS_THEME_COLOR, config.getThemeColor());
             obj.put(Config.CONFIG_IS_TTS, config.isShowTts());
             obj.put(Config.CONFIG_ALLOWED_DIRECTION, config.getAllowedDirection().toString());
             obj.put(Config.CONFIG_DIRECTION, config.getDirection().toString());
