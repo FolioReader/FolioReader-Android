@@ -120,7 +120,7 @@ public class UiUtil {
     }
 
 
-    private static void setUnderLineColor(UnderlinedTextView underlinedTextView, Context context, int background,int underlinecolor) {
+    private static void setUnderLineColor(UnderlinedTextView underlinedTextView, Context context, int background, int underlinecolor) {
         underlinedTextView.setBackgroundColor(ContextCompat.getColor(context,
                 background));
         underlinedTextView.setUnderLineColor(ContextCompat.getColor(context,

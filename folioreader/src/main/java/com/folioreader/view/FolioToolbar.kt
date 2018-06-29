@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.folio_toolbar.view.*
  */
 class FolioToolbar : RelativeLayout {
     private lateinit var config: Config
-    private var visible: Boolean = false
+    var visible: Boolean = true
     lateinit var callback: FolioToolbarCallback
 
     constructor(context: Context) : this(context, null, 0)
@@ -65,9 +65,7 @@ class FolioToolbar : RelativeLayout {
     }
 
     fun setTitle(title: String?) {
-        title?.let {
-            label_center?.text = title
-        }
+        label_center?.text = title
     }
 
     fun showOrHideIfVisible() {
@@ -79,7 +77,7 @@ class FolioToolbar : RelativeLayout {
         visible = !visible
     }
 
-    private fun show() {
+    fun show() {
         this.animate().translationY(0f)
                 .setInterpolator(DecelerateInterpolator(2f))
                 .start()
@@ -95,10 +93,10 @@ class FolioToolbar : RelativeLayout {
         label_center.setTextColor(ContextCompat.getColor(context, R.color.black))
     }
 
-    private fun hide() {
-        this.animate().translationY((-this.height)
+    fun hide() {
+        post({ this.animate().translationY((-this.height)
                 .toFloat())
                 .setInterpolator(AccelerateInterpolator(2f))
-                .start()
+                .start() })
     }
 }

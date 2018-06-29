@@ -48,6 +48,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
+import com.folioreader.Config;
 import com.folioreader.R;
 
 import java.lang.reflect.Method;
@@ -4105,6 +4106,11 @@ public class DirectionalViewpager extends ViewGroup {
     }
 
     public void setDirection(Direction direction) {
+        mDirection = direction.name();
+        initViewPager();
+    }
+
+    public void setDirection(Config.Direction direction) {
         mDirection = direction.name();
         initViewPager();
     }

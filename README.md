@@ -23,6 +23,7 @@ FolioReader-Android is an ePub reader written in Java.
 - [x] Add Notes to a Highlight
 - [ ] Better Documentation
 - [x] Last Read Position Listener
+- [x] Horizontal reading
 
 ## Demo
 ##### Custom Fonts
@@ -35,12 +36,14 @@ FolioReader-Android is an ePub reader written in Java.
 ![Media Overlay](https://cloud.githubusercontent.com/assets/1277242/19012908/d61f3ce2-87df-11e6-8652-d72b6a1ad9a3.gif)
 
 ### Gradle
-Add following dependency to your app build.gradle
+
+Add following dependency to your app build.gradle:
+
 ``` java
-compile 'com.folioreader:folioreader:0.3.11'
+compile 'com.folioreader:folioreader:0.4.0'
 ```
 
-Add maven repository to your top level build.gradle
+Add maven repository to your top level build.gradle:
 
 ```groovy
 allprojects {
@@ -54,32 +57,50 @@ allprojects {
 
 ### Usage
 
-First add activity tag for FolioActivity in your AndroidManifest.xml
+First add permissions and activity tag for `FolioActivity` in your `AndroidManifest.xml`:
 
 ```xml
-<activity
-    android:name="com.folioreader.ui.folio.activity.FolioActivity"
-    android:configChanges="orientation|screenSize"
-    android:theme="@style/AppTheme.NoActionBar"/>
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.folioreader.android.sample">
+        
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <application>
+    
+        ...
+        
+        <activity
+            android:name="com.folioreader.ui.folio.activity.FolioActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+            
+        ...
+        
+    </application>
+    
+</manifest>
 ```
 
-To use FolioReader, get singleton object of **FolioReader**.
+**Note: In case if you are upgrading to 0.4.0 and above don't forget to remove `android:configChanges="orientation|screenSize"` from `<activity>` tag of `FolioActivity`.**
+
+Get singleton object of `FolioReader`:
 
 ```java
 FolioReader folioReader = FolioReader.getInstance(getApplicationContext());
 ```
 
-Call the function openBook().
+Call the function `openBook()`:
 
-##### opening book from assets
+##### opening book from assets - 
 
 ```java
-folioReader.openBook("file:///android_asset/adventures.epub");
+folioReader.openBook("file:///android_asset/TheSilverChair.epub");
 ```
-##### opening book from raw
+##### opening book from raw - 
 
 ```java
-folioReader.openBook(R.raw.barrett);
+folioReader.openBook(R.raw.adventures);
 ```
 
 ## WIKI

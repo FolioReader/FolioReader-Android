@@ -33,20 +33,24 @@ footer, header, hgroup, menu, nav, section {
 /* ePUB */
 html {
     -webkit-text-size-adjust: none; /* Never autoresize text */
+    margin: 0 !important;
     padding: 0 0 !important;
 }
 
 body {
-    padding: 40px 20px !important;
+    margin: 0 !important;
+    padding: 20px 20px !important;
     overflow: !important;
 }
 
 /* Custom padding for tablets */
+/*
 @media only screen and (min-device-width: 768px){
     body {
         padding: 60px 80px !important;
     }
 }
+*/
 
 /* Table */
 table {
@@ -192,7 +196,6 @@ html .highlight_yellow, html .highlight_green, html .highlight_blue, html .highl
  */
 
 html {
-    -webkit-transition: all 0.6s ease;
     background-color: #FFFFFF !important;
 }
 
