@@ -5,8 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
-import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.folioreader.model.HighLight;
@@ -31,6 +29,8 @@ public class FolioReader {
     private static FolioReader singleton = null;
     public static final String INTENT_BOOK_ID = "book_id";
     private Context context;
+    private Config config;
+    private boolean overrideConfig;
     private OnHighlightListener onHighlightListener;
     private ReadPositionListener readPositionListener;
     private ReadPosition readPosition;
@@ -99,57 +99,38 @@ public class FolioReader {
         return singleton;
     }
 
-    public FolioReader openBook(String assetOrSdcardPath, Config config) {
+    public FolioReader openBook(String assetOrSdcardPath, int port) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
-        intent.putExtra(Config.INTENT_CONFIG, config);
-        context.startActivity(intent);
-        return singleton;
-    }
-
-    public FolioReader openBook(int rawId, Config config) {
-        Intent intent = getIntentFromUrl(null, rawId);
-        intent.putExtra(Config.INTENT_CONFIG, config);
-        context.startActivity(intent);
-        return singleton;
-    }
-
-    public FolioReader openBook(String assetOrSdcardPath, Config config, int port) {
-        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
-        intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.INTENT_PORT, port);
         context.startActivity(intent);
         return singleton;
     }
 
-    public FolioReader openBook(int rawId, Config config, int port) {
+    public FolioReader openBook(int rawId, int port) {
         Intent intent = getIntentFromUrl(null, rawId);
-        intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.INTENT_PORT, port);
         context.startActivity(intent);
         return singleton;
     }
 
-    public FolioReader openBook(String assetOrSdcardPath, Config config, int port, String bookId) {
+    public FolioReader openBook(String assetOrSdcardPath, int port, String bookId) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
-        intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.INTENT_PORT, port);
         intent.putExtra(INTENT_BOOK_ID, bookId);
         context.startActivity(intent);
         return singleton;
     }
 
-    public FolioReader openBook(int rawId, Config config, int port, String bookId) {
+    public FolioReader openBook(int rawId, int port, String bookId) {
         Intent intent = getIntentFromUrl(null, rawId);
-        intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.INTENT_PORT, port);
         intent.putExtra(INTENT_BOOK_ID, bookId);
         context.startActivity(intent);
         return singleton;
     }
 
-    public FolioReader openBook(String assetOrSdcardPath, Config config, String bookId) {
+    public FolioReader openBook(String assetOrSdcardPath, String bookId) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
-        intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(INTENT_BOOK_ID, bookId);
         context.startActivity(intent);
         return singleton;
@@ -158,9 +139,10 @@ public class FolioReader {
     private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId) {
 
         Intent intent = new Intent(context, FolioActivity.class);
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M)
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(FolioActivity.EXTRA_READ_POSITION, (Parcelable) readPosition);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(Config.INTENT_CONFIG, config);
+        intent.putExtra(Config.EXTRA_OVERRIDE_CONFIG, overrideConfig);
+        intent.putExtra(FolioActivity.EXTRA_READ_POSITION, readPosition);
 
         if (rawId != 0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawId);
@@ -174,6 +156,19 @@ public class FolioReader {
         }
 
         return intent;
+    }
+
+    /**
+     * Pass your configuration and choose to override it every time or just for first execution.
+     * @param config custom configuration.
+     * @param overrideConfig true will override the config, false will use either this
+     *                       config if it is null in application context or will fetch previously
+     *                       saved one while execution.
+     */
+    public FolioReader setConfig(Config config, boolean overrideConfig) {
+        this.config = config;
+        this.overrideConfig = overrideConfig;
+        return singleton;
     }
 
     public FolioReader setOnHighlightListener(OnHighlightListener onHighlightListener) {

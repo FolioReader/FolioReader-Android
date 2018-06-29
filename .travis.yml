@@ -6,13 +6,11 @@ before_install:
 
 android:
   components:
-    - build-tools-27.0.3
-    - android-27
-    - android-19
+    - android-28
     - extra-android-m2repository
 
   licenses:
       - android-sdk-license-.+
 
   script:
-    ./gradlew checkstyle build
+    ./gradlew build

@@ -1,8 +1,11 @@
 package com.folioreader.ui.folio.activity;
 
+import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
@@ -10,11 +13,11 @@ import android.widget.TextView;
 
 import com.folioreader.Config;
 import com.folioreader.Constants;
+import com.folioreader.FolioReader;
 import com.folioreader.R;
 import com.folioreader.ui.folio.fragment.HighlightFragment;
 import com.folioreader.ui.tableofcontents.view.TableOfContentFragment;
 import com.folioreader.util.AppUtil;
-import com.folioreader.FolioReader;
 import com.folioreader.util.UiUtil;
 
 public class ContentHighlightActivity extends AppCompatActivity {
@@ -34,8 +37,10 @@ public class ContentHighlightActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+
         UiUtil.setColorToImage(this, mConfig.getThemeColor(), ((ImageView) findViewById(R.id.btn_close)).getDrawable());
         findViewById(R.id.layout_content_highlights).setBackgroundDrawable(UiUtil.getShapeDrawable(this, mConfig.getThemeColor()));
+
         if (mIsNightMode) {
             findViewById(R.id.toolbar).setBackgroundColor(Color.BLACK);
             findViewById(R.id.btn_contents).setBackgroundDrawable(UiUtil.convertColorIntoStateDrawable(this, mConfig.getThemeColor(), R.color.black));
@@ -50,6 +55,17 @@ public class ContentHighlightActivity extends AppCompatActivity {
             findViewById(R.id.btn_highlights).setBackgroundDrawable(UiUtil.convertColorIntoStateDrawable(this, mConfig.getThemeColor(), R.color.white));
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            int color;
+            if (mIsNightMode) {
+                color = ContextCompat.getColor(this, R.color.black);
+            } else {
+                int[] attrs = {android.R.attr.navigationBarColor};
+                TypedArray typedArray = getTheme().obtainStyledAttributes(attrs);
+                color = typedArray.getColor(0, ContextCompat.getColor(this, R.color.white));
+            }
+            getWindow().setNavigationBarColor(color);
+        }
 
         loadContentFragment();
         findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
