@@ -71,7 +71,6 @@ import org.readium.r2_streamer.model.publication.link.Link;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

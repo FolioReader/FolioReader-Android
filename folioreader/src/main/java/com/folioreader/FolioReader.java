@@ -5,8 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
-import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.folioreader.model.HighLight;
@@ -160,6 +158,13 @@ public class FolioReader {
         return intent;
     }
 
+    /**
+     * Pass your configuration and choose to override it every time or just for first execution.
+     * @param config custom configuration.
+     * @param overrideConfig true will override the config, false will use either this
+     *                       config if it is null in application context or will fetch previously
+     *                       saved one while execution.
+     */
     public FolioReader setConfig(Config config, boolean overrideConfig) {
         this.config = config;
         this.overrideConfig = overrideConfig;

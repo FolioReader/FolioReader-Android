@@ -1,6 +1,5 @@
 package com.folioreader.view;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.support.v4.view.GestureDetectorCompat;

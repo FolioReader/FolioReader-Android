@@ -17,7 +17,7 @@ ext {
     siteUrl = 'https://github.com/FolioReader/FolioReader-Android'
     gitUrl = 'https://github.com/FolioReader/FolioReader-Android.git'
 
-    libraryVersion = '0.3.11'
+    libraryVersion = '0.4.0'
 
     developerId = 'mobisystech'
     developerName = 'Folio Reader'

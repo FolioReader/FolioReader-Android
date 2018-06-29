@@ -7,8 +7,9 @@ import android.util.Log;
 import org.json.JSONObject;
 
 /**
- * Created by mahavir on 4/12/16.
+ * Configuration class for FolioReader.
  */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class Config implements Parcelable {
 
     private static final String LOG_TAG = Config.class.getSimpleName();
@@ -22,20 +23,27 @@ public class Config implements Parcelable {
     public static final String CONFIG_ALLOWED_DIRECTION = "allowed_direction";
     public static final String CONFIG_DIRECTION = "direction";
     public static final String INTENT_PORT = "port";
+    private static final AllowedDirection DEFAULT_ALLOWED_DIRECTION = AllowedDirection.ONLY_VERTICAL;
+    private static final Direction DEFAULT_DIRECTION = Direction.VERTICAL;
+
     private int font = 3;
     private int fontSize = 2;
     private boolean nightMode;
     private int themeColor = R.color.app_green;
     private boolean showTts = true;
-    private static final AllowedDirection DEFAULT_ALLOWED_DIRECTION = AllowedDirection.ONLY_VERTICAL;
-    private static final Direction DEFAULT_DIRECTION = Direction.VERTICAL;
     private AllowedDirection allowedDirection = DEFAULT_ALLOWED_DIRECTION;
     private Direction direction = DEFAULT_DIRECTION;
 
+    /**
+     * Reading modes available
+     */
     public enum AllowedDirection {
         ONLY_VERTICAL, ONLY_HORIZONTAL, VERTICAL_AND_HORIZONTAL
     }
 
+    /**
+     * Reading directions
+     */
     public enum Direction {
         VERTICAL, HORIZONTAL
     }
@@ -180,38 +188,18 @@ public class Config implements Parcelable {
         return this;
     }
 
-    public Direction getDirection() {
-        return direction;
-    }
-
-    public Config setDirection(Direction direction) {
-
-        if (allowedDirection == AllowedDirection.VERTICAL_AND_HORIZONTAL && direction == null) {
-            this.direction = DEFAULT_DIRECTION;
-            Log.w(LOG_TAG, "-> direction cannot be `null` when allowedDirection is " +
-                    allowedDirection + ", defaulting direction to " + this.direction);
-
-        } else if (allowedDirection == AllowedDirection.ONLY_VERTICAL && direction != Direction.VERTICAL) {
-            this.direction = Direction.VERTICAL;
-            Log.w(LOG_TAG, "-> direction cannot be `" + direction + "` when allowedDirection is " +
-                    allowedDirection + ", defaulting direction to " + this.direction);
-
-        } else if (allowedDirection == AllowedDirection.ONLY_HORIZONTAL && direction != Direction.HORIZONTAL) {
-            this.direction = Direction.HORIZONTAL;
-            Log.w(LOG_TAG, "-> direction cannot be `" + direction + "` when allowedDirection is " +
-                    allowedDirection + ", defaulting direction to " + this.direction);
-
-        } else {
-            this.direction = direction;
-        }
-
-        return this;
-    }
-
     public AllowedDirection getAllowedDirection() {
         return allowedDirection;
     }
 
+    /**
+     * Set reading direction mode options for users. This method should be called before
+     * {@link #setDirection(Direction)} as it has higher preference.
+     *
+     * @param allowedDirection reading direction mode options for users. Setting to
+     *                         {@link AllowedDirection#VERTICAL_AND_HORIZONTAL} users will have
+     *                         choice to select the reading direction at runtime.
+     */
     public Config setAllowedDirection(AllowedDirection allowedDirection) {
 
         this.allowedDirection = allowedDirection;
@@ -232,6 +220,40 @@ public class Config implements Parcelable {
             direction = Direction.HORIZONTAL;
             Log.w(LOG_TAG, "-> allowedDirection is " + allowedDirection
                     + ", defaulting direction to " + direction);
+        }
+
+        return this;
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    /**
+     * Set reading direction. This method should be called after
+     * {@link #setAllowedDirection(AllowedDirection)} as it has lower preference.
+     *
+     * @param direction reading direction.
+     */
+    public Config setDirection(Direction direction) {
+
+        if (allowedDirection == AllowedDirection.VERTICAL_AND_HORIZONTAL && direction == null) {
+            this.direction = DEFAULT_DIRECTION;
+            Log.w(LOG_TAG, "-> direction cannot be `null` when allowedDirection is " +
+                    allowedDirection + ", defaulting direction to " + this.direction);
+
+        } else if (allowedDirection == AllowedDirection.ONLY_VERTICAL && direction != Direction.VERTICAL) {
+            this.direction = Direction.VERTICAL;
+            Log.w(LOG_TAG, "-> direction cannot be `" + direction + "` when allowedDirection is " +
+                    allowedDirection + ", defaulting direction to " + this.direction);
+
+        } else if (allowedDirection == AllowedDirection.ONLY_HORIZONTAL && direction != Direction.HORIZONTAL) {
+            this.direction = Direction.HORIZONTAL;
+            Log.w(LOG_TAG, "-> direction cannot be `" + direction + "` when allowedDirection is " +
+                    allowedDirection + ", defaulting direction to " + this.direction);
+
+        } else {
+            this.direction = direction;
         }
 
         return this;

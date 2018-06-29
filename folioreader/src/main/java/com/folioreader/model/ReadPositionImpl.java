@@ -59,7 +59,7 @@ public class ReadPositionImpl implements ReadPosition, Parcelable {
                     .forType(ReadPositionImpl.class)
                     .readValue(jsonString);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(LOG_TAG, "-> " + e);
         }
         return readPosition;
     }

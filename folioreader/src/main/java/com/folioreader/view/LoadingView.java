@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.webkit.JavascriptInterface;
 import android.widget.FrameLayout;
@@ -16,6 +15,7 @@ import com.folioreader.R;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.UiUtil;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class LoadingView extends FrameLayout {
 
     private ConstraintLayout rootView;

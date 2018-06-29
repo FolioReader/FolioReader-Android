@@ -150,10 +150,11 @@ public class FolioActivity
         toolbar.setListeners(this);
         if (savedInstanceState != null) {
             toolbar.setVisible(savedInstanceState.getBoolean(BUNDLE_TOOLBAR_IS_VISIBLE));
-            if (toolbar.getVisible())
+            if (toolbar.getVisible()) {
                 toolbar.show();
-            else
+            } else {
                 toolbar.hide();
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
