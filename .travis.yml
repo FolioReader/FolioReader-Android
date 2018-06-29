@@ -3,12 +3,12 @@ language: android
 before_install:
   - echo yes | android update sdk --filter extra-android-support --no-ui --force > /dev/null
   - echo yes | android update sdk --filter extra-android-m2repository --no-ui --force > /dev/null
-  - yes | sdkmanager "platforms;android-28"
+  - yes | sdkmanager "platforms;android-27"
 
 android:
   components:
     - build-tools-27.0.3
-    - android-28
+    - android-27
     - extra-android-m2repository
 
   licenses:
