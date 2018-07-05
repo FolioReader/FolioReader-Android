@@ -98,4 +98,9 @@
     <string name="xhtml_mime_type" translatable="false">application/xhtml+xml</string>
     <string name="html_mime_type" translatable="false">text/html</string>
     <string name="back_compat" translatable="false">BackCompat</string>
+
+    <string name="menu_item_copy">Copy</string>
+    <string name="menu_item_highlight">Highlight</string>
+    <string name="menu_item_define">Define</string>
+    <string name="menu_item_share">Share</string>
 </resources>

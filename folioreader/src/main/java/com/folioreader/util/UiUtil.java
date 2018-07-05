@@ -128,10 +128,7 @@ public class UiUtil {
     }
 
     public static float convertDpToPixel(float dp, Context context) {
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-        return px;
+        return dp * context.getResources().getDisplayMetrics().density;
     }
 
     public static void copyToClipboard(Context context, String text) {

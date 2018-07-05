@@ -81,7 +81,12 @@ public class LoadingView extends FrameLayout {
         //Log.d(LOG_TAG, "-> show");
 
         handler.removeCallbacks(hideRunnable);
-        setVisibility(VISIBLE);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                setVisibility(VISIBLE);
+            }
+        });
         handler.postDelayed(hideRunnable, VISIBLE_DURATION);
     }
 
@@ -91,20 +96,35 @@ public class LoadingView extends FrameLayout {
         //Log.d(LOG_TAG, "-> hide");
 
         handler.removeCallbacks(hideRunnable);
-        setVisibility(INVISIBLE);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                setVisibility(INVISIBLE);
+            }
+        });
     }
 
     @SuppressWarnings("unused")
     @JavascriptInterface
     public void visible() {
         //Log.d(LOG_TAG, "-> visible");
-        setVisibility(VISIBLE);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                setVisibility(VISIBLE);
+            }
+        });
     }
 
     @SuppressWarnings("unused")
     @JavascriptInterface
     public void invisible() {
         //Log.d(LOG_TAG, "-> invisible");
-        setVisibility(INVISIBLE);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                setVisibility(INVISIBLE);
+            }
+        });
     }
 }
