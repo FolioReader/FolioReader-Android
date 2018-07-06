@@ -60,15 +60,15 @@ public class FolioReader {
         }
     };
 
-    public static FolioReader getInstance(Context context) {
+    public static FolioReader get() {
 
         if (singleton == null) {
             synchronized (FolioReader.class) {
                 if (singleton == null) {
-                    if (context == null) {
-                        throw new IllegalArgumentException("-> context cannot be null");
+                    if (AppContextProvider.get() == null) {
+                        throw new IllegalArgumentException("-> context == null");
                     }
-                    singleton = new FolioReader(context.getApplicationContext());
+                    singleton = new FolioReader(AppContextProvider.get());
                 }
             }
         }

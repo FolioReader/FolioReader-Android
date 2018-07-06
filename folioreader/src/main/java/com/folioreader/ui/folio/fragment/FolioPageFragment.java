@@ -753,9 +753,9 @@ public class FolioPageFragment
     }
 
     private void setupScrollBar() {
-        UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), mScrollSeekbar.getProgressDrawable());
+        UiUtil.setColorIntToDrawable(mConfig.getThemeColor(), mScrollSeekbar.getProgressDrawable());
         Drawable thumbDrawable = ContextCompat.getDrawable(getActivity(), R.drawable.icons_sroll);
-        UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), (thumbDrawable));
+        UiUtil.setColorIntToDrawable(mConfig.getThemeColor(), thumbDrawable);
         mScrollSeekbar.setThumb(thumbDrawable);
     }
 

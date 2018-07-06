@@ -54,7 +54,7 @@ public class HomeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        folioReader = FolioReader.getInstance(getApplicationContext())
+        folioReader = FolioReader.get()
                 .setOnHighlightListener(this)
                 .setReadPositionListener(this);
 

@@ -83,13 +83,13 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
         if (isNightMode) {
             view_config_ib_day_mode.isSelected = false
             view_config_ib_night_mode.isSelected = true
-            UiUtil.setColorToImage(activity, config.themeColor, view_config_ib_night_mode.drawable)
-            UiUtil.setColorToImage(activity, R.color.app_gray, view_config_ib_day_mode.drawable)
+            UiUtil.setColorIntToDrawable(config.themeColor, view_config_ib_night_mode.drawable)
+            UiUtil.setColorResToDrawable(R.color.app_gray, view_config_ib_day_mode.drawable)
         } else {
             view_config_ib_day_mode.isSelected = true
             view_config_ib_night_mode.isSelected = false
-            UiUtil.setColorToImage(activity, config.themeColor, view_config_ib_day_mode!!.drawable)
-            UiUtil.setColorToImage(activity, R.color.app_gray, view_config_ib_night_mode.drawable)
+            UiUtil.setColorIntToDrawable(config.themeColor, view_config_ib_day_mode!!.drawable)
+            UiUtil.setColorResToDrawable(R.color.app_gray, view_config_ib_night_mode.drawable)
         }
     }
 
@@ -108,8 +108,8 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
             view_config_ib_night_mode.isSelected = false
             setToolBarColor()
             setAudioPlayerBackground()
-            UiUtil.setColorToImage(activity, R.color.app_gray, view_config_ib_night_mode.drawable)
-            UiUtil.setColorToImage(activity, config.themeColor, view_config_ib_day_mode.drawable)
+            UiUtil.setColorResToDrawable(R.color.app_gray, view_config_ib_night_mode.drawable)
+            UiUtil.setColorIntToDrawable(config.themeColor, view_config_ib_day_mode.drawable)
         }
 
         view_config_ib_night_mode.setOnClickListener {
@@ -117,8 +117,8 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
             toggleBlackTheme()
             view_config_ib_day_mode.isSelected = false
             view_config_ib_night_mode.isSelected = true
-            UiUtil.setColorToImage(activity, R.color.app_gray, view_config_ib_day_mode.drawable)
-            UiUtil.setColorToImage(activity, config.themeColor, view_config_ib_night_mode.drawable)
+            UiUtil.setColorResToDrawable(R.color.app_gray, view_config_ib_day_mode.drawable)
+            UiUtil.setColorIntToDrawable(config.themeColor, view_config_ib_night_mode.drawable)
             setToolBarColor()
             setAudioPlayerBackground()
         }
@@ -150,7 +150,8 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private fun configFonts() {
 
-        val colorStateList = UiUtil.getColorList(activity, config.themeColor, R.color.grey_color)
+        val colorStateList = UiUtil.getColorList(config.themeColor,
+                ContextCompat.getColor(context!!, R.color.grey_color))
         buttonVertical.setTextColor(colorStateList)
         buttonHorizontal.setTextColor(colorStateList)
         view_config_font_andada.setTextColor(colorStateList)
@@ -242,8 +243,8 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private fun configSeekBar() {
         val thumbDrawable = ContextCompat.getDrawable(activity!!, R.drawable.seekbar_thumb)
-        UiUtil.setColorToImage(activity, config.themeColor, thumbDrawable)
-        UiUtil.setColorToImage(activity, R.color.grey_color, view_config_font_size_seek_bar.progressDrawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, thumbDrawable)
+        UiUtil.setColorResToDrawable(R.color.grey_color, view_config_font_size_seek_bar.progressDrawable)
         view_config_font_size_seek_bar.thumb = thumbDrawable
 
         view_config_font_size_seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {

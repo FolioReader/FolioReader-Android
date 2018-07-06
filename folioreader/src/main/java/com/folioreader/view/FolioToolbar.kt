@@ -39,10 +39,10 @@ class FolioToolbar : RelativeLayout {
     }
 
     private fun initColors() {
-        UiUtil.setColorToImage(context, config.themeColor, btn_close.drawable)
-        UiUtil.setColorToImage(context, config.themeColor, btn_drawer.drawable)
-        UiUtil.setColorToImage(context, config.themeColor, btn_config.drawable)
-        UiUtil.setColorToImage(context, config.themeColor, btn_speaker.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, btn_close.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, btn_drawer.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, btn_config.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, btn_speaker.drawable)
     }
 
     private fun initListeners() {

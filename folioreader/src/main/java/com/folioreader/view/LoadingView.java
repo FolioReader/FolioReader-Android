@@ -67,7 +67,7 @@ public class LoadingView extends FrameLayout {
         Config config = AppUtil.getSavedConfig(getContext());
         if (config == null)
             config = new Config();
-        UiUtil.setColorToImage(getContext(), config.getThemeColor(), progressBar.getIndeterminateDrawable());
+        UiUtil.setColorIntToDrawable(config.getThemeColor(), progressBar.getIndeterminateDrawable());
         if (config.isNightMode()) {
             rootView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.webview_night));
         } else {
