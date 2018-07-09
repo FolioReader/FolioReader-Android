@@ -30,7 +30,7 @@ public class Config implements Parcelable {
     private static final AllowedDirection DEFAULT_ALLOWED_DIRECTION = AllowedDirection.ONLY_VERTICAL;
     private static final Direction DEFAULT_DIRECTION = Direction.VERTICAL;
     private static final int DEFAULT_THEME_COLOR_INT =
-            ContextCompat.getColor(AppContextProvider.get(), R.color.app_green);
+            ContextCompat.getColor(AppContext.get(), R.color.app_green);
 
     private int font = 3;
     private int fontSize = 2;
@@ -183,7 +183,7 @@ public class Config implements Parcelable {
 
     public Config setThemeColorRes(@ColorRes int colorResId) {
         try {
-            this.themeColor = ContextCompat.getColor(AppContextProvider.get(), colorResId);
+            this.themeColor = ContextCompat.getColor(AppContext.get(), colorResId);
         } catch (Resources.NotFoundException e) {
             Log.w(LOG_TAG, "-> setThemeColorRes -> " + e);
             Log.w(LOG_TAG, "-> setThemeColorRes -> Defaulting themeColor to " +

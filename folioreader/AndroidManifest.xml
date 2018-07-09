@@ -5,7 +5,7 @@
     <application>
 
         <provider
-            android:name=".AppContextProvider"
+            android:name=".AppContext"
             android:authorities="${applicationId}.com.folioreader"
             android:exported="false"/>
 

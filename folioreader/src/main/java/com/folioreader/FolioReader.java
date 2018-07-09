@@ -65,10 +65,10 @@ public class FolioReader {
         if (singleton == null) {
             synchronized (FolioReader.class) {
                 if (singleton == null) {
-                    if (AppContextProvider.get() == null) {
+                    if (AppContext.get() == null) {
                         throw new IllegalArgumentException("-> context == null");
                     }
-                    singleton = new FolioReader(AppContextProvider.get());
+                    singleton = new FolioReader(AppContext.get());
                 }
             }
         }

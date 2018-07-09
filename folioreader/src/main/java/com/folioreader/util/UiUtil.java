@@ -26,7 +26,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.folioreader.AppContextProvider;
+import com.folioreader.AppContext;
 import com.folioreader.R;
 import com.folioreader.view.UnderlinedTextView;
 
@@ -159,7 +159,7 @@ public class UiUtil {
 
     public static void setColorResToDrawable(@ColorRes int colorResId, Drawable drawable) {
         try {
-            int color = ContextCompat.getColor(AppContextProvider.get(), colorResId);
+            int color = ContextCompat.getColor(AppContext.get(), colorResId);
             drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
         } catch (Resources.NotFoundException e) {
             Log.e(LOG_TAG, "-> " + e);
