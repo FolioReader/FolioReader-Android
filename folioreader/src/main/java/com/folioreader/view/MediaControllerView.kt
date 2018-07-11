@@ -59,7 +59,7 @@ class MediaControllerView : RelativeLayout {
         btn_one_x_speed.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context, R.color.grey_color)))
         btn_text_undeline_style.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context, R.color.grey_color)))
         btn_backcolor_style.setTextColor(UiUtil.getColorList(ContextCompat.getColor(context, R.color.white), ContextCompat.getColor(context, R.color.grey_color)))
-        btn_backcolor_style.setBackgroundDrawable(UiUtil.convertColorIntoStateDrawable(config.themeColor, ContextCompat.getColor(context, android.R.color.transparent)))
+        btn_backcolor_style.setBackgroundDrawable(UiUtil.createStateDrawable(config.themeColor, ContextCompat.getColor(context, android.R.color.transparent)))
         btn_text_color_style.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context, R.color.grey_color)))
         UiUtil.setColorIntToDrawable(config.themeColor, play_button.drawable)
         UiUtil.setColorIntToDrawable(config.themeColor, next_button.drawable)

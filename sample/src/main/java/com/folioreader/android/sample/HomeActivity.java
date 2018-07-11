@@ -48,11 +48,17 @@ public class HomeActivity extends AppCompatActivity
 
     private static final String LOG_TAG = HomeActivity.class.getSimpleName();
     private FolioReader folioReader;
+    private Config config;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        config = AppUtil.getSavedConfig(getApplicationContext());
+        if (config == null)
+            config = new Config();
+        config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
 
         folioReader = FolioReader.get()
                 .setOnHighlightListener(this)
@@ -64,12 +70,6 @@ public class HomeActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
 
-                Config config = AppUtil.getSavedConfig(getApplicationContext());
-                if (config == null)
-                    config = new Config();
-
-                config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
-
                 folioReader.setConfig(config, true)
                         .openBook(R.raw.adventures);
             }
@@ -80,12 +80,6 @@ public class HomeActivity extends AppCompatActivity
             public void onClick(View v) {
 
                 ReadPosition readPosition = getLastReadPosition();
-
-                Config config = AppUtil.getSavedConfig(getApplicationContext());
-                if (config == null)
-                    config = new Config();
-
-                config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
 
                 folioReader.setReadPosition(readPosition)
                         .setConfig(config, true)

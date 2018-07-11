@@ -166,8 +166,8 @@ public class UiUtil {
         }
     }
 
-    public static StateListDrawable convertColorIntoStateDrawable(@ColorInt int colorSelected,
-                                                                  @ColorInt int colorNormal) {
+    public static StateListDrawable createStateDrawable(@ColorInt int colorSelected,
+                                                        @ColorInt int colorNormal) {
         StateListDrawable stateListDrawable = new StateListDrawable();
         stateListDrawable.addState(new int[]{android.R.attr.state_selected}, new ColorDrawable(colorSelected));
         stateListDrawable.addState(StateSet.WILD_CARD, new ColorDrawable(colorNormal));
@@ -181,6 +181,10 @@ public class UiUtil {
         gradientDrawable.setColor(color);
         gradientDrawable.setCornerRadius(pxToDp(3));
         return gradientDrawable;
+    }
+
+    public static void setShapeColor(View view, @ColorInt int color) {
+        ((GradientDrawable)view.getBackground()).setColor(color);
     }
 
     public static int pxToDp(int px) {
