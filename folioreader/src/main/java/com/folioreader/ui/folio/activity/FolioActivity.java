@@ -246,10 +246,6 @@ public class FolioActivity
     }
 
     @Override
-    public void setPagerToPosition(String href) {
-    }
-
-    @Override
     public ReadPosition getEntryReadPosition() {
         if (entryReadPosition != null) {
             ReadPosition tempReadPosition = entryReadPosition;
@@ -259,17 +255,26 @@ public class FolioActivity
         return null;
     }
 
+    /**
+     * Go to chapter specified by href
+     * @param href http link or relative link to the page or to the anchor
+     * @return true if href is of EPUB or false if other link
+     */
     @Override
-    public void goToChapter(String href) {
-        href = href.substring(href.indexOf(bookFileName + "/") + bookFileName.length() + 1);
+    public boolean goToChapter(String href) {
+
         for (Link spine : mSpineReferenceList) {
-            if (spine.href.contains(href)) {
+            if (href.contains(spine.href)) {
                 mChapterPosition = mSpineReferenceList.indexOf(spine);
                 mFolioPageViewPager.setCurrentItem(mChapterPosition);
-                toolbar.setTitle(spine.getChapterTitle());
-                break;
+                FolioPageFragment folioPageFragment = (FolioPageFragment)
+                        mFolioPageFragmentAdapter.getItem(mChapterPosition);
+                folioPageFragment.scrollToFirst();
+                folioPageFragment.scrollToAnchorId(href);
+                return true;
             }
         }
+        return false;
     }
 
     @Override
@@ -279,18 +284,8 @@ public class FolioActivity
             String type = data.getStringExtra(TYPE);
 
             if (type.equals(CHAPTER_SELECTED)) {
-                String selectedChapterHref = data.getStringExtra(SELECTED_CHAPTER_POSITION);
-                for (Link spine : mSpineReferenceList) {
-                    if (selectedChapterHref.contains(spine.href)) {
-                        mChapterPosition = mSpineReferenceList.indexOf(spine);
-                        mFolioPageViewPager.setCurrentItem(mChapterPosition);
-                        FolioPageFragment folioPageFragment = (FolioPageFragment)
-                                mFolioPageFragmentAdapter.getItem(mChapterPosition);
-                        folioPageFragment.scrollToFirst();
-                        folioPageFragment.scrollToAnchorId(selectedChapterHref);
-                        break;
-                    }
-                }
+                goToChapter(data.getStringExtra(SELECTED_CHAPTER_POSITION));
+
             } else if (type.equals(HIGHLIGHT_SELECTED)) {
                 HighlightImpl highlightImpl = data.getParcelableExtra(HIGHLIGHT_ITEM);
                 mFolioPageViewPager.setCurrentItem(highlightImpl.getPageNumber());

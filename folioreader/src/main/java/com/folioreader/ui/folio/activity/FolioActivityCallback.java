@@ -7,11 +7,9 @@ public interface FolioActivityCallback {
 
     int getChapterPosition();
 
-    void setPagerToPosition(String href);
-
     ReadPosition getEntryReadPosition();
 
-    void goToChapter(String href);
+    boolean goToChapter(String href);
 
     Config.Direction getDirection();
 

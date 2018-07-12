@@ -555,39 +555,35 @@ public class FolioPageFragment
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            if (!url.isEmpty() && url.length() > 0) {
-                if (Uri.parse(url).getScheme().startsWith("highlight")) {
-                    final Pattern pattern = Pattern.compile(getString(R.string.pattern));
-                    try {
-                        String htmlDecode = URLDecoder.decode(url, "UTF-8");
-                        Matcher matcher = pattern.matcher(htmlDecode.substring(12));
-                        if (matcher.matches()) {
-                            double left = Double.parseDouble(matcher.group(1));
-                            double top = Double.parseDouble(matcher.group(2));
-                            double width = Double.parseDouble(matcher.group(3));
-                            double height = Double.parseDouble(matcher.group(4));
-                            onHighlight((int) (UiUtil.convertDpToPixel((float) left,
-                                    getActivity())),
-                                    (int) (UiUtil.convertDpToPixel((float) top,
-                                            getActivity())),
-                                    (int) (UiUtil.convertDpToPixel((float) width,
-                                            getActivity())),
-                                    (int) (UiUtil.convertDpToPixel((float) height,
-                                            getActivity())));
-                        }
-                    } catch (UnsupportedEncodingException e) {
-                        Log.d(LOG_TAG, e.getMessage());
+
+            if (url.isEmpty())
+                return true;
+
+            if (Uri.parse(url).getScheme().startsWith("highlight")) {
+                final Pattern pattern = Pattern.compile(getString(R.string.pattern));
+                try {
+                    String htmlDecode = URLDecoder.decode(url, "UTF-8");
+                    Matcher matcher = pattern.matcher(htmlDecode.substring(12));
+                    if (matcher.matches()) {
+                        double left = Double.parseDouble(matcher.group(1));
+                        double top = Double.parseDouble(matcher.group(2));
+                        double width = Double.parseDouble(matcher.group(3));
+                        double height = Double.parseDouble(matcher.group(4));
+                        onHighlight((int) (UiUtil.convertDpToPixel((float) left, getActivity())),
+                                (int) (UiUtil.convertDpToPixel((float) top, getActivity())),
+                                (int) (UiUtil.convertDpToPixel((float) width, getActivity())),
+                                (int) (UiUtil.convertDpToPixel((float) height, getActivity())));
                     }
-                } else {
-                    if (url.contains("storage")) {
-                        mActivityCallback.setPagerToPosition(url);
-                    } else if (url.endsWith(".xhtml") || url.endsWith(".html")) {
-                        mActivityCallback.goToChapter(url);
-                    } else {
-                        // Otherwise, give the default behavior (open in browser)
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        startActivity(intent);
-                    }
+                } catch (UnsupportedEncodingException e) {
+                    Log.d(LOG_TAG, e.getMessage());
+                }
+            } else {
+                boolean urlOfEpub = mActivityCallback.goToChapter(url);
+
+                if (!urlOfEpub) {
+                    // Otherwise, give the default behavior (open in browser)
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(intent);
                 }
             }
             return true;
