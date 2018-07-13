@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.folio_toolbar.view.*
  */
 class FolioToolbar : RelativeLayout {
     private lateinit var config: Config
-    var visible: Boolean = false
+    var visible: Boolean = true
     lateinit var callback: FolioToolbarCallback
 
     constructor(context: Context) : this(context, null, 0)
@@ -39,11 +39,11 @@ class FolioToolbar : RelativeLayout {
     }
 
     private fun initColors() {
-        UiUtil.setColorToImage(context, config.themeColor, btn_close.drawable)
-        UiUtil.setColorToImage(context, config.themeColor, btn_drawer.drawable)
-        UiUtil.setColorToImage(context, config.themeColor, btn_config.drawable)
-        UiUtil.setColorToImage(context, config.themeColor, btn_speaker.drawable)
-        UiUtil.setColorToImage(context, config.themeColor, btn_search.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, btn_close.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, btn_drawer.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, btn_config.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, btn_speaker.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, btn_search.drawable)
     }
 
     private fun initListeners() {
@@ -69,9 +69,7 @@ class FolioToolbar : RelativeLayout {
     }
 
     fun setTitle(title: String?) {
-        title?.let {
-            label_center?.text = title
-        }
+        label_center?.text = title
     }
 
     fun showOrHideIfVisible() {
@@ -100,9 +98,11 @@ class FolioToolbar : RelativeLayout {
     }
 
     fun hide() {
-        this.animate().translationY((-this.height)
-                .toFloat())
-                .setInterpolator(AccelerateInterpolator(2f))
-                .start()
+        post {
+            this.animate().translationY((-this.height)
+                    .toFloat())
+                    .setInterpolator(AccelerateInterpolator(2f))
+                    .start()
+        }
     }
 }

@@ -18,6 +18,7 @@ public class MainPresenter implements ManifestCallBack {
     public MainPresenter(MainMvpView mainMvpView) {
         this.mainMvpView = mainMvpView;
     }
+
     public void searchQuery(String searchUrl) {
         if (searchUrl == null) {
             mainMvpView.onError();
@@ -35,6 +36,7 @@ public class MainPresenter implements ManifestCallBack {
             }).execute(searchUrl);
         }
     }
+
     public void parseManifest(String url) {
         new ManifestTask(this).execute(url);
     }

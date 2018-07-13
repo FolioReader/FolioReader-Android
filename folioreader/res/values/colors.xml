@@ -13,8 +13,9 @@
     <color name="pink">#FFB0CA</color>
     <color name="gray_text">#B6B6B6</color>
     <color name="red">#ff0000</color>
-    <color name="text_color">#767676</color>
+    <color name="night_text_color">#767676</color>
     <color name="white">#FFFFFF</color>
     <color name="underline">#F02814</color>
     <color name="grey_color">#a8a8a8</color>
+    <color name="webview_night">#131313</color>
 </resources>

@@ -53,17 +53,17 @@ class MediaControllerView : RelativeLayout {
     }
 
     private fun initColors() {
-        btn_half_speed.setTextColor(UiUtil.getColorList(context, config.themeColor, R.color.grey_color))
-        btn_one_and_half_speed.setTextColor(UiUtil.getColorList(context, config.themeColor, R.color.grey_color))
-        btn_twox_speed.setTextColor(UiUtil.getColorList(context, config.themeColor, R.color.grey_color))
-        btn_one_x_speed.setTextColor(UiUtil.getColorList(context, config.themeColor, R.color.grey_color))
-        btn_text_undeline_style.setTextColor(UiUtil.getColorList(context, config.themeColor, R.color.grey_color))
-        btn_backcolor_style.setTextColor(UiUtil.getColorList(context, R.color.white, R.color.grey_color))
-        btn_backcolor_style.setBackgroundDrawable(UiUtil.convertColorIntoStateDrawable(context, config.themeColor, android.R.color.transparent))
-        btn_text_color_style.setTextColor(UiUtil.getColorList(context, config.themeColor, R.color.grey_color))
-        UiUtil.setColorToImage(context, config.themeColor, play_button.drawable)
-        UiUtil.setColorToImage(context, config.themeColor, next_button.drawable)
-        UiUtil.setColorToImage(context, config.themeColor, prev_button.drawable)
+        btn_half_speed.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context, R.color.grey_color)))
+        btn_one_and_half_speed.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context, R.color.grey_color)))
+        btn_twox_speed.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context, R.color.grey_color)))
+        btn_one_x_speed.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context, R.color.grey_color)))
+        btn_text_undeline_style.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context, R.color.grey_color)))
+        btn_backcolor_style.setTextColor(UiUtil.getColorList(ContextCompat.getColor(context, R.color.white), ContextCompat.getColor(context, R.color.grey_color)))
+        btn_backcolor_style.setBackgroundDrawable(UiUtil.createStateDrawable(config.themeColor, ContextCompat.getColor(context, android.R.color.transparent)))
+        btn_text_color_style.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context, R.color.grey_color)))
+        UiUtil.setColorIntToDrawable(config.themeColor, play_button.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, next_button.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, prev_button.drawable)
     }
 
     private fun initListeners() {
@@ -73,11 +73,11 @@ class MediaControllerView : RelativeLayout {
                 if (isPlaying) {
                     callback.pause()
                     play_button.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.play_icon))
-                    UiUtil.setColorToImage(context, config.themeColor, play_button.drawable)
+                    UiUtil.setColorIntToDrawable(config.themeColor, play_button.drawable)
                 } else {
                     callback.play()
                     play_button.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.pause_btn))
-                    UiUtil.setColorToImage(context, config.themeColor, play_button.drawable)
+                    UiUtil.setColorIntToDrawable(config.themeColor, play_button.drawable)
                 }
                 isPlaying = !isPlaying
             }

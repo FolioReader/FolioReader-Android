@@ -14,10 +14,11 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.StateListDrawable;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.StateSet;
 import android.view.View;
@@ -25,6 +26,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.folioreader.AppContext;
 import com.folioreader.R;
 import com.folioreader.view.UnderlinedTextView;
 
@@ -35,6 +37,9 @@ import java.util.Hashtable;
  * Created by mahavir on 3/30/16.
  */
 public class UiUtil {
+
+    private static final String LOG_TAG = UiUtil.class.getSimpleName();
+
     public static void setCustomFont(View view, Context ctx, AttributeSet attrs,
                                      int[] attributeSet, int fontId) {
         TypedArray a = ctx.obtainStyledAttributes(attrs, attributeSet);
@@ -80,14 +85,15 @@ public class UiUtil {
         }
     }
 
-    public static ColorStateList getColorList(Context context, int selectedColor, int unselectedColor) {
+    public static ColorStateList getColorList(@ColorInt int selectedColor,
+                                              @ColorInt int unselectedColor) {
         int[][] states = new int[][]{
                 new int[]{android.R.attr.state_selected},
                 new int[]{}
         };
         int[] colors = new int[]{
-                ContextCompat.getColor(context, selectedColor),
-                ContextCompat.getColor(context, unselectedColor)
+                selectedColor,
+                unselectedColor
         };
         ColorStateList list = new ColorStateList(states, colors);
         return list;
@@ -120,7 +126,7 @@ public class UiUtil {
     }
 
 
-    private static void setUnderLineColor(UnderlinedTextView underlinedTextView, Context context, int background,int underlinecolor) {
+    private static void setUnderLineColor(UnderlinedTextView underlinedTextView, Context context, int background, int underlinecolor) {
         underlinedTextView.setBackgroundColor(ContextCompat.getColor(context,
                 background));
         underlinedTextView.setUnderLineColor(ContextCompat.getColor(context,
@@ -128,10 +134,7 @@ public class UiUtil {
     }
 
     public static float convertDpToPixel(float dp, Context context) {
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-        return px;
+        return dp * context.getResources().getDisplayMetrics().density;
     }
 
     public static void copyToClipboard(Context context, String text) {
@@ -150,26 +153,38 @@ public class UiUtil {
                 context.getResources().getText(R.string.send_to)));
     }
 
-
-    public static void setColorToImage(Context context, int color, Drawable drawable) {
-        drawable.setColorFilter(ContextCompat.getColor(context, color), PorterDuff.Mode.SRC_ATOP);
+    public static void setColorIntToDrawable(@ColorInt int color, Drawable drawable) {
+        drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
     }
 
+    public static void setColorResToDrawable(@ColorRes int colorResId, Drawable drawable) {
+        try {
+            int color = ContextCompat.getColor(AppContext.get(), colorResId);
+            drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        } catch (Resources.NotFoundException e) {
+            Log.e(LOG_TAG, "-> " + e);
+        }
+    }
 
-    public static StateListDrawable convertColorIntoStateDrawable(Context context, int colorSelected, int colorNormal) {
+    public static StateListDrawable createStateDrawable(@ColorInt int colorSelected,
+                                                        @ColorInt int colorNormal) {
         StateListDrawable stateListDrawable = new StateListDrawable();
-        stateListDrawable.addState(new int[]{android.R.attr.state_selected}, new ColorDrawable(ContextCompat.getColor(context, colorSelected)));
-        stateListDrawable.addState(StateSet.WILD_CARD, new ColorDrawable(ContextCompat.getColor(context, colorNormal)));
+        stateListDrawable.addState(new int[]{android.R.attr.state_selected}, new ColorDrawable(colorSelected));
+        stateListDrawable.addState(StateSet.WILD_CARD, new ColorDrawable(colorNormal));
         return stateListDrawable;
     }
 
-    public static GradientDrawable getShapeDrawable(Context context, int color) {
+    public static GradientDrawable getShapeDrawable(@ColorInt int color) {
         GradientDrawable gradientDrawable = new GradientDrawable();
         gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-        gradientDrawable.setStroke(pxToDp(2), ContextCompat.getColor(context, color));
-        gradientDrawable.setColor(ContextCompat.getColor(context, color));
+        gradientDrawable.setStroke(pxToDp(2), color);
+        gradientDrawable.setColor(color);
         gradientDrawable.setCornerRadius(pxToDp(3));
         return gradientDrawable;
+    }
+
+    public static void setShapeColor(View view, @ColorInt int color) {
+        ((GradientDrawable)view.getBackground()).setColor(color);
     }
 
     public static int pxToDp(int px) {

@@ -13,7 +13,6 @@ import com.folioreader.R
 import com.folioreader.util.AppUtil
 import kotlinx.android.synthetic.main.folio_search_bar.view.*
 
-
 class FolioSearchBar : RelativeLayout {
     private lateinit var config: Config
     var isForSearch: Boolean = true
@@ -35,8 +34,8 @@ class FolioSearchBar : RelativeLayout {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 btn_query_search.performClick()
                 true
-            }else
-            false
+            } else
+                false
         }
     }
 
@@ -119,5 +118,4 @@ class FolioSearchBar : RelativeLayout {
             }
         }
     }
-
 }

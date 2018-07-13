@@ -3,7 +3,16 @@
     package="com.folioreader">
 
     <application>
-        <activity android:name=".ui.folio.activity.ContentHighlightActivity" />
+
+        <provider
+            android:name=".AppContext"
+            android:authorities="${applicationId}.com.folioreader"
+            android:exported="false"/>
+
+        <activity
+            android:name=".ui.folio.activity.ContentHighlightActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
     </application>
 
 </manifest>

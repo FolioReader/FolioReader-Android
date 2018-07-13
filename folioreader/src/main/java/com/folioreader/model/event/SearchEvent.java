@@ -8,7 +8,6 @@ public class SearchEvent {
     private int mCount;
 
     public SearchEvent() {
-
     }
 
     public SearchEvent(String mWord, boolean mNewChapter, int mCount, String mUniqueId) {
@@ -21,7 +20,6 @@ public class SearchEvent {
     public String getWord() {
         return mWord;
     }
-
 
     public boolean isNewChapter() {
         return mNewChapter;

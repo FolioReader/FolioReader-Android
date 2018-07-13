@@ -17,7 +17,7 @@ ext {
     siteUrl = 'https://github.com/FolioReader/FolioReader-Android'
     gitUrl = 'https://github.com/FolioReader/FolioReader-Android.git'
 
-    libraryVersion = '0.3.10'
+    libraryVersion = LIBRARY_VERSION
 
     developerId = 'mobisystech'
     developerName = 'Folio Reader'
@@ -30,14 +30,13 @@ ext {
 
 android {
     useLibrary 'org.apache.http.legacy'
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion ANDROID_COMPILE_SDK_VERSION
 
     defaultConfig {
-        versionCode 1
-        versionName "1.0"
-        minSdkVersion 14
-        targetSdkVersion 27
+        minSdkVersion ANDROID_MIN_SDK
+        targetSdkVersion ANDROID_TARGET_SDK_VERSION
+        versionCode VERSION_CODE
+        versionName VERSION_NAME
     }
 
     sourceSets {
@@ -86,8 +85,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':webViewMarker')
 
-    //noinspection GradleDependency
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
     implementation "com.android.support:recyclerview-v7:$ANDROID_LIB_VERSION"
     implementation "com.android.support:support-v4:$ANDROID_LIB_VERSION"
