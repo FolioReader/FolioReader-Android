@@ -23,14 +23,11 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.folioreader.Config;
@@ -39,9 +36,7 @@ import com.folioreader.FolioReader;
 import com.folioreader.R;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.ReadPosition;
-import com.folioreader.model.event.ClearSearchEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
-import com.folioreader.model.event.SearchEvent;
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
 import com.folioreader.ui.folio.presenter.MainMvpView;
@@ -50,8 +45,6 @@ import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
-import com.folioreader.view.FolioSearchBar;
-import com.folioreader.view.FolioSearchBarCallback;
 import com.folioreader.view.FolioToolbar;
 import com.folioreader.view.FolioToolbarCallback;
 import com.folioreader.view.FolioWebView;
@@ -63,14 +56,12 @@ import org.readium.r2_streamer.model.container.Container;
 import org.readium.r2_streamer.model.container.EpubContainer;
 import org.readium.r2_streamer.model.publication.EpubPublication;
 import org.readium.r2_streamer.model.publication.link.Link;
-import org.readium.r2_streamer.model.searcher.SearchQueryResults;
 import org.readium.r2_streamer.server.EpubServer;
 import org.readium.r2_streamer.server.EpubServerSingleton;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static com.folioreader.Constants.CHAPTER_SELECTED;
 import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
@@ -80,7 +71,7 @@ import static com.folioreader.Constants.TYPE;
 public class FolioActivity
         extends AppCompatActivity
         implements FolioActivityCallback, FolioWebView.ToolBarListener, MainMvpView,
-        MediaControllerCallback, FolioToolbarCallback, FolioSearchBarCallback {
+        MediaControllerCallback, FolioToolbarCallback {
 
     private static final String LOG_TAG = "FolioActivity";
 
@@ -103,7 +94,6 @@ public class FolioActivity
 
     private DirectionalViewpager mFolioPageViewPager;
     private FolioToolbar toolbar;
-    private FolioSearchBar folioSearchBar;
 
     private int mChapterPosition;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
@@ -176,9 +166,6 @@ public class FolioActivity
             }
             getWindow().setNavigationBarColor(color);
         }
-
-        folioSearchBar = findViewById(R.id.search_section);
-        folioSearchBar.setListeners(this);
     }
 
     @Override
@@ -247,12 +234,6 @@ public class FolioActivity
 
     @Override
     public void hideOrShowToolBar() {
-
-        if (toolbar.getVisible()) {
-            folioSearchBar.show(false);
-        } else {
-            folioSearchBar.hide(false);
-        }
         toolbar.showOrHideIfVisible();
     }
 
@@ -544,150 +525,5 @@ public class FolioActivity
     @Override
     public Config.Direction getDirection() {
         return direction;
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////
-    public ArrayList<Integer> indexes;
-    private int mCurIndex = 0, mOldIndex = 0;
-    private int mCount = 0;
-    public String query, uniqueID;
-    private boolean mOnEndPos = false;
-    public boolean mIsSearchSectionVisible = false;
-
-    private void searchAnimateShow() {
-        if (!mIsSearchSectionVisible) {
-            mIsSearchSectionVisible = true;
-            folioSearchBar.show(true);
-            toolbar.hide();
-        }
-    }
-
-    private void searchAnimateHide() {
-        mIsSearchSectionVisible = false;
-        folioSearchBar.hide(true);
-    }
-
-    @Override
-    public void search() {
-        folioSearchBar.setForSearch(true);
-        if (!mIsSearchSectionVisible) {
-            searchAnimateShow();
-            folioSearchBar.clearSearchSection();
-        } else {
-            searchAnimateHide();
-            clearSearchHighlights();
-        }
-    }
-
-    @Override
-    public void disableSearch() {
-
-        folioSearchBar.clearSearchSection();
-        clearSearchHighlights();
-        folioSearchBar.setForSearch(true);
-    }
-
-    @Override
-    public void showSearch(@Nullable String query) {
-        if (query != null) {
-            hideKeyboard(FolioActivity.this);
-            new MainPresenter(FolioActivity.this)
-                    .searchQuery(
-                            Constants.LOCALHOST + bookFileName + "/search?query=" + query);
-        }
-    }
-
-    @Override
-    public void goNextResult() {
-        if (indexes != null && query != null) {
-            if (indexes.size() > mCurIndex) {
-                boolean isNew = true;
-                if (mCurIndex > 0 && indexes.get(mCurIndex - 1) == ((int) indexes.get
-                        (mCurIndex))) {
-                    isNew = false;
-                    mCount++;
-                } else {
-                    changeCurrentIndex();
-                    uniqueID = UUID.randomUUID().toString();
-                    mCount = 0;
-                    mChapterPosition = indexes.get(mCurIndex);
-                    mFolioPageViewPager.setCurrentItem(mChapterPosition);
-                }
-                mOldIndex = mCurIndex;
-                EventBus.getDefault().post(new SearchEvent(query, isNew, mCount, ""));
-                mCurIndex++;
-                mOnEndPos = false;
-            } else {
-                // TODO: 21.04.2018 change icon & no restart since it may leak
-                mOnEndPos = true;
-                mCurIndex = 0;
-                mOldIndex = 0;
-                folioSearchBar.callback.goNextResult();
-            }
-        }
-    }
-
-
-    @Override
-    public void onShowSearchResults(SearchQueryResults results) {
-        folioSearchBar.setForSearch(false);
-        query = results.getSearchResultList().get(0).getSearchQuery();
-        clearIndexes();
-        indexes = getSearchIndexes(results);
-        folioSearchBar.changeSearchIcon(false);
-    }
-
-    private ArrayList<Integer> getSearchIndexes(SearchQueryResults results) {
-        ArrayList<Integer> searchQueryIndexes = new ArrayList<>();
-        for (int i = 0; i < results.getSearchResultList().size(); i++) {
-            for (int j = 0; j < mSpineReferenceList.size(); j++) {
-                if (mSpineReferenceList.get(j).getHref().equalsIgnoreCase(
-                        results.getSearchResultList().get(i).getResource())) {
-                    searchQueryIndexes.add(j);
-                    break;
-                }
-            }
-        }
-        return searchQueryIndexes;
-    }
-
-    public void clearIndexes() {
-        mCurIndex = 0;
-        mOldIndex = 0;
-        mCount = 0;
-        mOnEndPos = false;
-    }
-
-    private void changeCurrentIndex() {
-        int fragmentPos = mFolioPageViewPager.getCurrentItem();
-        if (indexes != null) {
-            if (fragmentPos != indexes.get(mOldIndex)) {
-                for (int i = 0; i < indexes.size(); i++) {
-                    if (indexes.get(i) == fragmentPos && !mOnEndPos) {
-                        mCurIndex = i;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    private void hideKeyboard(Activity activity) {
-        InputMethodManager imm =
-                (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
-        View view = activity.getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token
-        if (view == null) {
-            view = new View(activity);
-        }
-        if (imm != null) {
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-
-    }
-
-    private void clearSearchHighlights() {
-        EventBus.getDefault().post(new ClearSearchEvent());
     }
 }

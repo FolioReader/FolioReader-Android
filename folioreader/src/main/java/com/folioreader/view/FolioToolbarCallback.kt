@@ -4,5 +4,4 @@ interface FolioToolbarCallback {
     fun startContentHighlightActivity()
     fun showConfigBottomSheetDialogFragment()
     fun showMediaController()
-    fun search()
 }

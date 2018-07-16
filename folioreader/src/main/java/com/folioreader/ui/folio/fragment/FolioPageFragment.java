@@ -39,13 +39,11 @@ import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.ReadPosition;
 import com.folioreader.model.ReadPositionImpl;
-import com.folioreader.model.event.ClearSearchEvent;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.event.RewindIndexEvent;
-import com.folioreader.model.event.SearchEvent;
 import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.quickaction.ActionItem;
 import com.folioreader.model.quickaction.QuickAction;
@@ -143,10 +141,6 @@ public class FolioPageFragment
     private MediaController mediaController;
     private Config mConfig;
     private String mBookId;
-
-    private String mQuery;
-    private String mUniqueId;
-    private int mCount;
 
     public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef, String bookId) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -555,12 +549,6 @@ public class FolioPageFragment
                         // Make loading view invisible for all other fragments
                         loadingView.hide();
                     }
-                }
-
-                //TODO: -> Place this at right place
-                if (mQuery != null && mUniqueId != null) {
-                    giveBackgroundToSearchItems();
-                    goNextElementInTheSameChapter();
                 }
             }
         }
@@ -1160,50 +1148,5 @@ public class FolioPageFragment
             mWebview.loadUrl(String.format(getString(R.string.go_to_highlight), highlightId));
             this.highlightId = null;
         }
-    }
-
-    /////////////////////////////////////////////SEARCH SECTION///////////////////////////////////
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void highlightAndGoSearchItem(final SearchEvent searchEvent) {
-        if (isAdded()) {
-            if (mQuery != null && !mQuery.equalsIgnoreCase(searchEvent.getWord())) {
-                clearSearchItemsBackground();// TODO: 22.04.2018 may remove this possibility
-            }
-            mQuery = searchEvent.getWord();
-            mUniqueId = searchEvent.getId();
-            mCount = searchEvent.getCount();
-            if (mWebview.getContentHeight() > 0) {
-                if (searchEvent.isNewChapter()) {
-                    giveBackgroundToSearchItems();
-                } else {
-                    goNextElementInTheSameChapter();
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void clearSearchItem(ClearSearchEvent event) {
-        if (isAdded()) {
-            clearSearchItemsBackground();
-        }
-    }
-
-    private void giveBackgroundToSearchItems() {
-        String js = String.format(getString(R.string.search_highlight), mQuery);
-        mWebview.loadUrl(js);
-    }
-
-    private void goNextElementInTheSameChapter() {
-        String js = String.format(getString(R.string.search_item_scroll), mCount);
-        mWebview.loadUrl(js);
-    }
-
-    private void clearSearchItemsBackground() {
-        String js = getString(R.string.search_highlight_clear);
-        mWebview.loadUrl(js);
-        mWebview.invalidate();
     }
 }

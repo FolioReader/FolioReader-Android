@@ -17,13 +17,6 @@
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize" />
 
-    <com.folioreader.view.FolioSearchBar
-        android:visibility="gone"
-        android:id="@+id/search_section"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar" />
-
     <com.folioreader.view.MediaControllerView
         android:id="@+id/media_controller_view"
         android:layout_width="match_parent"

@@ -54,6 +54,7 @@ public class LoadingView extends FrameLayout {
         if (isInEditMode())
             return;
 
+        //TODO: -> Check by replacing getHandler()
         handler = new Handler();
         rootView = findViewById(R.id.rootView);
         progressBar = findViewById(R.id.progressBar);

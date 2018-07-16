@@ -27,10 +27,10 @@ public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
 
     private static final String TAG = "ManifestTask";
 
-    private ManifestCallBack mCallBack;
+    private ManifestCallBack manifestCallBack;
 
-    public ManifestTask(ManifestCallBack mCallBack) {
-        this.mCallBack = mCallBack;
+    public ManifestTask(ManifestCallBack manifestCallBack) {
+        this.manifestCallBack = manifestCallBack;
     }
 
     @Override
@@ -66,9 +66,9 @@ public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
                     setBookTitle(link, publication);
                 }
             }
-            mCallBack.onReceivePublication(publication);
+            manifestCallBack.onReceivePublication(publication);
         } else {
-            mCallBack.onError();
+            manifestCallBack.onError();
         }
         cancel(true);
     }

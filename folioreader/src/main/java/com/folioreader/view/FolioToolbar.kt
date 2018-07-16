@@ -43,7 +43,6 @@ class FolioToolbar : RelativeLayout {
         UiUtil.setColorIntToDrawable(config.themeColor, btn_drawer.drawable)
         UiUtil.setColorIntToDrawable(config.themeColor, btn_config.drawable)
         UiUtil.setColorIntToDrawable(config.themeColor, btn_speaker.drawable)
-        UiUtil.setColorIntToDrawable(config.themeColor, btn_search.drawable)
     }
 
     private fun initListeners() {
@@ -58,9 +57,6 @@ class FolioToolbar : RelativeLayout {
         }
         btn_speaker.setOnClickListener {
             callback.showMediaController()
-        }
-        btn_search.setOnClickListener {
-            callback.search()
         }
     }
 
