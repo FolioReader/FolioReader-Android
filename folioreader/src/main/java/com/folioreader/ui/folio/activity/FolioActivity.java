@@ -118,7 +118,11 @@ public class FolioActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); //Fix for screen get turned off while reading
+
         setConfig(savedInstanceState);
+
 
         setContentView(R.layout.folio_activity);
         this.savedInstanceState = savedInstanceState;
@@ -530,8 +534,11 @@ public class FolioActivity
         }
     }
 
+}
+
     @Override
     public Config.Direction getDirection() {
         return direction;
     }
 }
+
