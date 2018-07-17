@@ -114,6 +114,7 @@ public class FolioActivity
     protected void onCreate(Bundle savedInstanceState) {
         setConfig();
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); //Fix for screen get turned off while reading
         setContentView(R.layout.folio_activity);
 
         mBookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
