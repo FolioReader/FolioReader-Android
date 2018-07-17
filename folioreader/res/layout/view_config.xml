@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="203dp"
-    tools:layout_editor_absoluteY="81dp">
+    android:layout_height="203dp">
 
     <ImageButton
         android:id="@+id/view_config_ib_day_mode"
@@ -13,7 +11,6 @@
         android:layout_height="50dp"
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toStartOf="@+id/view_config_ib_night_mode"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/icon_sun_sel" />
 
@@ -21,10 +18,8 @@
         android:id="@+id/view_config_ib_night_mode"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:adjustViewBounds="true"
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/view_config_ib_day_mode"
         app:srcCompat="@drawable/icon_moon_sel" />
 
@@ -33,7 +28,6 @@
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:background="@color/grey_color"
-        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_config_ib_night_mode" />
@@ -46,8 +40,6 @@
         android:text="@string/andada"
         android:textSize="17sp"
         app:layout_constraintEnd_toStartOf="@+id/view_config_font_lato"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
@@ -59,9 +51,7 @@
         android:text="@string/lato"
         android:textSize="17sp"
         app:folio_font="@string/lato_font"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/view_config_font_lora"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/view_config_font_andada"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
@@ -74,7 +64,6 @@
         android:textSize="17sp"
         app:folio_font="@string/lora_font"
         app:layout_constraintEnd_toStartOf="@+id/view_config_font_raleway"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/view_config_font_lato"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
@@ -87,7 +76,6 @@
         android:textSize="17sp"
         app:folio_font="@string/raleway_font"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/view_config_font_lora"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
@@ -96,9 +84,7 @@
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:background="@color/grey_color"
-        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.483"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_config_font_lato" />
 
@@ -106,36 +92,28 @@
         android:id="@+id/view_config_iv_label_font_small"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_margin="8dp"
         android:adjustViewBounds="false"
         android:scaleType="center"
         android:tint="@color/grey_color"
+        app:layout_constraintBottom_toTopOf="@id/view5"
         app:layout_constraintEnd_toStartOf="@+id/view_config_font_size_seek_bar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_config_font_andada"
+        app:layout_constraintTop_toBottomOf="@+id/view4"
         app:srcCompat="@drawable/ic_format_font_black_24dp" />
 
     <ImageView
         android:id="@+id/view_config_iv_label_font_big"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_margin="8dp"
         android:cropToPadding="false"
         android:scaleType="center"
         android:tint="@color/grey_color"
+        app:layout_constraintBottom_toTopOf="@id/view5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/view_config_font_size_seek_bar"
-        app:layout_constraintTop_toBottomOf="@+id/view_config_font_raleway"
+        app:layout_constraintTop_toBottomOf="@+id/view4"
         app:srcCompat="@drawable/ic_format_font_black_36dp" />
 
     <SeekBar
@@ -147,53 +125,45 @@
         android:max="4"
         android:maxHeight="0.2dp"
         android:minHeight="0.2dp"
+        app:layout_constraintBottom_toTopOf="@id/view5"
         app:layout_constraintEnd_toStartOf="@+id/view_config_iv_label_font_big"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/view_config_iv_label_font_small"
-        app:layout_constraintTop_toBottomOf="@+id/view_config_font_lato" />
+        app:layout_constraintTop_toBottomOf="@+id/view4" />
 
     <View
         android:id="@+id/view5"
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:background="@color/grey_color"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/view_config_btn_vertical_orientation"
+        app:layout_constraintBottom_toTopOf="@+id/buttonVertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_config_font_size_seek_bar"
-        tools:visibility="visible" />
+        app:layout_constraintTop_toBottomOf="@+id/view_config_font_size_seek_bar" />
 
     <com.folioreader.util.StyleableTextView
-        android:id="@+id/view_config_btn_vertical_orientation"
+        android:id="@+id/buttonVertical"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:gravity="center"
-        android:text="@string/orientation_vertical"
+        android:text="@string/direction_vertical"
         android:textSize="17sp"
-        android:visibility="gone"
         app:folio_font="@string/lato_font"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/view_config_btn_horizontal_orientation"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintEnd_toStartOf="@+id/buttonHorizontal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_config_font_size_seek_bar"
-        tools:visibility="visible" />
+        app:layout_constraintTop_toBottomOf="@+id/view5" />
 
     <com.folioreader.util.StyleableTextView
-        android:id="@+id/view_config_btn_horizontal_orientation"
+        android:id="@+id/buttonHorizontal"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:gravity="center"
-        android:text="@string/orientation_horizontal"
+        android:text="@string/direction_horizontal"
         android:textSize="17sp"
-        android:visibility="gone"
         app:folio_font="@string/lato_font"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/view_config_btn_vertical_orientation"
-        app:layout_constraintTop_toBottomOf="@+id/view_config_font_size_seek_bar"
-        tools:visibility="visible" />
+        app:layout_constraintStart_toEndOf="@+id/buttonVertical"
+        app:layout_constraintTop_toBottomOf="@+id/view5" />
 
 </android.support.constraint.ConstraintLayout>

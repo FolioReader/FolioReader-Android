@@ -1,18 +1,23 @@
 language: android
 
-before_install:
-  - echo yes | android update sdk --filter extra-android-support --no-ui --force > /dev/null
-  - echo yes | android update sdk --filter extra-android-m2repository --no-ui --force > /dev/null
+script:
+  - ./gradlew build
 
 android:
-  components:
-    - build-tools-27.0.3
-    - android-27
-    - android-19
-    - extra-android-m2repository
 
   licenses:
-      - android-sdk-license-.+
+    - android-sdk-preview-license-.+
+    - android-sdk-license-.+
 
-  script:
-    ./gradlew checkstyle build
+  components:
+    # https://docs.travis-ci.com/user/languages/android/#Installing-a-newer-SDK-Platform-Tools-revision
+    - tools
+    - platform-tools
+    - tools
+
+    # The BuildTools version used by your project
+    - build-tools-27.0.3
+
+    # The SDK version used to compile your project
+    - android-28
+    - extra-android-m2repository

@@ -120,8 +120,8 @@ var getRectForSelectedText = function(elm) {
 // Method that call that a hightlight was clicked
 // with URL scheme and rect informations
 var callHighlightURL = function(elm) {
-	event.stopPropagation();
-	var URLBase = "highlight://";
+    event.stopPropagation();
+    var URLBase = "highlight://";
     var currentHighlightRect = getRectForSelectedText(elm);
     thisHighlight = elm;
 
@@ -233,32 +233,52 @@ function playAudioFragmentID(fragmentID) {
     window.location = URLBase + (fragmentID?encodeURIComponent(fragmentID):"")
 }
 
+function bodyOrHtml() {
+    if ('scrollingElement' in document) {
+        return document.scrollingElement;
+    }
+    // Fallback for legacy browsers
+    if (navigator.userAgent.indexOf('WebKit') != -1) {
+        return document.body;
+    }
+    return document.documentElement;
+}
+
 /**
  Go To Element - scrolls the webview to the requested element
  */
-function goToEl(el) {
-    var top = document.body.scrollTop;
-    var elTop = el.offsetTop - 20;
-    var bottom = window.innerHeight + document.body.scrollTop;
-    var elBottom = el.offsetHeight + el.offsetTop + 60
+function goToElement(element) {
 
-    if(elBottom > bottom || elTop < top) {
-        document.body.scrollTop = el.offsetTop - 20
+    var scrollingElement = bodyOrHtml();
+    var top = scrollingElement.scrollTop;
+    var elementTop = element.offsetTop - 20;
+    var bottom = window.innerHeight + top;
+    var elementBottom = element.offsetHeight + element.offsetTop + 60;
+
+    //console.log(window);
+    //console.log("-> top = " + top);
+    //console.log("-> elementTop = " + elementTop);
+    //console.log("-> bottom = " + bottom);
+    //console.log("-> elementBottom = " + elementBottom);
+
+    if (FolioPageFragment.getDirection() == "VERTICAL" &&
+            (elementBottom > bottom || elementTop < top)) {
+
+        var newScrollTop = elementTop;
+        //console.log("-> newScrollTop = " + newScrollTop);
+        scrollingElement.scrollTop = newScrollTop;
+
+    } else if (FolioPageFragment.getDirection() == "HORIZONTAL" && top == 0) {
+
+        var clientWidth = document.documentElement.clientWidth;
+        var pageIndex = Math.floor(element.offsetLeft / clientWidth);
+        var newScrollLeft = clientWidth * pageIndex;
+        //console.log("-> newScrollLeft = " + newScrollLeft);
+        scrollingElement.scrollLeft = newScrollLeft;
+        WebViewPager.setCurrentPage(pageIndex);
     }
 
-    /* Set scroll left in case horz scroll is activated.
-
-        The following works because el.offsetTop accounts for each page turned
-        as if the document was scrolling vertical. We then divide by the window
-        height to figure out what page the element should appear on and set scroll left
-        to scroll to that page.
-    */
-    if( document.body.scrollTop == 0 ){
-        var elLeft = document.body.clientWidth * Math.floor(el.offsetTop / window.innerHeight);
-        document.body.scrollLeft = elLeft;
-    }
-
-    return el;
+    return element;
 }
 
 /**
@@ -272,6 +292,236 @@ function removeAllClasses(className) {
     }
 }
 
+//For testing purpose only
+function sleep(seconds)
+{
+  var e = new Date().getTime() + (seconds * 1000);
+  while (new Date().getTime() <= e) {}
+}
+
+// Mock objects for testing purpose
+/*var FolioPageFragment = {
+
+    setHorizontalPageCount : function(pageCount) {
+        console.warn("-> Mock call to FolioPageFragment.setHorizontalPageCount(" + pageCount + ")");
+    },
+
+    storeFirstVisibleSpan : function(usingId, value) {
+        console.warn("-> Mock call to FolioPageFragment.storeFirstVisibleSpan(" + usingId + ", " + value + ")");
+    },
+
+    getDirection : function() {
+        //var direction = "VERTICAL";
+        var direction = "HORIZONTAL";
+        console.warn("-> Mock call to FolioPageFragment.getDirection(), return " + direction);
+        return direction;
+    }
+};
+
+var FolioWebView = {
+
+    setCompatMode : function(compatMode) {
+        console.warn("-> Mock call to FolioWebView.setCompatMode(" + compatMode + ")");
+    }
+};
+
+var WebViewPager = {
+
+    setCurrentPage : function(pageIndex) {
+        console.warn("-> Mock call to WebViewPager.setCurrentPage(" + pageIndex + ")");
+    },
+
+    setPageToLast : function() {
+        console.warn("-> Mock call to WebViewPager.setPageToLast()");
+    },
+
+    setPageToFirst : function() {
+        console.warn("-> Mock call to WebViewPager.setPageToFirst()");
+    }
+};
+
+var LoadingView = {
+
+    show : function() {
+        console.warn("-> Mock call to LoadingView.show()");
+    },
+
+    hide : function() {
+        console.warn("-> Mock call to LoadingView.hide()");
+    },
+
+    visible : function() {
+        console.warn("-> Mock call to LoadingView.visible()");
+    },
+
+    invisible : function() {
+        console.warn("-> Mock call to LoadingView.invisible()");
+    }
+};*/
+
+// Testing purpose calls
+function test() {
+
+    getCompatMode();
+    wrappingSentencesWithinPTags();
+
+    if (FolioPageFragment.getDirection() == "HORIZONTAL")
+        initHorizontalDirection();
+}
+
+function scrollToLast() {
+    console.log("-> scrollToLast");
+
+    var direction = FolioPageFragment.getDirection();
+    var scrollingElement = bodyOrHtml();
+
+    if (direction == "VERTICAL") {
+        scrollingElement.scrollTop =
+        scrollingElement.scrollHeight - document.documentElement.clientHeight;
+
+    } else if (direction == "HORIZONTAL") {
+        scrollingElement.scrollLeft =
+        scrollingElement.scrollWidth - document.documentElement.clientWidth;
+        WebViewPager.setPageToLast();
+    }
+
+    LoadingView.hide();
+}
+
+function scrollToFirst() {
+    console.log("-> scrollToFirst");
+
+    var direction = FolioPageFragment.getDirection();
+    var scrollingElement = bodyOrHtml();
+
+    if (direction == "VERTICAL") {
+        scrollingElement.scrollTop = 0;
+
+    } else if (direction == "HORIZONTAL") {
+        scrollingElement.scrollLeft = 0;
+        WebViewPager.setPageToFirst();
+    }
+
+    LoadingView.hide();
+}
+
+function getCompatMode() {
+    FolioWebView.setCompatMode(document.compatMode);
+}
+
+var scrollWidth;
+var horizontalInterval;
+var horizontalIntervalPeriod = 1000;
+var horizontalIntervalCounter = 0;
+var horizontalIntervalLimit = 3000;
+
+function horizontalRecheck() {
+
+    horizontalIntervalCounter += horizontalIntervalPeriod;
+
+    if (window.scrollWidth != document.documentElement.scrollWidth) {
+        // Rare condition
+        // This might happen when document.documentElement.scrollWidth gives incorrect value
+        // when the webview is busy re-drawing contents.
+        //console.log("-> horizontalIntervalCounter = " + horizontalIntervalCounter);
+        console.warn("-> scrollWidth changed from " + window.scrollWidth + " to " +
+            document.documentElement.scrollWidth);
+        postInitHorizontalDirection();
+    }
+
+    if (horizontalIntervalCounter >= horizontalIntervalLimit)
+        clearInterval(horizontalInterval);
+}
+
+function initHorizontalDirection() {
+
+    preInitHorizontalDirection();
+    postInitHorizontalDirection();
+
+    horizontalInterval = setInterval(horizontalRecheck, horizontalIntervalPeriod);
+}
+
+function preInitHorizontalDirection() {
+
+    //console.log(window);
+    //console.log("-> " + document.getElementsByTagName('title')[0].innerText);
+    var htmlElement = document.getElementsByTagName('html')[0];
+    var bodyElement = document.getElementsByTagName('body')[0];
+
+    // Required when initHorizontalDirection() is called multiple times.
+    // Currently it is called only once per page.
+    htmlElement.style.width = null;
+    bodyElement.style.width = null;
+    htmlElement.style.height = null;
+    bodyElement.style.height = null;
+
+    var bodyStyle = bodyElement.currentStyle || window.getComputedStyle(bodyElement);
+    var paddingTop = parseInt(bodyStyle.paddingTop, 10);
+    var paddingRight = parseInt(bodyStyle.paddingRight, 10);
+    var paddingBottom = parseInt(bodyStyle.paddingBottom, 10);
+    var paddingLeft = parseInt(bodyStyle.paddingLeft, 10);
+    //console.log("-> padding = " + paddingTop + ", " + paddingRight + ", " + paddingBottom + ", " + paddingLeft);
+
+    //document.documentElement.clientWidth is window.innerWidth excluding x scrollbar width
+    var pageWidth = document.documentElement.clientWidth - (paddingLeft + paddingRight);
+    //document.documentElement.clientHeight is window.innerHeight excluding y scrollbar height
+    var pageHeight = document.documentElement.clientHeight - (paddingTop + paddingBottom);
+
+    bodyElement.style.webkitColumnGap = (paddingLeft + paddingRight) + 'px';
+    bodyElement.style.webkitColumnWidth = pageWidth + 'px';
+
+    //console.log("-> window.innerWidth = " + window.innerWidth);
+    //console.log("-> window.innerHeight = " + window.innerHeight);
+    //console.log("-> clientWidth = " + document.documentElement.clientWidth);
+    //console.log("-> clientHeight = " + document.documentElement.clientHeight);
+    //console.log("-> bodyElement.offsetWidth = " + bodyElement.offsetWidth);
+    //console.log("-> bodyElement.offsetHeight = " + bodyElement.offsetHeight);
+    //console.log("-> pageWidth = " + pageWidth);
+    //console.log("-> pageHeight = " + pageHeight);
+
+    htmlElement.style.height = (pageHeight + (paddingTop + paddingBottom)) + 'px';
+    bodyElement.style.height = pageHeight + 'px';
+}
+
+function postInitHorizontalDirection() {
+
+    var htmlElement = document.getElementsByTagName('html')[0];
+    var bodyElement = document.getElementsByTagName('body')[0];
+    var bodyStyle = bodyElement.currentStyle || window.getComputedStyle(bodyElement);
+    var paddingTop = parseInt(bodyStyle.paddingTop, 10);
+    var paddingRight = parseInt(bodyStyle.paddingRight, 10);
+    var paddingBottom = parseInt(bodyStyle.paddingBottom, 10);
+    var paddingLeft = parseInt(bodyStyle.paddingLeft, 10);
+    var clientWidth = document.documentElement.clientWidth;
+
+    var scrollWidth = document.documentElement.scrollWidth;
+    //console.log("-> document.documentElement.offsetWidth = " + document.documentElement.offsetWidth);
+    if (scrollWidth > clientWidth
+        && scrollWidth > document.documentElement.offsetWidth) {
+        scrollWidth += paddingRight;
+    }
+    var newBodyWidth = scrollWidth - (paddingLeft + paddingRight);
+    window.scrollWidth = scrollWidth;
+
+    htmlElement.style.width = scrollWidth + 'px';
+    bodyElement.style.width = newBodyWidth + 'px';
+
+    // pageCount deliberately rounded instead of ceiling to avoid any unexpected error
+    var pageCount = Math.round(scrollWidth / clientWidth);
+    var pageCountFloat = scrollWidth / clientWidth;
+
+    if (pageCount != pageCountFloat) {
+        console.warn("-> pageCount = " + pageCount + ", pageCountFloat = " + pageCountFloat
+            + ", Something wrong in pageCount calculation");
+    }
+
+    //console.log("-> scrollWidth = " + scrollWidth);
+    //console.log("-> newBodyWidth = " + newBodyWidth);
+    //console.log("-> pageCount = " + pageCount);
+
+    FolioPageFragment.setHorizontalPageCount(pageCount);
+}
+
 /**
  Audio Mark ID - marks an element with an ID with the given class and scrolls to it
  */
@@ -282,7 +532,7 @@ function audioMarkID(className, id) {
     audioMarkClass = className
     var el = document.getElementById(id);
 
-    goToEl(el);
+    goToElement(el);
     el.classList.add(className)
 }
 
@@ -293,9 +543,9 @@ function setMediaOverlayStyle(style){
 
 function setMediaOverlayStyleColors(color, colorHighlight) {
     var stylesheet = document.styleSheets[document.styleSheets.length-1];
-    stylesheet.insertRule(".mediaOverlayStyle0 span.epub-media-overlay-playing { background: "+colorHighlight+" !important }")
-    stylesheet.insertRule(".mediaOverlayStyle1 span.epub-media-overlay-playing { border-color: "+color+" !important }")
-    stylesheet.insertRule(".mediaOverlayStyle2 span.epub-media-overlay-playing { color: "+color+" !important }")
+//    stylesheet.insertRule(".mediaOverlayStyle0 span.epub-media-overlay-playing { background: "+colorHighlight+" !important }")
+//    stylesheet.insertRule(".mediaOverlayStyle1 span.epub-media-overlay-playing { border-color: "+color+" !important }")
+//    stylesheet.insertRule(".mediaOverlayStyle2 span.epub-media-overlay-playing { color: "+color+" !important }")
 }
 
 var currentIndex = -1;
@@ -374,7 +624,7 @@ function getSentenceWithIndex(className) {
 
     var text = sentence.innerText || sentence.textContent;
 
-    goToEl(sentence);
+    goToElement(sentence);
 
     if (audioMarkClass){
         removeAllClasses(audioMarkClass);
@@ -617,49 +867,53 @@ function scrollToSpan(usingId, value) {
     if (usingId) {
         var spanElement = document.getElementById(value);
         if (spanElement)
-            goToEl(spanElement);
+            goToElement(spanElement);
     } else {
         var spanCollection = document.getElementsByTagName("span");
         if (spanCollection.length == 0 || value < 0 || value >= spanCollection.length
-            || value == null)
+            || value == null) {
+            LoadingView.hide();
             return;
-        goToEl(spanCollection[value]);
+        }
+        goToElement(spanCollection[value]);
     }
+
+    LoadingView.hide();
 }
 
 // Class based onClick listener
 
 function addClassBasedOnClickListener(schemeName, querySelector, attributeName, selectAll) {
-	if (selectAll) {
-		// Get all elements with the given query selector
-		var elements = document.querySelectorAll(querySelector);
-		for (elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			var element = elements[elementIndex];
-			addClassBasedOnClickListenerToElement(element, schemeName, attributeName);
-		}
-	} else {
-		// Get the first element with the given query selector
-		var element = document.querySelector(querySelector);
-		addClassBasedOnClickListenerToElement(element, schemeName, attributeName);
-	}
+    if (selectAll) {
+        // Get all elements with the given query selector
+        var elements = document.querySelectorAll(querySelector);
+        for (elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+            var element = elements[elementIndex];
+            addClassBasedOnClickListenerToElement(element, schemeName, attributeName);
+        }
+    } else {
+        // Get the first element with the given query selector
+        var element = document.querySelector(querySelector);
+        addClassBasedOnClickListenerToElement(element, schemeName, attributeName);
+    }
 }
 
 function addClassBasedOnClickListenerToElement(element, schemeName, attributeName) {
-	// Get the content from the given attribute name
-	var attributeContent = element.getAttribute(attributeName);
-	// Add the on click logic
-	element.setAttribute("onclick", "onClassBasedListenerClick(\"" + schemeName + "\", \"" + encodeURIComponent(attributeContent) + "\");");
+    // Get the content from the given attribute name
+    var attributeContent = element.getAttribute(attributeName);
+    // Add the on click logic
+    element.setAttribute("onclick", "onClassBasedListenerClick(\"" + schemeName + "\", \"" + encodeURIComponent(attributeContent) + "\");");
 }
 
 var onClassBasedListenerClick = function(schemeName, attributeContent) {
-	// Prevent the browser from performing the default on click behavior
-	event.preventDefault();
-	// Don't pass the click event to other elemtents
-	event.stopPropagation();
-	// Create parameters containing the click position inside the web view.
-	var positionParameterString = "/clientX=" + event.clientX + "&clientY=" + event.clientY;
-	// Set the custom link URL to the event
-	window.location = schemeName + "://" + attributeContent + positionParameterString;
+    // Prevent the browser from performing the default on click behavior
+    event.preventDefault();
+    // Don't pass the click event to other elemtents
+    event.stopPropagation();
+    // Create parameters containing the click position inside the web view.
+    var positionParameterString = "/clientX=" + event.clientX + "&clientY=" + event.clientY;
+    // Set the custom link URL to the event
+    window.location = schemeName + "://" + attributeContent + positionParameterString;
 }
 
 function getHighlightString(style) {
@@ -681,11 +935,20 @@ function getHighlightString(style) {
     Highlight.getHighlightJson(JSON.stringify(params));
 }
 
-function gotoHighlight(highlightId){
-  var element = document.getElementById(highlightId.toString());
-  if(element != null) {
-    goToEl(element);
-  }
+function goToHighlight(highlightId){
+    var element = document.getElementById(highlightId.toString());
+    if (element)
+        goToElement(element);
+
+    LoadingView.hide();
+}
+
+function goToAnchor(anchorId) {
+    var element = document.getElementById(anchorId);
+    if (element)
+        goToElement(element);
+
+    LoadingView.hide();
 }
 
 $(function(){
