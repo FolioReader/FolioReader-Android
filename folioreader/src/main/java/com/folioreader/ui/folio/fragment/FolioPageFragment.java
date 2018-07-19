@@ -60,7 +60,6 @@ import com.folioreader.util.SMILParser;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.FolioWebView;
 import com.folioreader.view.LoadingView;
-import com.folioreader.view.MediaControllerView;
 import com.folioreader.view.VerticalSeekbar;
 import com.folioreader.view.WebViewPager;
 
@@ -210,7 +209,7 @@ public class FolioPageFragment
 
     /**
      * [EVENT BUS FUNCTION]
-     * Function triggered from {@link MediaControllerView#initListeners()} when pause/play
+     * Function triggered from {@link MediaControllerFragment#initListeners()} when pause/play
      * button is clicked
      *
      * @param event of type {@link MediaOverlayPlayPauseEvent} contains if paused/played
@@ -226,7 +225,7 @@ public class FolioPageFragment
 
     /**
      * [EVENT BUS FUNCTION]
-     * Function triggered from {@link MediaControllerView#initListeners()} when speed
+     * Function triggered from {@link MediaControllerFragment#initListeners()} when speed
      * change buttons are clicked
      *
      * @param event of type {@link MediaOverlaySpeedEvent} contains selected speed
@@ -240,7 +239,7 @@ public class FolioPageFragment
 
     /**
      * [EVENT BUS FUNCTION]
-     * Function triggered from {@link MediaControllerView#initListeners()} when new
+     * Function triggered from {@link MediaControllerFragment#initListeners()} when new
      * style is selected on button click.
      *
      * @param event of type {@link MediaOverlaySpeedEvent} contains selected style
@@ -401,9 +400,6 @@ public class FolioPageFragment
 
         if (getActivity() instanceof FolioActivityCallback)
             mWebview.setFolioActivityCallback((FolioActivityCallback) getActivity());
-
-        if (getActivity() instanceof FolioWebView.ToolBarListener)
-            mWebview.setToolBarListener((FolioWebView.ToolBarListener) getActivity());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
             WebView.setWebContentsDebuggingEnabled(true);

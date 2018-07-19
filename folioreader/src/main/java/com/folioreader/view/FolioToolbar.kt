@@ -3,12 +3,10 @@ package com.folioreader.view
 import android.app.Activity
 import android.content.Context
 import android.support.v4.content.ContextCompat
+import android.support.v7.widget.Toolbar
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
-import android.view.animation.AccelerateInterpolator
-import android.view.animation.DecelerateInterpolator
-import android.widget.RelativeLayout
 import com.folioreader.Config
 import com.folioreader.R
 import com.folioreader.util.AppUtil
@@ -18,15 +16,22 @@ import kotlinx.android.synthetic.main.folio_toolbar.view.*
 /**
  * Created by gautam on 15/5/18.
  */
-class FolioToolbar : RelativeLayout {
+class FolioToolbar : Toolbar {
+
     private lateinit var config: Config
-    var visible: Boolean = true
     lateinit var callback: FolioToolbarCallback
+
+    companion object {
+        @JvmField
+        val LOG_TAG: String = FolioToolbar::class.java.simpleName
+    }
 
     constructor(context: Context) : this(context, null, 0)
     constructor(context: Context, attributes: AttributeSet?) : this(context, attributes, 0)
     constructor(context: Context, attributes: AttributeSet?, defStyle: Int) : super(context, attributes, defStyle) {
         LayoutInflater.from(context).inflate(R.layout.folio_toolbar, this)
+        if (isInEditMode)
+            return
         init()
     }
 
@@ -68,21 +73,6 @@ class FolioToolbar : RelativeLayout {
         label_center?.text = title
     }
 
-    fun showOrHideIfVisible() {
-        if (visible) {
-            hide()
-        } else {
-            show()
-        }
-        visible = !visible
-    }
-
-    fun show() {
-        this.animate().translationY(0f)
-                .setInterpolator(DecelerateInterpolator(2f))
-                .start()
-    }
-
     fun setNightMode() {
         toolbar_container.setBackgroundColor(ContextCompat.getColor(context, R.color.black))
         label_center.setTextColor(ContextCompat.getColor(context, R.color.white))
@@ -91,14 +81,5 @@ class FolioToolbar : RelativeLayout {
     fun setDayMode() {
         toolbar_container.setBackgroundColor(ContextCompat.getColor(context, R.color.white))
         label_center.setTextColor(ContextCompat.getColor(context, R.color.black))
-    }
-
-    fun hide() {
-        post {
-            this.animate().translationY((-this.height)
-                    .toFloat())
-                    .setInterpolator(AccelerateInterpolator(2f))
-                    .start()
-        }
     }
 }

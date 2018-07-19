@@ -16,18 +16,22 @@
 package com.folioreader.ui.folio.activity;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.folioreader.Config;
@@ -39,17 +43,17 @@ import com.folioreader.model.ReadPosition;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
+import com.folioreader.ui.folio.fragment.MediaControllerFragment;
 import com.folioreader.ui.folio.presenter.MainMvpView;
 import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
+import com.folioreader.view.FolioAppBarLayout;
 import com.folioreader.view.FolioToolbar;
 import com.folioreader.view.FolioToolbarCallback;
-import com.folioreader.view.FolioWebView;
 import com.folioreader.view.MediaControllerCallback;
-import com.folioreader.view.MediaControllerView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.readium.r2_streamer.model.container.Container;
@@ -70,8 +74,8 @@ import static com.folioreader.Constants.TYPE;
 
 public class FolioActivity
         extends AppCompatActivity
-        implements FolioActivityCallback, FolioWebView.ToolBarListener, MainMvpView,
-        MediaControllerCallback, FolioToolbarCallback {
+        implements FolioActivityCallback, MainMvpView, MediaControllerCallback,
+        FolioToolbarCallback {
 
     private static final String LOG_TAG = "FolioActivity";
 
@@ -80,7 +84,7 @@ public class FolioActivity
     public static final String INTENT_HIGHLIGHTS_LIST = "highlight_list";
     public static final String EXTRA_READ_POSITION = "com.folioreader.extra.READ_POSITION";
     private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE = "BUNDLE_READ_POSITION_CONFIG_CHANGE";
-    private static final String BUNDLE_TOOLBAR_IS_VISIBLE = "BUNDLE_TOOLBAR_IS_VISIBLE";
+    private static final String BUNDLE_DISTRACTION_FREE_MODE = "BUNDLE_DISTRACTION_FREE_MODE";
 
     public enum EpubSourceType {
         RAW,
@@ -93,7 +97,10 @@ public class FolioActivity
     private static final String HIGHLIGHT_ITEM = "highlight_item";
 
     private DirectionalViewpager mFolioPageViewPager;
+    private ActionBar actionBar;
     private FolioToolbar toolbar;
+    private boolean distractionFreeMode;
+    private Handler handler;
 
     private int mChapterPosition;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
@@ -109,12 +116,13 @@ public class FolioActivity
     private String mEpubFilePath;
     private EpubSourceType mEpubSourceType;
     int mEpubRawId = 0;
-    private MediaControllerView mediaControllerView;
+    private MediaControllerFragment mediaControllerFragment;
     private Config.Direction direction = Config.Direction.VERTICAL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        handler = new Handler();
         setConfig(savedInstanceState);
 
         setContentView(R.layout.folio_activity);
@@ -129,30 +137,24 @@ public class FolioActivity
             mEpubFilePath = getIntent().getExtras()
                     .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         }
-        mediaControllerView = findViewById(R.id.media_controller_view);
-        mediaControllerView.setListeners(this);
+
+        initToolbar();
+        initMediaController();
+        initDistractionFreeMode(savedInstanceState);
 
         if (ContextCompat.checkSelfPermission(FolioActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(FolioActivity.this, Constants.getWriteExternalStoragePerms(), Constants.WRITE_EXTERNAL_STORAGE_REQUEST);
         } else {
             setupBook();
         }
-
-        initToolbar(savedInstanceState);
     }
 
-    private void initToolbar(Bundle savedInstanceState) {
+    private void initToolbar() {
 
         toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        actionBar = getSupportActionBar();
         toolbar.setListeners(this);
-        if (savedInstanceState != null) {
-            toolbar.setVisible(savedInstanceState.getBoolean(BUNDLE_TOOLBAR_IS_VISIBLE));
-            if (toolbar.getVisible()) {
-                toolbar.show();
-            } else {
-                toolbar.hide();
-            }
-        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Config config = AppUtil.getSavedConfig(getApplicationContext());
@@ -168,9 +170,11 @@ public class FolioActivity
         }
     }
 
-    @Override
-    public void showMediaController() {
-        mediaControllerView.show();
+    private void initMediaController() {
+        Log.d(LOG_TAG, "-> initMediaController");
+
+        mediaControllerFragment = MediaControllerFragment.Companion.
+                getInstance(getSupportFragmentManager(), this);
     }
 
     @Override
@@ -229,17 +233,84 @@ public class FolioActivity
     @Override
     public void showConfigBottomSheetDialogFragment() {
         new ConfigBottomSheetDialogFragment().show(getSupportFragmentManager(),
-                ConfigBottomSheetDialogFragment.class.getSimpleName());
+                ConfigBottomSheetDialogFragment.LOG_TAG);
     }
 
     @Override
-    public void hideOrShowToolBar() {
-        toolbar.showOrHideIfVisible();
+    public void showMediaController() {
+        mediaControllerFragment.show(getSupportFragmentManager());
+    }
+
+    public void initDistractionFreeMode(Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "-> initDistractionFreeMode");
+
+        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+                Log.d(LOG_TAG, "-> onSystemUiVisibilityChange -> visibility = " + visibility);
+
+                distractionFreeMode = visibility != View.SYSTEM_UI_FLAG_VISIBLE;
+                Log.d(LOG_TAG, "-> distractionFreeMode = " + distractionFreeMode);
+
+                if (distractionFreeMode) {
+                    actionBar.hide();
+                } else {
+                    actionBar.show();
+                }
+            }
+        });
+
+        // Deliberately Hidden and shown to make activity contents laid out behind SystemUI
+        hideSystemUI();
+        showSystemUI();
+
+        distractionFreeMode = savedInstanceState != null &&
+                savedInstanceState.getBoolean(BUNDLE_DISTRACTION_FREE_MODE);
+
+        if (distractionFreeMode) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    hideSystemUI();
+                }
+            });
+        }
     }
 
     @Override
-    public void hideToolBarIfVisible() {
+    public void toggleSystemUI() {
 
+        if (distractionFreeMode) {
+            showSystemUI();
+        } else {
+            hideSystemUI();
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void showSystemUI() {
+        Log.d(LOG_TAG, "-> showSystemUI");
+
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public void hideSystemUI() {
+        Log.d(LOG_TAG, "-> hideSystemUI");
+
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE
+                // Set the content to appear under the system bars so that the
+                // content doesn't resize when the system bars hide and show.
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                // Hide the nav bar and status bar
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
     @Override
@@ -346,7 +417,7 @@ public class FolioActivity
 
                 EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(
                         mSpineReferenceList.get(mChapterPosition).href, false, true));
-                mediaControllerView.setPlayButtonDrawable();
+                mediaControllerFragment.setPlayButtonDrawable();
                 mChapterPosition = position;
                 toolbar.setTitle(mSpineReferenceList.get(mChapterPosition).bookTitle);
             }
@@ -446,7 +517,7 @@ public class FolioActivity
         Log.v(LOG_TAG, "-> onSaveInstanceState");
         this.outState = outState;
 
-        outState.putBoolean(BUNDLE_TOOLBAR_IS_VISIBLE, toolbar.getVisible());
+        outState.putBoolean(BUNDLE_DISTRACTION_FREE_MODE, distractionFreeMode);
     }
 
     @Override
@@ -491,12 +562,14 @@ public class FolioActivity
 
     @Override
     public void play() {
-        EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, true, false));
+        EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(
+                mSpineReferenceList.get(mChapterPosition).href, true, false));
     }
 
     @Override
     public void pause() {
-        EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(mSpineReferenceList.get(mChapterPosition).href, false, false));
+        EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(
+                mSpineReferenceList.get(mChapterPosition).href, false, false));
     }
 
     @Override
