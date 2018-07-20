@@ -16,4 +16,6 @@ public interface FolioActivityCallback {
     void onDirectionChange(Config.Direction newDirection);
 
     void storeLastReadPosition(ReadPosition lastReadPosition);
+
+    void toggleSystemUI();
 }

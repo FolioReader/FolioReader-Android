@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.BottomSheetDialog
 import android.support.design.widget.BottomSheetDialogFragment
+import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,7 @@ import com.folioreader.R
 import com.folioreader.model.event.ReloadDataEvent
 import com.folioreader.ui.folio.activity.FolioActivity
 import com.folioreader.ui.folio.activity.FolioActivityCallback
+import com.folioreader.ui.folio.fragment.MediaControllerFragment
 import com.folioreader.util.AppUtil
 import com.folioreader.util.UiUtil
 import kotlinx.android.synthetic.main.view_config.*
@@ -266,14 +268,17 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
         } else {
             ((context as Activity).findViewById<View>(R.id.toolbar) as FolioToolbar).setNightMode()
         }
-
     }
 
     private fun setAudioPlayerBackground() {
+
+        var mediaControllerFragment: Fragment? = fragmentManager?.
+                findFragmentByTag(MediaControllerFragment.LOG_TAG) ?: return
+        mediaControllerFragment = mediaControllerFragment as MediaControllerFragment
         if (isNightMode) {
-            (context as Activity).findViewById<View>(R.id.container).setBackgroundColor(ContextCompat.getColor(context!!, R.color.white))
+            mediaControllerFragment.setDayMode()
         } else {
-            (context as Activity).findViewById<View>(R.id.container).setBackgroundColor(ContextCompat.getColor(context!!, R.color.night))
+            mediaControllerFragment.setNightMode()
         }
     }
 }
