@@ -177,8 +177,16 @@ public class FolioActivity
 
     @Override
     public void startContentHighlightActivity() {
+
         Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
-        intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
+
+        try {
+            intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
+        } catch (NullPointerException | IndexOutOfBoundsException e) {
+            Log.w(LOG_TAG, "-> " + e);
+            intent.putExtra(CHAPTER_SELECTED, "");
+        }
+
         intent.putExtra(FolioReader.INTENT_BOOK_ID, mBookId);
         intent.putExtra(Constants.BOOK_TITLE, bookFileName);
         startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
@@ -390,6 +398,7 @@ public class FolioActivity
 
     @Override
     public void onLoadPublication(EpubPublication publication) {
+
         mSpineReferenceList.addAll(publication.spines);
         if (publication.metadata.title != null) {
             toolbar.setTitle(publication.metadata.title);
