@@ -121,12 +121,8 @@
     <SeekBar
         android:id="@+id/view_config_font_size_seek_bar"
         android:layout_width="0dp"
-        android:layout_height="36dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="wrap_content"
         android:max="4"
-        android:maxHeight="0.2dp"
-        android:minHeight="0.2dp"
         app:layout_constraintBottom_toTopOf="@+id/view5"
         app:layout_constraintEnd_toStartOf="@+id/view_config_iv_label_font_big"
         app:layout_constraintStart_toEndOf="@+id/view_config_iv_label_font_small"
@@ -140,7 +136,7 @@
         app:layout_constraintBottom_toTopOf="@+id/buttonVertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_config_font_size_seek_bar" />
+        app:layout_constraintTop_toBottomOf="@+id/view_config_iv_label_font_small" />
 
     <com.folioreader.util.StyleableTextView
         android:id="@+id/buttonVertical"
