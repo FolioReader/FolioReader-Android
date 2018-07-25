@@ -5,4 +5,14 @@
         <item name="android:statusBarColor">@color/black</item>
     </style>
 
+    <style name="FolioAppDayTheme" parent="Theme.AppCompat.Light">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorAccent">@color/app_green</item>
+        <item name="actionBarStyle">@style/FolioAppDayTheme.ActionBarStyleDay</item>
+        <item name="android:statusBarColor">@color/black</item>
+    </style>
+
 </resources>

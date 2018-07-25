@@ -264,9 +264,9 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private fun setToolBarColor() {
         if (isNightMode) {
-            ((context as Activity).findViewById<View>(R.id.toolbar) as FolioToolbar).setDayMode()
+            activityCallback.setDayMode()
         } else {
-            ((context as Activity).findViewById<View>(R.id.toolbar) as FolioToolbar).setNightMode()
+            activityCallback.setNightMode()
         }
     }
 

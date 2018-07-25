@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,9 +29,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.folioreader.Config;
@@ -47,10 +53,10 @@ import com.folioreader.ui.folio.presenter.MainMvpView;
 import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
+import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
-import com.folioreader.view.FolioToolbar;
-import com.folioreader.view.FolioToolbarCallback;
+import com.folioreader.view.FolioAppBarLayout;
 import com.folioreader.view.MediaControllerCallback;
 
 import org.greenrobot.eventbus.EventBus;
@@ -73,7 +79,7 @@ import static com.folioreader.Constants.TYPE;
 public class FolioActivity
         extends AppCompatActivity
         implements FolioActivityCallback, MainMvpView, MediaControllerCallback,
-        FolioToolbarCallback, View.OnSystemUiVisibilityChangeListener {
+        View.OnSystemUiVisibilityChangeListener {
 
     private static final String LOG_TAG = "FolioActivity";
 
@@ -96,7 +102,9 @@ public class FolioActivity
 
     private DirectionalViewpager mFolioPageViewPager;
     private ActionBar actionBar;
-    private FolioToolbar toolbar;
+    private FolioAppBarLayout appBarLayout;
+    private Toolbar toolbar;
+    private SearchView searchView;
     private boolean distractionFreeMode;
     private Handler handler;
 
@@ -137,7 +145,7 @@ public class FolioActivity
                     .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH);
         }
 
-        initToolbar();
+        initActionBar();
         initMediaController();
 
         if (ContextCompat.checkSelfPermission(FolioActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -147,15 +155,24 @@ public class FolioActivity
         }
     }
 
-    private void initToolbar() {
+    private void initActionBar() {
 
+        appBarLayout = findViewById(R.id.appBarLayout);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
-        toolbar.setListeners(this);
+        toolbar.setNavigationIcon(R.drawable.ic_drawer);
+
+        Config config = AppUtil.getSavedConfig(getApplicationContext());
+        assert config != null;
+
+        if (config.isNightMode()) {
+            setNightMode();
+        } else {
+            setDayMode();
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Config config = AppUtil.getSavedConfig(getApplicationContext());
             int color;
             if (config.isNightMode()) {
                 color = ContextCompat.getColor(this, R.color.black);
@@ -166,16 +183,82 @@ public class FolioActivity
             }
             getWindow().setNavigationBarColor(color);
         }
+
+        if (Build.VERSION.SDK_INT < 16) {
+            // Fix for appBarLayout.fitSystemWindows() not being called on API < 16
+            appBarLayout.setTopMargin(getStatusBarHeight());
+        }
+    }
+
+    @Override
+    public void setDayMode() {
+        Log.d(LOG_TAG, "-> setDayMode");
+
+        actionBar.setBackgroundDrawable(
+                new ColorDrawable(ContextCompat.getColor(this, R.color.white)));
+        toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.black));
+    }
+
+    @Override
+    public void setNightMode() {
+        Log.d(LOG_TAG, "-> setNightMode");
+
+        actionBar.setBackgroundDrawable(
+                new ColorDrawable(ContextCompat.getColor(this, R.color.black)));
+        toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
     }
 
     private void initMediaController() {
         Log.d(LOG_TAG, "-> initMediaController");
 
-        mediaControllerFragment = MediaControllerFragment.Companion.
+        mediaControllerFragment = MediaControllerFragment.
                 getInstance(getSupportFragmentManager(), this);
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        Config config = AppUtil.getSavedConfig(getApplicationContext());
+        assert config != null;
+        UiUtil.setColorIntToDrawable(config.getThemeColor(), menu.findItem(R.id.itemSearch).getIcon());
+        UiUtil.setColorIntToDrawable(config.getThemeColor(), menu.findItem(R.id.itemConfig).getIcon());
+        UiUtil.setColorIntToDrawable(config.getThemeColor(), menu.findItem(R.id.itemTts).getIcon());
+
+        if (!config.isShowTts())
+            menu.findItem(R.id.itemTts).setVisible(false);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getItemId());
+
+        if (item.getItemId() == android.R.id.home) {
+            Log.d(LOG_TAG, "-> onOptionsItemSelected -> drawer");
+            startContentHighlightActivity();
+            return true;
+
+        } else if (item.getItemId() == R.id.itemSearch) {
+            Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
+
+            return true;
+
+        } else if (item.getItemId() == R.id.itemConfig) {
+            Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
+            showConfigBottomSheetDialogFragment();
+            return true;
+
+        } else if (item.getItemId() == R.id.itemTts) {
+            Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
+            showMediaController();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     public void startContentHighlightActivity() {
 
         Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
@@ -191,6 +274,15 @@ public class FolioActivity
         intent.putExtra(Constants.BOOK_TITLE, bookFileName);
         startActivityForResult(intent, ACTION_CONTENT_HIGHLIGHT);
         overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
+    }
+
+    public void showConfigBottomSheetDialogFragment() {
+        new ConfigBottomSheetDialogFragment().show(getSupportFragmentManager(),
+                ConfigBottomSheetDialogFragment.LOG_TAG);
+    }
+
+    public void showMediaController() {
+        mediaControllerFragment.show(getSupportFragmentManager());
     }
 
     private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
@@ -234,17 +326,6 @@ public class FolioActivity
                         mSpineReferenceList, bookFileName, mBookId);
         mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         mFolioPageViewPager.setCurrentItem(mChapterPosition);
-    }
-
-    @Override
-    public void showConfigBottomSheetDialogFragment() {
-        new ConfigBottomSheetDialogFragment().show(getSupportFragmentManager(),
-                ConfigBottomSheetDialogFragment.LOG_TAG);
-    }
-
-    @Override
-    public void showMediaController() {
-        mediaControllerFragment.show(getSupportFragmentManager());
     }
 
     public void initDistractionFreeMode(Bundle savedInstanceState) {
@@ -304,6 +385,9 @@ public class FolioActivity
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            if (appBarLayout != null)
+                appBarLayout.setTopMargin(getStatusBarHeight());
             onSystemUiVisibilityChange(View.SYSTEM_UI_FLAG_VISIBLE);
         }
     }
@@ -323,9 +407,22 @@ public class FolioActivity
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_FULLSCREEN);
         } else {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
+                    | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN
+                    | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
             // Specified 1 just to mock anything other than View.SYSTEM_UI_FLAG_VISIBLE
             onSystemUiVisibilityChange(1);
         }
+    }
+
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 
     @Override

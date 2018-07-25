@@ -18,4 +18,8 @@ public interface FolioActivityCallback {
     void storeLastReadPosition(ReadPosition lastReadPosition);
 
     void toggleSystemUI();
+
+    void setDayMode();
+
+    void setNightMode();
 }

@@ -33,6 +33,7 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
         val LOG_TAG: String = MediaControllerFragment::class.java.simpleName
         const val BUNDLE_IS_VISIBLE = "isVisible"
 
+        @JvmStatic
         fun getInstance(supportFragmentManager: FragmentManager,
                         callback: MediaControllerCallback): MediaControllerFragment {
 

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
     <color name="transparent_black">#80000000</color>
     <color name="borders">#F1EFF2</color>
     <color name="black">#000000</color>
@@ -18,4 +23,5 @@
     <color name="underline">#F02814</color>
     <color name="grey_color">#a8a8a8</color>
     <color name="webview_night">#131313</color>
+
 </resources>

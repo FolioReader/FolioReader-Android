@@ -43,4 +43,10 @@ class FolioAppBarLayout : AppBarLayout {
         marginLayoutParams.rightMargin = right
         layoutParams = marginLayoutParams
     }
+
+    fun setTopMargin(top: Int) {
+        val marginLayoutParams = layoutParams as MarginLayoutParams
+        marginLayoutParams.topMargin = top
+        layoutParams = marginLayoutParams
+    }
 }
