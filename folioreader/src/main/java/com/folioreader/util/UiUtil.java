@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.folioreader.AppContext;
@@ -33,6 +34,7 @@ import com.folioreader.R;
 import com.folioreader.view.UnderlinedTextView;
 
 import java.lang.ref.SoftReference;
+import java.lang.reflect.Field;
 import java.util.Hashtable;
 
 /**
@@ -164,7 +166,93 @@ public class UiUtil {
             int color = ContextCompat.getColor(AppContext.get(), colorResId);
             drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
         } catch (Resources.NotFoundException e) {
-            Log.e(LOG_TAG, "-> " + e);
+            Log.e(LOG_TAG, "-> ", e);
+        }
+    }
+
+    public static void setEditTextCursorColor(EditText editText, @ColorInt int color) {
+        try {
+            // Get the cursor resource id
+            Field field = TextView.class.getDeclaredField("mCursorDrawableRes");
+            field.setAccessible(true);
+            int drawableResId = field.getInt(editText);
+
+            // Get the drawable and set a color filter
+            Drawable drawable = ContextCompat.getDrawable(editText.getContext(), drawableResId);
+            drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+            Drawable[] drawables = {drawable, drawable};
+
+            if (Build.VERSION.SDK_INT == 15) {
+                // Get the editor
+                Class<?> drawableFieldClass = TextView.class;
+                // Set the drawables
+                field = drawableFieldClass.getDeclaredField("mCursorDrawable");
+                field.setAccessible(true);
+                field.set(editText, drawables);
+
+            } else {
+                // Get the editor
+                field = TextView.class.getDeclaredField("mEditor");
+                field.setAccessible(true);
+                Object editor = field.get(editText);
+                // Set the drawables
+                field = editor.getClass().getDeclaredField("mCursorDrawable");
+                field.setAccessible(true);
+                field.set(editor, drawables);
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "-> ", e);
+        }
+    }
+
+    public static void setEditTextHandleColor(EditText editText, @ColorInt int color) {
+        try {
+            // Get the cursor resource id
+            Field fieldLeftRes = TextView.class.getDeclaredField("mTextSelectHandleLeftRes");
+            fieldLeftRes.setAccessible(true);
+            int leftDrawableResId = fieldLeftRes.getInt(editText);
+
+            Field fieldRightRes = TextView.class.getDeclaredField("mTextSelectHandleRightRes");
+            fieldRightRes.setAccessible(true);
+            int rightDrawableResId = fieldRightRes.getInt(editText);
+
+            // Get the drawable and set a color filter
+            Drawable drawableLeft = ContextCompat.getDrawable(editText.getContext(), leftDrawableResId);
+            drawableLeft.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+
+            Drawable drawableRight = ContextCompat.getDrawable(editText.getContext(), rightDrawableResId);
+            drawableRight.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+
+            if (Build.VERSION.SDK_INT == 15) {
+                // Get the editor
+                Class<?> drawableFieldClass = TextView.class;
+
+                // Set the drawables
+                Field fieldLeft = drawableFieldClass.getDeclaredField("mSelectHandleLeft");
+                fieldLeft.setAccessible(true);
+                fieldLeft.set(editText, drawableLeft);
+
+                Field fieldRight = drawableFieldClass.getDeclaredField("mSelectHandleRight");
+                fieldRight.setAccessible(true);
+                fieldRight.set(editText, drawableRight);
+
+            } else {
+                // Get the editor
+                Field fieldEditor = TextView.class.getDeclaredField("mEditor");
+                fieldEditor.setAccessible(true);
+                Object editor = fieldEditor.get(editText);
+
+                // Set the drawables
+                Field fieldLeft = editor.getClass().getDeclaredField("mSelectHandleLeft");
+                fieldLeft.setAccessible(true);
+                fieldLeft.set(editor, drawableLeft);
+
+                Field fieldRight = editor.getClass().getDeclaredField("mSelectHandleRight");
+                fieldRight.setAccessible(true);
+                fieldRight.set(editor, drawableRight);
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "-> ", e);
         }
     }
 
@@ -193,7 +281,7 @@ public class UiUtil {
         return (int) (px / Resources.getSystem().getDisplayMetrics().density);
     }
 
-    public static void setStatusBar(Window window, @ColorInt int color) {
+    public static void setStatusBarColor(Window window, @ColorInt int color) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);

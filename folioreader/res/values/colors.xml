@@ -24,4 +24,6 @@
     <color name="grey_color">#a8a8a8</color>
     <color name="webview_night">#131313</color>
 
+    <color name="edit_text_hint_color">#AAAAAA</color>
+
 </resources>

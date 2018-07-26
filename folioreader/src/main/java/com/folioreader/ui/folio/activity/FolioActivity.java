@@ -17,10 +17,15 @@ package com.folioreader.ui.folio.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,7 +34,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -37,6 +41,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.folioreader.Config;
@@ -57,6 +62,7 @@ import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
 import com.folioreader.view.FolioAppBarLayout;
+import com.folioreader.view.FolioSearchView;
 import com.folioreader.view.MediaControllerCallback;
 
 import org.greenrobot.eventbus.EventBus;
@@ -68,6 +74,7 @@ import org.readium.r2_streamer.server.EpubServer;
 import org.readium.r2_streamer.server.EpubServerSingleton;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,7 +111,9 @@ public class FolioActivity
     private ActionBar actionBar;
     private FolioAppBarLayout appBarLayout;
     private Toolbar toolbar;
-    private SearchView searchView;
+    private Menu menu;
+    private FolioSearchView searchView;
+    private ImageButton collapseButtonView;
     private boolean distractionFreeMode;
     private Handler handler;
 
@@ -124,6 +133,29 @@ public class FolioActivity
     int mEpubRawId = 0;
     private MediaControllerFragment mediaControllerFragment;
     private Config.Direction direction = Config.Direction.VERTICAL;
+
+    // To get collapseButtonView from toolbar for any click events
+    private View.OnLayoutChangeListener toolbarOnLayoutChangeListener = new View.OnLayoutChangeListener() {
+        @Override
+        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
+                                   int oldTop, int oldRight, int oldBottom) {
+
+            for (int i = 0; i < toolbar.getChildCount(); i++) {
+
+                View view = toolbar.getChildAt(i);
+                String contentDescription = (String) view.getContentDescription();
+                if (TextUtils.isEmpty(contentDescription))
+                    continue;
+
+                if (contentDescription.equals("Collapse")) {
+                    Log.d(LOG_TAG, "-> initActionBar -> mCollapseButtonView found");
+                    collapseButtonView = (ImageButton) view;
+                    toolbar.removeOnLayoutChangeListener(this);
+                    return;
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,10 +193,23 @@ public class FolioActivity
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
-        toolbar.setNavigationIcon(R.drawable.ic_drawer);
+        toolbar.addOnLayoutChangeListener(toolbarOnLayoutChangeListener);
 
         Config config = AppUtil.getSavedConfig(getApplicationContext());
         assert config != null;
+
+        Drawable drawable = ContextCompat.getDrawable(this, R.drawable.ic_drawer);
+        UiUtil.setColorIntToDrawable(config.getThemeColor(), drawable);
+        toolbar.setNavigationIcon(drawable);
+
+        try {
+            Field fieldCollapseIcon = Toolbar.class.getDeclaredField("mCollapseIcon");
+            fieldCollapseIcon.setAccessible(true);
+            Drawable collapseIcon = (Drawable) fieldCollapseIcon.get(toolbar);
+            UiUtil.setColorIntToDrawable(config.getThemeColor(), collapseIcon);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "-> ", e);
+        }
 
         if (config.isNightMode()) {
             setNightMode();
@@ -197,6 +242,9 @@ public class FolioActivity
         actionBar.setBackgroundDrawable(
                 new ColorDrawable(ContextCompat.getColor(this, R.color.white)));
         toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.black));
+
+        if (searchView != null)
+            searchView.setDayMode();
     }
 
     @Override
@@ -206,6 +254,9 @@ public class FolioActivity
         actionBar.setBackgroundDrawable(
                 new ColorDrawable(ContextCompat.getColor(this, R.color.black)));
         toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
+
+        if (searchView != null)
+            searchView.setNightMode();
     }
 
     private void initMediaController() {
@@ -218,6 +269,7 @@ public class FolioActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        this.menu = menu;
 
         Config config = AppUtil.getSavedConfig(getApplicationContext());
         assert config != null;
@@ -227,6 +279,8 @@ public class FolioActivity
 
         if (!config.isShowTts())
             menu.findItem(R.id.itemTts).setVisible(false);
+
+        initSearchView(config);
 
         return true;
     }
@@ -242,7 +296,7 @@ public class FolioActivity
 
         } else if (item.getItemId() == R.id.itemSearch) {
             Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
-
+            onSearchRequested();
             return true;
 
         } else if (item.getItemId() == R.id.itemConfig) {
@@ -259,6 +313,19 @@ public class FolioActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private void initSearchView(Config config) {
+        Log.d(LOG_TAG, "-> initSearchView");
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView = (FolioSearchView) menu.findItem(R.id.itemSearch).getActionView();
+        ComponentName componentName = new ComponentName(this, SearchableActivity.class);
+        SearchableInfo searchableInfo = searchManager.getSearchableInfo(componentName);
+        searchView.setSearchableInfo(searchableInfo);
+        searchView.setIconifiedByDefault(false);
+
+        searchView.init(config);
+    }
+
     public void startContentHighlightActivity() {
 
         Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
@@ -266,7 +333,7 @@ public class FolioActivity
         try {
             intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(mChapterPosition).href);
         } catch (NullPointerException | IndexOutOfBoundsException e) {
-            Log.w(LOG_TAG, "-> " + e);
+            Log.w(LOG_TAG, "-> ", e);
             intent.putExtra(CHAPTER_SELECTED, "");
         }
 

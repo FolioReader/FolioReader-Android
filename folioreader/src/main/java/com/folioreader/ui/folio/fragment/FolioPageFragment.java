@@ -703,7 +703,7 @@ public class FolioPageFragment
                 wait(2000);
             }
         } catch (InterruptedException e) {
-            Log.e(LOG_TAG, "-> " + e);
+            Log.e(LOG_TAG, "-> ", e);
         }
 
         return lastReadPosition;
