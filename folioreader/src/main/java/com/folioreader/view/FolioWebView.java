@@ -92,7 +92,6 @@ public class FolioWebView extends WebView {
 
     private void init() {
 
-        //TODO: -> Try using getHandler()
         handler = new Handler();
         if (folioActivityCallback.getDirection() == Config.Direction.HORIZONTAL) {
             gestureDetector = new GestureDetectorCompat(getContext(), new HorizontalGestureListener());

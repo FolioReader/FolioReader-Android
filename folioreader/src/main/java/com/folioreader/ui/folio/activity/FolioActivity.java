@@ -17,10 +17,6 @@ package com.folioreader.ui.folio.activity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.SearchManager;
-import android.app.SearchableInfo;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
@@ -41,7 +37,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.folioreader.Config;
@@ -62,7 +57,6 @@ import com.folioreader.util.UiUtil;
 import com.folioreader.view.ConfigBottomSheetDialogFragment;
 import com.folioreader.view.DirectionalViewpager;
 import com.folioreader.view.FolioAppBarLayout;
-import com.folioreader.view.FolioSearchView;
 import com.folioreader.view.MediaControllerCallback;
 
 import org.greenrobot.eventbus.EventBus;
@@ -74,7 +68,6 @@ import org.readium.r2_streamer.server.EpubServer;
 import org.readium.r2_streamer.server.EpubServerSingleton;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,7 +85,6 @@ public class FolioActivity
 
     public static final String INTENT_EPUB_SOURCE_PATH = "com.folioreader.epub_asset_path";
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
-    public static final String INTENT_HIGHLIGHTS_LIST = "highlight_list";
     public static final String EXTRA_READ_POSITION = "com.folioreader.extra.READ_POSITION";
     private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE = "BUNDLE_READ_POSITION_CONFIG_CHANGE";
     private static final String BUNDLE_DISTRACTION_FREE_MODE = "BUNDLE_DISTRACTION_FREE_MODE";
@@ -111,9 +103,6 @@ public class FolioActivity
     private ActionBar actionBar;
     private FolioAppBarLayout appBarLayout;
     private Toolbar toolbar;
-    private Menu menu;
-    private FolioSearchView searchView;
-    private ImageButton collapseButtonView;
     private boolean distractionFreeMode;
     private Handler handler;
 
@@ -133,29 +122,6 @@ public class FolioActivity
     int mEpubRawId = 0;
     private MediaControllerFragment mediaControllerFragment;
     private Config.Direction direction = Config.Direction.VERTICAL;
-
-    // To get collapseButtonView from toolbar for any click events
-    private View.OnLayoutChangeListener toolbarOnLayoutChangeListener = new View.OnLayoutChangeListener() {
-        @Override
-        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
-                                   int oldTop, int oldRight, int oldBottom) {
-
-            for (int i = 0; i < toolbar.getChildCount(); i++) {
-
-                View view = toolbar.getChildAt(i);
-                String contentDescription = (String) view.getContentDescription();
-                if (TextUtils.isEmpty(contentDescription))
-                    continue;
-
-                if (contentDescription.equals("Collapse")) {
-                    Log.d(LOG_TAG, "-> initActionBar -> mCollapseButtonView found");
-                    collapseButtonView = (ImageButton) view;
-                    toolbar.removeOnLayoutChangeListener(this);
-                    return;
-                }
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,7 +159,6 @@ public class FolioActivity
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
-        toolbar.addOnLayoutChangeListener(toolbarOnLayoutChangeListener);
 
         Config config = AppUtil.getSavedConfig(getApplicationContext());
         assert config != null;
@@ -201,15 +166,6 @@ public class FolioActivity
         Drawable drawable = ContextCompat.getDrawable(this, R.drawable.ic_drawer);
         UiUtil.setColorIntToDrawable(config.getThemeColor(), drawable);
         toolbar.setNavigationIcon(drawable);
-
-        try {
-            Field fieldCollapseIcon = Toolbar.class.getDeclaredField("mCollapseIcon");
-            fieldCollapseIcon.setAccessible(true);
-            Drawable collapseIcon = (Drawable) fieldCollapseIcon.get(toolbar);
-            UiUtil.setColorIntToDrawable(config.getThemeColor(), collapseIcon);
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "-> ", e);
-        }
 
         if (config.isNightMode()) {
             setNightMode();
@@ -242,9 +198,6 @@ public class FolioActivity
         actionBar.setBackgroundDrawable(
                 new ColorDrawable(ContextCompat.getColor(this, R.color.white)));
         toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.black));
-
-        if (searchView != null)
-            searchView.setDayMode();
     }
 
     @Override
@@ -254,9 +207,6 @@ public class FolioActivity
         actionBar.setBackgroundDrawable(
                 new ColorDrawable(ContextCompat.getColor(this, R.color.black)));
         toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.white));
-
-        if (searchView != null)
-            searchView.setNightMode();
     }
 
     private void initMediaController() {
@@ -269,7 +219,6 @@ public class FolioActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        this.menu = menu;
 
         Config config = AppUtil.getSavedConfig(getApplicationContext());
         assert config != null;
@@ -280,8 +229,6 @@ public class FolioActivity
         if (!config.isShowTts())
             menu.findItem(R.id.itemTts).setVisible(false);
 
-        initSearchView(config);
-
         return true;
     }
 
@@ -289,41 +236,30 @@ public class FolioActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         //Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getItemId());
 
-        if (item.getItemId() == android.R.id.home) {
+        int itemId = item.getItemId();
+
+        if (itemId == android.R.id.home) {
             Log.d(LOG_TAG, "-> onOptionsItemSelected -> drawer");
             startContentHighlightActivity();
             return true;
 
-        } else if (item.getItemId() == R.id.itemSearch) {
+        } else if (itemId == R.id.itemSearch) {
             Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
-            onSearchRequested();
+            startActivity(new Intent(this, SearchActivity.class));
             return true;
 
-        } else if (item.getItemId() == R.id.itemConfig) {
+        } else if (itemId == R.id.itemConfig) {
             Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
             showConfigBottomSheetDialogFragment();
             return true;
 
-        } else if (item.getItemId() == R.id.itemTts) {
+        } else if (itemId == R.id.itemTts) {
             Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
             showMediaController();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void initSearchView(Config config) {
-        Log.d(LOG_TAG, "-> initSearchView");
-
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        searchView = (FolioSearchView) menu.findItem(R.id.itemSearch).getActionView();
-        ComponentName componentName = new ComponentName(this, SearchableActivity.class);
-        SearchableInfo searchableInfo = searchManager.getSearchableInfo(componentName);
-        searchView.setSearchableInfo(searchableInfo);
-        searchView.setIconifiedByDefault(false);
-
-        searchView.init(config);
     }
 
     public void startContentHighlightActivity() {
@@ -390,7 +326,7 @@ public class FolioActivity
 
         mFolioPageViewPager.setDirection(newDirection);
         mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                        mSpineReferenceList, bookFileName, mBookId);
+                mSpineReferenceList, bookFileName, mBookId);
         mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         mFolioPageViewPager.setCurrentItem(mChapterPosition);
     }
@@ -400,7 +336,7 @@ public class FolioActivity
 
         getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(this);
 
-        // Deliberately Hidden and shown to make activity contents laid out behind SystemUI
+        // Deliberately Hidden and shown to make activity contents lay out behind SystemUI
         hideSystemUI();
         showSystemUI();
 
@@ -475,9 +411,9 @@ public class FolioActivity
                     | View.SYSTEM_UI_FLAG_FULLSCREEN);
         } else {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
-                    | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                            | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN
-                    | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+                            | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
             // Specified 1 just to mock anything other than View.SYSTEM_UI_FLAG_VISIBLE
             onSystemUiVisibilityChange(1);
         }
@@ -504,6 +440,7 @@ public class FolioActivity
 
     /**
      * Go to chapter specified by href
+     *
      * @param href http link or relative link to the page or to the anchor
      * @return true if href is of EPUB or false if other link
      */

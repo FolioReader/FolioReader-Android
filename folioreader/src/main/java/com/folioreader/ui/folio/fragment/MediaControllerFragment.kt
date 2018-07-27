@@ -77,7 +77,7 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
         bottomSheetBehavior = BottomSheetBehavior.from(view.parent as View)
 
         mTouchOutsideView = ((view.parent as View).parent as View).findViewById(R.id.touch_outside)
-        mTouchOutsideView.setOnTouchListener { v, event ->
+        mTouchOutsideView.setOnTouchListener { _, event ->
 
             if (event.action == MotionEvent.ACTION_DOWN) {
                 Log.d(LOG_TAG, "-> onTouch -> touch_outside -> ${getView()}")
@@ -113,10 +113,10 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
         super.onStart()
         Log.d(LOG_TAG, "-> onStart")
 
-        dialog.setOnKeyListener { dialog, keyCode, event ->
+        dialog.setOnKeyListener { _, keyCode, event ->
             if (event.action == MotionEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
                 Log.d(LOG_TAG, "-> Back button pressed")
-                getDialog().hide()
+                dialog.hide()
                 visible = false
                 return@setOnKeyListener true
             }

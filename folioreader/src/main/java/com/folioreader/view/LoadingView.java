@@ -1,13 +1,13 @@
 package com.folioreader.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.webkit.JavascriptInterface;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.folioreader.Config;
@@ -16,11 +16,10 @@ import com.folioreader.util.AppUtil;
 import com.folioreader.util.UiUtil;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-public class LoadingView extends FrameLayout {
+public class LoadingView extends ConstraintLayout {
 
-    private ConstraintLayout rootView;
     private ProgressBar progressBar;
-    private static final int VISIBLE_DURATION = 6000;
+    private int maxVisibleDuration = -1;
     private Handler handler;
 
     private Runnable hideRunnable = new Runnable() {
@@ -54,13 +53,22 @@ public class LoadingView extends FrameLayout {
         if (isInEditMode())
             return;
 
-        //TODO: -> Check by replacing getHandler()
+        TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs,
+                R.styleable.LoadingView,
+                0, 0);
+
+        maxVisibleDuration = typedArray.getInt(R.styleable.LoadingView_maxVisibleDuration, -1);
+
         handler = new Handler();
-        rootView = findViewById(R.id.rootView);
         progressBar = findViewById(R.id.progressBar);
 
+        setClickable(true);
+        setFocusable(true);
+
         updateTheme();
-        show();
+
+        if (getVisibility() == VISIBLE)
+            show();
     }
 
     public void updateTheme() {
@@ -70,9 +78,9 @@ public class LoadingView extends FrameLayout {
             config = new Config();
         UiUtil.setColorIntToDrawable(config.getThemeColor(), progressBar.getIndeterminateDrawable());
         if (config.isNightMode()) {
-            rootView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.webview_night));
+            setBackgroundColor(ContextCompat.getColor(getContext(), R.color.webview_night));
         } else {
-            rootView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
+            setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
         }
     }
 
@@ -88,7 +96,9 @@ public class LoadingView extends FrameLayout {
                 setVisibility(VISIBLE);
             }
         });
-        handler.postDelayed(hideRunnable, VISIBLE_DURATION);
+
+        if (maxVisibleDuration > -1)
+            handler.postDelayed(hideRunnable, maxVisibleDuration);
     }
 
     @SuppressWarnings("unused")
@@ -127,5 +137,13 @@ public class LoadingView extends FrameLayout {
                 setVisibility(INVISIBLE);
             }
         });
+    }
+
+    public int getMaxVisibleDuration() {
+        return maxVisibleDuration;
+    }
+
+    public void setMaxVisibleDuration(int maxVisibleDuration) {
+        this.maxVisibleDuration = maxVisibleDuration;
     }
 }

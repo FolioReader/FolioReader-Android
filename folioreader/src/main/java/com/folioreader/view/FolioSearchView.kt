@@ -1,5 +1,7 @@
 package com.folioreader.view
 
+import android.app.SearchManager
+import android.content.ComponentName
 import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.support.v4.graphics.ColorUtils
@@ -27,8 +29,19 @@ class FolioSearchView : SearchView {
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
-    fun init(config: Config) {
+    fun init(componentName: ComponentName, config: Config) {
         Log.d(LOG_TAG, "-> init")
+
+        val searchManager: SearchManager = context.getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        setIconifiedByDefault(false)
+
+        adjustLayout()
+        applyTheme(config)
+    }
+
+    private fun adjustLayout() {
+        Log.d(LOG_TAG, "-> adjustLayout")
 
         // Hide searchHintIcon
         val searchMagIcon: View = findViewById(R.id.search_mag_icon)
@@ -37,6 +50,10 @@ class FolioSearchView : SearchView {
         // Remove left margin of search_edit_frame
         val searchEditFrame: View = findViewById(R.id.search_edit_frame)
         (searchEditFrame.layoutParams as ViewGroup.MarginLayoutParams).leftMargin = 0
+    }
+
+    private fun applyTheme(config: Config) {
+        Log.d(LOG_TAG, "-> applyTheme")
 
         val searchCloseButton: ImageView = findViewById(R.id.search_close_btn)
         UiUtil.setColorIntToDrawable(config.themeColor, searchCloseButton.drawable)

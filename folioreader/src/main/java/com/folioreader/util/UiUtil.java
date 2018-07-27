@@ -216,12 +216,19 @@ public class UiUtil {
             fieldRightRes.setAccessible(true);
             int rightDrawableResId = fieldRightRes.getInt(editText);
 
+            Field fieldCenterRes = TextView.class.getDeclaredField("mTextSelectHandleRes");
+            fieldCenterRes.setAccessible(true);
+            int centerDrawableResId = fieldCenterRes.getInt(editText);
+
             // Get the drawable and set a color filter
             Drawable drawableLeft = ContextCompat.getDrawable(editText.getContext(), leftDrawableResId);
             drawableLeft.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 
             Drawable drawableRight = ContextCompat.getDrawable(editText.getContext(), rightDrawableResId);
             drawableRight.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+
+            Drawable drawableCenter = ContextCompat.getDrawable(editText.getContext(), centerDrawableResId);
+            drawableCenter.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 
             if (Build.VERSION.SDK_INT == 15) {
                 // Get the editor
@@ -235,6 +242,10 @@ public class UiUtil {
                 Field fieldRight = drawableFieldClass.getDeclaredField("mSelectHandleRight");
                 fieldRight.setAccessible(true);
                 fieldRight.set(editText, drawableRight);
+
+                Field fieldCenter = drawableFieldClass.getDeclaredField("mSelectHandleCenter");
+                fieldCenter.setAccessible(true);
+                fieldCenter.set(editText, drawableCenter);
 
             } else {
                 // Get the editor
@@ -250,6 +261,10 @@ public class UiUtil {
                 Field fieldRight = editor.getClass().getDeclaredField("mSelectHandleRight");
                 fieldRight.setAccessible(true);
                 fieldRight.set(editor, drawableRight);
+
+                Field fieldCenter = editor.getClass().getDeclaredField("mSelectHandleCenter");
+                fieldCenter.setAccessible(true);
+                fieldCenter.set(editor, drawableCenter);
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "-> ", e);
@@ -274,7 +289,7 @@ public class UiUtil {
     }
 
     public static void setShapeColor(View view, @ColorInt int color) {
-        ((GradientDrawable)view.getBackground()).setColor(color);
+        ((GradientDrawable) view.getBackground()).setColor(color);
     }
 
     public static int pxToDp(int px) {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -15,7 +15,8 @@
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryDark">@color/white</item>
         <item name="colorAccent">@color/app_green</item>
-        <item name="actionBarStyle">@style/FolioAppDayTheme.ActionBarStyleDay</item>
+        <item name="actionBarStyle">@style/FolioAppDayTheme.ActionBarStyle</item>
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/black</item>
     </style>
 
     <style name="FolioAppNightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -24,18 +25,60 @@
         <item name="colorPrimary">@color/black</item>
         <item name="colorPrimaryDark">@color/black</item>
         <item name="colorAccent">@color/app_green</item>
+        <item name="actionBarStyle">@style/FolioAppNightTheme.ActionBarStyle</item>
+        <item name="android:windowBackground">@color/webview_night</item>
     </style>
 
-
-    <style name="FolioAppDayTheme.ActionBarStyleDay" parent="@style/Widget.AppCompat.ActionBar.Solid">
-        <item name="titleTextStyle">@style/FolioAppDayTheme.ActionBarStyleDay.TitleTextStyle</item>
+    <style name="FolioAppDayTheme.ActionBarStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="titleTextStyle">@style/FolioAppDayTheme.ActionBarStyle.TitleTextStyle</item>
     </style>
 
-    <style name="FolioAppDayTheme.ActionBarStyleDay.TitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+    <style name="FolioAppDayTheme.ActionBarStyle.TitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/black</item>
     </style>
 
-    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar" />
+    <style name="FolioAppNightTheme.ActionBarStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="background">@color/black</item>
+    </style>
+
+    <style name="AppDayTheme" parent="Theme.AppCompat.Light">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorAccent">@color/app_green</item>
+        <item name="actionBarStyle">@style/ActionBarDayStyle</item>
+        <item name="android:windowAnimationStyle">@style/ThemeAnimationTransition</item>
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/black</item>
+    </style>
+
+    <style name="AppNightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorAccent">@color/app_green</item>
+        <item name="actionBarStyle">@style/ActionBarNightStyle</item>
+        <item name="android:windowBackground">@color/webview_night</item>
+        <item name="android:windowAnimationStyle">@style/ThemeAnimationTransition</item>
+        <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/black</item>
+    </style>
+
+    <style name="ActionBarDayStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="titleTextStyle">@style/ActionBarDayTitleTextStyle</item>
+    </style>
+
+    <style name="ActionBarDayTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="ActionBarNightStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="background">@color/black</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/black</item>
+    </style>
 
     <style name="Animations" />
 
@@ -111,4 +154,10 @@
         <item name="android:windowEnterAnimation">@anim/slide_up</item>
         <item name="android:windowExitAnimation">@anim/slide_down</item>
     </style>
+
+    <style name="ThemeAnimationTransition">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
 </resources>

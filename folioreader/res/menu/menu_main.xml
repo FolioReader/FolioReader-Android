@@ -8,8 +8,7 @@
         android:id="@+id/itemSearch"
         android:icon="@drawable/ic_search"
         android:title="@string/menu_item_search"
-        app:actionViewClass="com.folioreader.view.FolioSearchView"
-        app:showAsAction="always|collapseActionView"
+        app:showAsAction="ifRoom"
         tools:showAsAction="always" />
 
     <item
