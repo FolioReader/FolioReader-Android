@@ -3,6 +3,7 @@ package com.folioreader.ui.folio.activity
 import android.app.SearchManager
 import android.content.Intent
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.LoaderManager
 import android.support.v4.content.Loader
@@ -22,6 +23,7 @@ import com.folioreader.util.AppUtil
 import com.folioreader.util.UiUtil
 import com.folioreader.view.FolioSearchView
 import kotlinx.android.synthetic.main.activity_search.*
+import org.readium.r2_streamer.model.searcher.SearchQueryResults
 import java.lang.Exception
 import java.lang.reflect.Field
 
@@ -31,8 +33,10 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?> 
         @JvmField
         val LOG_TAG: String = SearchActivity::class.java.simpleName
         const val SEARCH_LOADER = 101
+        const val BUNDLE_SEARCH_URI = "BUNDLE_SEARCH_URI"
     }
 
+    private lateinit var searchUri: Uri
     private lateinit var searchView: FolioSearchView
     private lateinit var actionBar: ActionBar
     private var collapseButtonView: ImageButton? = null
@@ -100,6 +104,8 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?> 
         } catch (e: Exception) {
             Log.e(LOG_TAG, "-> ", e)
         }
+
+        searchUri = intent.getParcelableExtra(BUNDLE_SEARCH_URI)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -111,6 +117,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?> 
 
             loadingView.show()
             val bundle = Bundle()
+            bundle.putParcelable(BUNDLE_SEARCH_URI, searchUri)
             bundle.putString(SearchLoader.SEARCH_QUERY_KEY, query)
             supportLoaderManager.restartLoader(SEARCH_LOADER, bundle, this)
         }
@@ -162,7 +169,8 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?> 
         when (loader.id) {
 
             SEARCH_LOADER -> {
-                Log.d(LOG_TAG, "-> onLoadFinished -> " + getLoaderName(loader.id) + " -> " + data)
+                Log.d(LOG_TAG, "-> onLoadFinished -> " + getLoaderName(loader.id))
+                val searchQueryResults = data as SearchQueryResults
                 loadingView.hide()
             }
         }

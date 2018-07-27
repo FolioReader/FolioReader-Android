@@ -22,6 +22,7 @@ import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -122,6 +123,7 @@ public class FolioActivity
     int mEpubRawId = 0;
     private MediaControllerFragment mediaControllerFragment;
     private Config.Direction direction = Config.Direction.VERTICAL;
+    private Uri searchUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -245,7 +247,11 @@ public class FolioActivity
 
         } else if (itemId == R.id.itemSearch) {
             Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
-            startActivity(new Intent(this, SearchActivity.class));
+            if (searchUri == null)
+                return true;
+            Intent intent = new Intent(this, SearchActivity.class);
+            intent.putExtra(SearchActivity.BUNDLE_SEARCH_URI, searchUri);
+            startActivity(intent);
             return true;
 
         } else if (itemId == R.id.itemConfig) {
@@ -516,6 +522,16 @@ public class FolioActivity
                 }
             }
         }
+
+        for (Link link : publication.links) {
+            if (link.rel != null && link.rel.contains("search")) {
+                searchUri = Uri.parse("http://" + link.href);
+                break;
+            }
+        }
+        if (searchUri == null)
+            searchUri = Uri.parse(Constants.LOCALHOST + bookFileName + "/search");
+
         configFolio();
     }
 
