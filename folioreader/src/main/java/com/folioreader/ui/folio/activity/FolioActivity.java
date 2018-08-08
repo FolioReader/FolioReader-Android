@@ -250,6 +250,7 @@ public class FolioActivity
             if (searchUri == null)
                 return true;
             Intent intent = new Intent(this, SearchActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra(SearchActivity.BUNDLE_SEARCH_URI, searchUri);
             startActivity(intent);
             return true;

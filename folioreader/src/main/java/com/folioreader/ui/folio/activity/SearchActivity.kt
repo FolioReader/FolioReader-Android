@@ -9,6 +9,8 @@ import android.support.v4.app.LoaderManager
 import android.support.v4.content.Loader
 import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.SearchView
 import android.support.v7.widget.Toolbar
 import android.text.TextUtils
 import android.util.Log
@@ -19,27 +21,37 @@ import android.widget.ImageButton
 import com.folioreader.Config
 import com.folioreader.R
 import com.folioreader.loaders.SearchLoader
+import com.folioreader.ui.folio.adapter.AdapterBundle
+import com.folioreader.ui.folio.adapter.ListViewType
+import com.folioreader.ui.folio.adapter.SearchAdapter
 import com.folioreader.util.AppUtil
 import com.folioreader.util.UiUtil
 import com.folioreader.view.FolioSearchView
 import kotlinx.android.synthetic.main.activity_search.*
-import org.readium.r2_streamer.model.searcher.SearchQueryResults
 import java.lang.Exception
 import java.lang.reflect.Field
 
-class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?> {
+class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>, Loader.OnLoadCompleteListener<Any?> {
 
     companion object {
         @JvmField
         val LOG_TAG: String = SearchActivity::class.java.simpleName
         const val SEARCH_LOADER = 101
         const val BUNDLE_SEARCH_URI = "BUNDLE_SEARCH_URI"
+        const val BUNDLE_IS_SEARCH_LOADER_RUNNING = "BUNDLE_IS_SEARCH_LOADER_RUNNING"
+        const val BUNDLE_SAVE_SEARCH_QUERY = "BUNDLE_SAVE_SEARCH_QUERY"
+        const val BUNDLE_IS_SOFT_KEYBOARD_VISIBLE = "BUNDLE_IS_SOFT_KEYBOARD_VISIBLE"
     }
 
     private lateinit var searchUri: Uri
     private lateinit var searchView: FolioSearchView
     private lateinit var actionBar: ActionBar
     private var collapseButtonView: ImageButton? = null
+    private lateinit var searchAdapter: SearchAdapter
+    private var searchLoader: SearchLoader? = null
+    private lateinit var searchBundle: Bundle
+    private var savedInstanceState: Bundle? = null
+    private var softKeyboardVisible: Boolean = true
 
     // To get collapseButtonView from toolbar for any click events
     private val toolbarOnLayoutChangeListener: View.OnLayoutChangeListener = object : View.OnLayoutChangeListener {
@@ -56,6 +68,12 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?> 
                 if (contentDescription == "Collapse") {
                     Log.d(LOG_TAG, "-> initActionBar -> mCollapseButtonView found")
                     collapseButtonView = view as ImageButton
+
+                    collapseButtonView?.setOnClickListener {
+                        Log.d(LOG_TAG, "-> onClick -> collapseButtonView")
+                        moveTaskToBack(true)
+                    }
+
                     toolbar.removeOnLayoutChangeListener(this)
                     return
                 }
@@ -106,21 +124,58 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?> 
         }
 
         searchUri = intent.getParcelableExtra(BUNDLE_SEARCH_URI)
+
+        val emptyBundle = AdapterBundle(ListViewType.INIT_VIEW)
+        searchAdapter = SearchAdapter(this, emptyBundle)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = searchAdapter
+
+        searchLoader = supportLoaderManager.initLoader(SEARCH_LOADER, null, this)
+                as SearchLoader
     }
 
     override fun onNewIntent(intent: Intent?) {
-        setIntent(intent)
         Log.i(LOG_TAG, "-> onNewIntent")
+        intent?.putExtra(BUNDLE_SEARCH_URI, searchUri)
+        setIntent(intent)
 
         if (Intent.ACTION_SEARCH == intent?.action) {
             val query: String = intent.getStringExtra(SearchManager.QUERY)
 
-            loadingView.show()
-            val bundle = Bundle()
-            bundle.putParcelable(BUNDLE_SEARCH_URI, searchUri)
-            bundle.putString(SearchLoader.SEARCH_QUERY_KEY, query)
-            supportLoaderManager.restartLoader(SEARCH_LOADER, bundle, this)
+            searchBundle = Bundle()
+            searchBundle.putParcelable(BUNDLE_SEARCH_URI, searchUri)
+            searchBundle.putString(SearchManager.QUERY, query)
+            searchLoader = supportLoaderManager.restartLoader(SEARCH_LOADER, searchBundle, this)
+                    as SearchLoader
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        Log.d(LOG_TAG, "-> onSaveInstanceState")
+
+        outState.putCharSequence(BUNDLE_SAVE_SEARCH_QUERY, searchView.query)
+
+        val searchLoaderRunning = if (searchLoader == null) false else searchLoader!!.isRunning()
+        outState.putBoolean(BUNDLE_IS_SEARCH_LOADER_RUNNING, searchLoaderRunning)
+
+        outState.putBoolean(BUNDLE_IS_SOFT_KEYBOARD_VISIBLE, softKeyboardVisible)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        Log.d(LOG_TAG, "-> onRestoreInstanceState")
+
+        this.savedInstanceState = savedInstanceState
+
+        val searchLoaderRunning = savedInstanceState.getBoolean(BUNDLE_IS_SEARCH_LOADER_RUNNING)
+        if (searchLoaderRunning) {
+            searchAdapter.changeAdapterBundle(AdapterBundle(ListViewType.LOADING_VIEW))
+        }
+    }
+
+    override fun onBackPressed() {
+        Log.d(LOG_TAG, "-> onBackPressed")
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -128,12 +183,58 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?> 
         menuInflater.inflate(R.menu.menu_search, menu!!)
 
         val config: Config = AppUtil.getSavedConfig(applicationContext)
-        UiUtil.setColorIntToDrawable(config.themeColor, menu.findItem(R.id.itemSearch).icon)
+        val itemSearch: MenuItem = menu.findItem(R.id.itemSearch)
+        UiUtil.setColorIntToDrawable(config.themeColor, itemSearch.icon)
 
-        searchView = menu.findItem(R.id.itemSearch)!!.actionView as FolioSearchView
+        searchView = itemSearch.actionView as FolioSearchView
         searchView.init(componentName, config)
 
-        menu.findItem(R.id.itemSearch).expandActionView()
+        itemSearch.expandActionView()
+
+        searchView.setQuery(savedInstanceState?.getCharSequence(BUNDLE_SAVE_SEARCH_QUERY),
+                false)
+
+        if (savedInstanceState != null) {
+            softKeyboardVisible = savedInstanceState!!.getBoolean(BUNDLE_IS_SOFT_KEYBOARD_VISIBLE)
+            if (!softKeyboardVisible) {
+                Log.i(LOG_TAG, "-> onRestoreInstanceState -> !softKeyboardVisible")
+                AppUtil.hideKeyboard(this)
+            }
+        }
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                softKeyboardVisible = false
+                searchView.clearFocus()
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+
+                if (TextUtils.isEmpty(newText)) {
+                    Log.d(LOG_TAG, "-> onQueryTextChange -> Empty Query")
+                    supportLoaderManager.restartLoader(SEARCH_LOADER, null, this@SearchActivity)
+                }
+                return false
+            }
+        })
+
+        itemSearch.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+                Log.d(LOG_TAG, "-> onMenuItemActionCollapse")
+                moveTaskToBack(true)
+                return false
+            }
+        })
+
+        searchView.setOnQueryTextFocusChangeListener { _, hasFocus ->
+            if (hasFocus) softKeyboardVisible = true
+        }
+
         return true
     }
 
@@ -156,24 +257,28 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?> 
 
             SEARCH_LOADER -> {
                 Log.d(LOG_TAG, "-> onCreateLoader -> " + getLoaderName(id))
+                searchAdapter.changeAdapterBundle(AdapterBundle(ListViewType.LOADING_VIEW))
                 return SearchLoader(this, bundle)
             }
 
-            else -> throw UnsupportedOperationException("Unknown id: $id in onCreateLoader")
+            else -> throw UnsupportedOperationException("-> Unknown id: $id in onCreateLoader")
         }
     }
 
     override fun onLoadFinished(loader: Loader<Any?>, data: Any?) {
-        Log.d(LOG_TAG, "-> onLoadFinished -> " + getLoaderName(loader.id))
 
         when (loader.id) {
 
             SEARCH_LOADER -> {
                 Log.d(LOG_TAG, "-> onLoadFinished -> " + getLoaderName(loader.id))
-                val searchQueryResults = data as SearchQueryResults
-                loadingView.hide()
+                searchAdapter.changeAdapterBundle(data as AdapterBundle)
             }
         }
+    }
+
+    override fun onLoadComplete(loader: Loader<Any?>, data: Any?) {
+        Log.d(LOG_TAG, "-> onLoadComplete -> " + getLoaderName(loader.id))
+
     }
 
     override fun onLoaderReset(loader: Loader<Any?>) {

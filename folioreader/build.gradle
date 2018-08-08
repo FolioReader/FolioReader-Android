@@ -95,6 +95,7 @@ dependencies {
 
     //Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$KOTLIN_VERSION"
 
     // r2-streamer
     api "org.readium:r2-fetcher:$R2_STREAMER_VERSION"

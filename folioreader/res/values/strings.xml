@@ -111,5 +111,10 @@
     <string name="menu_item_tts">Text To Speech</string>
 
     <string name="search_hint">Search In Book</string>
+    
+    <plurals name="numberOfSearchResults">
+        <item quantity="one">%d result</item>
+        <item quantity="other">%d results</item>
+    </plurals>
 
 </resources>

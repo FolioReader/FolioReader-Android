@@ -42,6 +42,7 @@
     </style>
 
     <style name="AppDayTheme" parent="Theme.AppCompat.Light">
+
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/white</item>
@@ -50,9 +51,16 @@
         <item name="actionBarStyle">@style/ActionBarDayStyle</item>
         <item name="android:windowAnimationStyle">@style/ThemeAnimationTransition</item>
         <item name="android:statusBarColor" tools:targetApi="lollipop">@color/black</item>
+
+        <item name="defaultFontColor">#000000</item>
+        <item name="android:textViewStyle">@style/TextViewStyle</item>
+        <item name="searchItemHeaderBackgroundColor">#DDDDDD</item>
+        <item name="dividerColor">#000000</item>
+
     </style>
 
     <style name="AppNightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/black</item>
@@ -62,6 +70,16 @@
         <item name="android:windowBackground">@color/webview_night</item>
         <item name="android:windowAnimationStyle">@style/ThemeAnimationTransition</item>
         <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/black</item>
+
+        <item name="defaultFontColor">#FFFFFF</item>
+        <item name="android:textViewStyle">@style/TextViewStyle</item>
+        <item name="searchItemHeaderBackgroundColor">#222222</item>
+        <item name="dividerColor">#666666</item>
+
+    </style>
+
+    <style name="TextViewStyle" parent="@android:style/Widget.TextView">
+        <item name="android:textColor">?defaultFontColor</item>
     </style>
 
     <style name="ActionBarDayStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">

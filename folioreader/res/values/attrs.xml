@@ -15,4 +15,8 @@
         <attr name="maxVisibleDuration" format="integer" />
     </declare-styleable>
 
+    <attr name="defaultFontColor" format="reference|color" />
+    <attr name="searchItemHeaderBackgroundColor" format="reference|color" />
+    <attr name="dividerColor" format="reference|color" />
+
 </resources>
