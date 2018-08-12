@@ -1,1 +1,10 @@
 include ':folioreader', ':sample', ':webViewMarker'
+
+include 'r2-fetcher'
+project(':r2-fetcher').projectDir = new File('D:/CodeToArt/Folio Reader/r2-streamer-java/r2-fetcher')
+
+include 'r2-parser'
+project(':r2-parser').projectDir = new File('D:/CodeToArt/Folio Reader/r2-streamer-java/r2-parser')
+
+include 'r2-server'
+project(':r2-server').projectDir = new File('D:/CodeToArt/Folio Reader/r2-streamer-java/r2-server')

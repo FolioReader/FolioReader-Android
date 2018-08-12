@@ -18,6 +18,7 @@ import org.readium.r2_streamer.model.searcher.SearchQueryResults
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.io.Reader
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -55,31 +56,41 @@ class SearchLoader : AsyncTaskLoader<Any?> {
     override fun loadInBackground(): Any? {
         Log.d(LOG_TAG, "-> loadInBackground")
 
-        var searchUri: Uri? = bundle?.getParcelable(SearchActivity.BUNDLE_SEARCH_URI)
-        val searchQuery: String? = bundle?.getString(SearchManager.QUERY)
-        searchUri = searchUri?.buildUpon()
-                ?.appendQueryParameter("query", searchQuery)
-                ?.build()
-        val searchUrl = URL(searchUri.toString())
+        var searchQueryResults: SearchQueryResults? = null
 
-        val urlConnection: HttpURLConnection = searchUrl.openConnection() as HttpURLConnection
-        urlConnection.requestMethod = "GET"
-        val inputStream: InputStream = urlConnection.inputStream
-        val bufferedReader = BufferedReader(InputStreamReader(inputStream,
-                AppUtil.charsetNameForURLConnection(urlConnection)))
-        val stringBuilder = StringBuilder()
+        try {
+            var searchUri: Uri? = bundle?.getParcelable(SearchActivity.BUNDLE_SEARCH_URI)
+            val searchQuery: String? = bundle?.getString(SearchManager.QUERY)
+            searchUri = searchUri?.buildUpon()
+                    ?.appendQueryParameter("query", searchQuery)
+                    ?.build()
+            val searchUrl = URL(searchUri.toString())
 
-        bufferedReader.forEachLine {
-            stringBuilder.append(it)
+            val urlConnection: HttpURLConnection = searchUrl.openConnection() as HttpURLConnection
+            urlConnection.requestMethod = "GET"
+            val inputStream: InputStream = urlConnection.inputStream
+            val bufferedReader = BufferedReader(InputStreamReader(inputStream,
+                    AppUtil.charsetNameForURLConnection(urlConnection)) as Reader?)
+            val stringBuilder = StringBuilder()
+
+            bufferedReader.forEachLine {
+                stringBuilder.append(it)
+            }
+
+            //Thread.sleep(6000)
+
+            val objectMapper = ObjectMapper()
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            searchQueryResults = objectMapper.readValue(stringBuilder.toString(),
+                    SearchQueryResults::class.java)
+            Log.d(LOG_TAG, "-> loadInBackground -> " + stringBuilder.toString())
+
+            inputStream.close()
+            urlConnection.disconnect()
+
+        } catch (e: Exception) {
+            Log.d(LOG_TAG, "-> ", e)
         }
-
-        //Thread.sleep(6000)
-
-        val objectMapper = ObjectMapper()
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        val searchQueryResults = objectMapper.readValue(stringBuilder.toString(),
-                SearchQueryResults::class.java)
-        Log.d(LOG_TAG, "-> loadInBackground -> " + stringBuilder.toString())
 
         return when {
             searchQueryResults == null -> AdapterBundle(ListViewType.FAILURE_VIEW)

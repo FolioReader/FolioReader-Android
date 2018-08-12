@@ -5,6 +5,7 @@ import android.graphics.Typeface
 import android.support.v7.widget.RecyclerView
 import android.text.SpannableString
 import android.text.style.StyleSpan
+import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +15,7 @@ import com.folioreader.R
 import com.folioreader.model.search.SearchItem
 import com.folioreader.model.search.SearchItemType
 
-class SearchAdapter : RecyclerView.Adapter<SearchAdapter.ViewHolder> {
+class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     companion object {
         @JvmField
@@ -23,7 +24,9 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.ViewHolder> {
 
     private val context: Context
     private var listViewType: ListViewType
-    private var searchItemList: ArrayList<SearchItem>? = null
+    var searchItemList: ArrayList<SearchItem>? = null
+        private set
+    var onItemClickListener: OnItemClickListener? = null
 
     constructor(context: Context, adapterBundle: AdapterBundle) : super() {
         Log.d(LOG_TAG, "-> constructor")
@@ -53,7 +56,7 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.ViewHolder> {
         return listViewType.value
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 
         val viewHolder: ViewHolder
 
@@ -100,7 +103,9 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.ViewHolder> {
         return viewHolder
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+
+        val viewHolder = holder as ViewHolder
 
         when (listViewType) {
 
@@ -110,68 +115,104 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.ViewHolder> {
             ListViewType.LOADING_VIEW -> {
             }
 
-            ListViewType.NORMAL_VIEW -> onBindNormalViewHolder(holder as NormalViewHolder, position)
+            ListViewType.NORMAL_VIEW -> viewHolder.onBind(position)
 
             ListViewType.EMPTY_VIEW -> {
             }
 
             ListViewType.FAILURE_VIEW -> {
             }
-        }
-    }
 
-    private fun onBindNormalViewHolder(holder: NormalViewHolder, position: Int) {
-
-        val searchItem: SearchItem = searchItemList!![position]
-
-        when (searchItem.searchItemType) {
-
-            SearchItemType.SEARCH_COUNT_ITEM -> {
-                val count: Int = searchItem.primaryContents?.toInt()!!
-                holder.textViewCount.text = context.resources.getQuantityString(
-                        R.plurals.numberOfSearchResults, count, count)
-                holder.textViewCount.visibility = View.VISIBLE
-                holder.textViewTitle.visibility = View.GONE
-                holder.textViewResult.visibility = View.GONE
-            }
-
-            SearchItemType.PAGE_TITLE_ITEM -> {
-                holder.textViewTitle.text = searchItem.primaryContents
-                holder.textViewTitle.visibility = View.VISIBLE
-                holder.textViewCount.visibility = View.GONE
-                holder.textViewResult.visibility = View.GONE
-            }
-
-            SearchItemType.SEARCH_RESULT_ITEM -> {
-
-                val spannableString = SpannableString(searchItem.textBefore
-                        + searchItem.searchQuery
-                        + searchItem.textAfter)
-                val from = searchItem.textBefore.length
-                val to = from + searchItem.searchQuery.length
-                spannableString.setSpan(StyleSpan(Typeface.BOLD), from, to, 0)
-                holder.textViewResult.text = spannableString
-
-                holder.textViewResult.visibility = View.VISIBLE
-                holder.textViewCount.visibility = View.GONE
-                holder.textViewTitle.visibility = View.GONE
+            else -> {
             }
         }
     }
 
-    open class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    inner class InitViewHolder(itemView: View) : ViewHolder(itemView) {
+        init {
+            listViewType = ListViewType.INIT_VIEW
+        }
+    }
 
-    class InitViewHolder(itemView: View) : ViewHolder(itemView)
+    inner class LoadingViewHolder(itemView: View) : ViewHolder(itemView) {
+        init {
+            listViewType = ListViewType.LOADING_VIEW
+        }
+    }
 
-    class LoadingViewHolder(itemView: View) : ViewHolder(itemView)
+    inner class NormalViewHolder(itemView: View) : ViewHolder(itemView), View.OnClickListener {
 
-    class NormalViewHolder(itemView: View) : ViewHolder(itemView) {
         val textViewCount: TextView = itemView.findViewById(R.id.textViewCount)
         val textViewTitle: TextView = itemView.findViewById(R.id.textViewTitle)
         val textViewResult: TextView = itemView.findViewById(R.id.textViewResult)
+        lateinit var searchItem: SearchItem
+
+        init {
+            listViewType = ListViewType.NORMAL_VIEW
+        }
+
+        override fun onBind(position: Int) {
+
+            itemPosition = position
+            searchItem = searchItemList!![position]
+
+            when (searchItem.searchItemType) {
+
+                SearchItemType.SEARCH_COUNT_ITEM -> {
+                    val count: Int = searchItem.primaryContents?.toInt()!!
+                    textViewCount.text = context.resources.getQuantityString(
+                            R.plurals.numberOfSearchResults, count, count)
+                    textViewCount.visibility = View.VISIBLE
+                    textViewTitle.visibility = View.GONE
+                    textViewResult.visibility = View.GONE
+
+                    itemView.setOnClickListener(null)
+                }
+
+                SearchItemType.PAGE_TITLE_ITEM -> {
+                    textViewTitle.text = searchItem.primaryContents
+                    textViewTitle.visibility = View.VISIBLE
+                    textViewCount.visibility = View.GONE
+                    textViewResult.visibility = View.GONE
+
+                    itemView.setOnClickListener(null)
+                }
+
+                SearchItemType.SEARCH_RESULT_ITEM -> {
+
+                    val spannableString = SpannableString(searchItem.textBefore
+                            + searchItem.searchQuery
+                            + searchItem.textAfter)
+                    val from = searchItem.textBefore.length
+                    val to = from + searchItem.searchQuery.length
+                    spannableString.setSpan(StyleSpan(Typeface.BOLD), from, to, 0)
+                    spannableString.setSpan(UnderlineSpan(), from, to, 0)
+                    textViewResult.text = spannableString
+
+                    textViewResult.visibility = View.VISIBLE
+                    textViewCount.visibility = View.GONE
+                    textViewTitle.visibility = View.GONE
+
+                    itemView.setOnClickListener(this)
+                }
+            }
+        }
+
+        override fun onClick(v: View?) {
+            onItemClickListener?.onItemClick(this@SearchAdapter, this,
+                    itemPosition, itemId)
+        }
     }
 
-    class EmptyViewHolder(itemView: View) : ViewHolder(itemView)
+    inner class EmptyViewHolder(itemView: View) : ViewHolder(itemView) {
+        init {
+            listViewType = ListViewType.EMPTY_VIEW
+        }
+    }
 
-    class FailureViewHolder(itemView: View) : ViewHolder(itemView)
+    inner class FailureViewHolder(itemView: View) : ViewHolder(itemView) {
+        init {
+            listViewType = ListViewType.FAILURE_VIEW
+        }
+    }
 }

@@ -7,9 +7,11 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.LoaderManager
 import android.support.v4.content.Loader
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.support.v7.widget.Toolbar
 import android.text.TextUtils
@@ -23,6 +25,7 @@ import com.folioreader.R
 import com.folioreader.loaders.SearchLoader
 import com.folioreader.ui.folio.adapter.AdapterBundle
 import com.folioreader.ui.folio.adapter.ListViewType
+import com.folioreader.ui.folio.adapter.OnItemClickListener
 import com.folioreader.ui.folio.adapter.SearchAdapter
 import com.folioreader.util.AppUtil
 import com.folioreader.util.UiUtil
@@ -31,7 +34,8 @@ import kotlinx.android.synthetic.main.activity_search.*
 import java.lang.Exception
 import java.lang.reflect.Field
 
-class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>, Loader.OnLoadCompleteListener<Any?> {
+class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
+        OnItemClickListener {
 
     companion object {
         @JvmField
@@ -127,6 +131,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
         val emptyBundle = AdapterBundle(ListViewType.INIT_VIEW)
         searchAdapter = SearchAdapter(this, emptyBundle)
+        searchAdapter.onItemClickListener = this
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = searchAdapter
 
@@ -276,11 +281,6 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         }
     }
 
-    override fun onLoadComplete(loader: Loader<Any?>, data: Any?) {
-        Log.d(LOG_TAG, "-> onLoadComplete -> " + getLoaderName(loader.id))
-
-    }
-
     override fun onLoaderReset(loader: Loader<Any?>) {
         Log.v(LOG_TAG, "-> onLoaderReset -> " + getLoaderName(loader.id))
     }
@@ -290,5 +290,21 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
             "SEARCH_LOADER"
         else
             "UNKNOWN_LOADER"
+    }
+
+    override fun onItemClick(adapter: RecyclerView.Adapter<RecyclerView.ViewHolder>,
+                             viewHolder: RecyclerView.ViewHolder, position: Int, id: Long) {
+
+        if (adapter is SearchAdapter) {
+            if (viewHolder is SearchAdapter.NormalViewHolder) {
+                Log.d(LOG_TAG, "-> onItemClick -> " + viewHolder.searchItem.matchString)
+
+                val intent = Intent(FolioActivity.ACTION_SEARCH_ITEM_CLICK)
+                intent.putExtra(FolioActivity.EXTRA_SEARCH_ITEM, viewHolder.searchItem)
+                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+
+                moveTaskToBack(true)
+            }
+        }
     }
 }

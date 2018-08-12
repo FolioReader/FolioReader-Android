@@ -698,7 +698,7 @@ public class FolioPageFragment
             synchronized (this) {
                 boolean isHorizontal = mActivityCallback.getDirection() ==
                         Config.Direction.HORIZONTAL;
-                mWebview.loadUrl("javascript:getFirstVisibleSpan(" + isHorizontal +")");
+                mWebview.loadUrl("javascript:getFirstVisibleSpan(" + isHorizontal + ")");
 
                 wait(2000);
             }
