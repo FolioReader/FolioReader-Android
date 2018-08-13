@@ -367,6 +367,155 @@ function test() {
 
     if (FolioPageFragment.getDirection() == "HORIZONTAL")
         initHorizontalDirection();
+
+    var searchQuery = "e";
+
+    highlightSearchQuery(searchQuery);
+    //rangyHighlightSearchQuery(searchQuery);
+}
+
+function rangyHighlightSearchQuery(searchQuery) {
+
+    rangy.init();
+
+    var classApplierModule = rangy.modules.ClassApplier;
+    if (!rangy.supported || !classApplierModule || !classApplierModule.supported) {
+        console.error("Rangy init failed");
+        return;
+    }
+
+    var searchResultApplier = rangy.createClassApplier("searchResult");
+
+    var range = rangy.createRange();
+    var searchScopeRange = rangy.createRange();
+    searchScopeRange.selectNodeContents(document.body);
+
+    var options = {
+        caseSensitive: false,
+        wholeWordsOnly: false,
+        withinRange: searchScopeRange
+    };
+
+    range.selectNodeContents(document.body);
+    searchResultApplier.undoToRange(range);
+
+    // Escape RegExp ???
+    var searchQueryRegExp = new RegExp(searchQuery, "gi");
+
+    // Iterate over matches
+    while (range.findText(searchQueryRegExp, options)) {
+
+        //console.log(range);
+
+        searchResultApplier.applyToRange(range);
+
+        // Collapse the range to the position immediately after the match
+        range.collapse(false);
+    }
+}
+
+function highlightSearchQuery(searchQuery) {
+
+    var searchQueryRegExp = new RegExp(escapeRegExp(searchQuery), "i");
+
+    var searchChildNodesArray = [];
+    var elementArray = [];
+    var textNodeArray = [];
+
+    var bodyElement = document.getElementsByTagName('body')[0];
+    var elementsInBody = bodyElement.getElementsByTagName('*');
+
+    for (var i=0 ; i < elementsInBody.length ; i++) {
+
+        var childNodes = elementsInBody[i].childNodes;
+
+        for (var j = 0; j < childNodes.length; j++) {
+
+            if (childNodes[j].nodeType == Node.TEXT_NODE &&
+                childNodes[j].nodeValue.trim().length) {
+                //console.log("-> " + childNodes[j].nodeValue);
+
+                if (childNodes[j].nodeValue.match(searchQueryRegExp)) {
+                    //console.log("-> Found -> " + childNodes[j].nodeValue);
+
+                    searchChildNodesArray.push(
+                        getSearchChildNodes(childNodes[j].nodeValue, searchQuery));
+
+                    elementArray.push(elementsInBody[i]);
+                    textNodeArray.push(childNodes[j]);
+                }
+            }
+        }
+    }
+
+    console.log("-> Found = " + searchChildNodesArray.length);
+
+    for (var i = 0 ; i < searchChildNodesArray.length ; i++) {
+
+        var searchChildNodes = searchChildNodesArray[i];
+
+        for (var j = 0 ; j < searchChildNodes.length ; j++) {
+            elementArray[i].insertBefore(searchChildNodes[j], textNodeArray[i]);
+        }
+
+        elementArray[i].removeChild(textNodeArray[i]);
+    }
+}
+
+function getSearchChildNodes(text, searchQuery) {
+
+    var arrayIndex = [];
+    var matchIndexStart = -1;
+    var textChunk = "";
+    var searchChildNodes = [];
+
+    for (var i = 0, j = 0 ; i < text.length ; i++) {
+
+        textChunk += text[i];
+
+        if (text[i].match(new RegExp(escapeRegExp(searchQuery[j]), "i"))) {
+
+            if (matchIndexStart == -1)
+                matchIndexStart = i;
+
+            if (searchQuery.length == j + 1) {
+
+                var textNode = document.createTextNode(
+                    textChunk.substring(0, textChunk.length - searchQuery.length));
+
+                var searchNode = document.createElement("span");
+                searchNode.className = "searchResult";
+                var queryTextNode = document.createTextNode(
+                    text.substring(matchIndexStart, matchIndexStart + searchQuery.length));
+                searchNode.appendChild(queryTextNode);
+
+                searchChildNodes.push(textNode);
+                searchChildNodes.push(searchNode);
+
+                arrayIndex.push(matchIndexStart);
+                matchIndexStart = -1;
+                j = 0;
+                textChunk = "";
+
+            } else {
+                j++;
+            }
+
+        } else {
+            matchIndexStart = -1;
+            j = 0;
+        }
+    }
+
+    // Might be empty
+    var textNode = document.createTextNode(textChunk);
+    searchChildNodes.push(textNode);
+
+    return searchChildNodes;
+}
+
+function escapeRegExp(str) {
+    return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }
 
 function scrollToLast() {

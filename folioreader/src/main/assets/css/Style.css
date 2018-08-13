@@ -311,3 +311,8 @@ p, span, div {
         hyphens: none !important;
     }
 }
+
+*.searchResult {
+    font-weight: bold;
+    background-color: yellow;
+}
