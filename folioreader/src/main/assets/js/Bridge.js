@@ -244,10 +244,7 @@ function bodyOrHtml() {
     return document.documentElement;
 }
 
-/**
- Go To Element - scrolls the webview to the requested element
- */
-function goToElement(element) {
+function scrollToElement(element) {
 
     var scrollingElement = bodyOrHtml();
     var top = scrollingElement.scrollTop;
@@ -359,65 +356,63 @@ var LoadingView = {
     }
 };*/
 
+var searchResults = [];
+var lastSearchQuery = null;
+var testCounter = 0;
+var searchResultsInvisible = true;
+
 // Testing purpose calls
 function test() {
 
-    getCompatMode();
-    wrappingSentencesWithinPTags();
+    ++testCounter;
+    console.log("-> testCounter = " + testCounter);
 
-    if (FolioPageFragment.getDirection() == "HORIZONTAL")
-        initHorizontalDirection();
+    if (testCounter == 1) {
 
-    var searchQuery = "e";
+        getCompatMode();
+        wrappingSentencesWithinPTags();
 
-    highlightSearchQuery(searchQuery);
-    //rangyHighlightSearchQuery(searchQuery);
-}
+        if (FolioPageFragment.getDirection() == "HORIZONTAL")
+            initHorizontalDirection();
 
-function rangyHighlightSearchQuery(searchQuery) {
+        var searchQuery = "look";
+        var occurrenceInChapter = 2;
 
-    rangy.init();
+        highlightSearchResult(searchQuery, occurrenceInChapter);
 
-    var classApplierModule = rangy.modules.ClassApplier;
-    if (!rangy.supported || !classApplierModule || !classApplierModule.supported) {
-        console.error("Rangy init failed");
-        return;
-    }
+    } else if (testCounter == 2) {
 
-    var searchResultApplier = rangy.createClassApplier("searchResult");
+        makeSearchResultsInvisible();
 
-    var range = rangy.createRange();
-    var searchScopeRange = rangy.createRange();
-    searchScopeRange.selectNodeContents(document.body);
+    } else if (testCounter == 3) {
 
-    var options = {
-        caseSensitive: false,
-        wholeWordsOnly: false,
-        withinRange: searchScopeRange
-    };
+        var searchQuery = "the";
+        var occurrenceInChapter = 2;
 
-    range.selectNodeContents(document.body);
-    searchResultApplier.undoToRange(range);
+        highlightSearchResult(searchQuery, occurrenceInChapter);
 
-    // Escape RegExp ???
-    var searchQueryRegExp = new RegExp(searchQuery, "gi");
-
-    // Iterate over matches
-    while (range.findText(searchQueryRegExp, options)) {
-
-        //console.log(range);
-
-        searchResultApplier.applyToRange(range);
-
-        // Collapse the range to the position immediately after the match
-        range.collapse(false);
     }
 }
 
-function highlightSearchQuery(searchQuery) {
+function highlightSearchResult(searchQuery, occurrenceInChapter) {
+
+    if (searchQuery == lastSearchQuery) {
+        makeSearchResultsInvisible();
+    } else {
+        resetSearchResults();
+        searchResults = applySearchResultClass(searchQuery);
+        console.debug("-> Search Query Found = " + searchResults.length);
+    }
+
+    applySearchResultVisibleClass(occurrenceInChapter);
+    LoadingView.hide();
+}
+
+function applySearchResultClass(searchQuery) {
 
     var searchQueryRegExp = new RegExp(escapeRegExp(searchQuery), "i");
 
+    var searchResults = [];
     var searchChildNodesArray = [];
     var elementArray = [];
     var textNodeArray = [];
@@ -425,7 +420,7 @@ function highlightSearchQuery(searchQuery) {
     var bodyElement = document.getElementsByTagName('body')[0];
     var elementsInBody = bodyElement.getElementsByTagName('*');
 
-    for (var i=0 ; i < elementsInBody.length ; i++) {
+    for (var i = 0 ; i < elementsInBody.length ; i++) {
 
         var childNodes = elementsInBody[i].childNodes;
 
@@ -448,18 +443,22 @@ function highlightSearchQuery(searchQuery) {
         }
     }
 
-    console.log("-> Found = " + searchChildNodesArray.length);
-
     for (var i = 0 ; i < searchChildNodesArray.length ; i++) {
 
         var searchChildNodes = searchChildNodesArray[i];
 
         for (var j = 0 ; j < searchChildNodes.length ; j++) {
+
+            if (searchChildNodes[j].className == "search-result")
+                searchResults.push(searchChildNodes[j]);
             elementArray[i].insertBefore(searchChildNodes[j], textNodeArray[i]);
         }
 
         elementArray[i].removeChild(textNodeArray[i]);
     }
+
+    lastSearchQuery = searchQuery;
+    return searchResults;
 }
 
 function getSearchChildNodes(text, searchQuery) {
@@ -484,7 +483,7 @@ function getSearchChildNodes(text, searchQuery) {
                     textChunk.substring(0, textChunk.length - searchQuery.length));
 
                 var searchNode = document.createElement("span");
-                searchNode.className = "searchResult";
+                searchNode.className = "search-result";
                 var queryTextNode = document.createTextNode(
                     text.substring(matchIndexStart, matchIndexStart + searchQuery.length));
                 searchNode.appendChild(queryTextNode);
@@ -507,11 +506,52 @@ function getSearchChildNodes(text, searchQuery) {
         }
     }
 
-    // Might be empty
-    var textNode = document.createTextNode(textChunk);
-    searchChildNodes.push(textNode);
+    if (textChunk !== "") {
+        var textNode = document.createTextNode(textChunk);
+        searchChildNodes.push(textNode);
+    }
 
     return searchChildNodes;
+}
+
+function makeSearchResultsVisible() {
+
+    for (var i = 0 ; i < searchResults.length ; i++) {
+        searchResults[i].className = "search-result-visible";
+    }
+    searchResultsInvisible = false;
+}
+
+function makeSearchResultsInvisible() {
+
+    if (searchResultsInvisible)
+        return;
+    for (var i = 0 ; i < searchResults.length ; i++) {
+        searchResults[i].className = "search-result";
+    }
+    searchResultsInvisible = true;
+}
+
+function applySearchResultVisibleClass(occurrenceInChapter) {
+
+    var searchResult = searchResults[occurrenceInChapter - 1];
+    if (searchResult === undefined)
+        return;
+    searchResult.className = "search-result-visible";
+    searchResultsInvisible = false;
+
+    scrollToElement(searchResult);
+}
+
+function resetSearchResults() {
+
+    for (var i = 0 ; i < searchResults.length ; i++) {
+        searchResults[i].outerHTML = searchResults[i].innerHTML;
+    }
+
+    searchResults = [];
+    lastSearchQuery = null;
+    searchResultsInvisible = true;
 }
 
 function escapeRegExp(str) {
@@ -681,7 +721,7 @@ function audioMarkID(className, id) {
     audioMarkClass = className
     var el = document.getElementById(id);
 
-    goToElement(el);
+    scrollToElement(el);
     el.classList.add(className)
 }
 
@@ -773,7 +813,7 @@ function getSentenceWithIndex(className) {
 
     var text = sentence.innerText || sentence.textContent;
 
-    goToElement(sentence);
+    scrollToElement(sentence);
 
     if (audioMarkClass){
         removeAllClasses(audioMarkClass);
@@ -956,7 +996,11 @@ function wrappingSentencesWithinPTags(){
                 safety -= 1;
             }
 
-            paragraph.innerHTML = array.join("");
+            try {
+                paragraph.innerHTML = array.join("");
+            } catch(err) {
+                console.error(err);
+            }
         });
     }
 
@@ -982,7 +1026,7 @@ FolioPageFragment#storeFirstVisibleSpan(boolean, String) JavascriptInterface.
 */
 function getFirstVisibleSpan(isHorizontal) {
 
-    var spanCollection = document.getElementsByTagName("span");
+    var spanCollection = document.querySelectorAll("span.sentence");
 
     if (spanCollection.length == 0) {
         FolioPageFragment.storeFirstVisibleSpan(false, 0);
@@ -1016,15 +1060,15 @@ function scrollToSpan(usingId, value) {
     if (usingId) {
         var spanElement = document.getElementById(value);
         if (spanElement)
-            goToElement(spanElement);
+            scrollToElement(spanElement);
     } else {
-        var spanCollection = document.getElementsByTagName("span");
+        var spanCollection = document.querySelectorAll("span.sentence");;
         if (spanCollection.length == 0 || value < 0 || value >= spanCollection.length
             || value == null) {
             LoadingView.hide();
             return;
         }
-        goToElement(spanCollection[value]);
+        scrollToElement(spanCollection[value]);
     }
 
     LoadingView.hide();
@@ -1087,7 +1131,7 @@ function getHighlightString(style) {
 function goToHighlight(highlightId){
     var element = document.getElementById(highlightId.toString());
     if (element)
-        goToElement(element);
+        scrollToElement(element);
 
     LoadingView.hide();
 }
@@ -1095,7 +1139,7 @@ function goToHighlight(highlightId){
 function goToAnchor(anchorId) {
     var element = document.getElementById(anchorId);
     if (element)
-        goToElement(element);
+        scrollToElement(element);
 
     LoadingView.hide();
 }

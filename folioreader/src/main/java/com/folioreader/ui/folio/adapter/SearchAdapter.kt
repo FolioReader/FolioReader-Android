@@ -181,10 +181,10 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 SearchItemType.SEARCH_RESULT_ITEM -> {
 
                     val spannableString = SpannableString(searchItem.textBefore
-                            + searchItem.searchQuery
+                            + searchItem.matchQuery
                             + searchItem.textAfter)
                     val from = searchItem.textBefore.length
-                    val to = from + searchItem.searchQuery.length
+                    val to = from + searchItem.matchQuery.length
                     spannableString.setSpan(StyleSpan(Typeface.BOLD), from, to, 0)
                     spannableString.setSpan(UnderlineSpan(), from, to, 0)
                     textViewResult.text = spannableString

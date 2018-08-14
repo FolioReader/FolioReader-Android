@@ -219,6 +219,10 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
                 if (TextUtils.isEmpty(newText)) {
                     Log.d(LOG_TAG, "-> onQueryTextChange -> Empty Query")
                     supportLoaderManager.restartLoader(SEARCH_LOADER, null, this@SearchActivity)
+
+                    val intent = Intent(FolioActivity.ACTION_SEARCH_CLEAR)
+                    LocalBroadcastManager.getInstance(this@SearchActivity)
+                            .sendBroadcast(intent)
                 }
                 return false
             }
@@ -297,7 +301,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
         if (adapter is SearchAdapter) {
             if (viewHolder is SearchAdapter.NormalViewHolder) {
-                Log.d(LOG_TAG, "-> onItemClick -> " + viewHolder.searchItem.matchString)
+                Log.d(LOG_TAG, "-> onItemClick -> " + viewHolder.searchItem)
 
                 val intent = Intent(FolioActivity.ACTION_SEARCH_ITEM_CLICK)
                 intent.putExtra(FolioActivity.EXTRA_SEARCH_ITEM, viewHolder.searchItem)

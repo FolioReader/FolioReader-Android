@@ -312,7 +312,10 @@ p, span, div {
     }
 }
 
-*.searchResult {
+.search-result {
+}
+
+.search-result-visible {
     font-weight: bold;
     background-color: yellow;
 }

@@ -21,6 +21,7 @@ import java.io.InputStreamReader
 import java.io.Reader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 
 class SearchLoader : AsyncTaskLoader<Any?> {
 
@@ -59,12 +60,10 @@ class SearchLoader : AsyncTaskLoader<Any?> {
         var searchQueryResults: SearchQueryResults? = null
 
         try {
-            var searchUri: Uri? = bundle?.getParcelable(SearchActivity.BUNDLE_SEARCH_URI)
+            val searchUri: Uri? = bundle?.getParcelable(SearchActivity.BUNDLE_SEARCH_URI)
             val searchQuery: String? = bundle?.getString(SearchManager.QUERY)
-            searchUri = searchUri?.buildUpon()
-                    ?.appendQueryParameter("query", searchQuery)
-                    ?.build()
-            val searchUrl = URL(searchUri.toString())
+            val searchQueryEncoded: String? = URLEncoder.encode(searchQuery, "UTF-8")
+            val searchUrl = URL(searchUri.toString() + "?query=" + searchQueryEncoded)
 
             val urlConnection: HttpURLConnection = searchUrl.openConnection() as HttpURLConnection
             urlConnection.requestMethod = "GET"
@@ -136,7 +135,7 @@ class SearchLoader : AsyncTaskLoader<Any?> {
 
             val searchResultItem = SearchItem(searchResult)
             searchResultItem.searchItemType = SearchItemType.SEARCH_RESULT_ITEM
-            searchResultItem.primaryContents = searchResultItem.matchString
+            searchResultItem.primaryContents = searchResultItem.sentence
             searchItemList.add(searchResultItem)
         }
 

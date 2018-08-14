@@ -170,7 +170,7 @@ public class WebViewPager extends ViewPager {
                     .inflate(R.layout.view_webview_pager, container, false);
 
             // Debug code
-            // Set alpha for folioWebView in folio_page_fragment.xml to 0.5f also.
+            // Set alpha for folioWebView in folio_page_fragment.xml to 0.5 also.
             /*if (position % 2 == 0) {
                 view.setBackgroundResource(R.drawable.green_border_background);
             } else {

@@ -15,23 +15,26 @@ class SearchItem : SearchResult, Parcelable {
         originalHref = parcel.readString()
         title = parcel.readString()
         searchQuery = parcel.readString()
-        matchString = parcel.readString()
+        matchQuery = parcel.readString()
+        sentence = parcel.readString()
         textBefore = parcel.readString()
         textAfter = parcel.readString()
+        occurrenceInChapter = parcel.readInt()
         primaryContents = parcel.readString()
         searchItemType = SearchItemType.valueOf(parcel.readString()!!)
     }
 
     constructor() : super()
     constructor(searchIndex: Int, href: String?, originalHref: String?, title: String?,
-                searchQuery: String?, matchString: String?, textBefore: String?,
-                textAfter: String?) :
-            super(searchIndex, href, originalHref, title, searchQuery, matchString, textBefore,
-                    textAfter)
+                searchQuery: String?, matchQuery: String?, sentence: String?,
+                textBefore: String?, textAfter: String?, occurrenceInChapter: Int) :
+            super(searchIndex, href, originalHref, title, searchQuery, matchQuery,
+                    sentence, textBefore, textAfter, occurrenceInChapter)
 
     constructor(searchResult: SearchResult) : this(searchResult.searchIndex, searchResult.href,
             searchResult.originalHref, searchResult.title, searchResult.searchQuery,
-            searchResult.matchString, searchResult.textBefore, searchResult.textAfter)
+            searchResult.matchQuery, searchResult.sentence, searchResult.textBefore,
+            searchResult.textAfter, searchResult.occurrenceInChapter)
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(searchIndex)
@@ -39,9 +42,11 @@ class SearchItem : SearchResult, Parcelable {
         parcel.writeString(originalHref)
         parcel.writeString(title)
         parcel.writeString(searchQuery)
-        parcel.writeString(matchString)
+        parcel.writeString(matchQuery)
+        parcel.writeString(sentence)
         parcel.writeString(textBefore)
         parcel.writeString(textAfter)
+        parcel.writeInt(occurrenceInChapter)
         parcel.writeString(primaryContents)
         parcel.writeString(searchItemType.name)
     }

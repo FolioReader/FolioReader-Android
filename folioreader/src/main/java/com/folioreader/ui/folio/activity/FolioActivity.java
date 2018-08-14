@@ -96,6 +96,7 @@ public class FolioActivity
     private static final String BUNDLE_DISTRACTION_FREE_MODE = "BUNDLE_DISTRACTION_FREE_MODE";
     public static final String ACTION_SEARCH_ITEM_CLICK = "ACTION_SEARCH_ITEM_CLICK";
     public static final String EXTRA_SEARCH_ITEM = "EXTRA_SEARCH_ITEM";
+    public static final String ACTION_SEARCH_CLEAR = "ACTION_SEARCH_CLEAR";
 
     public enum EpubSourceType {
         RAW,
@@ -332,8 +333,8 @@ public class FolioActivity
     public void onDirectionChange(@NonNull Config.Direction newDirection) {
         Log.v(LOG_TAG, "-> onDirectionChange");
 
-        FolioPageFragment folioPageFragment = (FolioPageFragment)
-                mFolioPageFragmentAdapter.getItem(mFolioPageViewPager.getCurrentItem());
+        FolioPageFragment folioPageFragment = getCurrentFragment();
+        if (folioPageFragment == null) return;
         entryReadPosition = folioPageFragment.getLastReadPosition();
 
         direction = newDirection;
@@ -465,8 +466,7 @@ public class FolioActivity
             if (href.contains(spine.href)) {
                 mChapterPosition = mSpineReferenceList.indexOf(spine);
                 mFolioPageViewPager.setCurrentItem(mChapterPosition);
-                FolioPageFragment folioPageFragment = (FolioPageFragment)
-                        mFolioPageFragmentAdapter.getItem(mChapterPosition);
+                FolioPageFragment folioPageFragment = getCurrentFragment();
                 folioPageFragment.scrollToFirst();
                 folioPageFragment.scrollToAnchorId(href);
                 return true;
@@ -487,8 +487,8 @@ public class FolioActivity
             } else if (type.equals(HIGHLIGHT_SELECTED)) {
                 HighlightImpl highlightImpl = data.getParcelableExtra(HIGHLIGHT_ITEM);
                 mFolioPageViewPager.setCurrentItem(highlightImpl.getPageNumber());
-                FolioPageFragment folioPageFragment = (FolioPageFragment)
-                        mFolioPageFragmentAdapter.getItem(highlightImpl.getPageNumber());
+                FolioPageFragment folioPageFragment = getCurrentFragment();
+                if (folioPageFragment == null) return;
                 folioPageFragment.scrollToHighlightId(highlightImpl.getRangy());
             }
         }
@@ -500,6 +500,8 @@ public class FolioActivity
 
         if (outState != null)
             outState.putParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE, lastReadPosition);
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(searchReceiver);
 
         if (mEpubServer != null) {
             mEpubServer.stop();
@@ -599,8 +601,10 @@ public class FolioActivity
         }
         mFolioPageViewPager.setCurrentItem(getChapterIndex(readPosition));
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(searchReceiver,
-                new IntentFilter(ACTION_SEARCH_ITEM_CLICK));
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ACTION_SEARCH_ITEM_CLICK);
+        intentFilter.addAction(ACTION_SEARCH_CLEAR);
+        LocalBroadcastManager.getInstance(this).registerReceiver(searchReceiver, intentFilter);
     }
 
     /**
@@ -744,15 +748,31 @@ public class FolioActivity
     private BroadcastReceiver searchReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(LOG_TAG, "-> searchReceiver -> onReceive");
+            Log.d(LOG_TAG, "-> searchReceiver -> onReceive -> " + intent.getAction());
 
-            SearchItem searchItem = intent.getParcelableExtra(EXTRA_SEARCH_ITEM);
-            int chapterIndex = getChapterIndex(Constants.HREF, searchItem.getOriginalHref());
-            mFolioPageViewPager.setCurrentItem(chapterIndex);
-
-            FolioPageFragment folioPageFragment = getCurrentFragment();
-            if (folioPageFragment == null)
+            String action = intent.getAction();
+            if (action == null)
                 return;
+
+            FolioPageFragment folioPageFragment;
+
+            switch(action) {
+
+                case ACTION_SEARCH_ITEM_CLICK:
+                    SearchItem searchItem = intent.getParcelableExtra(EXTRA_SEARCH_ITEM);
+                    int chapterIndex = getChapterIndex(Constants.HREF, searchItem.getOriginalHref());
+                    mFolioPageViewPager.setCurrentItem(chapterIndex);
+                    folioPageFragment = getCurrentFragment();
+                    if (folioPageFragment == null) return;
+                    folioPageFragment.highlightSearchItem(searchItem);
+                    break;
+
+                case ACTION_SEARCH_CLEAR:
+                    folioPageFragment = getCurrentFragment();
+                    if (folioPageFragment == null) return;
+                    folioPageFragment.resetSearchResults();
+                    break;
+            }
         }
     };
 

@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
@@ -33,6 +32,12 @@ public class FolioWebView extends WebView {
     private Handler handler;
     private FolioActivityCallback folioActivityCallback;
 
+    private enum LastScrollType {
+        USER, PROGRAMMATIC
+    }
+
+    private LastScrollType lastScrollType;
+
     private class HorizontalGestureListener
             extends GestureDetector.SimpleOnGestureListener {
 
@@ -44,7 +49,15 @@ public class FolioWebView extends WebView {
         }
 
         @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            //Log.d(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
+            lastScrollType = LastScrollType.USER;
+            return false;
+        }
+
+        @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            //Log.d(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
 
             if (!webViewPager.isScrolling()) {
                 //TODO: -> check for right edge to left flings from right edge
@@ -54,6 +67,8 @@ public class FolioWebView extends WebView {
                 invalidate();
                 scrollTo(getScrollXForPage(webViewPager.getCurrentItem()), 0);
             }
+
+            lastScrollType = LastScrollType.USER;
             return true;
         }
 
@@ -76,6 +91,20 @@ public class FolioWebView extends WebView {
             folioActivityCallback.toggleSystemUI();
             return false;
         }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            //Log.v(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
+            lastScrollType = LastScrollType.USER;
+            return false;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            //Log.v(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
+            lastScrollType = LastScrollType.USER;
+            return false;
+        }
     }
 
     public FolioWebView(Context context) {
@@ -93,12 +122,13 @@ public class FolioWebView extends WebView {
     private void init() {
 
         handler = new Handler();
+        density = getResources().getDisplayMetrics().density;
+
         if (folioActivityCallback.getDirection() == Config.Direction.HORIZONTAL) {
             gestureDetector = new GestureDetectorCompat(getContext(), new HorizontalGestureListener());
         } else {
             gestureDetector = new GestureDetectorCompat(getContext(), new VerticalGestureListener());
         }
-        density = getResources().getDisplayMetrics().density;
     }
 
     @SuppressWarnings("unused")
@@ -180,9 +210,23 @@ public class FolioWebView extends WebView {
     }
 
     @Override
+    public void scrollTo(int x, int y) {
+        super.scrollTo(x, y);
+        Log.d(LOG_TAG, "-> scrollTo -> x = " + x);
+        lastScrollType = LastScrollType.PROGRAMMATIC;
+    }
+
+    @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         if (mScrollListener != null) mScrollListener.onScrollChange(t);
         super.onScrollChanged(l, t, oldl, oldt);
+
+        if (lastScrollType == LastScrollType.USER) {
+            Log.d(LOG_TAG, "-> onScrollChanged -> scroll initiated by user");
+            loadUrl(getContext().getString(R.string.make_search_results_invisible));
+        }
+
+        lastScrollType = null;
     }
 
     public int getContentHeightVal() {
