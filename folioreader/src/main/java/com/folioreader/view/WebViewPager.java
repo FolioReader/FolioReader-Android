@@ -4,10 +4,12 @@ import android.content.Context;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,6 +26,7 @@ public class WebViewPager extends ViewPager {
     private boolean takeOverScrolling;
     private boolean scrolling;
     private Handler handler;
+    private GestureDetectorCompat gestureDetector;
 
     public WebViewPager(@NonNull Context context) {
         super(context);
@@ -35,9 +38,26 @@ public class WebViewPager extends ViewPager {
         init();
     }
 
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            Log.d(LOG_TAG, "-> onSingleTapUp");
+            WebViewPager.super.onTouchEvent(e);
+            return true;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            WebViewPager.super.onTouchEvent(e);
+            return true;
+        }
+    }
+
     private void init() {
 
         handler = new Handler();
+        gestureDetector = new GestureDetectorCompat(getContext(), new GestureListener());
 
         addOnPageChangeListener(new OnPageChangeListener() {
             @Override
@@ -54,6 +74,7 @@ public class WebViewPager extends ViewPager {
                 }
 
                 if (positionOffsetPixels == 0) {
+                    //Log.d(LOG_TAG, "-> onPageScrolled -> takeOverScrolling = false");
                     takeOverScrolling = false;
                     scrolling = false;
                 }
@@ -142,11 +163,15 @@ public class WebViewPager extends ViewPager {
     public boolean onTouchEvent(MotionEvent event) {
         //Log.d(LOG_TAG, "-> onTouchEvent -> " + AppUtil.actionToString(event.getAction()));
 
+        boolean gestureReturn = gestureDetector.onTouchEvent(event);
+        if (gestureReturn)
+            return true;
+
         boolean superReturn = super.onTouchEvent(event);
-
-        if (event.getAction() == MotionEvent.ACTION_UP)
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            //Log.d(LOG_TAG, "-> onTouchEvent -> takeOverScrolling = true");
             takeOverScrolling = true;
-
+        }
         return superReturn;
     }
 

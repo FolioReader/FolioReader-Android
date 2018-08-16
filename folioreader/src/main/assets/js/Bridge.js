@@ -270,7 +270,7 @@ function scrollToElement(element) {
         var clientWidth = document.documentElement.clientWidth;
         var pageIndex = Math.floor(element.offsetLeft / clientWidth);
         var newScrollLeft = clientWidth * pageIndex;
-        //console.log("-> newScrollLeft = " + newScrollLeft);
+        console.log("-> newScrollLeft = " + newScrollLeft);
         scrollingElement.scrollLeft = newScrollLeft;
         WebViewPager.setCurrentPage(pageIndex);
     }
@@ -622,7 +622,22 @@ function horizontalRecheck() {
         clearInterval(horizontalInterval);
 }
 
+var lastScrollLeft = 0;
+
+function testScrollLeft() {
+
+    setInterval(function() {
+        var scrollingElement = bodyOrHtml();
+        if (scrollingElement.scrollLeft != lastScrollLeft) {
+            lastScrollLeft = scrollingElement.scrollLeft;
+            console.debug("-> scrollLeft changed to " + lastScrollLeft);
+        }
+    }, 1);
+}
+
 function initHorizontalDirection() {
+
+    testScrollLeft();
 
     preInitHorizontalDirection();
     postInitHorizontalDirection();
