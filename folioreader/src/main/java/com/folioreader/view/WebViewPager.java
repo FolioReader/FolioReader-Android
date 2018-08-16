@@ -28,6 +28,12 @@ public class WebViewPager extends ViewPager {
     private Handler handler;
     private GestureDetectorCompat gestureDetector;
 
+    private enum LastGestureType {
+        OnSingleTapUp, OnLongPress, OnFling, OnScroll
+    }
+
+    private LastGestureType lastGestureType;
+
     public WebViewPager(@NonNull Context context) {
         super(context);
         init();
@@ -36,22 +42,6 @@ public class WebViewPager extends ViewPager {
     public WebViewPager(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
-    }
-
-    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            Log.d(LOG_TAG, "-> onSingleTapUp");
-            WebViewPager.super.onTouchEvent(e);
-            return true;
-        }
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            WebViewPager.super.onTouchEvent(e);
-            return true;
-        }
     }
 
     private void init() {
@@ -159,6 +149,43 @@ public class WebViewPager extends ViewPager {
         });
     }
 
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            WebViewPager.super.onTouchEvent(e);
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            //Log.d(LOG_TAG, "-> onSingleTapUp");
+            lastGestureType = LastGestureType.OnSingleTapUp;
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            super.onLongPress(e);
+            //Log.d(LOG_TAG, "-> onLongPress -> " + e);
+            lastGestureType = LastGestureType.OnLongPress;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            //Log.v(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
+            lastGestureType = LastGestureType.OnScroll;
+            return false;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            //Log.d(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
+            lastGestureType = LastGestureType.OnFling;
+            return false;
+        }
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //Log.d(LOG_TAG, "-> onTouchEvent -> " + AppUtil.actionToString(event.getAction()));
@@ -168,10 +195,15 @@ public class WebViewPager extends ViewPager {
             return true;
 
         boolean superReturn = super.onTouchEvent(event);
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            //Log.d(LOG_TAG, "-> onTouchEvent -> takeOverScrolling = true");
+
+        if (event.getAction() == MotionEvent.ACTION_UP &&
+                (lastGestureType == LastGestureType.OnScroll ||
+                        lastGestureType == LastGestureType.OnFling)) {
+            //Log.d(LOG_TAG, "-> onTouchEvent -> takeOverScrolling = true, " + "lastGestureType = " + lastGestureType);
             takeOverScrolling = true;
+            lastGestureType = null;
         }
+
         return superReturn;
     }
 
