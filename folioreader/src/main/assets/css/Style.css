@@ -316,6 +316,18 @@ p, span, div {
 }
 
 .search-result-visible {
-    font-weight: bold;
     background-color: yellow;
+}
+
+.search-result-invisible {
+    animation: search-result-invisible 1s;
+}
+
+@keyframes search-result-invisible {
+    from {
+        background-color: yellow;
+    }
+    to {
+
+    }
 }

@@ -90,6 +90,7 @@ public class FolioPageFragment
     public static final String KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.ui.folio.fragment.FolioPageFragment.EPUB_FILE_NAME";
     private static final String KEY_IS_SMIL_AVAILABLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.IS_SMIL_AVAILABLE";
     private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE = "BUNDLE_READ_POSITION_CONFIG_CHANGE";
+    public static final String BUNDLE_SEARCH_ITEM = "BUNDLE_SEARCH_ITEM";
 
     private static final int ACTION_ID_COPY = 1001;
     private static final int ACTION_ID_SHARE = 1002;
@@ -143,7 +144,7 @@ public class FolioPageFragment
     private Config mConfig;
     private String mBookId;
     private boolean initialised;
-    private SearchItem searchItem;
+    public SearchItem searchItemVisible;
 
     public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef, String bookId) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -166,20 +167,15 @@ public class FolioPageFragment
             mActivityCallback = (FolioActivityCallback) getActivity();
 
         EventBus.getDefault().register(this);
-        if ((savedInstanceState != null)
-                && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_POSITION)
-                && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK_TITLE)) {
-            mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
-            mBookTitle = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
-            mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
-            mBookId = getArguments().getString(FolioReader.INTENT_BOOK_ID);
-            spineItem = (Link) savedInstanceState.getSerializable(SPINE_ITEM);
-        } else {
-            mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
-            mBookTitle = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
-            mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
-            spineItem = (Link) getArguments().getSerializable(SPINE_ITEM);
-            mBookId = getArguments().getString(FolioReader.INTENT_BOOK_ID);
+
+        mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
+        mBookTitle = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
+        mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
+        spineItem = (Link) getArguments().getSerializable(SPINE_ITEM);
+        mBookId = getArguments().getString(FolioReader.INTENT_BOOK_ID);
+
+        if (savedInstanceState != null) {
+            searchItemVisible = savedInstanceState.getParcelable(BUNDLE_SEARCH_ITEM);
         }
 
         if (spineItem != null) {
@@ -401,6 +397,7 @@ public class FolioPageFragment
 
         FrameLayout webViewLayout = mRootView.findViewById(R.id.webViewLayout);
         mWebview = webViewLayout.findViewById(R.id.folioWebView);
+        mWebview.setParentFragment(this);
         webViewPager = webViewLayout.findViewById(R.id.webViewPager);
 
         if (getActivity() instanceof FolioActivityCallback)
@@ -521,12 +518,11 @@ public class FolioPageFragment
                 mWebview.loadUrl(String.format(getString(R.string.go_to_highlight), highlightId));
                 highlightId = null;
 
-            } else if (searchItem != null) {
-                String escapedSearchQuery = StringEscapeUtils.escapeJava(searchItem.getSearchQuery());
+            } else if (searchItemVisible != null) {
+                String escapedSearchQuery = StringEscapeUtils.escapeJava(searchItemVisible.getSearchQuery());
                 String call = String.format(getString(R.string.highlight_search_result),
-                        escapedSearchQuery, searchItem.getOccurrenceInChapter());
+                        escapedSearchQuery, searchItemVisible.getOccurrenceInChapter());
                 mWebview.loadUrl(call);
-                searchItem = null;
 
             } else if (isCurrentFragment()) {
 
@@ -893,10 +889,7 @@ public class FolioPageFragment
         if (isCurrentFragment())
             Log.v(LOG_TAG, "-> onSaveInstanceState");
 
-        outState.putInt(KEY_FRAGMENT_FOLIO_POSITION, mPosition);
-        outState.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, mBookTitle);
-        outState.putString(KEY_FRAGMENT_EPUB_FILE_NAME, mEpubFileName);
-        outState.putSerializable(SPINE_ITEM, spineItem);
+        outState.putParcelable(BUNDLE_SEARCH_ITEM, searchItemVisible);
     }
 
     public void highlight(HighlightImpl.HighlightStyle style, boolean isCreated) {
@@ -1162,19 +1155,19 @@ public class FolioPageFragment
 
     public void highlightSearchItem(SearchItem searchItem) {
         Log.d(LOG_TAG, "-> highlightSearchItem");
-        this.searchItem = searchItem;
+        this.searchItemVisible = searchItem;
 
         if (initialised) {
             String escapedSearchQuery = StringEscapeUtils.escapeJava(searchItem.getSearchQuery());
             String call = String.format(getString(R.string.highlight_search_result),
                     escapedSearchQuery, searchItem.getOccurrenceInChapter());
             mWebview.loadUrl(call);
-            this.searchItem = null;
         }
     }
 
     public void resetSearchResults() {
-        Log.d(LOG_TAG, "-> resetSearchResults");
+        Log.d(LOG_TAG, "-> resetSearchResults -> " + spineItem.originalHref);
         mWebview.loadUrl(getString(R.string.reset_search_results));
+        searchItemVisible = null;
     }
 }

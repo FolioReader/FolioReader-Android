@@ -14,6 +14,7 @@ import android.webkit.WebView;
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.ui.folio.activity.FolioActivityCallback;
+import com.folioreader.ui.folio.fragment.FolioPageFragment;
 
 /**
  * @author by mahavir on 3/31/16.
@@ -31,6 +32,7 @@ public class FolioWebView extends WebView {
     private WebViewPager webViewPager;
     private Handler handler;
     private FolioActivityCallback folioActivityCallback;
+    private FolioPageFragment parentFragment;
 
     private enum LastScrollType {
         USER, PROGRAMMATIC
@@ -142,6 +144,10 @@ public class FolioWebView extends WebView {
         }
     }
 
+    public void setParentFragment(FolioPageFragment parentFragment) {
+        this.parentFragment = parentFragment;
+    }
+
     public void setFolioActivityCallback(FolioActivityCallback folioActivityCallback) {
         this.folioActivityCallback = folioActivityCallback;
         init();
@@ -212,7 +218,7 @@ public class FolioWebView extends WebView {
     @Override
     public void scrollTo(int x, int y) {
         super.scrollTo(x, y);
-        Log.d(LOG_TAG, "-> scrollTo -> x = " + x);
+        //Log.d(LOG_TAG, "-> scrollTo -> x = " + x);
         lastScrollType = LastScrollType.PROGRAMMATIC;
     }
 
@@ -222,8 +228,9 @@ public class FolioWebView extends WebView {
         super.onScrollChanged(l, t, oldl, oldt);
 
         if (lastScrollType == LastScrollType.USER) {
-            Log.d(LOG_TAG, "-> onScrollChanged -> scroll initiated by user");
+            //Log.d(LOG_TAG, "-> onScrollChanged -> scroll initiated by user");
             loadUrl(getContext().getString(R.string.make_search_results_invisible));
+            parentFragment.searchItemVisible = null;
         }
 
         lastScrollType = null;

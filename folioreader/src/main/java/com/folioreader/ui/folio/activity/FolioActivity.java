@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
@@ -756,7 +757,7 @@ public class FolioActivity
 
             FolioPageFragment folioPageFragment;
 
-            switch(action) {
+            switch (action) {
 
                 case ACTION_SEARCH_ITEM_CLICK:
                     SearchItem searchItem = intent.getParcelableExtra(EXTRA_SEARCH_ITEM);
@@ -768,13 +769,35 @@ public class FolioActivity
                     break;
 
                 case ACTION_SEARCH_CLEAR:
-                    folioPageFragment = getCurrentFragment();
-                    if (folioPageFragment == null) return;
-                    folioPageFragment.resetSearchResults();
+                    //TODO: -> rename reset to clear
+                    resetSearchResults();
                     break;
             }
         }
     };
+
+    private void resetSearchResults() {
+        Log.d(LOG_TAG, "-> resetSearchResults");
+
+        ArrayList<Fragment> fragments = mFolioPageFragmentAdapter.getFragments();
+        for (int i = 0; i < fragments.size(); i++) {
+            FolioPageFragment folioPageFragment = (FolioPageFragment) fragments.get(i);
+            if (folioPageFragment != null) {
+                folioPageFragment.resetSearchResults();
+            }
+        }
+
+        ArrayList<Fragment.SavedState> savedStateList =
+                mFolioPageFragmentAdapter.getSavedStateList();
+        if (savedStateList != null) {
+            for (int i = 0; i < savedStateList.size(); i++) {
+                Fragment.SavedState savedState = savedStateList.get(i);
+                Bundle bundle = FolioPageFragmentAdapter.getBundleFromSavedState(savedState);
+                if (bundle != null)
+                    bundle.putParcelable(FolioPageFragment.BUNDLE_SEARCH_ITEM, null);
+            }
+        }
+    }
 
     private FolioPageFragment getCurrentFragment() {
 
