@@ -28,6 +28,7 @@ public class FolioWebView extends WebView {
     private SeekBarListener mSeekBarListener;
     private GestureDetectorCompat gestureDetector;
     private MotionEvent eventActionDown;
+    private int pageWidthCssDp;
     private int pageWidthCssPixels;
     private WebViewPager webViewPager;
     private Handler handler;
@@ -62,12 +63,16 @@ public class FolioWebView extends WebView {
             //Log.d(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
 
             if (!webViewPager.isScrolling()) {
-                //TODO: -> check for right edge to left flings from right edge
                 // Need to complete the scroll as ViewPager thinks these touch events should not
                 // scroll it's pages.
                 //Log.d(LOG_TAG, "-> onFling -> completing scroll");
-                invalidate();
-                scrollTo(getScrollXForPage(webViewPager.getCurrentItem()), 0);
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Delayed to avoid inconsistency of scrolling in WebView
+                        scrollTo(getScrollXPixelsForPage(webViewPager.getCurrentItem()), 0);
+                    }
+                }, 100);
             }
 
             lastScrollType = LastScrollType.USER;
@@ -157,8 +162,8 @@ public class FolioWebView extends WebView {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
 
-        double widthDp = Math.ceil((getMeasuredWidth() / density));
-        pageWidthCssPixels = (int) (widthDp * density);
+        pageWidthCssDp = (int) Math.ceil((getMeasuredWidth() / density));
+        pageWidthCssPixels = (int) (pageWidthCssDp * density);
     }
 
     public void setScrollListener(ScrollListener listener) {
@@ -196,8 +201,13 @@ public class FolioWebView extends WebView {
         return super.onTouchEvent(event);
     }
 
-    public int getScrollXForPage(int page) {
-        //Log.v(LOG_TAG, "-> getScrollXForPage -> page = " + page);
+    public int getScrollXDpForPage(int page) {
+        //Log.v(LOG_TAG, "-> getScrollXDpForPage -> page = " + page);
+        return page * pageWidthCssDp;
+    }
+
+    public int getScrollXPixelsForPage(int page) {
+        //Log.v(LOG_TAG, "-> getScrollXPixelsForPage -> page = " + page);
         return page * pageWidthCssPixels;
     }
 

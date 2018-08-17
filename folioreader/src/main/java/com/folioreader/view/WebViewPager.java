@@ -58,7 +58,7 @@ public class WebViewPager extends ViewPager {
                 scrolling = true;
 
                 if (takeOverScrolling && folioWebView != null) {
-                    int scrollX = folioWebView.getScrollXForPage(position) + positionOffsetPixels;
+                    int scrollX = folioWebView.getScrollXPixelsForPage(position) + positionOffsetPixels;
                     //Log.d(LOG_TAG, "-> onPageScrolled -> scrollX = " + scrollX);
                     folioWebView.scrollTo(scrollX, 0);
                 }
@@ -117,7 +117,6 @@ public class WebViewPager extends ViewPager {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                folioWebView.postInvalidate();
                 setCurrentItem(pageIndex, false);
             }
         });
@@ -130,7 +129,6 @@ public class WebViewPager extends ViewPager {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                folioWebView.postInvalidate();
                 setCurrentItem(horizontalPageCount - 1);
             }
         });
@@ -143,7 +141,6 @@ public class WebViewPager extends ViewPager {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                folioWebView.postInvalidate();
                 setCurrentItem(0);
             }
         });
@@ -196,11 +193,12 @@ public class WebViewPager extends ViewPager {
 
         boolean superReturn = super.onTouchEvent(event);
 
-        if (event.getAction() == MotionEvent.ACTION_UP &&
-                (lastGestureType == LastGestureType.OnScroll ||
-                        lastGestureType == LastGestureType.OnFling)) {
-            //Log.d(LOG_TAG, "-> onTouchEvent -> takeOverScrolling = true, " + "lastGestureType = " + lastGestureType);
-            takeOverScrolling = true;
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (lastGestureType == LastGestureType.OnScroll ||
+                    lastGestureType == LastGestureType.OnFling) {
+                //Log.d(LOG_TAG, "-> onTouchEvent -> takeOverScrolling = true, " + "lastGestureType = " + lastGestureType);
+                takeOverScrolling = true;
+            }
             lastGestureType = null;
         }
 
