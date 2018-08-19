@@ -23,7 +23,6 @@ import android.widget.ImageButton
 import com.folioreader.Config
 import com.folioreader.R
 import com.folioreader.loaders.SearchLoader
-import com.folioreader.ui.folio.adapter.AdapterBundle
 import com.folioreader.ui.folio.adapter.ListViewType
 import com.folioreader.ui.folio.adapter.OnItemClickListener
 import com.folioreader.ui.folio.adapter.SearchAdapter
@@ -45,15 +44,22 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         const val BUNDLE_IS_SEARCH_LOADER_RUNNING = "BUNDLE_IS_SEARCH_LOADER_RUNNING"
         const val BUNDLE_SAVE_SEARCH_QUERY = "BUNDLE_SAVE_SEARCH_QUERY"
         const val BUNDLE_IS_SOFT_KEYBOARD_VISIBLE = "BUNDLE_IS_SOFT_KEYBOARD_VISIBLE"
+        const val BUNDLE_FIRST_VISIBLE_ITEM_INDEX = "BUNDLE_FIRST_VISIBLE_ITEM_INDEX"
+    }
+
+    enum class ResultCode(val value: Int) {
+        ITEM_SELECTED(1),
+        BACK_BUTTON_PRESSED(2)
     }
 
     private lateinit var searchUri: Uri
     private lateinit var searchView: FolioSearchView
     private lateinit var actionBar: ActionBar
     private var collapseButtonView: ImageButton? = null
+    private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var searchAdapter: SearchAdapter
+    private lateinit var searchAdapterDataBundle: Bundle
     private var searchLoader: SearchLoader? = null
-    private lateinit var searchBundle: Bundle
     private var savedInstanceState: Bundle? = null
     private var softKeyboardVisible: Boolean = true
 
@@ -75,7 +81,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
                     collapseButtonView?.setOnClickListener {
                         Log.d(LOG_TAG, "-> onClick -> collapseButtonView")
-                        moveTaskToBack(true)
+                        navigateBack()
                     }
 
                     toolbar.removeOnLayoutChangeListener(this)
@@ -97,16 +103,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         }
 
         setContentView(R.layout.activity_search)
-
         init(config)
-
-        button.setOnClickListener {
-
-            config.isNightMode = !config.isNightMode
-            AppUtil.saveConfig(this, config)
-
-            recreate()
-        }
     }
 
     private fun init(config: Config) {
@@ -129,30 +126,54 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
         searchUri = intent.getParcelableExtra(BUNDLE_SEARCH_URI)
 
-        val emptyBundle = AdapterBundle(ListViewType.INIT_VIEW)
-        searchAdapter = SearchAdapter(this, emptyBundle)
+        var loaderBundle: Bundle? = null
+        val dataBundle = intent.getBundleExtra(SearchAdapter.DATA_BUNDLE)
+        if (dataBundle == null) {
+            searchAdapterDataBundle = Bundle()
+            searchAdapterDataBundle.putString(ListViewType.KEY, ListViewType.INIT_VIEW.toString())
+        } else {
+            searchAdapterDataBundle = dataBundle
+            loaderBundle = Bundle()
+            loaderBundle.putBundle(SearchAdapter.DATA_BUNDLE, dataBundle)
+        }
+
+        searchAdapter = SearchAdapter(this, searchAdapterDataBundle)
         searchAdapter.onItemClickListener = this
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        linearLayoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = linearLayoutManager
         recyclerView.adapter = searchAdapter
 
-        searchLoader = supportLoaderManager.initLoader(SEARCH_LOADER, null, this)
+        val position = searchAdapterDataBundle.getInt(BUNDLE_FIRST_VISIBLE_ITEM_INDEX)
+        recyclerView.scrollToPosition(position)
+
+        searchLoader = supportLoaderManager.initLoader(SEARCH_LOADER, loaderBundle, this)
                 as SearchLoader
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         Log.i(LOG_TAG, "-> onNewIntent")
-        intent?.putExtra(BUNDLE_SEARCH_URI, searchUri)
+
+        if (intent.hasExtra(BUNDLE_SEARCH_URI)) {
+            searchUri = intent.getParcelableExtra(BUNDLE_SEARCH_URI)
+        } else {
+            intent.putExtra(BUNDLE_SEARCH_URI, searchUri)
+        }
+
         setIntent(intent)
 
-        if (Intent.ACTION_SEARCH == intent?.action) {
-            val query: String = intent.getStringExtra(SearchManager.QUERY)
+        if (Intent.ACTION_SEARCH == intent.action)
+            handleSearch()
+    }
 
-            searchBundle = Bundle()
-            searchBundle.putParcelable(BUNDLE_SEARCH_URI, searchUri)
-            searchBundle.putString(SearchManager.QUERY, query)
-            searchLoader = supportLoaderManager.restartLoader(SEARCH_LOADER, searchBundle, this)
-                    as SearchLoader
-        }
+    private fun handleSearch() {
+        Log.v(LOG_TAG, "-> handleSearch")
+
+        val query: String = intent.getStringExtra(SearchManager.QUERY)
+        val loaderBundle = Bundle()
+        loaderBundle.putParcelable(BUNDLE_SEARCH_URI, searchUri)
+        loaderBundle.putString(SearchManager.QUERY, query)
+        searchLoader = supportLoaderManager.restartLoader(SEARCH_LOADER, loaderBundle, this)
+                as SearchLoader
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -175,12 +196,24 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
         val searchLoaderRunning = savedInstanceState.getBoolean(BUNDLE_IS_SEARCH_LOADER_RUNNING)
         if (searchLoaderRunning) {
-            searchAdapter.changeAdapterBundle(AdapterBundle(ListViewType.LOADING_VIEW))
+            searchAdapterDataBundle = Bundle()
+            searchAdapterDataBundle.putString(ListViewType.KEY, ListViewType.LOADING_VIEW.toString())
+            searchAdapter.changeDataBundle(searchAdapterDataBundle)
         }
     }
 
+    private fun navigateBack() {
+        Log.v(LOG_TAG, "-> navigateBack")
+
+        val intent = Intent()
+        intent.putExtra(SearchAdapter.DATA_BUNDLE, searchAdapterDataBundle)
+        intent.putExtra(BUNDLE_SAVE_SEARCH_QUERY, searchView.query)
+        setResult(ResultCode.BACK_BUTTON_PRESSED.value, intent)
+        finish()
+    }
+
     override fun onBackPressed() {
-        Log.d(LOG_TAG, "-> onBackPressed")
+        Log.v(LOG_TAG, "-> onBackPressed")
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -196,18 +229,23 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
         itemSearch.expandActionView()
 
-        searchView.setQuery(savedInstanceState?.getCharSequence(BUNDLE_SAVE_SEARCH_QUERY),
-                false)
-
         if (savedInstanceState != null) {
+            searchView.setQuery(savedInstanceState!!.getCharSequence(BUNDLE_SAVE_SEARCH_QUERY),
+                    false)
             softKeyboardVisible = savedInstanceState!!.getBoolean(BUNDLE_IS_SOFT_KEYBOARD_VISIBLE)
-            if (!softKeyboardVisible) {
-                Log.i(LOG_TAG, "-> onRestoreInstanceState -> !softKeyboardVisible")
+            if (!softKeyboardVisible)
                 AppUtil.hideKeyboard(this)
+        } else {
+            val searchQuery: CharSequence? = intent.getCharSequenceExtra(BUNDLE_SAVE_SEARCH_QUERY)
+            if (!TextUtils.isEmpty(searchQuery)) {
+                searchView.setQuery(searchQuery, false)
+                AppUtil.hideKeyboard(this)
+                softKeyboardVisible = false
             }
         }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
             override fun onQueryTextSubmit(query: String?): Boolean {
                 softKeyboardVisible = false
                 searchView.clearFocus()
@@ -229,13 +267,14 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         })
 
         itemSearch.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+
             override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
                 return true
             }
 
             override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
-                Log.d(LOG_TAG, "-> onMenuItemActionCollapse")
-                moveTaskToBack(true)
+                Log.v(LOG_TAG, "-> onMenuItemActionCollapse")
+                navigateBack()
                 return false
             }
         })
@@ -266,7 +305,9 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
             SEARCH_LOADER -> {
                 Log.d(LOG_TAG, "-> onCreateLoader -> " + getLoaderName(id))
-                searchAdapter.changeAdapterBundle(AdapterBundle(ListViewType.LOADING_VIEW))
+                searchAdapterDataBundle = Bundle()
+                searchAdapterDataBundle.putString(ListViewType.KEY, ListViewType.LOADING_VIEW.toString())
+                searchAdapter.changeDataBundle(searchAdapterDataBundle)
                 return SearchLoader(this, bundle)
             }
 
@@ -280,7 +321,8 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
             SEARCH_LOADER -> {
                 Log.d(LOG_TAG, "-> onLoadFinished -> " + getLoaderName(loader.id))
-                searchAdapter.changeAdapterBundle(data as AdapterBundle)
+                searchAdapterDataBundle = data as Bundle
+                searchAdapter.changeDataBundle(searchAdapterDataBundle)
             }
         }
     }
@@ -303,11 +345,14 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
             if (viewHolder is SearchAdapter.NormalViewHolder) {
                 Log.d(LOG_TAG, "-> onItemClick -> " + viewHolder.searchItem)
 
-                val intent = Intent(FolioActivity.ACTION_SEARCH_ITEM_CLICK)
+                val intent = Intent()
+                searchAdapterDataBundle.putInt(BUNDLE_FIRST_VISIBLE_ITEM_INDEX,
+                        linearLayoutManager.findFirstVisibleItemPosition())
+                intent.putExtra(SearchAdapter.DATA_BUNDLE, searchAdapterDataBundle)
                 intent.putExtra(FolioActivity.EXTRA_SEARCH_ITEM, viewHolder.searchItem)
-                LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
-
-                moveTaskToBack(true)
+                intent.putExtra(BUNDLE_SAVE_SEARCH_QUERY, searchView.query)
+                setResult(ResultCode.ITEM_SELECTED.value, intent)
+                finish()
             }
         }
     }

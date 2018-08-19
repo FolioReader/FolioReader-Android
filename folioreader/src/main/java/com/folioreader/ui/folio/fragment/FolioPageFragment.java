@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -143,7 +144,6 @@ public class FolioPageFragment
     private MediaController mediaController;
     private Config mConfig;
     private String mBookId;
-    private boolean initialised;
     public SearchItem searchItemVisible;
 
     public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef, String bookId) {
@@ -473,8 +473,6 @@ public class FolioPageFragment
         @Override
         public void onPageFinished(WebView view, String url) {
 
-            initialised = false;
-
             mWebview.loadUrl("javascript:getCompatMode()");
             mWebview.loadUrl("javascript:alert(getReadingTime())");
 
@@ -495,11 +493,19 @@ public class FolioPageFragment
 
             if (mIsPageReloaded) {
 
-                if (isCurrentFragment()) {
+                if (searchItemVisible != null) {
+                    String escapedSearchQuery = StringEscapeUtils
+                            .escapeJava(searchItemVisible.getSearchQuery());
+                    String call = String.format(getString(R.string.highlight_search_result),
+                            escapedSearchQuery, searchItemVisible.getOccurrenceInChapter());
+                    mWebview.loadUrl(call);
+
+                } else if (isCurrentFragment()) {
                     mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
                             lastReadPosition.isUsingId(), lastReadPosition.getValue()));
+
                 } else {
-                    if (mPosition == mActivityCallback.getChapterPosition() - 1) {
+                    if (mPosition == mActivityCallback.getCurrentChapterIndex() - 1) {
                         // Scroll to last, the page before current page
                         mWebview.loadUrl("javascript:scrollToLast()");
                     } else {
@@ -546,7 +552,7 @@ public class FolioPageFragment
 
             } else {
 
-                if (mPosition == mActivityCallback.getChapterPosition() - 1) {
+                if (mPosition == mActivityCallback.getCurrentChapterIndex() - 1) {
                     // Scroll to last, the page before current page
                     mWebview.loadUrl("javascript:scrollToLast()");
                 } else {
@@ -554,8 +560,6 @@ public class FolioPageFragment
                     loadingView.hide();
                 }
             }
-
-            initialised = true;
         }
 
         @Override
@@ -747,7 +751,6 @@ public class FolioPageFragment
                 + " -> " + spineItem.originalHref);
 
         mWebview.setHorizontalPageCount(horizontalPageCount);
-        initialised = true;
     }
 
     private void loadRangy(WebView view, String rangy) {
@@ -1134,9 +1137,9 @@ public class FolioPageFragment
     private boolean isCurrentFragment() {
 //        Log.d(LOG_TAG, "-> isCurrentFragment -> "
 //                + ", isAdded = " + isAdded()
-//                + ", mActivityCallback.getChapterPosition() = " + mActivityCallback.getChapterPosition()
+//                + ", mActivityCallback.getCurrentChapterIndex() = " + mActivityCallback.getCurrentChapterIndex()
 //                + ", mPosition = " + mPosition);
-        return isAdded() && mActivityCallback.getChapterPosition() == mPosition;
+        return isAdded() && mActivityCallback.getCurrentChapterIndex() == mPosition;
     }
 
     @Override
@@ -1153,11 +1156,12 @@ public class FolioPageFragment
         }
     }
 
-    public void highlightSearchItem(SearchItem searchItem) {
+    public void highlightSearchItem(@NonNull SearchItem searchItem) {
         Log.d(LOG_TAG, "-> highlightSearchItem");
         this.searchItemVisible = searchItem;
 
-        if (initialised) {
+        if (loadingView != null && loadingView.getVisibility() != View.VISIBLE) {
+            loadingView.show();
             String escapedSearchQuery = StringEscapeUtils.escapeJava(searchItem.getSearchQuery());
             String call = String.format(getString(R.string.highlight_search_result),
                     escapedSearchQuery, searchItem.getOccurrenceInChapter());

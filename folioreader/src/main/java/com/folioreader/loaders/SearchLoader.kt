@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.folioreader.model.search.SearchItem
 import com.folioreader.model.search.SearchItemType
 import com.folioreader.ui.folio.activity.SearchActivity
-import com.folioreader.ui.folio.adapter.AdapterBundle
 import com.folioreader.ui.folio.adapter.ListViewType
+import com.folioreader.ui.folio.adapter.SearchAdapter
 import com.folioreader.util.AppUtil
 import org.readium.r2_streamer.model.searcher.SearchQueryResults
 import java.io.BufferedReader
@@ -30,13 +30,13 @@ class SearchLoader : AsyncTaskLoader<Any?> {
         val LOG_TAG: String = SearchLoader::class.java.simpleName
     }
 
-    private var bundle: Bundle?
+    private var loaderBundle: Bundle?
     private var running: Boolean = false
-    private var cachedData: Any? = null
+    private var cachedDataBundle: Any? = null
 
     constructor(context: Context, bundle: Bundle?) : super(context) {
         Log.d(LOG_TAG, "-> constructor")
-        this.bundle = bundle
+        this.loaderBundle = bundle
     }
 
     override fun onStartLoading() {
@@ -44,11 +44,20 @@ class SearchLoader : AsyncTaskLoader<Any?> {
         super.onStartLoading()
         Log.d(LOG_TAG, "-> onStartLoading")
 
-        if (bundle == null)
-            deliverResult(AdapterBundle(ListViewType.INIT_VIEW))
+        if (loaderBundle == null) {
+            val dataBundle = Bundle()
+            dataBundle.putString(ListViewType.KEY, ListViewType.INIT_VIEW.toString())
+            deliverResult(dataBundle)
+            return
 
-        if (cachedData != null) {
-            deliverResult(cachedData)
+        } else if (loaderBundle!!.containsKey(SearchAdapter.DATA_BUNDLE)) {
+            val dataBundle = loaderBundle?.getBundle(SearchAdapter.DATA_BUNDLE)
+            deliverResult(dataBundle)
+            return
+        }
+
+        if (cachedDataBundle != null) {
+            deliverResult(cachedDataBundle)
         } else {
             forceLoad()
         }
@@ -60,8 +69,8 @@ class SearchLoader : AsyncTaskLoader<Any?> {
         var searchQueryResults: SearchQueryResults? = null
 
         try {
-            val searchUri: Uri? = bundle?.getParcelable(SearchActivity.BUNDLE_SEARCH_URI)
-            val searchQuery: String? = bundle?.getString(SearchManager.QUERY)
+            val searchUri: Uri? = loaderBundle?.getParcelable(SearchActivity.BUNDLE_SEARCH_URI)
+            val searchQuery: String? = loaderBundle?.getString(SearchManager.QUERY)
             val searchQueryEncoded: String? = URLEncoder.encode(searchQuery, "UTF-8")
             val searchUrl = URL(searchUri.toString() + "?query=" + searchQueryEncoded)
 
@@ -92,8 +101,16 @@ class SearchLoader : AsyncTaskLoader<Any?> {
         }
 
         return when {
-            searchQueryResults == null -> AdapterBundle(ListViewType.FAILURE_VIEW)
-            searchQueryResults.searchCount == 0 -> AdapterBundle(ListViewType.EMPTY_VIEW)
+            searchQueryResults == null -> {
+                val dataBundle = Bundle()
+                dataBundle.putString(ListViewType.KEY, ListViewType.FAILURE_VIEW.toString())
+                dataBundle
+            }
+            searchQueryResults.searchCount == 0 -> {
+                val dataBundle = Bundle()
+                dataBundle.putString(ListViewType.KEY, ListViewType.EMPTY_VIEW.toString())
+                dataBundle
+            }
             else -> initSearchItemList(searchQueryResults)
         }
     }
@@ -101,7 +118,7 @@ class SearchLoader : AsyncTaskLoader<Any?> {
     override fun deliverResult(data: Any?) {
         Log.d(LOG_TAG, "-> deliverResult")
 
-        cachedData = data
+        cachedDataBundle = data
         super.deliverResult(data)
 
         running = false
@@ -111,7 +128,7 @@ class SearchLoader : AsyncTaskLoader<Any?> {
         return running
     }
 
-    private fun initSearchItemList(searchQueryResults: SearchQueryResults): AdapterBundle {
+    private fun initSearchItemList(searchQueryResults: SearchQueryResults): Bundle {
         Log.d(LOG_TAG, "-> initSearchItemList")
 
         val searchItemList = ArrayList<SearchItem>()
@@ -139,6 +156,10 @@ class SearchLoader : AsyncTaskLoader<Any?> {
             searchItemList.add(searchResultItem)
         }
 
-        return AdapterBundle(ListViewType.NORMAL_VIEW, searchItemList)
+        val dataBundle = Bundle()
+        dataBundle.putString(ListViewType.KEY, ListViewType.NORMAL_VIEW.toString())
+        dataBundle.putParcelableArrayList("DATA", searchItemList)
+
+        return dataBundle
     }
 }

@@ -2,6 +2,7 @@ package com.folioreader.ui.folio.adapter
 
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Bundle
 import android.support.v7.widget.RecyclerView
 import android.text.SpannableString
 import android.text.style.StyleSpan
@@ -20,6 +21,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
     companion object {
         @JvmField
         val LOG_TAG: String? = SearchAdapter::class.simpleName
+        const val DATA_BUNDLE = "DATA_BUNDLE"
     }
 
     private val context: Context
@@ -28,18 +30,18 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private set
     var onItemClickListener: OnItemClickListener? = null
 
-    constructor(context: Context, adapterBundle: AdapterBundle) : super() {
+    constructor(context: Context, dataBundle: Bundle) : super() {
         Log.d(LOG_TAG, "-> constructor")
 
         this.context = context
-        listViewType = adapterBundle.listViewType
-        searchItemList = adapterBundle.data as? ArrayList<SearchItem>
+        listViewType = ListViewType.fromString(dataBundle.getString("ListViewType"))
+        searchItemList = dataBundle.getParcelableArrayList("DATA")
     }
 
-    fun changeAdapterBundle(adapterBundle: AdapterBundle) {
+    fun changeDataBundle(dataBundle: Bundle) {
 
-        listViewType = adapterBundle.listViewType
-        searchItemList = adapterBundle.data as? ArrayList<SearchItem>
+        listViewType = ListViewType.fromString(dataBundle.getString(ListViewType.KEY))
+        searchItemList = dataBundle.getParcelableArrayList("DATA")
         notifyDataSetChanged()
     }
 

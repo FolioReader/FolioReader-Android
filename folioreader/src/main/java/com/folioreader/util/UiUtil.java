@@ -190,7 +190,7 @@ public class UiUtil {
                 field.setAccessible(true);
                 field.set(editText, drawables);
 
-            } else {
+            } else if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT <= 27) {
                 // Get the editor
                 field = TextView.class.getDeclaredField("mEditor");
                 field.setAccessible(true);
@@ -199,7 +199,19 @@ public class UiUtil {
                 field = editor.getClass().getDeclaredField("mCursorDrawable");
                 field.setAccessible(true);
                 field.set(editor, drawables);
+
+            } else if (Build.VERSION.SDK_INT >= 28) {
+                // TODO: -> Not working for 28
+                // Get the editor
+                field = TextView.class.getDeclaredField("mEditor");
+                field.setAccessible(true);
+                Object editor = field.get(editText);
+                // Set the drawables
+                field = editor.getClass().getDeclaredField("mDrawableForCursor");
+                field.setAccessible(true);
+                field.set(editor, drawables[0]);
             }
+
         } catch (Exception e) {
             Log.e(LOG_TAG, "-> ", e);
         }

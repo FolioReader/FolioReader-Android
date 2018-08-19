@@ -5,7 +5,7 @@ import com.folioreader.model.ReadPosition;
 
 public interface FolioActivityCallback {
 
-    int getChapterPosition();
+    int getCurrentChapterIndex();
 
     ReadPosition getEntryReadPosition();
 

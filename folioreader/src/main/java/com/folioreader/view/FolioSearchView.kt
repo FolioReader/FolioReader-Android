@@ -62,9 +62,12 @@ class FolioSearchView : SearchView {
         UiUtil.setEditTextCursorColor(searchAutoComplete, config.themeColor)
         UiUtil.setEditTextHandleColor(searchAutoComplete, config.themeColor)
         searchAutoComplete.highlightColor = ColorUtils.setAlphaComponent(config.themeColor, 85)
-        searchAutoComplete.setHintTextColor(ContextCompat.getColor(context, R.color.edit_text_hint_color))
-        if (config.isNightMode)
-            searchAutoComplete.setTextColor(ContextCompat.getColor(context, R.color.white))
+        if (config.isNightMode) {
+            searchAutoComplete.setTextColor(ContextCompat.getColor(context, R.color.night_title_text_color))
+            searchAutoComplete.setHintTextColor(ContextCompat.getColor(context, R.color.night_text_color))
+        } else {
+            searchAutoComplete.setHintTextColor(ContextCompat.getColor(context, R.color.edit_text_hint_color))
+        }
     }
 
     fun setDayMode() {

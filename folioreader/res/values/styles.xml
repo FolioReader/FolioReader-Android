@@ -16,6 +16,7 @@
         <item name="colorPrimaryDark">@color/white</item>
         <item name="colorAccent">@color/app_green</item>
         <item name="actionBarStyle">@style/FolioAppDayTheme.ActionBarStyle</item>
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
         <item name="android:statusBarColor" tools:targetApi="lollipop">@color/black</item>
     </style>
 
@@ -26,6 +27,7 @@
         <item name="colorPrimaryDark">@color/black</item>
         <item name="colorAccent">@color/app_green</item>
         <item name="actionBarStyle">@style/FolioAppNightTheme.ActionBarStyle</item>
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
         <item name="android:windowBackground">@color/webview_night</item>
     </style>
 
@@ -38,7 +40,12 @@
     </style>
 
     <style name="FolioAppNightTheme.ActionBarStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="titleTextStyle">@style/FolioAppNightTheme.ActionBarStyle.TitleTextStyle</item>
         <item name="background">@color/black</item>
+    </style>
+
+    <style name="FolioAppNightTheme.ActionBarStyle.TitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/night_title_text_color</item>
     </style>
 
     <style name="AppDayTheme" parent="Theme.AppCompat.Light">
@@ -49,7 +56,6 @@
         <item name="colorPrimaryDark">@color/white</item>
         <item name="colorAccent">@color/app_green</item>
         <item name="actionBarStyle">@style/ActionBarDayStyle</item>
-        <item name="android:windowAnimationStyle">@style/ThemeAnimationTransition</item>
         <item name="android:statusBarColor" tools:targetApi="lollipop">@color/black</item>
 
         <item name="defaultFontColor">#000000</item>
@@ -68,10 +74,9 @@
         <item name="colorAccent">@color/app_green</item>
         <item name="actionBarStyle">@style/ActionBarNightStyle</item>
         <item name="android:windowBackground">@color/webview_night</item>
-        <item name="android:windowAnimationStyle">@style/ThemeAnimationTransition</item>
         <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/black</item>
 
-        <item name="defaultFontColor">#FFFFFF</item>
+        <item name="defaultFontColor">@color/night_text_color</item>
         <item name="android:textViewStyle">@style/TextViewStyle</item>
         <item name="searchItemHeaderBackgroundColor">#222222</item>
         <item name="dividerColor">#666666</item>
@@ -92,6 +97,11 @@
 
     <style name="ActionBarNightStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">
         <item name="background">@color/black</item>
+    </style>
+
+    <style name="ToolbarStyle" parent="@style/Widget.AppCompat.Toolbar">
+        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingEnd" tools:targetApi="jelly_bean_mr1">4dp</item>
     </style>
 
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
@@ -171,11 +181,6 @@
     <style name="DialogAnimation">
         <item name="android:windowEnterAnimation">@anim/slide_up</item>
         <item name="android:windowExitAnimation">@anim/slide_down</item>
-    </style>
-
-    <style name="ThemeAnimationTransition">
-        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 
 </resources>

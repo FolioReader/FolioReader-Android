@@ -115,6 +115,8 @@
     <string name="menu_item_tts">Text To Speech</string>
 
     <string name="search_hint">Search In Book</string>
+    <string name="search_empty_text">No results.</string>
+    <string name="search_failure_text">Something wen\'t wrong.</string>
 
     <plurals name="numberOfSearchResults">
         <item quantity="one">%d result</item>
