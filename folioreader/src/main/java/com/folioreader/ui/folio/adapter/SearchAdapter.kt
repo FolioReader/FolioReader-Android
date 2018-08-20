@@ -31,7 +31,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
     var onItemClickListener: OnItemClickListener? = null
 
     constructor(context: Context, dataBundle: Bundle) : super() {
-        Log.d(LOG_TAG, "-> constructor")
+        Log.v(LOG_TAG, "-> constructor")
 
         this.context = context
         listViewType = ListViewType.fromString(dataBundle.getString("ListViewType"))

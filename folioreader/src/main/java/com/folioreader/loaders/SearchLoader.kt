@@ -35,14 +35,14 @@ class SearchLoader : AsyncTaskLoader<Any?> {
     private var cachedDataBundle: Any? = null
 
     constructor(context: Context, bundle: Bundle?) : super(context) {
-        Log.d(LOG_TAG, "-> constructor")
+        Log.v(LOG_TAG, "-> constructor")
         this.loaderBundle = bundle
     }
 
     override fun onStartLoading() {
         running = true
         super.onStartLoading()
-        Log.d(LOG_TAG, "-> onStartLoading")
+        Log.v(LOG_TAG, "-> onStartLoading")
 
         if (loaderBundle == null) {
             val dataBundle = Bundle()
@@ -64,7 +64,7 @@ class SearchLoader : AsyncTaskLoader<Any?> {
     }
 
     override fun loadInBackground(): Any? {
-        Log.d(LOG_TAG, "-> loadInBackground")
+        Log.v(LOG_TAG, "-> loadInBackground")
 
         var searchQueryResults: SearchQueryResults? = null
 
@@ -91,13 +91,13 @@ class SearchLoader : AsyncTaskLoader<Any?> {
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             searchQueryResults = objectMapper.readValue(stringBuilder.toString(),
                     SearchQueryResults::class.java)
-            Log.d(LOG_TAG, "-> loadInBackground -> " + stringBuilder.toString())
+            Log.v(LOG_TAG, "-> loadInBackground -> " + stringBuilder.toString())
 
             inputStream.close()
             urlConnection.disconnect()
 
         } catch (e: Exception) {
-            Log.d(LOG_TAG, "-> ", e)
+            Log.e(LOG_TAG, "-> ", e)
         }
 
         return when {
@@ -116,7 +116,7 @@ class SearchLoader : AsyncTaskLoader<Any?> {
     }
 
     override fun deliverResult(data: Any?) {
-        Log.d(LOG_TAG, "-> deliverResult")
+        Log.v(LOG_TAG, "-> deliverResult")
 
         cachedDataBundle = data
         super.deliverResult(data)
@@ -129,7 +129,7 @@ class SearchLoader : AsyncTaskLoader<Any?> {
     }
 
     private fun initSearchItemList(searchQueryResults: SearchQueryResults): Bundle {
-        Log.d(LOG_TAG, "-> initSearchItemList")
+        Log.v(LOG_TAG, "-> initSearchItemList")
 
         val searchItemList = ArrayList<SearchItem>()
 

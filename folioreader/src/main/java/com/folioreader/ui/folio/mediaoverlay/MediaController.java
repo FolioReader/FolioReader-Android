@@ -139,7 +139,7 @@ public class MediaController {
             mediaPlayer.prepare();
             isMediaPlayerReady = true;
         } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
     }
 

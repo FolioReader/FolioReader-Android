@@ -46,7 +46,7 @@ public class FileUtil {
             }
             return filePath;
         } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
 
         return null;
@@ -107,7 +107,7 @@ public class FileUtil {
             inputStream.close();
             outputStream.close();
         } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
         return false;
     }

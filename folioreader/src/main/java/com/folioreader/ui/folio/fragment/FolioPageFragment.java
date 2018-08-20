@@ -596,7 +596,7 @@ public class FolioPageFragment
                                 (int) (UiUtil.convertDpToPixel((float) height, getActivity())));
                     }
                 } catch (UnsupportedEncodingException e) {
-                    Log.d(LOG_TAG, e.getMessage());
+                    Log.e(LOG_TAG, e.getMessage());
                 }
             } else {
                 boolean urlOfEpub = mActivityCallback.goToChapter(url);
@@ -826,7 +826,7 @@ public class FolioPageFragment
             mMinutesLeftTextView.setText(minutesRemainingStr);
             mPagesLeftTextView.setText(pagesRemainingStr);
         } catch (java.lang.ArithmeticException | IllegalStateException exp) {
-            Log.d("divide error", exp.toString());
+            Log.e("divide error", exp.toString());
         }
     }
 
@@ -1169,7 +1169,7 @@ public class FolioPageFragment
     }
 
     public void highlightSearchItem(@NonNull SearchItem searchItem) {
-        Log.d(LOG_TAG, "-> highlightSearchItem");
+        Log.v(LOG_TAG, "-> highlightSearchItem");
         this.searchItemVisible = searchItem;
 
         if (loadingView != null && loadingView.getVisibility() != View.VISIBLE) {
@@ -1182,7 +1182,7 @@ public class FolioPageFragment
     }
 
     public void resetSearchResults() {
-        Log.d(LOG_TAG, "-> resetSearchResults -> " + spineItem.originalHref);
+        Log.v(LOG_TAG, "-> resetSearchResults -> " + spineItem.originalHref);
         mWebview.loadUrl(getString(R.string.reset_search_results));
         searchItemVisible = null;
     }

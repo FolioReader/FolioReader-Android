@@ -76,11 +76,11 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
                     continue
 
                 if (contentDescription == "Collapse") {
-                    Log.d(LOG_TAG, "-> initActionBar -> mCollapseButtonView found")
+                    Log.v(LOG_TAG, "-> initActionBar -> mCollapseButtonView found")
                     collapseButtonView = view as ImageButton
 
                     collapseButtonView?.setOnClickListener {
-                        Log.d(LOG_TAG, "-> onClick -> collapseButtonView")
+                        Log.v(LOG_TAG, "-> onClick -> collapseButtonView")
                         navigateBack()
                     }
 
@@ -93,7 +93,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(LOG_TAG, "-> onCreate")
+        Log.v(LOG_TAG, "-> onCreate")
 
         val config: Config = AppUtil.getSavedConfig(this)
         if (config.isNightMode) {
@@ -107,7 +107,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
     }
 
     private fun init(config: Config) {
-        Log.d(LOG_TAG, "-> init")
+        Log.v(LOG_TAG, "-> init")
 
         setSupportActionBar(toolbar)
         toolbar.addOnLayoutChangeListener(toolbarOnLayoutChangeListener)
@@ -151,7 +151,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
     }
 
     override fun onNewIntent(intent: Intent) {
-        Log.i(LOG_TAG, "-> onNewIntent")
+        Log.v(LOG_TAG, "-> onNewIntent")
 
         if (intent.hasExtra(BUNDLE_SEARCH_URI)) {
             searchUri = intent.getParcelableExtra(BUNDLE_SEARCH_URI)
@@ -178,7 +178,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        Log.d(LOG_TAG, "-> onSaveInstanceState")
+        Log.v(LOG_TAG, "-> onSaveInstanceState")
 
         outState.putCharSequence(BUNDLE_SAVE_SEARCH_QUERY, searchView.query)
 
@@ -190,7 +190,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        Log.d(LOG_TAG, "-> onRestoreInstanceState")
+        Log.v(LOG_TAG, "-> onRestoreInstanceState")
 
         this.savedInstanceState = savedInstanceState
 
@@ -217,7 +217,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        Log.d(LOG_TAG, "-> onCreateOptionsMenu")
+        Log.v(LOG_TAG, "-> onCreateOptionsMenu")
         menuInflater.inflate(R.menu.menu_search, menu!!)
 
         val config: Config = AppUtil.getSavedConfig(applicationContext)
@@ -255,7 +255,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
             override fun onQueryTextChange(newText: String?): Boolean {
 
                 if (TextUtils.isEmpty(newText)) {
-                    Log.d(LOG_TAG, "-> onQueryTextChange -> Empty Query")
+                    Log.v(LOG_TAG, "-> onQueryTextChange -> Empty Query")
                     supportLoaderManager.restartLoader(SEARCH_LOADER, null, this@SearchActivity)
 
                     val intent = Intent(FolioActivity.ACTION_SEARCH_CLEAR)
@@ -291,7 +291,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         val itemId = item?.itemId
 
         if (itemId == R.id.itemSearch) {
-            Log.d(LOG_TAG, "-> onOptionsItemSelected -> ${item.title}")
+            Log.v(LOG_TAG, "-> onOptionsItemSelected -> ${item.title}")
             //onSearchRequested()
             return true
         }
@@ -304,7 +304,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         when (id) {
 
             SEARCH_LOADER -> {
-                Log.d(LOG_TAG, "-> onCreateLoader -> " + getLoaderName(id))
+                Log.v(LOG_TAG, "-> onCreateLoader -> " + getLoaderName(id))
                 searchAdapterDataBundle = Bundle()
                 searchAdapterDataBundle.putString(ListViewType.KEY, ListViewType.LOADING_VIEW.toString())
                 searchAdapter.changeDataBundle(searchAdapterDataBundle)
@@ -320,7 +320,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         when (loader.id) {
 
             SEARCH_LOADER -> {
-                Log.d(LOG_TAG, "-> onLoadFinished -> " + getLoaderName(loader.id))
+                Log.v(LOG_TAG, "-> onLoadFinished -> " + getLoaderName(loader.id))
                 searchAdapterDataBundle = data as Bundle
                 searchAdapter.changeDataBundle(searchAdapterDataBundle)
             }
@@ -343,7 +343,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
         if (adapter is SearchAdapter) {
             if (viewHolder is SearchAdapter.NormalViewHolder) {
-                Log.d(LOG_TAG, "-> onItemClick -> " + viewHolder.searchItem)
+                Log.v(LOG_TAG, "-> onItemClick -> " + viewHolder.searchItem)
 
                 val intent = Intent()
                 searchAdapterDataBundle.putInt(BUNDLE_FIRST_VISIBLE_ITEM_INDEX,

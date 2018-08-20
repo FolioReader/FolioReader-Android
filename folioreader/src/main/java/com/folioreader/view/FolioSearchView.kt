@@ -30,7 +30,7 @@ class FolioSearchView : SearchView {
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     fun init(componentName: ComponentName, config: Config) {
-        Log.d(LOG_TAG, "-> init")
+        Log.v(LOG_TAG, "-> init")
 
         val searchManager: SearchManager = context.getSystemService(Context.SEARCH_SERVICE) as SearchManager
         setSearchableInfo(searchManager.getSearchableInfo(componentName))
@@ -41,7 +41,7 @@ class FolioSearchView : SearchView {
     }
 
     private fun adjustLayout() {
-        Log.d(LOG_TAG, "-> adjustLayout")
+        Log.v(LOG_TAG, "-> adjustLayout")
 
         // Hide searchHintIcon
         val searchMagIcon: View = findViewById(R.id.search_mag_icon)
@@ -53,7 +53,7 @@ class FolioSearchView : SearchView {
     }
 
     private fun applyTheme(config: Config) {
-        Log.d(LOG_TAG, "-> applyTheme")
+        Log.v(LOG_TAG, "-> applyTheme")
 
         val searchCloseButton: ImageView = findViewById(R.id.search_close_btn)
         UiUtil.setColorIntToDrawable(config.themeColor, searchCloseButton.drawable)

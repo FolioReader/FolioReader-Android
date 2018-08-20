@@ -20,7 +20,7 @@ class FolioAppBarLayout : AppBarLayout {
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
 
         ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
-            Log.d(LOG_TAG, "-> onApplyWindowInsets")
+            Log.v(LOG_TAG, "-> onApplyWindowInsets")
             // For API level 20 and above
 
             navigationBarHeight = insets.systemWindowInsetBottom
@@ -32,7 +32,7 @@ class FolioAppBarLayout : AppBarLayout {
     }
 
     override fun fitSystemWindows(insets: Rect?): Boolean {
-        Log.d(LOG_TAG, "-> fitSystemWindows")
+        Log.v(LOG_TAG, "-> fitSystemWindows")
         // For API level 19 and below
 
         navigationBarHeight = insets!!.bottom

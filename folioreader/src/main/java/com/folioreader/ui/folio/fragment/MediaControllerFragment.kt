@@ -68,7 +68,7 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
     private var btn_text_color_style: StyleableTextView? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        Log.d(LOG_TAG, "-> onCreateDialog")
+        Log.v(LOG_TAG, "-> onCreateDialog")
 
         bottomSheetDialog = BottomSheetDialog(context!!)
         var view = View.inflate(context, R.layout.view_audio_player, null)
@@ -80,7 +80,7 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
         mTouchOutsideView.setOnTouchListener { _, event ->
 
             if (event.action == MotionEvent.ACTION_DOWN) {
-                Log.d(LOG_TAG, "-> onTouch -> touch_outside -> ${getView()}")
+                Log.v(LOG_TAG, "-> onTouch -> touch_outside -> ${getView()}")
                 dialog.hide()
                 visible = false
                 return@setOnTouchListener true
@@ -111,11 +111,11 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
 
     override fun onStart() {
         super.onStart()
-        Log.d(LOG_TAG, "-> onStart")
+        Log.v(LOG_TAG, "-> onStart")
 
         dialog.setOnKeyListener { _, keyCode, event ->
             if (event.action == MotionEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
-                Log.d(LOG_TAG, "-> Back button pressed")
+                Log.v(LOG_TAG, "-> Back button pressed")
                 dialog.hide()
                 visible = false
                 return@setOnKeyListener true
@@ -132,37 +132,37 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        Log.d(LOG_TAG, "-> onSaveInstanceState -> $visible")
+        Log.v(LOG_TAG, "-> onSaveInstanceState -> $visible")
         outState.putBoolean(BUNDLE_IS_VISIBLE, visible)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        Log.d(LOG_TAG, "-> onViewStateRestored")
+        Log.v(LOG_TAG, "-> onViewStateRestored")
 
         if (savedInstanceState == null)
             return
 
         visible = savedInstanceState.getBoolean(BUNDLE_IS_VISIBLE)
-        Log.d(LOG_TAG, "-> onViewStateRestored -> $visible")
+        Log.v(LOG_TAG, "-> onViewStateRestored -> $visible")
     }
 
     fun show(fragmentManager: FragmentManager) {
-        Log.d(LOG_TAG, "-> show")
+        Log.v(LOG_TAG, "-> show")
 
         visible = true
         if (isAdded) {
-            Log.d(LOG_TAG, "-> Is already added")
+            Log.v(LOG_TAG, "-> Is already added")
             dialog.show()
         } else {
-            Log.d(LOG_TAG, "-> Not added")
+            Log.v(LOG_TAG, "-> Not added")
             show(fragmentManager, MediaControllerFragment.LOG_TAG)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d(LOG_TAG, "-> onDestroyView")
+        Log.v(LOG_TAG, "-> onDestroyView")
     }
 
     private fun initViewStates() {

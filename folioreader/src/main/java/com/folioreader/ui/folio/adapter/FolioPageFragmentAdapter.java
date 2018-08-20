@@ -93,7 +93,7 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
             field.setAccessible(true);
             bundle = (Bundle) field.get(savedState);
         } catch (Exception e) {
-            Log.d(LOG_TAG, "-> " + e);
+            Log.v(LOG_TAG, "-> " + e);
         }
         return bundle;
     }

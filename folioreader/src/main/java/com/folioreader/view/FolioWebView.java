@@ -46,7 +46,7 @@ public class FolioWebView extends WebView {
 
         @Override
         public boolean onSingleTapUp(MotionEvent event) {
-            Log.d(LOG_TAG, "-> onSingleTapUp");
+            Log.v(LOG_TAG, "-> onSingleTapUp");
             folioActivityCallback.toggleSystemUI();
             return false;
         }
@@ -94,7 +94,7 @@ public class FolioWebView extends WebView {
 
         @Override
         public boolean onSingleTapUp(MotionEvent event) {
-            Log.d(LOG_TAG, "-> onSingleTapUp");
+            Log.v(LOG_TAG, "-> onSingleTapUp");
             folioActivityCallback.toggleSystemUI();
             return false;
         }

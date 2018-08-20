@@ -230,7 +230,7 @@ public class FolioActivity
 
     @Override
     public void setDayMode() {
-        Log.d(LOG_TAG, "-> setDayMode");
+        Log.v(LOG_TAG, "-> setDayMode");
 
         actionBar.setBackgroundDrawable(
                 new ColorDrawable(ContextCompat.getColor(this, R.color.white)));
@@ -239,7 +239,7 @@ public class FolioActivity
 
     @Override
     public void setNightMode() {
-        Log.d(LOG_TAG, "-> setNightMode");
+        Log.v(LOG_TAG, "-> setNightMode");
 
         actionBar.setBackgroundDrawable(
                 new ColorDrawable(ContextCompat.getColor(this, R.color.black)));
@@ -247,7 +247,7 @@ public class FolioActivity
     }
 
     private void initMediaController() {
-        Log.d(LOG_TAG, "-> initMediaController");
+        Log.v(LOG_TAG, "-> initMediaController");
 
         mediaControllerFragment = MediaControllerFragment.
                 getInstance(getSupportFragmentManager(), this);
@@ -276,12 +276,12 @@ public class FolioActivity
         int itemId = item.getItemId();
 
         if (itemId == android.R.id.home) {
-            Log.d(LOG_TAG, "-> onOptionsItemSelected -> drawer");
+            Log.v(LOG_TAG, "-> onOptionsItemSelected -> drawer");
             startContentHighlightActivity();
             return true;
 
         } else if (itemId == R.id.itemSearch) {
-            Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
+            Log.v(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
             if (searchUri == null)
                 return true;
             Intent intent = new Intent(this, SearchActivity.class);
@@ -292,12 +292,12 @@ public class FolioActivity
             return true;
 
         } else if (itemId == R.id.itemConfig) {
-            Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
+            Log.v(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
             showConfigBottomSheetDialogFragment();
             return true;
 
         } else if (itemId == R.id.itemTts) {
-            Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
+            Log.v(LOG_TAG, "-> onOptionsItemSelected -> " + item.getTitle());
             showMediaController();
             return true;
         }
@@ -381,7 +381,7 @@ public class FolioActivity
     }
 
     public void initDistractionFreeMode(Bundle savedInstanceState) {
-        Log.d(LOG_TAG, "-> initDistractionFreeMode");
+        Log.v(LOG_TAG, "-> initDistractionFreeMode");
 
         getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(this);
 
@@ -433,10 +433,10 @@ public class FolioActivity
 
     @Override
     public void onSystemUiVisibilityChange(int visibility) {
-        Log.d(LOG_TAG, "-> onSystemUiVisibilityChange -> visibility = " + visibility);
+        Log.v(LOG_TAG, "-> onSystemUiVisibilityChange -> visibility = " + visibility);
 
         distractionFreeMode = visibility != View.SYSTEM_UI_FLAG_VISIBLE;
-        Log.d(LOG_TAG, "-> distractionFreeMode = " + distractionFreeMode);
+        Log.v(LOG_TAG, "-> distractionFreeMode = " + distractionFreeMode);
 
         if (actionBar != null) {
             if (distractionFreeMode) {
@@ -458,7 +458,7 @@ public class FolioActivity
     }
 
     public void showSystemUI() {
-        Log.d(LOG_TAG, "-> showSystemUI");
+        Log.v(LOG_TAG, "-> showSystemUI");
 
         if (Build.VERSION.SDK_INT >= 16) {
             View decorView = getWindow().getDecorView();
@@ -474,7 +474,7 @@ public class FolioActivity
     }
 
     public void hideSystemUI() {
-        Log.d(LOG_TAG, "-> hideSystemUI");
+        Log.v(LOG_TAG, "-> hideSystemUI");
 
         if (Build.VERSION.SDK_INT >= 16) {
             View decorView = getWindow().getDecorView();
@@ -541,7 +541,7 @@ public class FolioActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == RequestCode.SEARCH.value) {
-            Log.d(LOG_TAG, "-> onActivityResult -> " + RequestCode.SEARCH);
+            Log.v(LOG_TAG, "-> onActivityResult -> " + RequestCode.SEARCH);
 
             searchAdapterDataBundle = data.getBundleExtra(SearchAdapter.DATA_BUNDLE);
             searchQuery = data.getCharSequenceExtra(SearchActivity.BUNDLE_SAVE_SEARCH_QUERY);
@@ -848,7 +848,7 @@ public class FolioActivity
     private BroadcastReceiver searchReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(LOG_TAG, "-> searchReceiver -> onReceive -> " + intent.getAction());
+            Log.v(LOG_TAG, "-> searchReceiver -> onReceive -> " + intent.getAction());
 
             String action = intent.getAction();
             if (action == null)
@@ -864,7 +864,7 @@ public class FolioActivity
     };
 
     private void resetSearchResults() {
-        Log.d(LOG_TAG, "-> resetSearchResults");
+        Log.v(LOG_TAG, "-> resetSearchResults");
 
         ArrayList<Fragment> fragments = mFolioPageFragmentAdapter.getFragments();
         for (int i = 0; i < fragments.size(); i++) {
