@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">folioreader</string>
+
+    <string name="app_name">FolioReader</string>
+
     <string name="andada">Andada</string>
     <string name="lato">Lato</string>
     <string name="lora">Lora</string>
@@ -77,13 +79,17 @@
     <string name="pattern">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>
     <!--<string name="pattern2">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>-->
     <string name="script_tag_method_call"><![CDATA[<script type=\"text/javascript\">%s</script>]]></string>
-  <string name="underline_highlights">
-      <span style="border-bottom: 1px solid #ff0000;">%s</span>
-  </string>
+    <string name="underline_highlights">
+        <span style="border-bottom: 1px solid #ff0000;">%s</span>
+    </string>
     <string name="edit_notes">Save your note</string>
     <string name="save_note">Save note</string>
     <string name="please_enter_note">please enter a note</string>
     <string name="contents">Contents</string>
+
+    <string name="highlight_search_result" translatable="false">javascript:highlightSearchResult(\"%s\", %d)</string>
+    <string name="make_search_results_invisible" translatable="false">javascript:makeSearchResultsInvisible()</string>
+    <string name="reset_search_results" translatable="false">javascript:resetSearchResults()</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -98,4 +104,23 @@
     <string name="xhtml_mime_type" translatable="false">application/xhtml+xml</string>
     <string name="html_mime_type" translatable="false">text/html</string>
     <string name="back_compat" translatable="false">BackCompat</string>
+
+    <string name="menu_item_copy">Copy</string>
+    <string name="menu_item_highlight">Highlight</string>
+    <string name="menu_item_define">Define</string>
+    <string name="menu_item_share">Share</string>
+
+    <string name="menu_item_search">Search</string>
+    <string name="menu_item_config">Configuration</string>
+    <string name="menu_item_tts">Text To Speech</string>
+
+    <string name="search_hint">Search In Book</string>
+    <string name="search_empty_text">No results.</string>
+    <string name="search_failure_text">Something wen\'t wrong.</string>
+
+    <plurals name="numberOfSearchResults">
+        <item quantity="one">%d result</item>
+        <item quantity="other">%d results</item>
+    </plurals>
+
 </resources>

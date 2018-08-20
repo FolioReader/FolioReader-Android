@@ -23,6 +23,8 @@ public class Constants {
     public static final String DATE_FORMAT = "MMM dd, yyyy | HH:mm";
     public static final String ASSET = "file:///android_asset/";
     public static final int WRITE_EXTERNAL_STORAGE_REQUEST = 102;
+    public static final String CHAPTER_ID = "id";
+    public static final String HREF = "href";
 
     public static String[] getWriteExternalStoragePerms() {
         return new String[] {

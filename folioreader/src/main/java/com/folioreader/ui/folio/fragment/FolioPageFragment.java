@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -47,6 +48,7 @@ import com.folioreader.model.event.RewindIndexEvent;
 import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.quickaction.ActionItem;
 import com.folioreader.model.quickaction.QuickAction;
+import com.folioreader.model.search.SearchItem;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.base.HtmlTask;
 import com.folioreader.ui.base.HtmlTaskCallback;
@@ -60,10 +62,10 @@ import com.folioreader.util.SMILParser;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.FolioWebView;
 import com.folioreader.view.LoadingView;
-import com.folioreader.view.MediaControllerView;
 import com.folioreader.view.VerticalSeekbar;
 import com.folioreader.view.WebViewPager;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -89,6 +91,7 @@ public class FolioPageFragment
     public static final String KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.ui.folio.fragment.FolioPageFragment.EPUB_FILE_NAME";
     private static final String KEY_IS_SMIL_AVAILABLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.IS_SMIL_AVAILABLE";
     private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE = "BUNDLE_READ_POSITION_CONFIG_CHANGE";
+    public static final String BUNDLE_SEARCH_ITEM = "BUNDLE_SEARCH_ITEM";
 
     private static final int ACTION_ID_COPY = 1001;
     private static final int ACTION_ID_SHARE = 1002;
@@ -141,6 +144,7 @@ public class FolioPageFragment
     private MediaController mediaController;
     private Config mConfig;
     private String mBookId;
+    public SearchItem searchItemVisible;
 
     public static FolioPageFragment newInstance(int position, String bookTitle, Link spineRef, String bookId) {
         FolioPageFragment fragment = new FolioPageFragment();
@@ -163,20 +167,15 @@ public class FolioPageFragment
             mActivityCallback = (FolioActivityCallback) getActivity();
 
         EventBus.getDefault().register(this);
-        if ((savedInstanceState != null)
-                && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_POSITION)
-                && savedInstanceState.containsKey(KEY_FRAGMENT_FOLIO_BOOK_TITLE)) {
-            mPosition = savedInstanceState.getInt(KEY_FRAGMENT_FOLIO_POSITION);
-            mBookTitle = savedInstanceState.getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
-            mEpubFileName = savedInstanceState.getString(KEY_FRAGMENT_EPUB_FILE_NAME);
-            mBookId = getArguments().getString(FolioReader.INTENT_BOOK_ID);
-            spineItem = (Link) savedInstanceState.getSerializable(SPINE_ITEM);
-        } else {
-            mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
-            mBookTitle = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
-            mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
-            spineItem = (Link) getArguments().getSerializable(SPINE_ITEM);
-            mBookId = getArguments().getString(FolioReader.INTENT_BOOK_ID);
+
+        mPosition = getArguments().getInt(KEY_FRAGMENT_FOLIO_POSITION);
+        mBookTitle = getArguments().getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE);
+        mEpubFileName = getArguments().getString(KEY_FRAGMENT_EPUB_FILE_NAME);
+        spineItem = (Link) getArguments().getSerializable(SPINE_ITEM);
+        mBookId = getArguments().getString(FolioReader.INTENT_BOOK_ID);
+
+        if (savedInstanceState != null) {
+            searchItemVisible = savedInstanceState.getParcelable(BUNDLE_SEARCH_ITEM);
         }
 
         if (spineItem != null) {
@@ -210,7 +209,7 @@ public class FolioPageFragment
 
     /**
      * [EVENT BUS FUNCTION]
-     * Function triggered from {@link MediaControllerView#initListeners()} when pause/play
+     * Function triggered from {@link MediaControllerFragment#initListeners()} when pause/play
      * button is clicked
      *
      * @param event of type {@link MediaOverlayPlayPauseEvent} contains if paused/played
@@ -226,7 +225,7 @@ public class FolioPageFragment
 
     /**
      * [EVENT BUS FUNCTION]
-     * Function triggered from {@link MediaControllerView#initListeners()} when speed
+     * Function triggered from {@link MediaControllerFragment#initListeners()} when speed
      * change buttons are clicked
      *
      * @param event of type {@link MediaOverlaySpeedEvent} contains selected speed
@@ -235,12 +234,13 @@ public class FolioPageFragment
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void speedChanged(MediaOverlaySpeedEvent event) {
-        mediaController.setSpeed(event.getSpeed());
+        if (mediaController != null)
+            mediaController.setSpeed(event.getSpeed());
     }
 
     /**
      * [EVENT BUS FUNCTION]
-     * Function triggered from {@link MediaControllerView#initListeners()} when new
+     * Function triggered from {@link MediaControllerFragment#initListeners()} when new
      * style is selected on button click.
      *
      * @param event of type {@link MediaOverlaySpeedEvent} contains selected style
@@ -371,6 +371,18 @@ public class FolioPageFragment
         return mActivityCallback.getDirection().toString();
     }
 
+    @SuppressWarnings("unused")
+    @JavascriptInterface
+    public int getTopDistraction() {
+        return mActivityCallback.getTopDistraction();
+    }
+
+    @SuppressWarnings("unused")
+    @JavascriptInterface
+    public int getBottomDistraction() {
+        return mActivityCallback.getBottomDistraction();
+    }
+
     public void scrollToLast() {
 
         boolean isPageLoading = loadingView == null || loadingView.getVisibility() == View.VISIBLE;
@@ -397,13 +409,11 @@ public class FolioPageFragment
 
         FrameLayout webViewLayout = mRootView.findViewById(R.id.webViewLayout);
         mWebview = webViewLayout.findViewById(R.id.folioWebView);
+        mWebview.setParentFragment(this);
         webViewPager = webViewLayout.findViewById(R.id.webViewPager);
 
         if (getActivity() instanceof FolioActivityCallback)
             mWebview.setFolioActivityCallback((FolioActivityCallback) getActivity());
-
-        if (getActivity() instanceof FolioWebView.ToolBarListener)
-            mWebview.setToolBarListener((FolioWebView.ToolBarListener) getActivity());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
             WebView.setWebContentsDebuggingEnabled(true);
@@ -475,74 +485,39 @@ public class FolioPageFragment
         @Override
         public void onPageFinished(WebView view, String url) {
 
-            if (isAdded()) {
+            mWebview.loadUrl("javascript:getCompatMode()");
+            mWebview.loadUrl("javascript:alert(getReadingTime())");
 
-                mWebview.loadUrl("javascript:getCompatMode()");
-                mWebview.loadUrl("javascript:alert(getReadingTime())");
+            if (!hasMediaOverlay)
+                mWebview.loadUrl("javascript:wrappingSentencesWithinPTags()");
 
-                if (!hasMediaOverlay)
-                    mWebview.loadUrl("javascript:wrappingSentencesWithinPTags()");
+            if (mActivityCallback.getDirection() == Config.Direction.HORIZONTAL)
+                mWebview.loadUrl("javascript:initHorizontalDirection()");
 
-                if (mActivityCallback.getDirection() == Config.Direction.HORIZONTAL)
-                    mWebview.loadUrl("javascript:initHorizontalDirection()");
+            view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
+                    HighlightImpl.HighlightStyle.classForStyle(
+                            HighlightImpl.HighlightStyle.Normal)));
 
-                view.loadUrl(String.format(getString(R.string.setmediaoverlaystyle),
-                        HighlightImpl.HighlightStyle.classForStyle(
-                                HighlightImpl.HighlightStyle.Normal)));
+            String rangy = HighlightUtil.generateRangyString(getPageName());
+            FolioPageFragment.this.rangy = rangy;
+            if (!rangy.isEmpty())
+                loadRangy(mWebview, rangy);
 
-                String rangy = HighlightUtil.generateRangyString(getPageName());
-                FolioPageFragment.this.rangy = rangy;
-                if (!rangy.isEmpty())
-                    loadRangy(mWebview, rangy);
+            if (mIsPageReloaded) {
 
-                if (mIsPageReloaded) {
-
-                    if (isCurrentFragment()) {
-                        mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
-                                lastReadPosition.isUsingId(), lastReadPosition.getValue()));
-                    } else {
-                        if (mPosition == mActivityCallback.getChapterPosition() - 1) {
-                            // Scroll to last, the page before current page
-                            mWebview.loadUrl("javascript:scrollToLast()");
-                        } else {
-                            // Make loading view invisible for all other fragments
-                            loadingView.hide();
-                        }
-                    }
-
-                    mIsPageReloaded = false;
-
-                } else if (!TextUtils.isEmpty(mAnchorId)) {
-                    mWebview.loadUrl(String.format(getString(R.string.go_to_anchor), mAnchorId));
-                    mAnchorId = null;
-
-                } else if (!TextUtils.isEmpty(highlightId)) {
-                    mWebview.loadUrl(String.format(getString(R.string.go_to_highlight), highlightId));
-                    highlightId = null;
+                if (searchItemVisible != null) {
+                    String escapedSearchQuery = StringEscapeUtils
+                            .escapeJava(searchItemVisible.getSearchQuery());
+                    String call = String.format(getString(R.string.highlight_search_result),
+                            escapedSearchQuery, searchItemVisible.getOccurrenceInChapter());
+                    mWebview.loadUrl(call);
 
                 } else if (isCurrentFragment()) {
-
-                    ReadPosition readPosition;
-                    if (savedInstanceState == null) {
-                        Log.v(LOG_TAG, "-> onPageFinished -> took from getEntryReadPosition");
-                        readPosition = mActivityCallback.getEntryReadPosition();
-                    } else {
-                        Log.v(LOG_TAG, "-> onPageFinished -> took from bundle");
-                        readPosition = savedInstanceState.getParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE);
-                        savedInstanceState.remove(BUNDLE_READ_POSITION_CONFIG_CHANGE);
-                    }
-
-                    if (readPosition != null) {
-                        Log.v(LOG_TAG, "-> scrollToSpan -> " + readPosition.getValue());
-                        mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
-                                readPosition.isUsingId(), readPosition.getValue()));
-                    } else {
-                        loadingView.hide();
-                    }
+                    mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
+                            lastReadPosition.isUsingId(), lastReadPosition.getValue()));
 
                 } else {
-
-                    if (mPosition == mActivityCallback.getChapterPosition() - 1) {
+                    if (mPosition == mActivityCallback.getCurrentChapterIndex() - 1) {
                         // Scroll to last, the page before current page
                         mWebview.loadUrl("javascript:scrollToLast()");
                     } else {
@@ -550,44 +525,86 @@ public class FolioPageFragment
                         loadingView.hide();
                     }
                 }
+
+                mIsPageReloaded = false;
+
+            } else if (!TextUtils.isEmpty(mAnchorId)) {
+                mWebview.loadUrl(String.format(getString(R.string.go_to_anchor), mAnchorId));
+                mAnchorId = null;
+
+            } else if (!TextUtils.isEmpty(highlightId)) {
+                mWebview.loadUrl(String.format(getString(R.string.go_to_highlight), highlightId));
+                highlightId = null;
+
+            } else if (searchItemVisible != null) {
+                String escapedSearchQuery = StringEscapeUtils.escapeJava(searchItemVisible.getSearchQuery());
+                String call = String.format(getString(R.string.highlight_search_result),
+                        escapedSearchQuery, searchItemVisible.getOccurrenceInChapter());
+                mWebview.loadUrl(call);
+
+            } else if (isCurrentFragment()) {
+
+                ReadPosition readPosition;
+                if (savedInstanceState == null) {
+                    Log.v(LOG_TAG, "-> onPageFinished -> took from getEntryReadPosition");
+                    readPosition = mActivityCallback.getEntryReadPosition();
+                } else {
+                    Log.v(LOG_TAG, "-> onPageFinished -> took from bundle");
+                    readPosition = savedInstanceState.getParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE);
+                    savedInstanceState.remove(BUNDLE_READ_POSITION_CONFIG_CHANGE);
+                }
+
+                if (readPosition != null) {
+                    Log.v(LOG_TAG, "-> scrollToSpan -> " + readPosition.getValue());
+                    mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
+                            readPosition.isUsingId(), readPosition.getValue()));
+                } else {
+                    loadingView.hide();
+                }
+
+            } else {
+
+                if (mPosition == mActivityCallback.getCurrentChapterIndex() - 1) {
+                    // Scroll to last, the page before current page
+                    mWebview.loadUrl("javascript:scrollToLast()");
+                } else {
+                    // Make loading view invisible for all other fragments
+                    loadingView.hide();
+                }
             }
         }
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            if (!url.isEmpty() && url.length() > 0) {
-                if (Uri.parse(url).getScheme().startsWith("highlight")) {
-                    final Pattern pattern = Pattern.compile(getString(R.string.pattern));
-                    try {
-                        String htmlDecode = URLDecoder.decode(url, "UTF-8");
-                        Matcher matcher = pattern.matcher(htmlDecode.substring(12));
-                        if (matcher.matches()) {
-                            double left = Double.parseDouble(matcher.group(1));
-                            double top = Double.parseDouble(matcher.group(2));
-                            double width = Double.parseDouble(matcher.group(3));
-                            double height = Double.parseDouble(matcher.group(4));
-                            onHighlight((int) (UiUtil.convertDpToPixel((float) left,
-                                    getActivity())),
-                                    (int) (UiUtil.convertDpToPixel((float) top,
-                                            getActivity())),
-                                    (int) (UiUtil.convertDpToPixel((float) width,
-                                            getActivity())),
-                                    (int) (UiUtil.convertDpToPixel((float) height,
-                                            getActivity())));
-                        }
-                    } catch (UnsupportedEncodingException e) {
-                        Log.d(LOG_TAG, e.getMessage());
+
+            if (url.isEmpty())
+                return true;
+
+            if (Uri.parse(url).getScheme().startsWith("highlight")) {
+                final Pattern pattern = Pattern.compile(getString(R.string.pattern));
+                try {
+                    String htmlDecode = URLDecoder.decode(url, "UTF-8");
+                    Matcher matcher = pattern.matcher(htmlDecode.substring(12));
+                    if (matcher.matches()) {
+                        double left = Double.parseDouble(matcher.group(1));
+                        double top = Double.parseDouble(matcher.group(2));
+                        double width = Double.parseDouble(matcher.group(3));
+                        double height = Double.parseDouble(matcher.group(4));
+                        onHighlight((int) (UiUtil.convertDpToPixel((float) left, getActivity())),
+                                (int) (UiUtil.convertDpToPixel((float) top, getActivity())),
+                                (int) (UiUtil.convertDpToPixel((float) width, getActivity())),
+                                (int) (UiUtil.convertDpToPixel((float) height, getActivity())));
                     }
-                } else {
-                    if (url.contains("storage")) {
-                        mActivityCallback.setPagerToPosition(url);
-                    } else if (url.endsWith(".xhtml") || url.endsWith(".html")) {
-                        mActivityCallback.goToChapter(url);
-                    } else {
-                        // Otherwise, give the default behavior (open in browser)
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        startActivity(intent);
-                    }
+                } catch (UnsupportedEncodingException e) {
+                    Log.e(LOG_TAG, e.getMessage());
+                }
+            } else {
+                boolean urlOfEpub = mActivityCallback.goToChapter(url);
+
+                if (!urlOfEpub) {
+                    // Otherwise, give the default behavior (open in browser)
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(intent);
                 }
             }
             return true;
@@ -684,9 +701,6 @@ public class FolioPageFragment
         }
     };
 
-    /**
-     * Calls the /assets/js/Bridge.js#getFirstVisibleSpan(boolean)
-     */
     @Override
     public void onStop() {
         super.onStop();
@@ -699,6 +713,9 @@ public class FolioPageFragment
             getLastReadPosition();
     }
 
+    /**
+     * Calls the /assets/js/Bridge.js#getFirstVisibleSpan(boolean)
+     */
     public ReadPosition getLastReadPosition() {
         Log.v(LOG_TAG, "-> getLastReadPosition -> " + spineItem.originalHref);
 
@@ -706,12 +723,12 @@ public class FolioPageFragment
             synchronized (this) {
                 boolean isHorizontal = mActivityCallback.getDirection() ==
                         Config.Direction.HORIZONTAL;
-                mWebview.loadUrl("javascript:getFirstVisibleSpan(" + isHorizontal +")");
+                mWebview.loadUrl("javascript:getFirstVisibleSpan(" + isHorizontal + ")");
 
                 wait(2000);
             }
         } catch (InterruptedException e) {
-            Log.e(LOG_TAG, "-> " + e);
+            Log.e(LOG_TAG, "-> ", e);
         }
 
         return lastReadPosition;
@@ -722,7 +739,7 @@ public class FolioPageFragment
      * and then ReadPositionImpl is broadcast to {@link FolioReader#readPositionReceiver}
      *
      * @param usingId if span tag has id then true or else false
-     * @param value if usingId true then span id else span index
+     * @param value   if usingId true then span id else span index
      */
     @SuppressWarnings("unused")
     @JavascriptInterface
@@ -753,9 +770,9 @@ public class FolioPageFragment
     }
 
     private void setupScrollBar() {
-        UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), mScrollSeekbar.getProgressDrawable());
+        UiUtil.setColorIntToDrawable(mConfig.getThemeColor(), mScrollSeekbar.getProgressDrawable());
         Drawable thumbDrawable = ContextCompat.getDrawable(getActivity(), R.drawable.icons_sroll);
-        UiUtil.setColorToImage(getActivity(), mConfig.getThemeColor(), (thumbDrawable));
+        UiUtil.setColorIntToDrawable(mConfig.getThemeColor(), thumbDrawable);
         mScrollSeekbar.setThumb(thumbDrawable);
     }
 
@@ -809,7 +826,7 @@ public class FolioPageFragment
             mMinutesLeftTextView.setText(minutesRemainingStr);
             mPagesLeftTextView.setText(pagesRemainingStr);
         } catch (java.lang.ArithmeticException | IllegalStateException exp) {
-            Log.d("divide error", exp.toString());
+            Log.e("divide error", exp.toString());
         }
     }
 
@@ -887,10 +904,7 @@ public class FolioPageFragment
         if (isCurrentFragment())
             Log.v(LOG_TAG, "-> onSaveInstanceState");
 
-        outState.putInt(KEY_FRAGMENT_FOLIO_POSITION, mPosition);
-        outState.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, mBookTitle);
-        outState.putString(KEY_FRAGMENT_EPUB_FILE_NAME, mEpubFileName);
-        outState.putSerializable(SPINE_ITEM, spineItem);
+        outState.putParcelable(BUNDLE_SEARCH_ITEM, searchItemVisible);
     }
 
     public void highlight(HighlightImpl.HighlightStyle style, boolean isCreated) {
@@ -1135,9 +1149,9 @@ public class FolioPageFragment
     private boolean isCurrentFragment() {
 //        Log.d(LOG_TAG, "-> isCurrentFragment -> "
 //                + ", isAdded = " + isAdded()
-//                + ", mActivityCallback.getChapterPosition() = " + mActivityCallback.getChapterPosition()
+//                + ", mActivityCallback.getCurrentChapterIndex() = " + mActivityCallback.getCurrentChapterIndex()
 //                + ", mPosition = " + mPosition);
-        return isAdded() && mActivityCallback.getChapterPosition() == mPosition;
+        return isAdded() && mActivityCallback.getCurrentChapterIndex() == mPosition;
     }
 
     @Override
@@ -1152,5 +1166,24 @@ public class FolioPageFragment
             mWebview.loadUrl(String.format(getString(R.string.go_to_highlight), highlightId));
             this.highlightId = null;
         }
+    }
+
+    public void highlightSearchItem(@NonNull SearchItem searchItem) {
+        Log.v(LOG_TAG, "-> highlightSearchItem");
+        this.searchItemVisible = searchItem;
+
+        if (loadingView != null && loadingView.getVisibility() != View.VISIBLE) {
+            loadingView.show();
+            String escapedSearchQuery = StringEscapeUtils.escapeJava(searchItem.getSearchQuery());
+            String call = String.format(getString(R.string.highlight_search_result),
+                    escapedSearchQuery, searchItem.getOccurrenceInChapter());
+            mWebview.loadUrl(call);
+        }
+    }
+
+    public void resetSearchResults() {
+        Log.v(LOG_TAG, "-> resetSearchResults -> " + spineItem.originalHref);
+        mWebview.loadUrl(getString(R.string.reset_search_results));
+        searchItemVisible = null;
     }
 }

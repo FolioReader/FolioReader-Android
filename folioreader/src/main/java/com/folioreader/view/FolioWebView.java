@@ -8,59 +8,134 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.ui.folio.activity.FolioActivityCallback;
+import com.folioreader.ui.folio.fragment.FolioPageFragment;
 
 /**
  * @author by mahavir on 3/31/16.
  */
-public class FolioWebView extends WebView
-        implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
+public class FolioWebView extends WebView {
 
     private static final String LOG_TAG = FolioWebView.class.getSimpleName();
-    private float touchSlop;
     private int horizontalPageCount = 0;
     private float density;
     private ScrollListener mScrollListener;
     private SeekBarListener mSeekBarListener;
-    private ToolBarListener mToolBarListener;
     private GestureDetectorCompat gestureDetector;
     private MotionEvent eventActionDown;
+    private int pageWidthCssDp;
     private int pageWidthCssPixels;
     private WebViewPager webViewPager;
     private Handler handler;
     private FolioActivityCallback folioActivityCallback;
+    private FolioPageFragment parentFragment;
+
+    private enum LastScrollType {
+        USER, PROGRAMMATIC
+    }
+
+    private LastScrollType lastScrollType;
+
+    private class HorizontalGestureListener
+            extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent event) {
+            Log.v(LOG_TAG, "-> onSingleTapUp");
+            folioActivityCallback.toggleSystemUI();
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            //Log.d(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
+            lastScrollType = LastScrollType.USER;
+            return false;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            //Log.d(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
+
+            if (!webViewPager.isScrolling()) {
+                // Need to complete the scroll as ViewPager thinks these touch events should not
+                // scroll it's pages.
+                //Log.d(LOG_TAG, "-> onFling -> completing scroll");
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Delayed to avoid inconsistency of scrolling in WebView
+                        scrollTo(getScrollXPixelsForPage(webViewPager.getCurrentItem()), 0);
+                    }
+                }, 100);
+            }
+
+            lastScrollType = LastScrollType.USER;
+            return true;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            //Log.v(LOG_TAG, "-> onDown -> " + event.toString());
+
+            eventActionDown = MotionEvent.obtain(event);
+            FolioWebView.super.onTouchEvent(event);
+            return true;
+        }
+    }
+
+    private class VerticalGestureListener
+            extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent event) {
+            Log.v(LOG_TAG, "-> onSingleTapUp");
+            folioActivityCallback.toggleSystemUI();
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            //Log.v(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
+            lastScrollType = LastScrollType.USER;
+            return false;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            //Log.v(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
+            lastScrollType = LastScrollType.USER;
+            return false;
+        }
+    }
 
     public FolioWebView(Context context) {
         super(context);
-        if (!isInEditMode())
-            init();
     }
 
     public FolioWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        if (!isInEditMode())
-            init();
     }
 
     public FolioWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        if (!isInEditMode())
-            init();
     }
 
     private void init() {
 
         handler = new Handler();
-        gestureDetector = new GestureDetectorCompat(getContext(), this);
-        gestureDetector.setOnDoubleTapListener(this);
         density = getResources().getDisplayMetrics().density;
-        touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+
+        if (folioActivityCallback.getDirection() == Config.Direction.HORIZONTAL) {
+            gestureDetector = new GestureDetectorCompat(getContext(), new HorizontalGestureListener());
+        } else {
+            gestureDetector = new GestureDetectorCompat(getContext(), new VerticalGestureListener());
+        }
     }
 
     @SuppressWarnings("unused")
@@ -74,16 +149,21 @@ public class FolioWebView extends WebView
         }
     }
 
+    public void setParentFragment(FolioPageFragment parentFragment) {
+        this.parentFragment = parentFragment;
+    }
+
     public void setFolioActivityCallback(FolioActivityCallback folioActivityCallback) {
         this.folioActivityCallback = folioActivityCallback;
+        init();
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
 
-        double widthDp = Math.ceil((getMeasuredWidth() / density));
-        pageWidthCssPixels = (int) (widthDp * density);
+        pageWidthCssDp = (int) Math.ceil((getMeasuredWidth() / density));
+        pageWidthCssPixels = (int) (pageWidthCssDp * density);
     }
 
     public void setScrollListener(ScrollListener listener) {
@@ -94,15 +174,9 @@ public class FolioWebView extends WebView
         mSeekBarListener = listener;
     }
 
-    public void setToolBarListener(ToolBarListener listener) {
-        mToolBarListener = listener;
-    }
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //Log.v(LOG_TAG, "-> onTouchEvent -> " + AppUtil.actionToString(event.getAction()));
-
-        hideOrShowToolBar(event);
 
         if (folioActivityCallback.getDirection() == Config.Direction.HORIZONTAL) {
             return computeHorizontalScroll(event);
@@ -112,6 +186,8 @@ public class FolioWebView extends WebView
     }
 
     private boolean computeVerticalScroll(MotionEvent event) {
+
+        gestureDetector.onTouchEvent(event);
         return super.onTouchEvent(event);
     }
 
@@ -125,30 +201,14 @@ public class FolioWebView extends WebView
         return super.onTouchEvent(event);
     }
 
-    public int getScrollXForPage(int page) {
-        //Log.v(LOG_TAG, "-> getScrollXForPage -> page = " + page);
-        return page * pageWidthCssPixels;
+    public int getScrollXDpForPage(int page) {
+        //Log.v(LOG_TAG, "-> getScrollXDpForPage -> page = " + page);
+        return page * pageWidthCssDp;
     }
 
-    private void hideOrShowToolBar(MotionEvent event) {
-
-        switch (event.getAction()) {
-
-            case MotionEvent.ACTION_DOWN:
-                eventActionDown = MotionEvent.obtain(event);
-                if (mSeekBarListener != null)
-                    mSeekBarListener.fadeInSeekBarIfInvisible();
-                break;
-
-            case MotionEvent.ACTION_UP:
-                if (mToolBarListener != null &&
-                        ((Math.abs(event.getY() - eventActionDown.getY()) < touchSlop) &&
-                                (Math.abs(event.getX() - eventActionDown.getX()) < touchSlop))) {
-                    //SingleTap
-                    mToolBarListener.hideOrShowToolBar();
-                }
-                break;
-        }
+    public int getScrollXPixelsForPage(int page) {
+        //Log.v(LOG_TAG, "-> getScrollXPixelsForPage -> page = " + page);
+        return page * pageWidthCssPixels;
     }
 
     public void setHorizontalPageCount(int horizontalPageCount) {
@@ -166,10 +226,24 @@ public class FolioWebView extends WebView
     }
 
     @Override
+    public void scrollTo(int x, int y) {
+        super.scrollTo(x, y);
+        //Log.d(LOG_TAG, "-> scrollTo -> x = " + x);
+        lastScrollType = LastScrollType.PROGRAMMATIC;
+    }
+
+    @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        if (mToolBarListener != null) mToolBarListener.hideToolBarIfVisible();
         if (mScrollListener != null) mScrollListener.onScrollChange(t);
         super.onScrollChanged(l, t, oldl, oldt);
+
+        if (lastScrollType == LastScrollType.USER) {
+            //Log.d(LOG_TAG, "-> onScrollChanged -> scroll initiated by user");
+            loadUrl(getContext().getString(R.string.make_search_results_invisible));
+            parentFragment.searchItemVisible = null;
+        }
+
+        lastScrollType = null;
     }
 
     public int getContentHeightVal() {
@@ -180,82 +254,11 @@ public class FolioWebView extends WebView
         return this.getMeasuredHeight();
     }
 
-    @Override
-    public boolean onDown(MotionEvent event) {
-        //Log.v(LOG_TAG, "-> onDown -> " + event.toString());
-
-        eventActionDown = MotionEvent.obtain(event);
-        super.onTouchEvent(event);
-        return true;
-    }
-
-    @Override
-    public boolean onFling(MotionEvent event1, MotionEvent event2,
-                           float velocityX, float velocityY) {
-
-        if (!webViewPager.isScrolling()) {
-            //TODO: -> check for right edge to left flings from right edge
-            // Need to complete the scroll as ViewPager thinks these touch events should not
-            // scroll it's pages.
-            //Log.d(LOG_TAG, "-> onFling -> completing scroll");
-            invalidate();
-            scrollTo(getScrollXForPage(webViewPager.getCurrentItem()), 0);
-        }
-        return true;
-    }
-
-    @Override
-    public void onLongPress(MotionEvent event) {
-        //Log.v(LOG_TAG, "-> onLongPress -> " + event.toString());
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX,
-                            float distanceY) {
-        //Log.v(LOG_TAG, "-> onScroll -> " + event1.toString() + event2.toString() + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
-        return false;
-    }
-
-    @Override
-    public void onShowPress(MotionEvent event) {
-        //Log.v(LOG_TAG, "-> onShowPress -> " + event.toString());
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent event) {
-        //Log.v(LOG_TAG, "-> onSingleTapUp -> " + event.toString());
-        return false;
-    }
-
-    @Override
-    public boolean onDoubleTap(MotionEvent event) {
-        //Log.v(LOG_TAG, "-> onDoubleTap -> " + event.toString());
-        return false;
-    }
-
-    @Override
-    public boolean onDoubleTapEvent(MotionEvent event) {
-        //Log.v(LOG_TAG, "-> onDoubleTapEvent -> " + event.toString());
-        return false;
-    }
-
-    @Override
-    public boolean onSingleTapConfirmed(MotionEvent event) {
-        //Log.v(LOG_TAG, "-> onSingleTapConfirmed -> " + event.toString());
-        return false;
-    }
-
     public interface ScrollListener {
         void onScrollChange(int percent);
     }
 
     public interface SeekBarListener {
         void fadeInSeekBarIfInvisible();
-    }
-
-    public interface ToolBarListener {
-        void hideOrShowToolBar();
-
-        void hideToolBarIfVisible();
     }
 }

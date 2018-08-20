@@ -41,7 +41,8 @@ public class ManifestTask extends AsyncTask<String, Void, EpubPublication> {
             URL url = new URL(strUrl);
             URLConnection urlConnection = url.openConnection();
             InputStream inputStream = urlConnection.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil.charsetNameForURLConnection(urlConnection)));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,
+                    AppUtil.charsetNameForURLConnection(urlConnection)));
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {

@@ -1,7 +1,9 @@
 package com.folioreader.ui.folio.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.model.dictionary.Audio;
 import com.folioreader.model.dictionary.DictionaryResults;
@@ -17,6 +20,7 @@ import com.folioreader.model.dictionary.Example;
 import com.folioreader.model.dictionary.Pronunciations;
 import com.folioreader.model.dictionary.Senses;
 import com.folioreader.ui.base.DictionaryCallBack;
+import com.folioreader.util.AppUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +34,13 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
     private List<DictionaryResults> results;
     private Context context;
     private DictionaryCallBack callBack;
+    private static Config config;
 
     public DictionaryAdapter(Context context, DictionaryCallBack callBack) {
         this.results = new ArrayList<>();
         this.context = context;
         this.callBack = callBack;
+        config = AppUtil.getSavedConfig(context);
     }
 
     @Override
@@ -144,10 +150,23 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
 
         public DictionaryHolder(View itemView) {
             super(itemView);
+
             name = (TextView) itemView.findViewById(R.id.tv_word);
             //sound = (ImageButton) itemView.findViewById(R.id.ib_speak);
             definition = (TextView) itemView.findViewById(R.id.tv_definition);
             example = (TextView) itemView.findViewById(R.id.tv_examples);
+            View rootView = itemView.findViewById(R.id.rootView);
+
+            if (config.isNightMode()) {
+                rootView.setBackgroundColor(Color.BLACK);
+                int nightTextColor = ContextCompat.getColor(itemView.getContext(),
+                        R.color.night_text_color);
+                name.setTextColor(nightTextColor);
+                definition.setTextColor(nightTextColor);
+                example.setTextColor(nightTextColor);
+            } else {
+                rootView.setBackgroundColor(Color.WHITE);
+            }
         }
     }
 }

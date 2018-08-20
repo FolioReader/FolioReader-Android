@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="StyleableTextView">
-        <attr name="folio_font" format="string"/>
+        <attr name="folio_font" format="string" />
     </declare-styleable>
 
     <declare-styleable name="DirectionalViewpager">
         <attr name="direction" format="string">
-           <!-- <enum name="vertical" value="vertical"></enum>
-            <enum name="horizontal" value="horizontal"></enum>-->
+            <!-- <enum name="vertical" value="vertical"></enum>
+             <enum name="horizontal" value="horizontal"></enum>-->
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="LoadingView">
+        <attr name="maxVisibleDuration" format="integer" />
+    </declare-styleable>
+
+    <attr name="defaultFontColor" format="reference|color" />
+    <attr name="searchItemHeaderBackgroundColor" format="reference|color" />
+    <attr name="dividerColor" format="reference|color" />
+
 </resources>
