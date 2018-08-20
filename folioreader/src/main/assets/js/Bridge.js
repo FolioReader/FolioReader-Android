@@ -244,31 +244,36 @@ function bodyOrHtml() {
     return document.documentElement;
 }
 
-/**
- Go To Element - scrolls the webview to the requested element
- */
-function goToElement(element) {
+function scrollToElement(element) {
 
     var scrollingElement = bodyOrHtml();
-    var top = scrollingElement.scrollTop;
-    var elementTop = element.offsetTop - 20;
-    var bottom = window.innerHeight + top;
-    var elementBottom = element.offsetHeight + element.offsetTop + 60;
 
-    //console.log(window);
-    //console.log("-> top = " + top);
-    //console.log("-> elementTop = " + elementTop);
-    //console.log("-> bottom = " + bottom);
-    //console.log("-> elementBottom = " + elementBottom);
+    if (FolioPageFragment.getDirection() == "VERTICAL") {
 
-    if (FolioPageFragment.getDirection() == "VERTICAL" &&
-            (elementBottom > bottom || elementTop < top)) {
+        var topDistraction = FolioPageFragment.getTopDistraction();
+        var pageTop = scrollingElement.scrollTop + topDistraction;
+        var pageBottom = scrollingElement.scrollTop + document.documentElement.clientHeight
+                            - FolioPageFragment.getBottomDistraction();
 
-        var newScrollTop = elementTop;
-        //console.log("-> newScrollTop = " + newScrollTop);
-        scrollingElement.scrollTop = newScrollTop;
+        var elementTop = element.offsetTop - 20;
+        elementTop = elementTop < 0 ? 0 : elementTop;
+        var elementBottom = element.offsetTop + element.offsetHeight + 20;
+        var needToScroll = (elementTop < pageTop || elementBottom > pageBottom);
 
-    } else if (FolioPageFragment.getDirection() == "HORIZONTAL" && top == 0) {
+        //console.log("-> topDistraction = " + topDistraction);
+        //console.log("-> pageTop = " + pageTop);
+        //console.log("-> elementTop = " + elementTop);
+        //console.log("-> pageBottom = " + pageBottom);
+        //console.log("-> elementBottom = " + elementBottom);
+
+        if (needToScroll) {
+            var newScrollTop = elementTop - topDistraction;
+            newScrollTop = newScrollTop < 0 ? 0 : newScrollTop;
+            //console.log("-> Scrolled to = " + newScrollTop);
+            scrollingElement.scrollTop = newScrollTop;
+        }
+
+    } else if (FolioPageFragment.getDirection() == "HORIZONTAL") {
 
         var clientWidth = document.documentElement.clientWidth;
         var pageIndex = Math.floor(element.offsetLeft / clientWidth);
@@ -315,6 +320,16 @@ function sleep(seconds)
         var direction = "HORIZONTAL";
         console.warn("-> Mock call to FolioPageFragment.getDirection(), return " + direction);
         return direction;
+    },
+
+    getTopDistraction : function() {
+        console.warn("-> Mock call to FolioPageFragment.getTopDistraction(), return " + 0);
+        return 0;
+    },
+
+    getBottomDistraction : function() {
+        console.warn("-> Mock call to FolioPageFragment.getBottomDistraction(), return " + 0);
+        return 0;
     }
 };
 
@@ -359,14 +374,205 @@ var LoadingView = {
     }
 };*/
 
+var searchResults = [];
+var lastSearchQuery = null;
+var testCounter = 0;
+var searchResultsInvisible = true;
+
 // Testing purpose calls
 function test() {
 
-    getCompatMode();
-    wrappingSentencesWithinPTags();
+    ++testCounter;
+    console.log("-> testCounter = " + testCounter);
 
-    if (FolioPageFragment.getDirection() == "HORIZONTAL")
-        initHorizontalDirection();
+    var searchQuery = "look";
+
+    if (testCounter == 1) {
+
+        getCompatMode();
+        wrappingSentencesWithinPTags();
+
+        if (FolioPageFragment.getDirection() == "HORIZONTAL")
+            initHorizontalDirection();
+
+        highlightSearchResult(searchQuery, 1);
+
+    } else if (testCounter == 2) {
+
+        makeSearchResultsInvisible();
+
+    } else if (testCounter == 3) {
+
+        highlightSearchResult(searchQuery, 2);
+
+    } else if (testCounter == 4) {
+
+    }
+}
+
+function highlightSearchResult(searchQuery, occurrenceInChapter) {
+
+    if (searchQuery == lastSearchQuery) {
+        makeSearchResultsInvisible();
+    } else {
+        resetSearchResults();
+        searchResults = applySearchResultClass(searchQuery);
+        console.debug("-> Search Query Found = " + searchResults.length);
+    }
+
+    applySearchResultVisibleClass(occurrenceInChapter);
+    LoadingView.hide();
+}
+
+function applySearchResultClass(searchQuery) {
+
+    var searchQueryRegExp = new RegExp(escapeRegExp(searchQuery), "i");
+
+    var searchResults = [];
+    var searchChildNodesArray = [];
+    var elementArray = [];
+    var textNodeArray = [];
+
+    var bodyElement = document.getElementsByTagName('body')[0];
+    var elementsInBody = bodyElement.getElementsByTagName('*');
+
+    for (var i = 0 ; i < elementsInBody.length ; i++) {
+
+        var childNodes = elementsInBody[i].childNodes;
+
+        for (var j = 0; j < childNodes.length; j++) {
+
+            if (childNodes[j].nodeType == Node.TEXT_NODE &&
+                childNodes[j].nodeValue.trim().length) {
+                //console.log("-> " + childNodes[j].nodeValue);
+
+                if (childNodes[j].nodeValue.match(searchQueryRegExp)) {
+                    //console.log("-> Found -> " + childNodes[j].nodeValue);
+
+                    searchChildNodesArray.push(
+                        getSearchChildNodes(childNodes[j].nodeValue, searchQuery));
+
+                    elementArray.push(elementsInBody[i]);
+                    textNodeArray.push(childNodes[j]);
+                }
+            }
+        }
+    }
+
+    for (var i = 0 ; i < searchChildNodesArray.length ; i++) {
+
+        var searchChildNodes = searchChildNodesArray[i];
+
+        for (var j = 0 ; j < searchChildNodes.length ; j++) {
+
+            if (searchChildNodes[j].className == "search-result")
+                searchResults.push(searchChildNodes[j]);
+            elementArray[i].insertBefore(searchChildNodes[j], textNodeArray[i]);
+        }
+
+        elementArray[i].removeChild(textNodeArray[i]);
+    }
+
+    lastSearchQuery = searchQuery;
+    return searchResults;
+}
+
+function getSearchChildNodes(text, searchQuery) {
+
+    var arrayIndex = [];
+    var matchIndexStart = -1;
+    var textChunk = "";
+    var searchChildNodes = [];
+
+    for (var i = 0, j = 0 ; i < text.length ; i++) {
+
+        textChunk += text[i];
+
+        if (text[i].match(new RegExp(escapeRegExp(searchQuery[j]), "i"))) {
+
+            if (matchIndexStart == -1)
+                matchIndexStart = i;
+
+            if (searchQuery.length == j + 1) {
+
+                var textNode = document.createTextNode(
+                    textChunk.substring(0, textChunk.length - searchQuery.length));
+
+                var searchNode = document.createElement("span");
+                searchNode.className = "search-result";
+                var queryTextNode = document.createTextNode(
+                    text.substring(matchIndexStart, matchIndexStart + searchQuery.length));
+                searchNode.appendChild(queryTextNode);
+
+                searchChildNodes.push(textNode);
+                searchChildNodes.push(searchNode);
+
+                arrayIndex.push(matchIndexStart);
+                matchIndexStart = -1;
+                j = 0;
+                textChunk = "";
+
+            } else {
+                j++;
+            }
+
+        } else {
+            matchIndexStart = -1;
+            j = 0;
+        }
+    }
+
+    if (textChunk !== "") {
+        var textNode = document.createTextNode(textChunk);
+        searchChildNodes.push(textNode);
+    }
+
+    return searchChildNodes;
+}
+
+function makeSearchResultsVisible() {
+
+    for (var i = 0 ; i < searchResults.length ; i++) {
+        searchResults[i].className = "search-result-visible";
+    }
+    searchResultsInvisible = false;
+}
+
+function makeSearchResultsInvisible() {
+
+    if (searchResultsInvisible)
+        return;
+    for (var i = 0 ; i < searchResults.length ; i++) {
+        if (searchResults[i].className == "search-result-visible")
+            searchResults[i].className = "search-result-invisible";
+    }
+    searchResultsInvisible = true;
+}
+
+function applySearchResultVisibleClass(occurrenceInChapter) {
+
+    var searchResult = searchResults[occurrenceInChapter - 1];
+    if (searchResult === undefined)
+        return;
+    searchResult.className = "search-result-visible";
+    searchResultsInvisible = false;
+
+    scrollToElement(searchResult);
+}
+
+function resetSearchResults() {
+
+    for (var i = 0 ; i < searchResults.length ; i++) {
+        searchResults[i].outerHTML = searchResults[i].innerHTML;
+    }
+
+    searchResults = [];
+    lastSearchQuery = null;
+    searchResultsInvisible = true;
+}
+
+function escapeRegExp(str) {
+    return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }
 
 function scrollToLast() {
@@ -532,7 +738,7 @@ function audioMarkID(className, id) {
     audioMarkClass = className
     var el = document.getElementById(id);
 
-    goToElement(el);
+    scrollToElement(el);
     el.classList.add(className)
 }
 
@@ -624,7 +830,7 @@ function getSentenceWithIndex(className) {
 
     var text = sentence.innerText || sentence.textContent;
 
-    goToElement(sentence);
+    scrollToElement(sentence);
 
     if (audioMarkClass){
         removeAllClasses(audioMarkClass);
@@ -807,7 +1013,12 @@ function wrappingSentencesWithinPTags(){
                 safety -= 1;
             }
 
-            paragraph.innerHTML = array.join("");
+            try {
+                paragraph.innerHTML = array.join("");
+            } catch(err) {
+                console.error(err);
+                console.error("-> " + err.message);
+            }
         });
     }
 
@@ -833,7 +1044,7 @@ FolioPageFragment#storeFirstVisibleSpan(boolean, String) JavascriptInterface.
 */
 function getFirstVisibleSpan(isHorizontal) {
 
-    var spanCollection = document.getElementsByTagName("span");
+    var spanCollection = document.querySelectorAll("span.sentence");
 
     if (spanCollection.length == 0) {
         FolioPageFragment.storeFirstVisibleSpan(false, 0);
@@ -867,15 +1078,15 @@ function scrollToSpan(usingId, value) {
     if (usingId) {
         var spanElement = document.getElementById(value);
         if (spanElement)
-            goToElement(spanElement);
+            scrollToElement(spanElement);
     } else {
-        var spanCollection = document.getElementsByTagName("span");
+        var spanCollection = document.querySelectorAll("span.sentence");;
         if (spanCollection.length == 0 || value < 0 || value >= spanCollection.length
             || value == null) {
             LoadingView.hide();
             return;
         }
-        goToElement(spanCollection[value]);
+        scrollToElement(spanCollection[value]);
     }
 
     LoadingView.hide();
@@ -938,7 +1149,7 @@ function getHighlightString(style) {
 function goToHighlight(highlightId){
     var element = document.getElementById(highlightId.toString());
     if (element)
-        goToElement(element);
+        scrollToElement(element);
 
     LoadingView.hide();
 }
@@ -946,7 +1157,7 @@ function goToHighlight(highlightId){
 function goToAnchor(anchorId) {
     var element = document.getElementById(anchorId);
     if (element)
-        goToElement(element);
+        scrollToElement(element);
 
     LoadingView.hide();
 }

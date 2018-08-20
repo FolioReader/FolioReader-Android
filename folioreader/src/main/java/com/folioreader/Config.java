@@ -1,7 +1,11 @@
 package com.folioreader;
 
+import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -18,18 +22,21 @@ public class Config implements Parcelable {
     public static final String CONFIG_FONT = "font";
     public static final String CONFIG_FONT_SIZE = "font_size";
     public static final String CONFIG_IS_NIGHT_MODE = "is_night_mode";
-    public static final String CONFIG_IS_THEME_COLOR = "theme_color";
+    public static final String CONFIG_THEME_COLOR_INT = "theme_color_int";
     public static final String CONFIG_IS_TTS = "is_tts";
     public static final String CONFIG_ALLOWED_DIRECTION = "allowed_direction";
     public static final String CONFIG_DIRECTION = "direction";
     public static final String INTENT_PORT = "port";
     private static final AllowedDirection DEFAULT_ALLOWED_DIRECTION = AllowedDirection.ONLY_VERTICAL;
     private static final Direction DEFAULT_DIRECTION = Direction.VERTICAL;
+    private static final int DEFAULT_THEME_COLOR_INT =
+            ContextCompat.getColor(AppContext.get(), R.color.app_green);
 
     private int font = 3;
     private int fontSize = 2;
     private boolean nightMode;
-    private int themeColor = R.color.app_green;
+    @ColorInt
+    private int themeColor = DEFAULT_THEME_COLOR_INT;
     private boolean showTts = true;
     private AllowedDirection allowedDirection = DEFAULT_ALLOWED_DIRECTION;
     private Direction direction = DEFAULT_DIRECTION;
@@ -89,22 +96,11 @@ public class Config implements Parcelable {
     public Config() {
     }
 
-    public Config(int font, int fontSize, boolean nightMode, int themeColor, boolean showTts,
-                  AllowedDirection allowedDirection, Direction direction) {
-        this.font = font;
-        this.fontSize = fontSize;
-        this.nightMode = nightMode;
-        this.themeColor = themeColor;
-        this.showTts = showTts;
-        setAllowedDirection(allowedDirection);
-        setDirection(direction);
-    }
-
     public Config(JSONObject jsonObject) {
         font = jsonObject.optInt(CONFIG_FONT);
         fontSize = jsonObject.optInt(CONFIG_FONT_SIZE);
         nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHT_MODE);
-        themeColor = jsonObject.optInt(CONFIG_IS_THEME_COLOR);
+        themeColor = getValidColorInt(jsonObject.optInt(CONFIG_THEME_COLOR_INT));
         showTts = jsonObject.optBoolean(CONFIG_IS_TTS);
         allowedDirection = getAllowedDirectionFromString(LOG_TAG,
                 jsonObject.optString(CONFIG_ALLOWED_DIRECTION));
@@ -170,12 +166,35 @@ public class Config implements Parcelable {
         return this;
     }
 
+    @ColorInt
+    private int getValidColorInt(@ColorInt int colorInt) {
+        if (colorInt >= 0) {
+            Log.w(LOG_TAG, "-> getValidColorInt -> Invalid argument colorInt = " + colorInt +
+                    ", Returning DEFAULT_THEME_COLOR_INT = " + DEFAULT_THEME_COLOR_INT);
+            return DEFAULT_THEME_COLOR_INT;
+        }
+        return colorInt;
+    }
+
+    @ColorInt
     public int getThemeColor() {
         return themeColor;
     }
 
-    public Config setThemeColor(int themeColor) {
-        this.themeColor = themeColor;
+    public Config setThemeColorRes(@ColorRes int colorResId) {
+        try {
+            this.themeColor = ContextCompat.getColor(AppContext.get(), colorResId);
+        } catch (Resources.NotFoundException e) {
+            Log.w(LOG_TAG, "-> setThemeColorRes -> " + e);
+            Log.w(LOG_TAG, "-> setThemeColorRes -> Defaulting themeColor to " +
+                    DEFAULT_THEME_COLOR_INT);
+            this.themeColor = DEFAULT_THEME_COLOR_INT;
+        }
+        return this;
+    }
+
+    public Config setThemeColorInt(@ColorInt int colorInt) {
+        this.themeColor = getValidColorInt(colorInt);
         return this;
     }
 

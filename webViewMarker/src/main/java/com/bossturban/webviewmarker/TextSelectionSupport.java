@@ -211,10 +211,17 @@ public class TextSelectionSupport implements TextSelectionControlListener, OnTou
             mScrollDiffX = 0;
             mScrollDiffY = 0;
             mScrolling = false;
-            //
+
             // Fixes 4.4 double selection
             // See: http://stackoverflow.com/questions/20391783/how-to-avoid-default-selection-on-long-press-in-android-kitkat-4-4
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && isInSelectionMode()) {
+
+            // This fix is not required for Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+            // Selection handles might not work as intended only on emulators but would work on
+            // actual devices.
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+                    && Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1
+                    && isInSelectionMode()) {
             	return true;
             }
             break;

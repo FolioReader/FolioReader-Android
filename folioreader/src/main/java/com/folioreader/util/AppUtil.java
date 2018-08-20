@@ -1,9 +1,12 @@
 package com.folioreader.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.folioreader.Config;
 import com.folioreader.Constants;
@@ -92,7 +95,7 @@ public class AppUtil {
             obj.put(Config.CONFIG_FONT, config.getFont());
             obj.put(Config.CONFIG_FONT_SIZE, config.getFontSize());
             obj.put(Config.CONFIG_IS_NIGHT_MODE, config.isNightMode());
-            obj.put(Config.CONFIG_IS_THEME_COLOR, config.getThemeColor());
+            obj.put(Config.CONFIG_THEME_COLOR_INT, config.getThemeColor());
             obj.put(Config.CONFIG_IS_TTS, config.isShowTts());
             obj.put(Config.CONFIG_ALLOWED_DIRECTION, config.getAllowedDirection().toString());
             obj.put(Config.CONFIG_DIRECTION, config.getDirection().toString());
@@ -157,6 +160,20 @@ public class AppUtil {
             default:
                 return Integer.toString(action);
         }
+    }
+
+    public static void hideKeyboard(Activity activity) {
+
+        InputMethodManager imm = (InputMethodManager)
+                activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token
+        if (view == null)
+            view = new View(activity);
+        if (imm != null)
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        view.clearFocus();
     }
 }
 

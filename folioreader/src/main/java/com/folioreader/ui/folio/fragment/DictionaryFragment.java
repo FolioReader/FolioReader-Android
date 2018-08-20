@@ -3,10 +3,12 @@ package com.folioreader.ui.folio.fragment;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,10 +18,12 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.dictionary.Dictionary;
@@ -29,6 +33,8 @@ import com.folioreader.ui.base.DictionaryTask;
 import com.folioreader.ui.base.WikipediaCallBack;
 import com.folioreader.ui.base.WikipediaTask;
 import com.folioreader.ui.folio.adapter.DictionaryAdapter;
+import com.folioreader.util.AppUtil;
+import com.folioreader.util.UiUtil;
 
 import java.io.IOException;
 
@@ -36,7 +42,8 @@ import java.io.IOException;
  * @author gautam chibde on 4/7/17.
  */
 
-public class DictionaryFragment extends DialogFragment implements DictionaryCallBack, WikipediaCallBack {
+public class DictionaryFragment extends DialogFragment
+        implements DictionaryCallBack, WikipediaCallBack {
 
     private static final String TAG = "DictionaryFragment";
 
@@ -50,11 +57,12 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
     private LinearLayout wikiLayout;
     private WebView wikiWebView;
     private DictionaryAdapter mAdapter;
+    private ImageView imageViewClose;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
+        setStyle(STYLE_NO_TITLE, 0);
         word = getArguments().getString(Constants.SELECTED_WORD);
         mediaPlayer = new MediaPlayer();
     }
@@ -74,6 +82,7 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         noNetwork = (TextView) view.findViewById(R.id.no_network);
         progressBar = (ProgressBar) view.findViewById(R.id.progress);
         dictResults = (RecyclerView) view.findViewById(R.id.rv_dict_results);
@@ -114,7 +123,8 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
             }
         });
 
-        view.findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
+        imageViewClose = view.findViewById(R.id.btn_close);
+        imageViewClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dismiss();
@@ -122,7 +132,49 @@ public class DictionaryFragment extends DialogFragment implements DictionaryCall
         });
         dictResults.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new DictionaryAdapter(getActivity(), this);
+
+        configureTheme(view);
+
         loadDictionary();
+    }
+
+    private void configureTheme(View view) {
+
+        Config config = AppUtil.getSavedConfig(getContext());
+        assert config != null;
+        assert getContext() != null;
+        final int themeColor = config.getThemeColor();
+
+        UiUtil.setColorIntToDrawable(themeColor, imageViewClose.getDrawable());
+        LinearLayout layoutHeader = view.findViewById(R.id.layout_header);
+        layoutHeader.setBackgroundDrawable(UiUtil.getShapeDrawable(themeColor));
+        UiUtil.setColorIntToDrawable(themeColor, progressBar.getIndeterminateDrawable());
+        UiUtil.setShapeColor(googleSearch, themeColor);
+
+        if (config.isNightMode()) {
+            view.findViewById(R.id.toolbar).setBackgroundColor(Color.BLACK);
+            view.findViewById(R.id.contentView).setBackgroundColor(Color.BLACK);
+            dictionary.setBackgroundDrawable(UiUtil.createStateDrawable(themeColor, Color.BLACK));
+            wikipedia.setBackgroundDrawable(UiUtil.createStateDrawable(themeColor, Color.BLACK));
+            dictionary.setTextColor(UiUtil.getColorList(Color.BLACK, themeColor));
+            wikipedia.setTextColor(UiUtil.getColorList(Color.BLACK, themeColor));
+            int nightTextColor = ContextCompat.getColor(getContext(), R.color.night_text_color);
+            wikiWord.setTextColor(nightTextColor);
+            wikiWord.setBackgroundColor(Color.BLACK);
+            def.setTextColor(nightTextColor);
+            def.setBackgroundColor(Color.BLACK);
+            noNetwork.setTextColor(nightTextColor);
+
+        } else {
+            view.findViewById(R.id.contentView).setBackgroundColor(Color.WHITE);
+            dictionary.setTextColor(UiUtil.getColorList(Color.WHITE, themeColor));
+            wikipedia.setTextColor(UiUtil.getColorList(Color.WHITE, themeColor));
+            dictionary.setBackgroundDrawable(UiUtil.createStateDrawable(themeColor, Color.WHITE));
+            wikipedia.setBackgroundDrawable(UiUtil.createStateDrawable(themeColor, Color.WHITE));
+            wikiWord.setBackgroundColor(Color.WHITE);
+            def.setBackgroundColor(Color.WHITE);
+            googleSearch.setTextColor(Color.WHITE);
+        }
     }
 
     private void loadDictionary() {

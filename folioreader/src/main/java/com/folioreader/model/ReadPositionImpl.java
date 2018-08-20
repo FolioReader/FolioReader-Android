@@ -59,7 +59,7 @@ public class ReadPositionImpl implements ReadPosition, Parcelable {
                     .forType(ReadPositionImpl.class)
                     .readValue(jsonString);
         } catch (IOException e) {
-            Log.e(LOG_TAG, "-> " + e);
+            Log.e(LOG_TAG, "-> ", e);
         }
         return readPosition;
     }
@@ -143,7 +143,7 @@ public class ReadPositionImpl implements ReadPosition, Parcelable {
             ObjectWriter objectWriter = ObjectMapperSingleton.getObjectMapper().writer();
             return objectWriter.writeValueAsString(this);
         } catch (JsonProcessingException e) {
-            Log.e(LOG_TAG, "-> " + e);
+            Log.e(LOG_TAG, "-> ", e);
             return null;
         }
     }
