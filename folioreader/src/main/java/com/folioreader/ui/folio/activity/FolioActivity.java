@@ -30,6 +30,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -135,6 +136,7 @@ public class FolioActivity
     private Bundle searchAdapterDataBundle;
     private CharSequence searchQuery;
     private SearchItem searchItem;
+    private float density;
 
     private enum RequestCode {
         CONTENT_HIGHLIGHT(77),
@@ -151,10 +153,11 @@ public class FolioActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         handler = new Handler();
+        density = getResources().getDisplayMetrics().density;
 
         // Fix for screen get turned off while reading
         // TODO: -> Make this configurable
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        // getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setConfig(savedInstanceState);
         initDistractionFreeMode(savedInstanceState);
@@ -388,6 +391,12 @@ public class FolioActivity
 
         distractionFreeMode = savedInstanceState != null &&
                 savedInstanceState.getBoolean(BUNDLE_DISTRACTION_FREE_MODE);
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        Log.v(LOG_TAG, "-> onPostCreate");
 
         if (distractionFreeMode) {
             handler.post(new Runnable() {
@@ -397,6 +406,29 @@ public class FolioActivity
                 }
             });
         }
+    }
+
+    @Override
+    public int getTopDistraction() {
+        int topDistraction = 0;
+        if (!distractionFreeMode) {
+            topDistraction = getStatusBarHeight();
+            if (actionBar != null)
+                topDistraction += actionBar.getHeight();
+        }
+        topDistraction /= density;
+        Log.v(LOG_TAG, "-> getTopDistraction = " + topDistraction);
+        return topDistraction;
+    }
+
+    @Override
+    public int getBottomDistraction() {
+        int bottomDistraction = 0;
+        if (!distractionFreeMode)
+            bottomDistraction = appBarLayout.getNavigationBarHeight();
+        bottomDistraction /= density;
+        Log.v(LOG_TAG, "-> getBottomDistraction = " + bottomDistraction);
+        return bottomDistraction;
     }
 
     @Override
@@ -468,9 +500,8 @@ public class FolioActivity
     public int getStatusBarHeight() {
         int result = 0;
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
+        if (resourceId > 0)
             result = getResources().getDimensionPixelSize(resourceId);
-        }
         return result;
     }
 

@@ -22,4 +22,8 @@ public interface FolioActivityCallback {
     void setDayMode();
 
     void setNightMode();
+
+    int getTopDistraction();
+
+    int getBottomDistraction();
 }

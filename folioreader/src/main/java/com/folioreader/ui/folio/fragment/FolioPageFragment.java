@@ -371,6 +371,18 @@ public class FolioPageFragment
         return mActivityCallback.getDirection().toString();
     }
 
+    @SuppressWarnings("unused")
+    @JavascriptInterface
+    public int getTopDistraction() {
+        return mActivityCallback.getTopDistraction();
+    }
+
+    @SuppressWarnings("unused")
+    @JavascriptInterface
+    public int getBottomDistraction() {
+        return mActivityCallback.getBottomDistraction();
+    }
+
     public void scrollToLast() {
 
         boolean isPageLoading = loadingView == null || loadingView.getVisibility() == View.VISIBLE;

@@ -15,7 +15,6 @@
  */
 package com.folioreader.android.sample;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -84,8 +83,7 @@ public class HomeActivity extends AppCompatActivity
                 Config config = AppUtil.getSavedConfig(getApplicationContext());
                 if (config == null)
                     config = new Config();
-                config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL)
-                        .setThemeColorInt(Color.parseColor("#FF00FF"));
+                config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
 
                 folioReader.setReadPosition(readPosition)
                         .setConfig(config, true)

@@ -98,12 +98,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$KOTLIN_VERSION"
 
     // r2-streamer
-    api project(':r2-fetcher')
-    api project(':r2-parser')
-    api project(':r2-server')
-//    api "org.readium:r2-fetcher:$R2_STREAMER_VERSION"
-//    api "org.readium:r2-parser:$R2_STREAMER_VERSION"
-//    api "org.readium:r2-server:$R2_STREAMER_VERSION"
+    api "org.readium:r2-fetcher:$R2_STREAMER_VERSION"
+    api "org.readium:r2-parser:$R2_STREAMER_VERSION"
+    api "org.readium:r2-server:$R2_STREAMER_VERSION"
 
     implementation 'org.greenrobot:eventbus:3.1.1'
     implementation "org.apache.commons:commons-text:1.4"

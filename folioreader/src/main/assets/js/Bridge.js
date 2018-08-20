@@ -247,25 +247,33 @@ function bodyOrHtml() {
 function scrollToElement(element) {
 
     var scrollingElement = bodyOrHtml();
-    var top = scrollingElement.scrollTop;
-    var elementTop = element.offsetTop - 20;
-    var bottom = window.innerHeight + top;
-    var elementBottom = element.offsetHeight + element.offsetTop + 60;
 
-    //console.log(window);
-    //console.log("-> top = " + top);
-    //console.log("-> elementTop = " + elementTop);
-    //console.log("-> bottom = " + bottom);
-    //console.log("-> elementBottom = " + elementBottom);
+    if (FolioPageFragment.getDirection() == "VERTICAL") {
 
-    if (FolioPageFragment.getDirection() == "VERTICAL" &&
-            (elementBottom > bottom || elementTop < top)) {
+        var topDistraction = FolioPageFragment.getTopDistraction();
+        var pageTop = scrollingElement.scrollTop + topDistraction;
+        var pageBottom = scrollingElement.scrollTop + document.documentElement.clientHeight
+                            - FolioPageFragment.getBottomDistraction();
 
-        var newScrollTop = elementTop;
-        //console.log("-> newScrollTop = " + newScrollTop);
-        scrollingElement.scrollTop = newScrollTop;
+        var elementTop = element.offsetTop - 20;
+        elementTop = elementTop < 0 ? 0 : elementTop;
+        var elementBottom = element.offsetTop + element.offsetHeight + 20;
+        var needToScroll = (elementTop < pageTop || elementBottom > pageBottom);
 
-    } else if (FolioPageFragment.getDirection() == "HORIZONTAL" && top == 0) {
+        //console.log("-> topDistraction = " + topDistraction);
+        //console.log("-> pageTop = " + pageTop);
+        //console.log("-> elementTop = " + elementTop);
+        //console.log("-> pageBottom = " + pageBottom);
+        //console.log("-> elementBottom = " + elementBottom);
+
+        if (needToScroll) {
+            var newScrollTop = elementTop - topDistraction;
+            newScrollTop = newScrollTop < 0 ? 0 : newScrollTop;
+            //console.log("-> Scrolled to = " + newScrollTop);
+            scrollingElement.scrollTop = newScrollTop;
+        }
+
+    } else if (FolioPageFragment.getDirection() == "HORIZONTAL") {
 
         var clientWidth = document.documentElement.clientWidth;
         var pageIndex = Math.floor(element.offsetLeft / clientWidth);
@@ -312,6 +320,16 @@ function sleep(seconds)
         var direction = "HORIZONTAL";
         console.warn("-> Mock call to FolioPageFragment.getDirection(), return " + direction);
         return direction;
+    },
+
+    getTopDistraction : function() {
+        console.warn("-> Mock call to FolioPageFragment.getTopDistraction(), return " + 0);
+        return 0;
+    },
+
+    getBottomDistraction : function() {
+        console.warn("-> Mock call to FolioPageFragment.getBottomDistraction(), return " + 0);
+        return 0;
     }
 };
 
@@ -367,6 +385,8 @@ function test() {
     ++testCounter;
     console.log("-> testCounter = " + testCounter);
 
+    var searchQuery = "look";
+
     if (testCounter == 1) {
 
         getCompatMode();
@@ -375,10 +395,7 @@ function test() {
         if (FolioPageFragment.getDirection() == "HORIZONTAL")
             initHorizontalDirection();
 
-        var searchQuery = "look";
-        var occurrenceInChapter = 2;
-
-        highlightSearchResult(searchQuery, occurrenceInChapter);
+        highlightSearchResult(searchQuery, 1);
 
     } else if (testCounter == 2) {
 
@@ -386,10 +403,9 @@ function test() {
 
     } else if (testCounter == 3) {
 
-        var searchQuery = "the";
-        var occurrenceInChapter = 2;
+        highlightSearchResult(searchQuery, 2);
 
-        highlightSearchResult(searchQuery, occurrenceInChapter);
+    } else if (testCounter == 4) {
 
     }
 }
@@ -1001,6 +1017,7 @@ function wrappingSentencesWithinPTags(){
                 paragraph.innerHTML = array.join("");
             } catch(err) {
                 console.error(err);
+                console.error("-> " + err.message);
             }
         });
     }

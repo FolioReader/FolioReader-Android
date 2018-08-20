@@ -40,7 +40,7 @@ FolioReader-Android is an ePub reader written in Java.
 Add following dependency to your app build.gradle:
 
 ``` java
-compile 'com.folioreader:folioreader:0.4.0'
+compile 'com.folioreader:folioreader:0.4.1'
 ```
 
 Add maven repository to your top level build.gradle:
@@ -55,39 +55,40 @@ allprojects {
 }
 ```
 
-### Usage
+### AndroidManifest
 
-First add permissions and activity tag for `FolioActivity` in your `AndroidManifest.xml`:
+Starting with Android 9.0 (API level 28), cleartext support is disabled by default.
+
+{your-app-module}/res/xml/network_security_config.xml
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.folioreader.android.sample">
-        
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    
-    <application>
-    
-        ...
-        
-        <activity
-            android:name="com.folioreader.ui.folio.activity.FolioActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-            
-        ...
-        
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">localhost</domain>
+    </domain-config>
+</network-security-config>
+```
+
+Then add network_security_config.xml in your app module's AndroidManifest.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest ...>
+    ...
+    <application android:networkSecurityConfig="@xml/network_security_config">
+    ...
     </application>
-    
 </manifest>
 ```
 
-**Note: In case if you are upgrading to 0.4.0 and above don't forget to remove `android:configChanges="orientation|screenSize"` from `<activity>` tag of `FolioActivity`.**
+### Usage
 
 Get singleton object of `FolioReader`:
 
 ```java
-FolioReader folioReader = FolioReader.getInstance(getApplicationContext());
+FolioReader folioReader = FolioReader.get();
 ```
 
 Call the function `openBook()`:
@@ -102,6 +103,12 @@ folioReader.openBook("file:///android_asset/TheSilverChair.epub");
 ```java
 folioReader.openBook(R.raw.adventures);
 ```
+
+<br />
+
+**Note: From v0.4.1 you don't need to specify permissions and `FolioActivity` tag in AndroidManifest.xml**
+
+<br />
 
 ## WIKI
 
