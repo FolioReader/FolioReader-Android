@@ -19,11 +19,12 @@ FolioReader-Android is an ePub reader written in Java.
 - [x] TTS - Text to Speech Support
 - [ ] Parse epub cover image
 - [ ] PDF support
-- [ ] Book Search
+- [x] Book Search
 - [x] Add Notes to a Highlight
 - [ ] Better Documentation
 - [x] Last Read Position Listener
 - [x] Horizontal reading
+- [x] Distraction Free Reading
 
 ## Demo
 ##### Custom Fonts
