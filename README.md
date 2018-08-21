@@ -19,11 +19,12 @@ FolioReader-Android is an ePub reader written in Java.
 - [x] TTS - Text to Speech Support
 - [ ] Parse epub cover image
 - [ ] PDF support
-- [ ] Book Search
+- [x] Book Search
 - [x] Add Notes to a Highlight
 - [ ] Better Documentation
 - [x] Last Read Position Listener
 - [x] Horizontal reading
+- [x] Distraction Free Reading
 
 ## Demo
 ##### Custom Fonts
@@ -123,6 +124,10 @@ folioReader.openBook(R.raw.adventures);
     * [Get ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/Get-ReadPosition)
     * [Set ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/Set-ReadPosition)
 * [Clean up code](https://github.com/FolioReader/FolioReader-Android/wiki/Clean-up-code)
+
+## Reporting Issue
+
+Please follow [Issue Template](https://github.com/FolioReader/FolioReader-Android/blob/master/Templates/Issue%20Template.md) to report any issue 
 
 ### Credits
 1. <a href="https://github.com/daimajia/AndroidSwipeLayout">SwipeLayout</a>
