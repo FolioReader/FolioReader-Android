@@ -206,6 +206,8 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         Log.v(LOG_TAG, "-> navigateBack")
 
         val intent = Intent()
+        searchAdapterDataBundle.putInt(BUNDLE_FIRST_VISIBLE_ITEM_INDEX,
+                linearLayoutManager.findFirstVisibleItemPosition())
         intent.putExtra(SearchAdapter.DATA_BUNDLE, searchAdapterDataBundle)
         intent.putExtra(BUNDLE_SAVE_SEARCH_QUERY, searchView.query)
         setResult(ResultCode.BACK_BUTTON_PRESSED.value, intent)
