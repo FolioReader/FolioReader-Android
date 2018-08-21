@@ -125,6 +125,10 @@ folioReader.openBook(R.raw.adventures);
     * [Set ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/Set-ReadPosition)
 * [Clean up code](https://github.com/FolioReader/FolioReader-Android/wiki/Clean-up-code)
 
+## Reporting Issue
+
+Please follow [Issue Template](https://github.com/FolioReader/FolioReader-Android/blob/master/Templates/Issue%20Template.md) to report any issue 
+
 ### Credits
 1. <a href="https://github.com/daimajia/AndroidSwipeLayout">SwipeLayout</a>
 2. <a href="https://github.com/readium/r2-streamer-java">r2-streamer-java</a>
