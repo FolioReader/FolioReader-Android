@@ -52,6 +52,12 @@ android {
     }
 }
 
+repositories {
+    maven {
+        url "http://dl.bintray.com/mobisystech/maven"
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
