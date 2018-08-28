@@ -127,7 +127,7 @@ folioReader.openBook(R.raw.adventures);
 
 ## Reporting Issue
 
-Please follow [Issue Template](https://github.com/FolioReader/FolioReader-Android/blob/master/Templates/Issue%20Template.md) to report any issue 
+Please follow [Issue Template](https://github.com/FolioReader/FolioReader-Android/blob/master/.github/ISSUE_TEMPLATE.md) to report any issue. 
 
 ### Credits
 1. <a href="https://github.com/daimajia/AndroidSwipeLayout">SwipeLayout</a>
