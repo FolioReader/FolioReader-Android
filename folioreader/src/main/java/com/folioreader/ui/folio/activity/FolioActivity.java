@@ -340,7 +340,7 @@ public class FolioActivity
                     mEpubRawId, mEpubFileName);
             addEpub(path);
 
-            String urlString = Constants.LOCALHOST + bookFileName + "/manifest";
+            String urlString = Constants.LOCALHOST + Uri.encode(bookFileName) + "/manifest";
             new MainPresenter(this).parseManifest(urlString);
 
         } catch (IOException e) {

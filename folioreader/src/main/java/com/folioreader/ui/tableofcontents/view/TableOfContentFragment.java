@@ -2,6 +2,7 @@ package com.folioreader.ui.tableofcontents.view;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -72,7 +73,7 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
         super.onViewCreated(view, savedInstanceState);
         mTableOfContentsRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_menu);
         errorView = (TextView) view.findViewById(R.id.tv_error);
-        String urlString = Constants.LOCALHOST + mBookTitle + "/manifest";
+        String urlString = Constants.LOCALHOST + Uri.encode(mBookTitle) + "/manifest";
 
         configRecyclerViews();
         presenter.getTOCContent(urlString);

@@ -204,7 +204,7 @@ public class FolioPageFragment
     }
 
     private String getWebviewUrl() {
-        return Constants.LOCALHOST + mBookTitle + "/" + spineItem.href;
+        return Constants.LOCALHOST + Uri.encode(mBookTitle) + "/" + spineItem.href;
     }
 
     /**
