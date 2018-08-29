@@ -79,6 +79,11 @@ android {
     }
 }
 
+repositories {
+    maven {
+        url "http://dl.bintray.com/mobisystech/maven"
+    }
+}
 
 apply from: '../folioreader/bintray/installv1.gradle'
 dependencies {

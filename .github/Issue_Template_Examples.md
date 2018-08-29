@@ -1,14 +1,3 @@
-### Issue Template - 
-
-Issue / Feature - <br/>
-FolioReader version - <br/> 
-FolioReader Stock / Modified - <br/> 
-Android SDK - <br/>
-Mobile / Tablet / Emulator Info - <br/> 
-Crash / Error - <br/>
-
-Steps to reproduce / Describe in detail - <br/>
-
 ### Example No 1 -
 
 Issue / Feature - Issue <br/>

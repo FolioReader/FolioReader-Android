@@ -24,7 +24,6 @@ import android.widget.Toast;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.folioreader.Config;
 import com.folioreader.FolioReader;
 import com.folioreader.model.HighLight;
@@ -32,7 +31,6 @@ import com.folioreader.model.ReadPosition;
 import com.folioreader.model.ReadPositionImpl;
 import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.util.AppUtil;
-import com.folioreader.util.ObjectMapperSingleton;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadPositionListener;
 
@@ -94,17 +92,8 @@ public class HomeActivity extends AppCompatActivity
 
     private ReadPosition getLastReadPosition() {
 
-        ReadPosition readPosition = null;
-        ObjectReader objectReader = ObjectMapperSingleton.getObjectMapper().reader();
-
-        try {
-            readPosition = objectReader.forType(ReadPositionImpl.class)
-                    .readValue(getAssets().open("read_positions/read_position.json"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return readPosition;
+        String jsonString = loadAssetTextAsString("read_positions/read_position.json");
+        return ReadPositionImpl.createInstance(jsonString);
     }
 
     @Override
