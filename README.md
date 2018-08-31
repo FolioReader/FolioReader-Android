@@ -48,7 +48,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.folioreader:folioreader:0.4.1'
+    implementation 'com.folioreader:folioreader:0.4.2'
 }
 ```
 

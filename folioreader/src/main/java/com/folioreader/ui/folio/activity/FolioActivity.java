@@ -178,6 +178,7 @@ public class FolioActivity
         }
     };
 
+    @SuppressWarnings("PMD.CollapsibleIfStatements")
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
