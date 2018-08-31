@@ -29,7 +29,7 @@ allprojects {
 }
 
 ext {
-    LIBRARY_VERSION = '0.4.1'
+    LIBRARY_VERSION = '0.4.2'
     R2_STREAMER_VERSION = '0.1.8'
 
     VERSION_NAME = "1.0"
@@ -39,6 +39,8 @@ ext {
     ANDROID_COMPILE_SDK_VERSION = 28
     ANDROID_TARGET_SDK_VERSION = 28
     ANDROID_LIB_VERSION = '28.0.0-rc01'
+
+    CONSTRAINT_LAYOUT_VERSION = "1.1.2"
 }
 
 task clean(type: Delete) {

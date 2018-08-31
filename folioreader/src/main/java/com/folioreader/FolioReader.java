@@ -33,9 +33,22 @@ public class FolioReader {
     private boolean overrideConfig;
     private OnHighlightListener onHighlightListener;
     private ReadPositionListener readPositionListener;
+    private OnClosedListener onClosedListener;
     private ReadPosition readPosition;
     public static final String ACTION_SAVE_READ_POSITION = "com.folioreader.action.SAVE_READ_POSITION";
+    public static final String ACTION_CLOSE_FOLIOREADER = "com.folioreader.action.CLOSE_FOLIOREADER";
+    public static final String ACTION_FOLIOREADER_CLOSED = "com.folioreader.action.FOLIOREADER_CLOSED";
     public static final String EXTRA_READ_POSITION = "com.folioreader.extra.READ_POSITION";
+
+    public interface OnClosedListener {
+        /**
+         * You may call {@link FolioReader#clear()} in this method, if you wont't require to open
+         * an epub again from the current activity.
+         * Or you may call {@link FolioReader#stop()} in this method, if you wont't require to open
+         * an epub again from your application.
+         */
+        void onFolioReaderClosed();
+    }
 
     private BroadcastReceiver highlightReceiver = new BroadcastReceiver() {
         @Override
@@ -55,8 +68,16 @@ public class FolioReader {
 
             ReadPosition readPosition =
                     intent.getParcelableExtra(FolioReader.EXTRA_READ_POSITION);
-            if (readPositionListener != null )
+            if (readPositionListener != null)
                 readPositionListener.saveReadPosition(readPosition);
+        }
+    };
+
+    private BroadcastReceiver closedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (onClosedListener != null)
+                onClosedListener.onFolioReaderClosed();
         }
     };
 
@@ -66,7 +87,7 @@ public class FolioReader {
             synchronized (FolioReader.class) {
                 if (singleton == null) {
                     if (AppContext.get() == null) {
-                        throw new IllegalArgumentException("-> context == null");
+                        throw new IllegalStateException("-> context == null");
                     }
                     singleton = new FolioReader(AppContext.get());
                 }
@@ -81,10 +102,14 @@ public class FolioReader {
     private FolioReader(Context context) {
         this.context = context;
         DbAdapter.initialize(context);
-        LocalBroadcastManager.getInstance(context).registerReceiver(highlightReceiver,
+
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
+        localBroadcastManager.registerReceiver(highlightReceiver,
                 new IntentFilter(HighlightImpl.BROADCAST_EVENT));
-        LocalBroadcastManager.getInstance(context).registerReceiver(readPositionReceiver,
+        localBroadcastManager.registerReceiver(readPositionReceiver,
                 new IntentFilter(ACTION_SAVE_READ_POSITION));
+        localBroadcastManager.registerReceiver(closedReceiver,
+                new IntentFilter(ACTION_FOLIOREADER_CLOSED));
     }
 
     public FolioReader openBook(String assetOrSdcardPath) {
@@ -160,7 +185,8 @@ public class FolioReader {
 
     /**
      * Pass your configuration and choose to override it every time or just for first execution.
-     * @param config custom configuration.
+     *
+     * @param config         custom configuration.
      * @param overrideConfig true will override the config, false will use either this
      *                       config if it is null in application context or will fetch previously
      *                       saved one while execution.
@@ -181,6 +207,11 @@ public class FolioReader {
         return singleton;
     }
 
+    public FolioReader setOnClosedListener(OnClosedListener onClosedListener) {
+        this.onClosedListener = onClosedListener;
+        return singleton;
+    }
+
     public FolioReader setReadPosition(ReadPosition readPosition) {
         this.readPosition = readPosition;
         return singleton;
@@ -188,6 +219,18 @@ public class FolioReader {
 
     public void saveReceivedHighLights(List<HighLight> highlights, OnSaveHighlight onSaveHighlight) {
         new SaveReceivedHighlightTask(onSaveHighlight, highlights).execute();
+    }
+
+    /**
+     * Closes all the activities related to FolioReader.
+     * After closing all the activities of FolioReader, callback can be received in
+     * {@link OnClosedListener#onFolioReaderClosed()} if implemented.
+     * Developer is still bound to call {@link #clear()} or {@link #stop()}
+     * for clean up if required.
+     */
+    public void close() {
+        Intent intent = new Intent(FolioReader.ACTION_CLOSE_FOLIOREADER);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
     /**
@@ -202,6 +245,7 @@ public class FolioReader {
             singleton.readPosition = null;
             singleton.onHighlightListener = null;
             singleton.readPositionListener = null;
+            singleton.onClosedListener = null;
         }
     }
 
@@ -220,7 +264,9 @@ public class FolioReader {
     }
 
     private void unregisterListeners() {
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(highlightReceiver);
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(readPositionReceiver);
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
+        localBroadcastManager.unregisterReceiver(highlightReceiver);
+        localBroadcastManager.unregisterReceiver(readPositionReceiver);
+        localBroadcastManager.unregisterReceiver(closedReceiver);
     }
 }

@@ -48,8 +48,8 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
     }
 
     enum class ResultCode(val value: Int) {
-        ITEM_SELECTED(1),
-        BACK_BUTTON_PRESSED(2)
+        ITEM_SELECTED(2),
+        BACK_BUTTON_PRESSED(3)
     }
 
     private lateinit var searchUri: Uri

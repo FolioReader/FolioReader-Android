@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity
-        implements OnHighlightListener, ReadPositionListener {
+        implements OnHighlightListener, ReadPositionListener, FolioReader.OnClosedListener {
 
     private static final String LOG_TAG = HomeActivity.class.getSimpleName();
     private FolioReader folioReader;
@@ -54,7 +54,8 @@ public class HomeActivity extends AppCompatActivity
 
         folioReader = FolioReader.get()
                 .setOnHighlightListener(this)
-                .setReadPositionListener(this);
+                .setReadPositionListener(this)
+                .setOnClosedListener(this);
 
         getHighlightsAndSave();
 
@@ -176,5 +177,10 @@ public class HomeActivity extends AppCompatActivity
         Toast.makeText(this,
                 "highlight id = " + highlight.getUUID() + " type = " + type,
                 Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFolioReaderClosed() {
+        Log.v(LOG_TAG, "-> onFolioReaderClosed");
     }
 }
