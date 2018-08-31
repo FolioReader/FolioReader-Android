@@ -17,6 +17,7 @@ package com.folioreader.ui.folio.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -138,6 +139,7 @@ public class FolioActivity
     private SearchItem searchItem;
     private float density;
     private Boolean topActivity;
+    private int taskImportance;
 
     private enum RequestCode {
         CONTENT_HIGHLIGHT(77),
@@ -157,6 +159,17 @@ public class FolioActivity
 
             String action = intent.getAction();
             if (action != null && action.equals(FolioReader.ACTION_CLOSE_FOLIOREADER)) {
+
+                try {
+                    ActivityManager activityManager = (ActivityManager)
+                            context.getSystemService(Context.ACTIVITY_SERVICE);
+                    List<ActivityManager.RunningAppProcessInfo> tasks =
+                            activityManager.getRunningAppProcesses();
+                    taskImportance = tasks.get(0).importance;
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "-> ", e);
+                }
+
                 Intent closeIntent = new Intent(getApplicationContext(), FolioActivity.class);
                 closeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 closeIntent.setAction(FolioReader.ACTION_CLOSE_FOLIOREADER);
@@ -173,10 +186,23 @@ public class FolioActivity
 
         String action = getIntent().getAction();
         if (action != null && action.equals(FolioReader.ACTION_CLOSE_FOLIOREADER)) {
+
             if (topActivity == null || !topActivity) {
                 // FolioActivity was already left, so no need to broadcast ReadPosition again.
                 // Finish activity without going through onPause() and onStop()
                 finish();
+
+                // To determine if app in background or foreground
+                boolean appInBackground = false;
+                if (Build.VERSION.SDK_INT < 26) {
+                    if (ActivityManager.RunningAppProcessInfo.IMPORTANCE_BACKGROUND == taskImportance)
+                        appInBackground = true;
+                } else {
+                    if (ActivityManager.RunningAppProcessInfo.IMPORTANCE_CACHED == taskImportance)
+                        appInBackground = true;
+                }
+                if (appInBackground)
+                    moveTaskToBack(true);
             }
         }
     }
