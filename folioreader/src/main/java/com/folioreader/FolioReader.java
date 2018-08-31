@@ -1,11 +1,15 @@
 package com.folioreader;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
@@ -13,20 +17,24 @@ import com.folioreader.model.ReadPosition;
 import com.folioreader.model.sqlite.DbAdapter;
 import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.ui.base.SaveReceivedHighlightTask;
+import com.folioreader.ui.folio.activity.ContentHighlightActivity;
 import com.folioreader.ui.folio.activity.FolioActivity;
+import com.folioreader.ui.folio.activity.SearchActivity;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadPositionListener;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 /**
  * Created by avez raj on 9/13/2017.
  */
 
-public class FolioReader {
+public class FolioReader implements Application.ActivityLifecycleCallbacks {
 
     @SuppressLint("StaticFieldLeak")
     private static FolioReader singleton = null;
+    private static final String LOG_TAG = FolioReader.class.getSimpleName();
     public static final String INTENT_BOOK_ID = "book_id";
     private Context context;
     private Config config;
@@ -35,7 +43,13 @@ public class FolioReader {
     private ReadPositionListener readPositionListener;
     private ReadPosition readPosition;
     public static final String ACTION_SAVE_READ_POSITION = "com.folioreader.action.SAVE_READ_POSITION";
+    public static final String ACTION_CLOSE_FOLIOREADER = "com.folioreader.action.CLOSE_FOLIOREADER";
     public static final String EXTRA_READ_POSITION = "com.folioreader.extra.READ_POSITION";
+
+    //TODO -> Check for memory leak
+    public static WeakReference<Activity> folioActivity = null;
+    public static WeakReference<Activity> contentHighlightActivity = null;
+    public static WeakReference<Activity> searchActivity = null;
 
     private BroadcastReceiver highlightReceiver = new BroadcastReceiver() {
         @Override
@@ -55,7 +69,7 @@ public class FolioReader {
 
             ReadPosition readPosition =
                     intent.getParcelableExtra(FolioReader.EXTRA_READ_POSITION);
-            if (readPositionListener != null )
+            if (readPositionListener != null)
                 readPositionListener.saveReadPosition(readPosition);
         }
     };
@@ -160,7 +174,8 @@ public class FolioReader {
 
     /**
      * Pass your configuration and choose to override it every time or just for first execution.
-     * @param config custom configuration.
+     *
+     * @param config         custom configuration.
      * @param overrideConfig true will override the config, false will use either this
      *                       config if it is null in application context or will fetch previously
      *                       saved one while execution.
@@ -219,8 +234,71 @@ public class FolioReader {
         }
     }
 
+    public static synchronized void close() {
+
+        if (singleton != null) {
+            Intent intent = new Intent(FolioReader.ACTION_CLOSE_FOLIOREADER);
+            LocalBroadcastManager.getInstance(singleton.context).sendBroadcast(intent);
+        }
+    }
+
     private void unregisterListeners() {
         LocalBroadcastManager.getInstance(context).unregisterReceiver(highlightReceiver);
         LocalBroadcastManager.getInstance(context).unregisterReceiver(readPositionReceiver);
+    }
+
+    @Override
+    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+    }
+
+    @Override
+    public void onActivityStarted(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityResumed(Activity activity) {
+        if (activity instanceof FolioActivity) {
+            folioActivity = new WeakReference<>(activity);
+        } else if (activity instanceof ContentHighlightActivity) {
+            contentHighlightActivity = new WeakReference<>(activity);
+        } else if (activity instanceof SearchActivity) {
+            searchActivity = new WeakReference<>(activity);
+        }
+    }
+
+    @Override
+    public void onActivityPaused(Activity activity) {
+
+    }
+
+    @Override
+    public void onActivityStopped(Activity activity) {
+        Log.d(LOG_TAG, "-> onActivityStopped -> " + activity.getClass().getSimpleName());
+
+        if (activity instanceof FolioActivity) {
+            folioActivity = null;
+        } else if (activity instanceof ContentHighlightActivity) {
+            contentHighlightActivity = null;
+        } else if (activity instanceof SearchActivity) {
+            searchActivity = null;
+        }
+    }
+
+    @Override
+    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+    }
+
+    @Override
+    public void onActivityDestroyed(Activity activity) {
+        if (activity instanceof FolioActivity) {
+            folioActivity = null;
+        } else if (activity instanceof ContentHighlightActivity) {
+            contentHighlightActivity = null;
+        } else if (activity instanceof SearchActivity) {
+            searchActivity = null;
+        }
     }
 }

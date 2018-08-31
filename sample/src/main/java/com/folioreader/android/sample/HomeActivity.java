@@ -16,6 +16,7 @@
 package com.folioreader.android.sample;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -86,6 +87,13 @@ public class HomeActivity extends AppCompatActivity
                 folioReader.setReadPosition(readPosition)
                         .setConfig(config, true)
                         .openBook("file:///android_asset/TheSilverChair.epub");
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        FolioReader.close();
+                    }
+                }, 15000);
             }
         });
     }

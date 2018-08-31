@@ -149,11 +149,69 @@ public class FolioActivity
         }
     }
 
+    private BroadcastReceiver closeBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "-> closeBroadcastReceiver -> onReceive -> " + intent.getAction());
+            if (intent.getAction() == null)
+                return;
+            if (intent.getAction().equals(FolioReader.ACTION_CLOSE_FOLIOREADER)) {
+
+                Intent closeIntent = new Intent(getApplicationContext(), FolioActivity.class);
+                closeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                closeIntent.setAction(FolioReader.ACTION_CLOSE_FOLIOREADER);
+                FolioActivity.this.startActivity(closeIntent);
+            }
+        }
+    };
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        Log.d(LOG_TAG, "-> onNewIntent");
+        String action = getIntent().getAction();
+
+        if (action != null && action.equals(FolioReader.ACTION_CLOSE_FOLIOREADER)) {
+
+            // Calling finish() in onNewIntent() will not call onPause() and onStop()
+            if (FolioReader.folioActivity == null && FolioReader.contentHighlightActivity == null &&
+                    FolioReader.searchActivity == null) {
+                Log.i(LOG_TAG, "-> onNewIntent -> FolioActivity not visible and App is in " +
+                        "background means ReadPosition already broadcasted");
+                finish();
+                moveTaskToBack(true);
+
+            } else if (FolioReader.contentHighlightActivity != null ||
+                    FolioReader.searchActivity != null) {
+                Log.i(LOG_TAG, "-> onNewIntent -> App in foreground but FolioActivity was " +
+                        "already left means ReadPosition already broadcasted");
+                finish();
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, "-> onResume");
+
+        String action = getIntent().getAction();
+        if (action != null && action.equals(FolioReader.ACTION_CLOSE_FOLIOREADER)) {
+            Log.i(LOG_TAG, "-> onResume -> FolioActivity visible so need to broadcast " +
+                    "ReadPosition");
+            finish();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         handler = new Handler();
         density = getResources().getDisplayMetrics().density;
+
+        registerBroadcasts();
+        getApplication().registerActivityLifecycleCallbacks(FolioReader.get());
 
         // Fix for screen get turned off while reading
         // TODO: -> Make this configurable
@@ -543,6 +601,9 @@ public class FolioActivity
         if (requestCode == RequestCode.SEARCH.value) {
             Log.v(LOG_TAG, "-> onActivityResult -> " + RequestCode.SEARCH);
 
+            if (resultCode == RESULT_CANCELED)
+                return;
+
             searchAdapterDataBundle = data.getBundleExtra(SearchAdapter.DATA_BUNDLE);
             searchQuery = data.getCharSequenceExtra(SearchActivity.BUNDLE_SAVE_SEARCH_QUERY);
 
@@ -587,6 +648,11 @@ public class FolioActivity
             outState.putParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE, lastReadPosition);
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(searchReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(closeBroadcastReceiver);
+        FolioReader.folioActivity = null;
+        FolioReader.searchActivity = null;
+        FolioReader.contentHighlightActivity = null;
+        getApplication().unregisterActivityLifecycleCallbacks(FolioReader.get());
 
         if (mEpubServer != null) {
             mEpubServer.stop();
@@ -894,5 +960,11 @@ public class FolioActivity
         } else {
             return null;
         }
+    }
+
+    private void registerBroadcasts() {
+        Log.d(LOG_TAG, "-> registerBroadcasts");
+        LocalBroadcastManager.getInstance(this).registerReceiver(closeBroadcastReceiver,
+                new IntentFilter(FolioReader.ACTION_CLOSE_FOLIOREADER));
     }
 }
