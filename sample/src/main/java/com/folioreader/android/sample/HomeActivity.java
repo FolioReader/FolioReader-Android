@@ -16,7 +16,6 @@
 package com.folioreader.android.sample;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -43,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity
-        implements OnHighlightListener, ReadPositionListener {
+        implements OnHighlightListener, ReadPositionListener, FolioReader.OnClosedListener {
 
     private static final String LOG_TAG = HomeActivity.class.getSimpleName();
     private FolioReader folioReader;
@@ -55,7 +54,8 @@ public class HomeActivity extends AppCompatActivity
 
         folioReader = FolioReader.get()
                 .setOnHighlightListener(this)
-                .setReadPositionListener(this);
+                .setReadPositionListener(this)
+                .setOnClosedListener(this);
 
         getHighlightsAndSave();
 
@@ -87,13 +87,6 @@ public class HomeActivity extends AppCompatActivity
                 folioReader.setReadPosition(readPosition)
                         .setConfig(config, true)
                         .openBook("file:///android_asset/TheSilverChair.epub");
-
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        FolioReader.close();
-                    }
-                }, 15000);
             }
         });
     }
@@ -184,5 +177,10 @@ public class HomeActivity extends AppCompatActivity
         Toast.makeText(this,
                 "highlight id = " + highlight.getUUID() + " type = " + type,
                 Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFolioReaderClosed() {
+        Log.v(LOG_TAG, "-> onFolioReaderClosed");
     }
 }

@@ -1141,7 +1141,8 @@ public class FolioPageFragment
         if (isCurrentFragment()) {
             if (outState != null)
                 outState.putParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE, lastReadPosition);
-            mActivityCallback.storeLastReadPosition(lastReadPosition);
+            if (getActivity() != null && !getActivity().isFinishing())
+                mActivityCallback.storeLastReadPosition(lastReadPosition);
         }
         if (mWebview != null) mWebview.destroy();
     }

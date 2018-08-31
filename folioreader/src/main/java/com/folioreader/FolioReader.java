@@ -1,15 +1,11 @@
 package com.folioreader;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
@@ -17,39 +13,42 @@ import com.folioreader.model.ReadPosition;
 import com.folioreader.model.sqlite.DbAdapter;
 import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.ui.base.SaveReceivedHighlightTask;
-import com.folioreader.ui.folio.activity.ContentHighlightActivity;
 import com.folioreader.ui.folio.activity.FolioActivity;
-import com.folioreader.ui.folio.activity.SearchActivity;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadPositionListener;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 /**
  * Created by avez raj on 9/13/2017.
  */
 
-public class FolioReader implements Application.ActivityLifecycleCallbacks {
+public class FolioReader {
 
     @SuppressLint("StaticFieldLeak")
     private static FolioReader singleton = null;
-    private static final String LOG_TAG = FolioReader.class.getSimpleName();
     public static final String INTENT_BOOK_ID = "book_id";
     private Context context;
     private Config config;
     private boolean overrideConfig;
     private OnHighlightListener onHighlightListener;
     private ReadPositionListener readPositionListener;
+    private OnClosedListener onClosedListener;
     private ReadPosition readPosition;
     public static final String ACTION_SAVE_READ_POSITION = "com.folioreader.action.SAVE_READ_POSITION";
     public static final String ACTION_CLOSE_FOLIOREADER = "com.folioreader.action.CLOSE_FOLIOREADER";
+    public static final String ACTION_FOLIOREADER_CLOSED = "com.folioreader.action.FOLIOREADER_CLOSED";
     public static final String EXTRA_READ_POSITION = "com.folioreader.extra.READ_POSITION";
 
-    //TODO -> Check for memory leak
-    public static WeakReference<Activity> folioActivity = null;
-    public static WeakReference<Activity> contentHighlightActivity = null;
-    public static WeakReference<Activity> searchActivity = null;
+    public interface OnClosedListener {
+        /**
+         * You may call {@link FolioReader#clear()} in this method, if you wont't require to open
+         * an epub again from the current activity.
+         * Or you may call {@link FolioReader#stop()} in this method, if you wont't require to open
+         * an epub again from your application.
+         */
+        void onFolioReaderClosed();
+    }
 
     private BroadcastReceiver highlightReceiver = new BroadcastReceiver() {
         @Override
@@ -74,13 +73,21 @@ public class FolioReader implements Application.ActivityLifecycleCallbacks {
         }
     };
 
+    private BroadcastReceiver closedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (onClosedListener != null)
+                onClosedListener.onFolioReaderClosed();
+        }
+    };
+
     public static FolioReader get() {
 
         if (singleton == null) {
             synchronized (FolioReader.class) {
                 if (singleton == null) {
                     if (AppContext.get() == null) {
-                        throw new IllegalArgumentException("-> context == null");
+                        throw new IllegalStateException("-> context == null");
                     }
                     singleton = new FolioReader(AppContext.get());
                 }
@@ -95,10 +102,14 @@ public class FolioReader implements Application.ActivityLifecycleCallbacks {
     private FolioReader(Context context) {
         this.context = context;
         DbAdapter.initialize(context);
-        LocalBroadcastManager.getInstance(context).registerReceiver(highlightReceiver,
+
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
+        localBroadcastManager.registerReceiver(highlightReceiver,
                 new IntentFilter(HighlightImpl.BROADCAST_EVENT));
-        LocalBroadcastManager.getInstance(context).registerReceiver(readPositionReceiver,
+        localBroadcastManager.registerReceiver(readPositionReceiver,
                 new IntentFilter(ACTION_SAVE_READ_POSITION));
+        localBroadcastManager.registerReceiver(closedReceiver,
+                new IntentFilter(ACTION_FOLIOREADER_CLOSED));
     }
 
     public FolioReader openBook(String assetOrSdcardPath) {
@@ -196,6 +207,11 @@ public class FolioReader implements Application.ActivityLifecycleCallbacks {
         return singleton;
     }
 
+    public FolioReader setOnClosedListener(OnClosedListener onClosedListener) {
+        this.onClosedListener = onClosedListener;
+        return singleton;
+    }
+
     public FolioReader setReadPosition(ReadPosition readPosition) {
         this.readPosition = readPosition;
         return singleton;
@@ -203,6 +219,18 @@ public class FolioReader implements Application.ActivityLifecycleCallbacks {
 
     public void saveReceivedHighLights(List<HighLight> highlights, OnSaveHighlight onSaveHighlight) {
         new SaveReceivedHighlightTask(onSaveHighlight, highlights).execute();
+    }
+
+    /**
+     * Closes all the activities related to FolioReader.
+     * After closing all the activities of FolioReader, callback can be received in
+     * {@link OnClosedListener#onFolioReaderClosed()} if implemented.
+     * Developer is still bound to call {@link #clear()} or {@link #stop()}
+     * for clean up if required.
+     */
+    public void close() {
+        Intent intent = new Intent(FolioReader.ACTION_CLOSE_FOLIOREADER);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
     /**
@@ -217,6 +245,7 @@ public class FolioReader implements Application.ActivityLifecycleCallbacks {
             singleton.readPosition = null;
             singleton.onHighlightListener = null;
             singleton.readPositionListener = null;
+            singleton.onClosedListener = null;
         }
     }
 
@@ -234,71 +263,10 @@ public class FolioReader implements Application.ActivityLifecycleCallbacks {
         }
     }
 
-    public static synchronized void close() {
-
-        if (singleton != null) {
-            Intent intent = new Intent(FolioReader.ACTION_CLOSE_FOLIOREADER);
-            LocalBroadcastManager.getInstance(singleton.context).sendBroadcast(intent);
-        }
-    }
-
     private void unregisterListeners() {
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(highlightReceiver);
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(readPositionReceiver);
-    }
-
-    @Override
-    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-
-    }
-
-    @Override
-    public void onActivityStarted(Activity activity) {
-
-    }
-
-    @Override
-    public void onActivityResumed(Activity activity) {
-        if (activity instanceof FolioActivity) {
-            folioActivity = new WeakReference<>(activity);
-        } else if (activity instanceof ContentHighlightActivity) {
-            contentHighlightActivity = new WeakReference<>(activity);
-        } else if (activity instanceof SearchActivity) {
-            searchActivity = new WeakReference<>(activity);
-        }
-    }
-
-    @Override
-    public void onActivityPaused(Activity activity) {
-
-    }
-
-    @Override
-    public void onActivityStopped(Activity activity) {
-        Log.d(LOG_TAG, "-> onActivityStopped -> " + activity.getClass().getSimpleName());
-
-        if (activity instanceof FolioActivity) {
-            folioActivity = null;
-        } else if (activity instanceof ContentHighlightActivity) {
-            contentHighlightActivity = null;
-        } else if (activity instanceof SearchActivity) {
-            searchActivity = null;
-        }
-    }
-
-    @Override
-    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-
-    }
-
-    @Override
-    public void onActivityDestroyed(Activity activity) {
-        if (activity instanceof FolioActivity) {
-            folioActivity = null;
-        } else if (activity instanceof ContentHighlightActivity) {
-            contentHighlightActivity = null;
-        } else if (activity instanceof SearchActivity) {
-            searchActivity = null;
-        }
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
+        localBroadcastManager.unregisterReceiver(highlightReceiver);
+        localBroadcastManager.unregisterReceiver(readPositionReceiver);
+        localBroadcastManager.unregisterReceiver(closedReceiver);
     }
 }
