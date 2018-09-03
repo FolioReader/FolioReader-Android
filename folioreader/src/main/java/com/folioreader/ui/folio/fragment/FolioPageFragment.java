@@ -65,7 +65,6 @@ import com.folioreader.view.LoadingView;
 import com.folioreader.view.VerticalSeekbar;
 import com.folioreader.view.WebViewPager;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -506,8 +505,8 @@ public class FolioPageFragment
             if (mIsPageReloaded) {
 
                 if (searchItemVisible != null) {
-                    String escapedSearchQuery = StringEscapeUtils
-                            .escapeJava(searchItemVisible.getSearchQuery());
+                    String escapedSearchQuery = searchItemVisible.getSearchQuery()
+                            .replace("\"", "\\\"");
                     String call = String.format(getString(R.string.highlight_search_result),
                             escapedSearchQuery, searchItemVisible.getOccurrenceInChapter());
                     mWebview.loadUrl(call);
@@ -537,7 +536,8 @@ public class FolioPageFragment
                 highlightId = null;
 
             } else if (searchItemVisible != null) {
-                String escapedSearchQuery = StringEscapeUtils.escapeJava(searchItemVisible.getSearchQuery());
+                String escapedSearchQuery = searchItemVisible.getSearchQuery()
+                        .replace("\"", "\\\"");
                 String call = String.format(getString(R.string.highlight_search_result),
                         escapedSearchQuery, searchItemVisible.getOccurrenceInChapter());
                 mWebview.loadUrl(call);
@@ -1175,7 +1175,7 @@ public class FolioPageFragment
 
         if (loadingView != null && loadingView.getVisibility() != View.VISIBLE) {
             loadingView.show();
-            String escapedSearchQuery = StringEscapeUtils.escapeJava(searchItem.getSearchQuery());
+            String escapedSearchQuery = searchItem.getSearchQuery().replace("\"", "\\\"");
             String call = String.format(getString(R.string.highlight_search_result),
                     escapedSearchQuery, searchItem.getOccurrenceInChapter());
             mWebview.loadUrl(call);

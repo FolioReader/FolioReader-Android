@@ -20,7 +20,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     companion object {
         @JvmField
-        val LOG_TAG: String? = SearchAdapter::class.simpleName
+        val LOG_TAG: String? = SearchAdapter::class.java.simpleName
         const val DATA_BUNDLE = "DATA_BUNDLE"
     }
 
