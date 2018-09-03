@@ -100,7 +100,6 @@ dependencies {
 
     //Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$KOTLIN_VERSION"
 
     // r2-streamer
     api "org.readium:r2-fetcher:$R2_STREAMER_VERSION"
@@ -108,6 +107,5 @@ dependencies {
     api "org.readium:r2-server:$R2_STREAMER_VERSION"
 
     implementation 'org.greenrobot:eventbus:3.1.1'
-    implementation "org.apache.commons:commons-text:1.4"
 }
 apply from: '../folioreader/bintray/bintrayv1.gradle'
