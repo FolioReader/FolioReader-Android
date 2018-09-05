@@ -1,0 +1,73 @@
+<resources>
+
+    <string name="minutes_left">%1$d minut ·&#160;</string>
+    <string name="minute_left">%1$d minuta ·&#160;</string>
+    <string name="less_than_minute">Méně než minuta ·&#160;</string>
+
+    <string name="copied">Zkopírované</string>
+    <string name="send_to">Odeslat</string>
+
+    <string name="copy">Kopírovat</string>
+    <string name="share">Sdílet</string>
+    <string name="define">Definice</string>
+    <string name="highlight">Zvýraznit</string>
+
+    <string name="pages_left">%1$d stran zůstává</string>
+    <string name="page_left">%1$d strana zůstává</string>
+    <string name="highlights">Zvýrazněné</string>
+    <string name="half_speed">1/2x</string>
+    <string name="onex">1x</string>
+    <string name="one_and_half">1&#160;1/2x</string>
+    <string name="two_x">2x</string>
+    <string name="style">Styl</string>
+    <string name="style_underline"><![CDATA[<u style=\" border-bottom: 1px dashed #bcbcbc;   text-decoration: none;\">Styl</u>]]></string>
+    <string name="titlesMeta">&lt;tr&gt;&lt;td&gt;Názvy:&lt;/td&gt;</string>
+    <string name="authorsMeta">&lt;tr&gt;&lt;td&gt;Autoři:&lt;/td&gt;</string>
+    <string name="contributorsMeta">&lt;tr&gt;&lt;td&gt;Přispěvatelé:&lt;/td&gt;</string>
+    <string name="languageMeta">&lt;tr&gt;&lt;td&gt;Jazyky:&lt;/td&gt;&lt;td&gt;</string>
+    <string name="publishersMeta">&lt;tr&gt;&lt;td&gt;Vydavatelé:&lt;/td&gt;</string>
+    <string name="typesMeta">&lt;tr&gt;&lt;td&gt;Druhy:&lt;/td&gt;</string>
+    <string name="descriptionsMeta">&lt;tr&gt;&lt;td&gt;Popisy:&lt;/td&gt;</string>
+    <string name="rightsMeta">&lt;tr&gt;&lt;td&gt;Práva:&lt;/td&gt;</string>
+    <string name="tocReference">&lt;tr&gt;&lt;td&gt;Obsah:&lt;/td&gt;</string>
+    <string name="change_Font">Změnit písmo</string>
+    <string name="change_Font_Color">Barva písma:</string>
+    <string name="changeStyle">Změna stylu</string>
+    <string name="error_CannotChangeStyle">Není možné změnit styl!</string>
+    <string name="OK">OK</string>
+    <string name="Cancel">Zrušit</string>
+    <string name="SetSizeTitle">Velikost horního panelu:</string>
+    <string name="LanguageChooserTitle">Vyberte dva jazyky:</string>
+    <string name="loading">Probíhá načítání</string>
+    <string name="please_wait">prosím čekejte...</string>
+    <string name="please_wait_till_audio_is_parsed">čekejte prosím na analyzování zvuku, o chvíli zkuste znovu</string>
+    <string name="edit_notes">Uložte si poznámku</string>
+    <string name="save_note">Uložit poznámku</string>
+    <string name="please_enter_note">zadejte poznámku</string>
+    <string name="contents">Obsah</string>
+
+    <string name="dictionary">Slovník</string>
+    <string name="wikipedia">Wikipedie</string>
+    <string name="cannot_access_epub_message">Nelze otevřít elektronickou knihu, je třeba povolit práva na zápis do externí paměti!</string>
+    <string name="direction_horizontal">Horizontální</string>
+    <string name="direction_vertical">Vertikální</string>
+
+    <string name="menu_item_copy">Kopírovat</string>
+    <string name="menu_item_highlight">Zvýraznit</string>
+    <string name="menu_item_define">Definice</string>
+    <string name="menu_item_share">Sdílet</string>
+
+    <string name="menu_item_search">Vyhledávání</string>
+    <string name="menu_item_config">Nastavení</string>
+    <string name="menu_item_tts">Převod textu na řeč</string>
+
+    <string name="search_hint">Vyhledávání v knize</string>
+    <string name="search_empty_text">Žádné výsledky.</string>
+    <string name="search_failure_text">Něco se pokazilo.</string>
+
+    <plurals name="numberOfSearchResults">
+        <item quantity="one">%d výskyt</item>
+        <item quantity="other">%d výskytů</item>
+    </plurals>
+
+</resources>
