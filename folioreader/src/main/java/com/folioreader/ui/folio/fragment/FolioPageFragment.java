@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
@@ -58,7 +59,6 @@ import com.folioreader.ui.folio.mediaoverlay.MediaController;
 import com.folioreader.ui.folio.mediaoverlay.MediaControllerCallbacks;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.HighlightUtil;
-import com.folioreader.util.SMILParser;
 import com.folioreader.util.UiUtil;
 import com.folioreader.view.FolioWebView;
 import com.folioreader.view.LoadingView;
@@ -68,7 +68,7 @@ import com.folioreader.view.WebViewPager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.readium.r2_streamer.model.publication.link.Link;
+import org.readium.r2.shared.Link;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -178,13 +178,14 @@ public class FolioPageFragment
         }
 
         if (spineItem != null) {
-            if (spineItem.properties.contains("media-overlay")) {
-                mediaController = new MediaController(getActivity(), MediaController.MediaType.SMIL, this);
-                hasMediaOverlay = true;
-            } else {
-                mediaController = new MediaController(getActivity(), MediaController.MediaType.TTS, this);
-                mediaController.setTextToSpeech(getActivity());
-            }
+            // SMIL Parsing not yet implemented in r2-streamer-kotlin
+            //if (spineItem.getProperties().contains("media-overlay")) {
+            //    mediaController = new MediaController(getActivity(), MediaController.MediaType.SMIL, this);
+            //    hasMediaOverlay = true;
+            //} else {
+            mediaController = new MediaController(getActivity(), MediaController.MediaType.TTS, this);
+            mediaController.setTextToSpeech(getActivity());
+            //}
         }
         highlightStyle = HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal);
         mRootView = inflater.inflate(R.layout.folio_page_fragment, container, false);
@@ -203,7 +204,7 @@ public class FolioPageFragment
     }
 
     private String getWebviewUrl() {
-        return Constants.LOCALHOST + Uri.encode(mBookTitle) + "/" + spineItem.href;
+        return Constants.LOCALHOST + Uri.encode(mBookTitle) + spineItem.getHref();
     }
 
     /**
@@ -217,7 +218,7 @@ public class FolioPageFragment
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void pauseButtonClicked(MediaOverlayPlayPauseEvent event) {
         if (isAdded()
-                && spineItem.href.equals(event.getHref())) {
+                && spineItem.getHref().equals(event.getHref())) {
             mediaController.stateChanged(event);
         }
     }
@@ -336,27 +337,30 @@ public class FolioPageFragment
 
     private void setHtml(boolean reloaded) {
         if (spineItem != null) {
-            String ref = spineItem.href;
-            if (!reloaded && spineItem.properties.contains("media-overlay")) {
+            /*if (!reloaded && spineItem.properties.contains("media-overlay")) {
                 mediaController.setSMILItems(SMILParser.parseSMIL(mHtmlString));
                 mediaController.setUpMediaPlayer(spineItem.mediaOverlay, spineItem.mediaOverlay.getAudioPath(spineItem.href), mBookTitle);
-            }
+            }*/
             mConfig = AppUtil.getSavedConfig(getContext());
 
-            String path = "";
-            int forwardSlashLastIndex = ref.lastIndexOf('/');
-            if (forwardSlashLastIndex != -1)
-                path = ref.substring(0, forwardSlashLastIndex + 1);
+            String href = spineItem.getHref();
+            String path;
+            int forwardSlashLastIndex = href.lastIndexOf('/');
+            if (forwardSlashLastIndex != -1) {
+                path = href.substring(0, forwardSlashLastIndex + 1);
+            } else {
+                path = "/";
+            }
 
             String mimeType;
-            if (spineItem.typeLink.equalsIgnoreCase(getString(R.string.xhtml_mime_type))) {
+            if (spineItem.getTypeLink().equalsIgnoreCase(getString(R.string.xhtml_mime_type))) {
                 mimeType = getString(R.string.xhtml_mime_type);
             } else {
                 mimeType = getString(R.string.html_mime_type);
             }
 
             mWebview.loadDataWithBaseURL(
-                    Constants.LOCALHOST + mBookTitle + "/" + path,
+                    Constants.LOCALHOST + mBookTitle + path,
                     HtmlUtil.getHtmlContent(getContext(), mHtmlString, mConfig),
                     mimeType,
                     "UTF-8",
@@ -643,6 +647,14 @@ public class FolioPageFragment
     private WebChromeClient webChromeClient = new WebChromeClient() {
 
         @Override
+        public boolean onConsoleMessage(final ConsoleMessage cm) {
+            super.onConsoleMessage(cm);
+            String msg = cm.message() + ", From line " + cm.lineNumber() + " of " +
+                    cm.sourceId();
+            return FolioWebView.onWebViewConsoleMessage(cm, FolioWebView.LOG_TAG, msg);
+        }
+
+        @Override
         public void onProgressChanged(WebView view, int progress) {
         }
 
@@ -704,7 +716,7 @@ public class FolioPageFragment
     @Override
     public void onStop() {
         super.onStop();
-        Log.v(LOG_TAG, "-> onStop -> " + spineItem.originalHref + " -> " + isCurrentFragment());
+        Log.v(LOG_TAG, "-> onStop -> " + spineItem.getHref() + " -> " + isCurrentFragment());
 
         mediaController.stop();
         //TODO save last media overlay item
@@ -717,7 +729,7 @@ public class FolioPageFragment
      * Calls the /assets/js/Bridge.js#getFirstVisibleSpan(boolean)
      */
     public ReadPosition getLastReadPosition() {
-        Log.v(LOG_TAG, "-> getLastReadPosition -> " + spineItem.originalHref);
+        Log.v(LOG_TAG, "-> getLastReadPosition -> " + spineItem.getHref());
 
         try {
             synchronized (this) {
@@ -746,8 +758,7 @@ public class FolioPageFragment
     public void storeFirstVisibleSpan(boolean usingId, String value) {
 
         synchronized (this) {
-            lastReadPosition = new ReadPositionImpl(mBookId, spineItem.getId(),
-                    spineItem.getOriginalHref(), mPosition, usingId, value);
+            lastReadPosition = new ReadPositionImpl(mBookId, spineItem.getHref(), usingId, value);
             Intent intent = new Intent(FolioReader.ACTION_SAVE_READ_POSITION);
             intent.putExtra(FolioReader.EXTRA_READ_POSITION, lastReadPosition);
             LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
@@ -760,7 +771,7 @@ public class FolioPageFragment
     @JavascriptInterface
     public void setHorizontalPageCount(int horizontalPageCount) {
         Log.v(LOG_TAG, "-> setHorizontalPageCount = " + horizontalPageCount
-                + " -> " + spineItem.originalHref);
+                + " -> " + spineItem.getHref());
 
         mWebview.setHorizontalPageCount(horizontalPageCount);
     }
@@ -1101,7 +1112,7 @@ public class FolioPageFragment
     }
 
     private String getPageName() {
-        return mBookTitle + "$" + spineItem.href;
+        return mBookTitle + "$" + spineItem.getHref();
     }
 
     @Override
@@ -1183,7 +1194,7 @@ public class FolioPageFragment
     }
 
     public void resetSearchResults() {
-        Log.v(LOG_TAG, "-> resetSearchResults -> " + spineItem.originalHref);
+        Log.v(LOG_TAG, "-> resetSearchResults -> " + spineItem.getHref());
         mWebview.loadUrl(getString(R.string.reset_search_results));
         searchItemVisible = null;
     }

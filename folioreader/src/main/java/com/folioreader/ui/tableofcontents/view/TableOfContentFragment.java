@@ -2,7 +2,6 @@ package com.folioreader.ui.tableofcontents.view;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -20,28 +19,32 @@ import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.TOCLinkWrapper;
 import com.folioreader.ui.tableofcontents.adapter.TOCAdapter;
-import com.folioreader.ui.tableofcontents.presenter.TOCMvpView;
-import com.folioreader.ui.tableofcontents.presenter.TableOfContentsPresenter;
 import com.folioreader.util.AppUtil;
 
+import org.readium.r2.shared.Link;
+import org.readium.r2.shared.Publication;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.folioreader.Constants.BOOK_TITLE;
 import static com.folioreader.Constants.CHAPTER_SELECTED;
 import static com.folioreader.Constants.SELECTED_CHAPTER_POSITION;
 import static com.folioreader.Constants.TYPE;
 
-public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCAdapter.TOCCallback {
+public class TableOfContentFragment extends Fragment implements TOCAdapter.TOCCallback {
     private TOCAdapter mTOCAdapter;
     private RecyclerView mTableOfContentsRecyclerView;
-    private TableOfContentsPresenter presenter;
     private TextView errorView;
     private Config mConfig;
     private String mBookTitle;
+    private Publication publication;
 
-    public static TableOfContentFragment newInstance(String selectedChapterHref, String bookTitle) {
+    public static TableOfContentFragment newInstance(Publication publication,
+                                                     String selectedChapterHref, String bookTitle) {
         TableOfContentFragment tableOfContentFragment = new TableOfContentFragment();
         Bundle args = new Bundle();
+        args.putSerializable(Constants.PUBLICATION, publication);
         args.putString(SELECTED_CHAPTER_POSITION, selectedChapterHref);
         args.putString(BOOK_TITLE, bookTitle);
         tableOfContentFragment.setArguments(args);
@@ -51,7 +54,7 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        presenter = new TableOfContentsPresenter(this);
+        publication = (Publication) getArguments().getSerializable(Constants.PUBLICATION);
     }
 
     @Override
@@ -73,10 +76,9 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
         super.onViewCreated(view, savedInstanceState);
         mTableOfContentsRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_menu);
         errorView = (TextView) view.findViewById(R.id.tv_error);
-        String urlString = Constants.LOCALHOST + Uri.encode(mBookTitle) + "/manifest";
 
         configRecyclerViews();
-        presenter.getTOCContent(urlString);
+        initAdapter();
     }
 
     public void configRecyclerViews() {
@@ -85,14 +87,61 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
         mTableOfContentsRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
     }
 
-    @Override
+    private void initAdapter() {
+        if (publication != null) {
+            if (!publication.getTableOfContents().isEmpty()) {
+                ArrayList<TOCLinkWrapper> tocLinkWrappers = new ArrayList<>();
+                for (Link tocLink : publication.getTableOfContents()) {
+                    TOCLinkWrapper tocLinkWrapper = createTocLinkWrapper(tocLink, 0);
+                    tocLinkWrappers.add(tocLinkWrapper);
+                }
+                onLoadTOC(tocLinkWrappers);
+            } else {
+                onLoadTOC(createTOCFromSpine(publication.getSpine()));
+            }
+        } else {
+            onError();
+        }
+    }
+
+    /**
+     * [RECURSIVE]
+     * <p>
+     * function generates list of {@link TOCLinkWrapper} of TOC list from publication manifest
+     *
+     * @param tocLink     table of content elements
+     * @param indentation level of hierarchy of the child elements
+     * @return generated {@link TOCLinkWrapper} list
+     */
+    private static TOCLinkWrapper createTocLinkWrapper(Link tocLink, int indentation) {
+        TOCLinkWrapper tocLinkWrapper = new TOCLinkWrapper(tocLink, indentation);
+        for (Link tocLink1 : tocLink.getChildren()) {
+            TOCLinkWrapper tocLinkWrapper1 = createTocLinkWrapper(tocLink1, indentation + 1);
+            if (tocLinkWrapper1.getIndentation() != 3) {
+                tocLinkWrapper.addChild(tocLinkWrapper1);
+            }
+        }
+        return tocLinkWrapper;
+    }
+
+    private static ArrayList<TOCLinkWrapper> createTOCFromSpine(List<Link> spine) {
+        ArrayList<TOCLinkWrapper> tocLinkWrappers = new ArrayList<>();
+        for (Link link : spine) {
+            Link tocLink = new Link();
+            tocLink.setTitle(link.getTitle());
+            tocLink.setHref(link.getHref());
+            tocLinkWrappers.add(new TOCLinkWrapper(tocLink, 0));
+        }
+        return tocLinkWrappers;
+    }
+
     public void onLoadTOC(ArrayList<TOCLinkWrapper> tocLinkWrapperList) {
-        mTOCAdapter = new TOCAdapter(getActivity(), tocLinkWrapperList, getArguments().getString(SELECTED_CHAPTER_POSITION), mConfig);
+        mTOCAdapter = new TOCAdapter(getActivity(), tocLinkWrapperList,
+                getArguments().getString(SELECTED_CHAPTER_POSITION), mConfig);
         mTOCAdapter.setCallback(this);
         mTableOfContentsRecyclerView.setAdapter(mTOCAdapter);
     }
 
-    @Override
     public void onError() {
         errorView.setVisibility(View.VISIBLE);
         mTableOfContentsRecyclerView.setVisibility(View.GONE);
@@ -103,8 +152,8 @@ public class TableOfContentFragment extends Fragment implements TOCMvpView, TOCA
     public void onTocClicked(int position) {
         TOCLinkWrapper tocLinkWrapper = (TOCLinkWrapper) mTOCAdapter.getItemAt(position);
         Intent intent = new Intent();
-        intent.putExtra(SELECTED_CHAPTER_POSITION, tocLinkWrapper.getTocLink().href);
-        intent.putExtra(BOOK_TITLE, tocLinkWrapper.getTocLink().bookTitle);
+        intent.putExtra(SELECTED_CHAPTER_POSITION, tocLinkWrapper.getTocLink().getHref());
+        intent.putExtra(BOOK_TITLE, tocLinkWrapper.getTocLink().getTitle());
         intent.putExtra(TYPE, CHAPTER_SELECTED);
         getActivity().setResult(Activity.RESULT_OK, intent);
         getActivity().finish();

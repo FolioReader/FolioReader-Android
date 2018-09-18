@@ -1,3 +1,13 @@
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+
 # Custom
 _site
 
@@ -38,3 +48,6 @@ out
 target
 release.properties
 pom.xml.*
+
+# Readium DRM LCP
+liblcp.aar

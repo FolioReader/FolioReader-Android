@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.ConsoleMessage;
+import android.webkit.WebChromeClient;
 
 import com.folioreader.Config;
 import com.folioreader.Constants;
@@ -46,16 +48,16 @@ public class AppUtil {
             JSONArray jsonArray = new JSONArray(jsonString);
             JSONObject jObject = jsonArray.getJSONObject(0);
             Iterator<String> keysItr = jObject.keys();
-        while(keysItr.hasNext()) {
-            String key = keysItr.next();
-            Object value = null;
-            value = jObject.get(key);
+            while (keysItr.hasNext()) {
+                String key = keysItr.next();
+                Object value = null;
+                value = jObject.get(key);
 
-            if(value instanceof JSONObject) {
-                value = toMap(value.toString());
+                if (value instanceof JSONObject) {
+                    value = toMap(value.toString());
+                }
+                map.put(key, value.toString());
             }
-            map.put(key, value.toString());
-        }
         } catch (JSONException e) {
             Log.e(TAG, "toMap failed", e);
         }
@@ -143,7 +145,7 @@ public class AppUtil {
         }
 
         if (Build.VERSION.SDK_INT >= 23) {
-            switch(action) {
+            switch (action) {
                 case MotionEvent.ACTION_BUTTON_PRESS:
                     return "ACTION_BUTTON_PRESS";
                 case MotionEvent.ACTION_BUTTON_RELEASE:

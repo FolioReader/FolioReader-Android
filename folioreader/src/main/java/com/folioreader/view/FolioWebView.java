@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
@@ -21,7 +22,7 @@ import com.folioreader.ui.folio.fragment.FolioPageFragment;
  */
 public class FolioWebView extends WebView {
 
-    private static final String LOG_TAG = FolioWebView.class.getSimpleName();
+    public static final String LOG_TAG = FolioWebView.class.getSimpleName();
     private int horizontalPageCount = 0;
     private float density;
     private ScrollListener mScrollListener;
@@ -29,7 +30,7 @@ public class FolioWebView extends WebView {
     private GestureDetectorCompat gestureDetector;
     private MotionEvent eventActionDown;
     private int pageWidthCssDp;
-    private int pageWidthCssPixels;
+    private float pageWidthCssPixels;
     private WebViewPager webViewPager;
     private Handler handler;
     private FolioActivityCallback folioActivityCallback;
@@ -163,7 +164,7 @@ public class FolioWebView extends WebView {
         super.onLayout(changed, l, t, r, b);
 
         pageWidthCssDp = (int) Math.ceil((getMeasuredWidth() / density));
-        pageWidthCssPixels = (int) (pageWidthCssDp * density);
+        pageWidthCssPixels = pageWidthCssDp * density;
     }
 
     public void setScrollListener(ScrollListener listener) {
@@ -208,7 +209,7 @@ public class FolioWebView extends WebView {
 
     public int getScrollXPixelsForPage(int page) {
         //Log.v(LOG_TAG, "-> getScrollXPixelsForPage -> page = " + page);
-        return page * pageWidthCssPixels;
+        return (int) Math.ceil(page * pageWidthCssPixels);
     }
 
     public void setHorizontalPageCount(int horizontalPageCount) {
@@ -260,5 +261,23 @@ public class FolioWebView extends WebView {
 
     public interface SeekBarListener {
         void fadeInSeekBarIfInvisible();
+    }
+
+    public static boolean onWebViewConsoleMessage(ConsoleMessage cm, String LOG_TAG, String msg) {
+        switch (cm.messageLevel()) {
+            case LOG:
+                Log.v(LOG_TAG, msg);
+                return true;
+            case DEBUG:
+                Log.d(LOG_TAG, msg);
+                return true;
+            case WARNING:
+                Log.w(LOG_TAG, msg);
+                return true;
+            case ERROR:
+                Log.e(LOG_TAG, msg);
+                return true;
+        }
+        return false;
     }
 }

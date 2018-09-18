@@ -20,17 +20,24 @@ import com.folioreader.ui.tableofcontents.view.TableOfContentFragment;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.UiUtil;
 
+import org.readium.r2.shared.Publication;
+
 public class ContentHighlightActivity extends AppCompatActivity {
     private boolean mIsNightMode;
     private Config mConfig;
+    private Publication publication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_content_highlight);
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
+
+        publication = (Publication) getIntent().getSerializableExtra(Constants.PUBLICATION);
+
         mConfig = AppUtil.getSavedConfig(this);
         mIsNightMode = mConfig != null && mConfig.isNightMode();
         initViews();
@@ -93,8 +100,8 @@ public class ContentHighlightActivity extends AppCompatActivity {
     private void loadContentFragment() {
         findViewById(R.id.btn_contents).setSelected(true);
         findViewById(R.id.btn_highlights).setSelected(false);
-        TableOfContentFragment contentFrameLayout
-                = TableOfContentFragment.newInstance(getIntent().getStringExtra(Constants.CHAPTER_SELECTED),
+        TableOfContentFragment contentFrameLayout = TableOfContentFragment.newInstance(publication,
+                getIntent().getStringExtra(Constants.CHAPTER_SELECTED),
                 getIntent().getStringExtra(Constants.BOOK_TITLE));
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.parent, contentFrameLayout);
@@ -105,7 +112,7 @@ public class ContentHighlightActivity extends AppCompatActivity {
         findViewById(R.id.btn_contents).setSelected(false);
         findViewById(R.id.btn_highlights).setSelected(true);
         String bookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
-        String bookTitle= getIntent().getStringExtra(Constants.BOOK_TITLE);
+        String bookTitle = getIntent().getStringExtra(Constants.BOOK_TITLE);
         HighlightFragment highlightFragment = HighlightFragment.newInstance(bookId, bookTitle);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.parent, highlightFragment);

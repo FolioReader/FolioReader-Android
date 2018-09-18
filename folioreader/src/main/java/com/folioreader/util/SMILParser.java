@@ -2,8 +2,6 @@ package com.folioreader.util;
 
 import com.folioreader.model.media_overlay.OverlayItems;
 
-import org.readium.r2_streamer.parser.EpubParser;
-import org.readium.r2_streamer.parser.EpubParserException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -28,12 +26,13 @@ public final class SMILParser {
     public static List<OverlayItems> parseSMIL(String html) {
         List<OverlayItems> mediaItems = new ArrayList<>();
         try {
-            Document document = EpubParser.xmlParser(html);
+            Document document = null; //EpubParser.xmlParser(html);
             NodeList sections = document.getDocumentElement().getElementsByTagName("section");
             for (int i = 0; i < sections.getLength(); i++) {
                 parseNodes(mediaItems, (Element) sections.item(i));
             }
-        } catch (EpubParserException e) {
+            //} catch (EpubParserException e) {
+        } catch (Exception e) {
             return new ArrayList<>();
         }
         return mediaItems;
@@ -70,12 +69,13 @@ public final class SMILParser {
     public static List<OverlayItems> parseSMILForTTS(String html) {
         List<OverlayItems> mediaItems = new ArrayList<>();
         try {
-            Document document = EpubParser.xmlParser(html);
+            Document document = null; //EpubParser.xmlParser(html);
             NodeList sections = document.getDocumentElement().getElementsByTagName("body");
             for (int i = 0; i < sections.getLength(); i++) {
                 parseNodesTTS(mediaItems, (Element) sections.item(i));
             }
-        } catch (EpubParserException e) {
+            //} catch (EpubParserException e) {
+        } catch (Exception e) {
             return new ArrayList<>();
         }
         return mediaItems;

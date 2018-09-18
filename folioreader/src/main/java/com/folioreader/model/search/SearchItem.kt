@@ -2,7 +2,7 @@ package com.folioreader.model.search
 
 import android.os.Parcel
 import android.os.Parcelable
-import org.readium.r2_streamer.model.searcher.SearchResult
+import com.folioreader.r2_streamer_java.SearchResult
 
 class SearchItem : SearchResult, Parcelable {
 

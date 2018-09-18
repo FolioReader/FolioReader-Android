@@ -59,8 +59,6 @@ import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
 import com.folioreader.ui.folio.adapter.SearchAdapter;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
 import com.folioreader.ui.folio.fragment.MediaControllerFragment;
-import com.folioreader.ui.folio.presenter.MainMvpView;
-import com.folioreader.ui.folio.presenter.MainPresenter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.FileUtil;
 import com.folioreader.util.UiUtil;
@@ -70,14 +68,13 @@ import com.folioreader.view.FolioAppBarLayout;
 import com.folioreader.view.MediaControllerCallback;
 
 import org.greenrobot.eventbus.EventBus;
-import org.readium.r2_streamer.model.container.Container;
-import org.readium.r2_streamer.model.container.EpubContainer;
-import org.readium.r2_streamer.model.publication.EpubPublication;
-import org.readium.r2_streamer.model.publication.link.Link;
-import org.readium.r2_streamer.server.EpubServer;
-import org.readium.r2_streamer.server.EpubServerSingleton;
+import org.readium.r2.shared.Link;
+import org.readium.r2.shared.Publication;
+import org.readium.r2.streamer.parser.CbzParser;
+import org.readium.r2.streamer.parser.EpubParser;
+import org.readium.r2.streamer.parser.PubBox;
+import org.readium.r2.streamer.server.Server;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,7 +85,7 @@ import static com.folioreader.Constants.TYPE;
 
 public class FolioActivity
         extends AppCompatActivity
-        implements FolioActivityCallback, MainMvpView, MediaControllerCallback,
+        implements FolioActivityCallback, MediaControllerCallback,
         View.OnSystemUiVisibilityChangeListener {
 
     private static final String LOG_TAG = "FolioActivity";
@@ -124,8 +121,9 @@ public class FolioActivity
     private Bundle outState;
     private Bundle savedInstanceState;
 
-    private List<Link> mSpineReferenceList = new ArrayList<>();
-    private EpubServer mEpubServer;
+    private Server r2StreamerServer;
+    private PubBox pubBox;
+    private List<Link> spine;
 
     private String mBookId;
     private String mEpubFilePath;
@@ -390,15 +388,16 @@ public class FolioActivity
 
         Intent intent = new Intent(FolioActivity.this, ContentHighlightActivity.class);
 
+        intent.putExtra(Constants.PUBLICATION, pubBox.getPublication());
         try {
-            intent.putExtra(CHAPTER_SELECTED, mSpineReferenceList.get(currentChapterIndex).href);
+            intent.putExtra(CHAPTER_SELECTED, spine.get(currentChapterIndex).getHref());
         } catch (NullPointerException | IndexOutOfBoundsException e) {
             Log.w(LOG_TAG, "-> ", e);
             intent.putExtra(CHAPTER_SELECTED, "");
         }
-
         intent.putExtra(FolioReader.INTENT_BOOK_ID, mBookId);
         intent.putExtra(Constants.BOOK_TITLE, bookFileName);
+
         startActivityForResult(intent, RequestCode.CONTENT_HIGHLIGHT.value);
         overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
     }
@@ -412,30 +411,82 @@ public class FolioActivity
         mediaControllerFragment.show(getSupportFragmentManager());
     }
 
-    private void initBook(String mEpubFileName, int mEpubRawId, String mEpubFilePath, EpubSourceType mEpubSourceType) {
+    private void setupBook() {
+        Log.v(LOG_TAG, "-> setupBook");
         try {
-            int portNumber = getIntent().getIntExtra(Config.INTENT_PORT, Constants.PORT_NUMBER);
-            mEpubServer = EpubServerSingleton.getEpubServerInstance(portNumber);
-            mEpubServer.start();
-            String path = FileUtil.saveEpubFileAndLoadLazyBook(FolioActivity.this, mEpubSourceType, mEpubFilePath,
-                    mEpubRawId, mEpubFileName);
-            addEpub(path);
-
-            String urlString = Constants.LOCALHOST + Uri.encode(bookFileName) + "/manifest";
-            new MainPresenter(this).parseManifest(urlString);
-
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "initBook failed", e);
+            initBook();
+            onBookInitSuccess();
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "-> Failed to initialize book", e);
+            onBookInitFailure();
         }
     }
 
-    private void addEpub(String path) throws IOException {
-        Container epubContainer = new EpubContainer(path);
-        mEpubServer.addEpub(epubContainer, "/" + bookFileName);
-        getEpubResource();
+    private void initBook() throws Exception {
+        Log.v(LOG_TAG, "-> initBook");
+
+        bookFileName = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
+        String path = FileUtil.saveEpubFileAndLoadLazyBook(this, mEpubSourceType, mEpubFilePath,
+                mEpubRawId, bookFileName);
+        Publication.EXTENSION extension;
+        String extensionString = null;
+        try {
+            extensionString = FileUtil.getExtensionUppercase(path);
+            extension = Publication.EXTENSION.valueOf(extensionString);
+        } catch (IllegalArgumentException e) {
+            throw new Exception("-> Unknown book file extension `" + extensionString + "`", e);
+        }
+
+        switch (extension) {
+            case EPUB:
+                EpubParser epubParser = new EpubParser();
+                pubBox = epubParser.parse(path, "");
+                break;
+            case CBZ:
+                CbzParser cbzParser = new CbzParser();
+                pubBox = cbzParser.parse(path, "");
+                break;
+        }
+
+        int portNumber = getIntent().getIntExtra(Config.INTENT_PORT, Constants.PORT_NUMBER);
+        r2StreamerServer = new Server(portNumber);
+        r2StreamerServer.start();
+        r2StreamerServer.addEpub(pubBox.getPublication(), pubBox.getContainer(),
+                "/" + bookFileName, null);
     }
 
-    private void getEpubResource() {
+    public void onBookInitFailure() {
+        //TODO -> Fail gracefully
+    }
+
+    public void onBookInitSuccess() {
+
+        Publication publication = pubBox.getPublication();
+        spine = publication.getSpine();
+        setTitle(publication.getMetadata().getTitle());
+
+        if (mBookId == null) {
+            if (!publication.getMetadata().identifier.isEmpty()) {
+                mBookId = publication.getMetadata().identifier;
+            } else {
+                if (!publication.getMetadata().getTitle().isEmpty()) {
+                    mBookId = String.valueOf(publication.getMetadata().getTitle().hashCode());
+                } else {
+                    mBookId = String.valueOf(bookFileName.hashCode());
+                }
+            }
+        }
+
+        for (Link link : publication.getLinks()) {
+            if (link.getRel().contains("search")) {
+                searchUri = Uri.parse("http://" + link.getHref());
+                break;
+            }
+        }
+        if (searchUri == null)
+            searchUri = Uri.parse(Constants.LOCALHOST + bookFileName + "/search");
+
+        configFolio();
     }
 
     @Override
@@ -451,7 +502,7 @@ public class FolioActivity
 
         mFolioPageViewPager.setDirection(newDirection);
         mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                mSpineReferenceList, bookFileName, mBookId);
+                spine, bookFileName, mBookId);
         mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
         mFolioPageViewPager.setCurrentItem(currentChapterIndex);
 
@@ -605,9 +656,9 @@ public class FolioActivity
     @Override
     public boolean goToChapter(String href) {
 
-        for (Link spine : mSpineReferenceList) {
-            if (href.contains(spine.href)) {
-                currentChapterIndex = mSpineReferenceList.indexOf(spine);
+        for (Link link : spine) {
+            if (href.contains(link.getHref())) {
+                currentChapterIndex = spine.indexOf(link);
                 mFolioPageViewPager.setCurrentItem(currentChapterIndex);
                 FolioPageFragment folioPageFragment = getCurrentFragment();
                 folioPageFragment.scrollToFirst();
@@ -674,8 +725,8 @@ public class FolioActivity
         localBroadcastManager.unregisterReceiver(searchReceiver);
         localBroadcastManager.unregisterReceiver(closeBroadcastReceiver);
 
-        if (mEpubServer != null) {
-            mEpubServer.stop();
+        if (r2StreamerServer != null) {
+            r2StreamerServer.stop();
         }
 
         if (isFinishing())
@@ -685,38 +736,6 @@ public class FolioActivity
     @Override
     public int getCurrentChapterIndex() {
         return currentChapterIndex;
-    }
-
-    @Override
-    public void onLoadPublication(EpubPublication publication) {
-
-        mSpineReferenceList.addAll(publication.spines);
-        if (publication.metadata.title != null) {
-            toolbar.setTitle(publication.metadata.title);
-        }
-
-        if (mBookId == null) {
-            if (publication.metadata.identifier != null) {
-                mBookId = publication.metadata.identifier;
-            } else {
-                if (publication.metadata.title != null) {
-                    mBookId = String.valueOf(publication.metadata.title.hashCode());
-                } else {
-                    mBookId = String.valueOf(bookFileName.hashCode());
-                }
-            }
-        }
-
-        for (Link link : publication.links) {
-            if (link.rel != null && link.rel.contains("search")) {
-                searchUri = Uri.parse("http://" + link.href);
-                break;
-            }
-        }
-        if (searchUri == null)
-            searchUri = Uri.parse(Constants.LOCALHOST + bookFileName + "/search");
-
-        configFolio();
     }
 
     private void configFolio() {
@@ -733,10 +752,9 @@ public class FolioActivity
                 Log.v(LOG_TAG, "-> onPageSelected -> DirectionalViewpager -> position = " + position);
 
                 EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(
-                        mSpineReferenceList.get(currentChapterIndex).href, false, true));
+                        spine.get(currentChapterIndex).getHref(), false, true));
                 mediaControllerFragment.setPlayButtonDrawable();
                 currentChapterIndex = position;
-                toolbar.setTitle(mSpineReferenceList.get(currentChapterIndex).bookTitle);
             }
 
             @Override
@@ -762,7 +780,7 @@ public class FolioActivity
 
         mFolioPageViewPager.setDirection(direction);
         mFolioPageFragmentAdapter = new FolioPageFragmentAdapter(getSupportFragmentManager(),
-                mSpineReferenceList, bookFileName, mBookId);
+                spine, bookFileName, mBookId);
         mFolioPageViewPager.setAdapter(mFolioPageFragmentAdapter);
 
         // In case if SearchActivity is recreated due to screen rotation then FolioActivity
@@ -794,41 +812,22 @@ public class FolioActivity
                 new IntentFilter(ACTION_SEARCH_CLEAR));
     }
 
-    /**
-     * Returns the index of the chapter by following priority -
-     * 1. id
-     * 2. href
-     * 3. index
-     *
-     * @param readPosition Last read position
-     * @return index of the chapter
-     */
     private int getChapterIndex(ReadPosition readPosition) {
+
         if (readPosition == null) {
             return 0;
-
-        } else if (!TextUtils.isEmpty(readPosition.getChapterId())) {
-            return getChapterIndex(Constants.CHAPTER_ID, readPosition.getChapterId());
-
         } else if (!TextUtils.isEmpty(readPosition.getChapterHref())) {
             return getChapterIndex(Constants.HREF, readPosition.getChapterHref());
-
-        } else if (readPosition.getChapterIndex() > -1
-                && readPosition.getChapterIndex() < mSpineReferenceList.size()) {
-            return readPosition.getChapterIndex();
         }
 
         return 0;
     }
 
     private int getChapterIndex(String caseString, String value) {
-        for (int i = 0; i < mSpineReferenceList.size(); i++) {
+        for (int i = 0; i < spine.size(); i++) {
             switch (caseString) {
-                case Constants.CHAPTER_ID:
-                    if (mSpineReferenceList.get(i).getId().equals(value))
-                        return i;
                 case Constants.HREF:
-                    if (mSpineReferenceList.get(i).getOriginalHref().equals(value))
+                    if (spine.get(i).getHref().equals(value))
                         return i;
             }
         }
@@ -897,22 +896,13 @@ public class FolioActivity
     @Override
     public void play() {
         EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(
-                mSpineReferenceList.get(currentChapterIndex).href, true, false));
+                spine.get(currentChapterIndex).getHref(), true, false));
     }
 
     @Override
     public void pause() {
         EventBus.getDefault().post(new MediaOverlayPlayPauseEvent(
-                mSpineReferenceList.get(currentChapterIndex).href, false, false));
-    }
-
-    @Override
-    public void onError() {
-    }
-
-    private void setupBook() {
-        bookFileName = FileUtil.getEpubFilename(this, mEpubSourceType, mEpubFilePath, mEpubRawId);
-        initBook(bookFileName, mEpubRawId, mEpubFilePath, mEpubSourceType);
+                spine.get(currentChapterIndex).getHref(), false, false));
     }
 
     @Override
