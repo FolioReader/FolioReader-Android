@@ -1,9 +1,1 @@
 include ':folioreader', ':sample', ':webViewMarker'
-
-include ':r2-shared-local'
-project(':r2-shared-local').projectDir =
-        new File("D:\\CodeToArt\\Folio Reader\\Readium\\r2-shared-kotlin\\r2-shared")
-
-include ':r2-streamer-kotlin-local'
-project(':r2-streamer-kotlin-local').projectDir =
-        new File("D:\\CodeToArt\\Folio Reader\\Readium\\r2-streamer-kotlin\\r2-streamer")

@@ -5,8 +5,6 @@ import android.os.Parcelable;
 import com.folioreader.FolioReader;
 import com.folioreader.ui.folio.activity.FolioActivity;
 
-import org.readium.r2.shared.Publication;
-
 /**
  * Interface contract for last read position
  *

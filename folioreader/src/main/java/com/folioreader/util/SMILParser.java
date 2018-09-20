@@ -2,12 +2,9 @@ package com.folioreader.util;
 
 import com.folioreader.model.media_overlay.OverlayItems;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,20 +20,19 @@ public final class SMILParser {
      * @param html raw html string
      * @return list of {@link OverlayItems}
      */
-    public static List<OverlayItems> parseSMIL(String html) {
-        List<OverlayItems> mediaItems = new ArrayList<>();
-        try {
-            Document document = null; //EpubParser.xmlParser(html);
-            NodeList sections = document.getDocumentElement().getElementsByTagName("section");
-            for (int i = 0; i < sections.getLength(); i++) {
-                parseNodes(mediaItems, (Element) sections.item(i));
-            }
-            //} catch (EpubParserException e) {
-        } catch (Exception e) {
-            return new ArrayList<>();
-        }
-        return mediaItems;
-    }
+//    public static List<OverlayItems> parseSMIL(String html) {
+//        List<OverlayItems> mediaItems = new ArrayList<>();
+//        try {
+//            Document document = EpubParser.xmlParser(html);
+//            NodeList sections = document.getDocumentElement().getElementsByTagName("section");
+//            for (int i = 0; i < sections.getLength(); i++) {
+//                parseNodes(mediaItems, (Element) sections.item(i));
+//            }
+//        } catch (Exception e) {
+//            return new ArrayList<>();
+//        }
+//        return mediaItems;
+//    }
 
     /**
      * [RECURSIVE]
@@ -66,20 +62,20 @@ public final class SMILParser {
      * @param html input raw html
      * @return generated {@link OverlayItems}
      */
-    public static List<OverlayItems> parseSMILForTTS(String html) {
-        List<OverlayItems> mediaItems = new ArrayList<>();
-        try {
-            Document document = null; //EpubParser.xmlParser(html);
-            NodeList sections = document.getDocumentElement().getElementsByTagName("body");
-            for (int i = 0; i < sections.getLength(); i++) {
-                parseNodesTTS(mediaItems, (Element) sections.item(i));
-            }
-            //} catch (EpubParserException e) {
-        } catch (Exception e) {
-            return new ArrayList<>();
-        }
-        return mediaItems;
-    }
+//    public static List<OverlayItems> parseSMILForTTS(String html) {
+//        List<OverlayItems> mediaItems = new ArrayList<>();
+//        try {
+//            Document document = null; //EpubParser.xmlParser(html);
+//            NodeList sections = document.getDocumentElement().getElementsByTagName("body");
+//            for (int i = 0; i < sections.getLength(); i++) {
+//                parseNodesTTS(mediaItems, (Element) sections.item(i));
+//            }
+//            //} catch (EpubParserException e) {
+//        } catch (Exception e) {
+//            return new ArrayList<>();
+//        }
+//        return mediaItems;
+//    }
 
     /**
      * [RECURSIVE]

@@ -81,12 +81,6 @@ android {
     }
 }
 
-repositories {
-    maven {
-        url "http://dl.bintray.com/mobisystech/maven"
-    }
-}
-
 apply from: '../folioreader/bintray/installv1.gradle'
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -104,31 +98,16 @@ dependencies {
     //Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
 
-    // r2-streamer
-//    api "org.readium:r2-fetcher:$R2_STREAMER_VERSION"
-//    api "org.readium:r2-parser:$R2_STREAMER_VERSION"
-//    api "org.readium:r2-server:$R2_STREAMER_VERSION"
-
     implementation 'org.greenrobot:eventbus:3.1.1'
 
     implementation "com.fasterxml.jackson.core:jackson-core:$JACKSON_VERSION"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$JACKSON_VERSION"
     implementation "com.fasterxml.jackson.core:jackson-databind:$JACKSON_VERSION"
 
-//    implementation 'com.github.readium:r2-shared-kotlin:develop-SNAPSHOT'
-//    implementation 'com.github.readium:r2-streamer-kotlin:develop-SNAPSHOT'
-
-//    implementation 'com.github.readium:r2-shared-kotlin:1.0.3'
-    implementation project(":r2-shared-local")
-//    implementation('com.github.readium:r2-streamer-kotlin:1.0.3') {
-//        exclude group: "org.slf4j", module: "slf4j-api"
-//    }
-    api(project(':r2-streamer-kotlin-local')) {
+    // R2 modules
+    implementation 'com.github.codetoart:r2-shared-kotlin:1.0.3-1'
+    implementation('com.github.codetoart:r2-streamer-kotlin:1.0.3-1') {
         exclude group: "org.slf4j", module: "slf4j-api"
     }
-
-    // required for local implementation of r2-streamer-kotlin
-    implementation 'org.nanohttpd:nanohttpd:2.3.2-SNAPSHOT'
-    implementation 'org.nanohttpd:nanohttpd-nanolets:2.3.2-SNAPSHOT'
 }
 apply from: '../folioreader/bintray/bintrayv1.gradle'
