@@ -105,8 +105,8 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:$JACKSON_VERSION"
 
     // R2 modules
-    implementation 'com.github.codetoart:r2-shared-kotlin:1.0.3-1'
-    implementation('com.github.codetoart:r2-streamer-kotlin:1.0.3-1') {
+    implementation 'com.github.codetoart:r2-shared-kotlin:1.0.3-2'
+    implementation('com.github.codetoart:r2-streamer-kotlin:1.0.3-2') {
         exclude group: "org.slf4j", module: "slf4j-api"
     }
 }
