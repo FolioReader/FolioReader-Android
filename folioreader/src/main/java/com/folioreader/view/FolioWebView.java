@@ -1,21 +1,34 @@
 package com.folioreader.view;
 
 import android.content.Context;
+import android.graphics.Rect;
+import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.ActionMode.Callback;
 import android.view.GestureDetector;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+import android.widget.PopupWindow;
 
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.ui.folio.activity.FolioActivityCallback;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
+
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 /**
  * @author by mahavir on 3/31/16.
@@ -24,6 +37,7 @@ public class FolioWebView extends WebView {
 
     public static final String LOG_TAG = FolioWebView.class.getSimpleName();
     private int horizontalPageCount = 0;
+    private DisplayMetrics displayMetrics;
     private float density;
     private ScrollListener mScrollListener;
     private SeekBarListener mSeekBarListener;
@@ -35,6 +49,21 @@ public class FolioWebView extends WebView {
     private Handler handler;
     private FolioActivityCallback folioActivityCallback;
     private FolioPageFragment parentFragment;
+
+    private ActionMode actionMode;
+    private TextSelectionCb textSelectionCb;
+    private TextSelectionCb2 textSelectionCb2;
+    private Rect selectionRect = new Rect();
+    private Rect popupRect = new Rect();
+    private PopupWindow popupWindow = new PopupWindow();
+    private View viewTextSelection;
+    private final int IS_SCROLLING_CHECK_TIMER = 100;
+    private final int IS_SCROLLING_CHECK_MAX_DURATION = 10000;
+    private int isScrollingCheckDuration;
+    private Runnable isScrollingRunnable;
+    private int oldScrollX;
+    private int oldScrollY;
+    private int lastTouchAction;
 
     private enum LastScrollType {
         USER, PROGRAMMATIC
@@ -48,6 +77,7 @@ public class FolioWebView extends WebView {
         @Override
         public boolean onSingleTapUp(MotionEvent event) {
             Log.v(LOG_TAG, "-> onSingleTapUp");
+            dismissPopupWindow();
             folioActivityCallback.toggleSystemUI();
             return false;
         }
@@ -90,12 +120,34 @@ public class FolioWebView extends WebView {
         }
     }
 
+    public void dismissPopupWindow() {
+        Log.d(LOG_TAG, "-> dismissPopupWindow -> " + parentFragment.spineItem.getHref());
+        popupWindow.dismiss();
+        selectionRect = new Rect();
+        handler.removeCallbacks(isScrollingRunnable);
+        isScrollingCheckDuration = 0;
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        Log.d(LOG_TAG, "-> destroy");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, "-> onPause");
+        dismissPopupWindow();
+    }
+
     private class VerticalGestureListener
             extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onSingleTapUp(MotionEvent event) {
             Log.v(LOG_TAG, "-> onSingleTapUp");
+            dismissPopupWindow();
             folioActivityCallback.toggleSystemUI();
             return false;
         }
@@ -130,13 +182,17 @@ public class FolioWebView extends WebView {
     private void init() {
 
         handler = new Handler();
-        density = getResources().getDisplayMetrics().density;
+        displayMetrics = getResources().getDisplayMetrics();
+        density = displayMetrics.density;
 
         if (folioActivityCallback.getDirection() == Config.Direction.HORIZONTAL) {
             gestureDetector = new GestureDetectorCompat(getContext(), new HorizontalGestureListener());
         } else {
             gestureDetector = new GestureDetectorCompat(getContext(), new VerticalGestureListener());
         }
+
+        viewTextSelection = LayoutInflater.from(getContext()).inflate(R.layout.text_selection, null);
+        viewTextSelection.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
     }
 
     @SuppressWarnings("unused")
@@ -178,6 +234,8 @@ public class FolioWebView extends WebView {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //Log.v(LOG_TAG, "-> onTouchEvent -> " + AppUtil.actionToString(event.getAction()));
+
+        lastTouchAction = event.getAction();
 
         if (folioActivityCallback.getDirection() == Config.Direction.HORIZONTAL) {
             return computeHorizontalScroll(event);
@@ -269,6 +327,7 @@ public class FolioWebView extends WebView {
                 Log.v(LOG_TAG, msg);
                 return true;
             case DEBUG:
+            case TIP:
                 Log.d(LOG_TAG, msg);
                 return true;
             case WARNING:
@@ -279,5 +338,246 @@ public class FolioWebView extends WebView {
                 return true;
         }
         return false;
+    }
+
+    private class TextSelectionCb implements ActionMode.Callback {
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            Log.d(LOG_TAG, "-> onCreateActionMode");
+            //mode.getMenuInflater().inflate(R.menu.menu_text_selection, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            Log.d(LOG_TAG, "-> onPrepareActionMode");
+            loadUrl("javascript:getSelectionRect();");
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            Log.d(LOG_TAG, "-> onActionItemClicked");
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            Log.d(LOG_TAG, "-> onDestroyActionMode");
+            dismissPopupWindow();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private class TextSelectionCb2 extends ActionMode.Callback2 {
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            Log.d(LOG_TAG, "-> onCreateActionMode");
+            //mode.getMenuInflater().inflate(R.menu.menu_text_selection, menu);
+            menu.clear();
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            Log.d(LOG_TAG, "-> onPrepareActionMode");
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            Log.d(LOG_TAG, "-> onActionItemClicked");
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            Log.d(LOG_TAG, "-> onDestroyActionMode");
+            dismissPopupWindow();
+        }
+
+        public void onGetContentRect(ActionMode mode, View view, Rect outRect) {
+            Log.d(LOG_TAG, "-> onGetContentRect");
+            loadUrl("javascript:getSelectionRect();");
+        }
+    }
+
+    @Override
+    public ActionMode startActionMode(Callback callback) {
+        Log.d(LOG_TAG, "-> startActionMode");
+
+        textSelectionCb = new TextSelectionCb();
+        actionMode = super.startActionMode(textSelectionCb);
+        actionMode.finish();
+        return actionMode;
+
+        //Comment above code and uncomment below line for stock text selection
+        //return super.startActionMode(callback);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public ActionMode startActionMode(Callback callback, int type) {
+        Log.d(LOG_TAG, "-> startActionMode");
+
+        textSelectionCb2 = new TextSelectionCb2();
+        actionMode = super.startActionMode(textSelectionCb2, type);
+        actionMode.finish();
+        return actionMode;
+
+        //Comment above code and uncomment below line for stock text selection
+        //return super.startActionMode(callback, type);
+    }
+
+    @JavascriptInterface
+    public void setSelectionRect(final int left, final int top, final int right, final int bottom) {
+
+        Rect currentSelectionRect;
+        int newLeft = (int) (left * density);
+        int newTop = (int) (top * density);
+        int newRight = (int) (right * density);
+        int newBottom = (int) (bottom * density);
+        currentSelectionRect = new Rect(newLeft, newTop, newRight, newBottom);
+        Log.d(LOG_TAG, "-> setSelectionRect -> " + currentSelectionRect);
+
+        computeTextSelectionRect(currentSelectionRect);
+    }
+
+    private void computeTextSelectionRect(Rect currentSelectionRect) {
+        Log.v(LOG_TAG, "-> computeTextSelectionRect");
+
+        Rect viewportRect = folioActivityCallback.getViewportRect();
+        Log.d(LOG_TAG, "-> viewportRect -> " + viewportRect);
+
+        if (!Rect.intersects(viewportRect, currentSelectionRect)) {
+            Log.i(LOG_TAG, "-> currentSelectionRect doesn't intersects viewportRect");
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    popupWindow.dismiss();
+                    handler.removeCallbacks(isScrollingRunnable);
+                }
+            });
+            return;
+        }
+        Log.i(LOG_TAG, "-> currentSelectionRect intersects viewportRect");
+
+        if (selectionRect.equals(currentSelectionRect)) {
+            Log.i(LOG_TAG, "-> setSelectionRect -> currentSelectionRect is equal to previous " +
+                    "selectionRect so no need to computeTextSelectionRect and show popupWindow again");
+            return;
+        }
+
+        Log.i(LOG_TAG, "-> setSelectionRect -> currentSelectionRect is not equal to previous " +
+                "selectionRect so computeTextSelectionRect and show popupWindow");
+        selectionRect = currentSelectionRect;
+
+        Rect aboveSelectionRect = new Rect(viewportRect);
+        aboveSelectionRect.bottom = selectionRect.top;
+        Rect belowSelectionRect = new Rect(viewportRect);
+        //TODO: -> Add the handle heights
+        belowSelectionRect.top = selectionRect.bottom + 50;
+
+        //Log.d(LOG_TAG, "-> aboveSelectionRect -> " + aboveSelectionRect);
+        //Log.d(LOG_TAG, "-> belowSelectionRect -> " + belowSelectionRect);
+
+        popupRect.left = viewportRect.left;
+        // popupRect initialisation for belowSelectionRect
+        // TODO -> Explain this more
+        popupRect.top = belowSelectionRect.top;
+        popupRect.right = popupRect.left + viewTextSelection.getMeasuredWidth();
+        popupRect.bottom = popupRect.top + viewTextSelection.getMeasuredHeight();
+        //Log.d(LOG_TAG, "-> Pre decision popupRect -> " + popupRect);
+
+        int popupY;
+        if (belowSelectionRect.contains(popupRect)) {
+            Log.i(LOG_TAG, "-> show below");
+            popupY = belowSelectionRect.top;
+
+        } else {
+
+            // popupRect initialisation for aboveSelectionRect
+            popupRect.top = aboveSelectionRect.top;
+            popupRect.bottom = popupRect.top + viewTextSelection.getMeasuredHeight();
+
+            if (aboveSelectionRect.contains(popupRect)) {
+                Log.i(LOG_TAG, "-> show above");
+                popupY = aboveSelectionRect.bottom - popupRect.height();
+
+            } else {
+
+                Log.i(LOG_TAG, "-> show in middle");
+                int popupYDiff = (viewTextSelection.getMeasuredHeight() - selectionRect.height()) / 2;
+                popupY = selectionRect.top - popupYDiff;
+            }
+        }
+
+        int popupXDiff = (viewTextSelection.getMeasuredWidth() - selectionRect.width()) / 2;
+        int popupX = selectionRect.left - popupXDiff;
+
+        popupRect.offsetTo(popupX, popupY);
+        //Log.d(LOG_TAG, "-> Post decision popupRect -> " + popupRect);
+
+        // Check if popupRect left side is going outside of the viewportRect
+        if (popupRect.left < viewportRect.left) {
+            popupRect.right += 0 - popupRect.left;
+            popupRect.left = 0;
+        }
+
+        // Check if popupRect right side is going outside of the viewportRect
+        if (popupRect.right > viewportRect.right) {
+            int dx = popupRect.right - viewportRect.right;
+            popupRect.left -= dx;
+            popupRect.right -= dx;
+        }
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                showTextSelectionPopup();
+            }
+        });
+    }
+
+    private void showTextSelectionPopup() {
+        Log.v(LOG_TAG, "-> showTextSelectionPopup");
+        Log.d(LOG_TAG, "-> showTextSelectionPopup -> To be laid out popupRect -> " + popupRect);
+
+        popupWindow.dismiss();
+        oldScrollX = getScrollX();
+        oldScrollY = getScrollY();
+
+        isScrollingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                handler.removeCallbacks(isScrollingRunnable);
+                int currentScrollX = getScrollX();
+                int currentScrollY = getScrollY();
+                boolean inTouchMode = lastTouchAction == MotionEvent.ACTION_DOWN ||
+                        lastTouchAction == MotionEvent.ACTION_MOVE;
+
+                if (oldScrollX == currentScrollX && oldScrollY == currentScrollY && !inTouchMode) {
+                    Log.i(LOG_TAG, "-> Stopped scrolling, show Popup");
+                    popupWindow.dismiss();
+                    popupWindow = new PopupWindow(viewTextSelection, WRAP_CONTENT, WRAP_CONTENT);
+                    popupWindow.setClippingEnabled(false);
+                    popupWindow.showAtLocation(FolioWebView.this, Gravity.NO_GRAVITY,
+                            popupRect.left, popupRect.top);
+                } else {
+                    Log.i(LOG_TAG, "-> Still scrolling, don't show Popup");
+                    oldScrollX = currentScrollX;
+                    oldScrollY = currentScrollY;
+                    isScrollingCheckDuration += IS_SCROLLING_CHECK_TIMER;
+                    if (isScrollingCheckDuration < IS_SCROLLING_CHECK_MAX_DURATION)
+                        handler.postDelayed(isScrollingRunnable, IS_SCROLLING_CHECK_TIMER);
+                }
+            }
+        };
+
+        handler.removeCallbacks(isScrollingRunnable);
+        isScrollingCheckDuration = 0;
+        handler.postDelayed(isScrollingRunnable, IS_SCROLLING_CHECK_TIMER);
     }
 }

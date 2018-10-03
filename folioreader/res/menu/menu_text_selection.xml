@@ -18,4 +18,14 @@
         android:icon="@drawable/ic_action_share"
         android:title="@string/menu_item_share" />
 
+    <item android:title="@string/menu_item_copy" />
+
+    <item android:title="@string/menu_item_highlight" />
+
+    <item android:title="@string/menu_item_define" />
+
+    <item
+        android:icon="@drawable/ic_action_share"
+        android:title="@string/menu_item_share" />
+
 </menu>

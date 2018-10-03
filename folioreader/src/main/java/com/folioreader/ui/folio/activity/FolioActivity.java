@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -38,9 +39,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -135,6 +140,7 @@ public class FolioActivity
     private Bundle searchAdapterDataBundle;
     private CharSequence searchQuery;
     private SearchItem searchItem;
+    private DisplayMetrics displayMetrics;
     private float density;
     private Boolean topActivity;
     private int taskImportance;
@@ -230,7 +236,10 @@ public class FolioActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         handler = new Handler();
-        density = getResources().getDisplayMetrics().density;
+        Display display = getWindowManager().getDefaultDisplay();
+        displayMetrics = getResources().getDisplayMetrics();
+        display.getRealMetrics(displayMetrics);
+        density = displayMetrics.density;
         LocalBroadcastManager.getInstance(this).registerReceiver(closeBroadcastReceiver,
                 new IntentFilter(FolioReader.ACTION_CLOSE_FOLIOREADER));
 
@@ -540,6 +549,11 @@ public class FolioActivity
         }
     }
 
+    //TODO: -> Add TypedValue support
+
+    /**
+     * @return returns height of status bar + app bar in dp.
+     */
     @Override
     public int getTopDistraction() {
         int topDistraction = 0;
@@ -553,6 +567,13 @@ public class FolioActivity
         return topDistraction;
     }
 
+    /**
+     * Calculates the bottom distraction which can cause due to navigation bar.
+     * In mobile landscape mode, navigation bar is either to left or right of the screen.
+     * In tablet, navigation bar is always at bottom of the screen.
+     *
+     * @return returns height of navigation bar in dp.
+     */
     @Override
     public int getBottomDistraction() {
         int bottomDistraction = 0;
@@ -561,6 +582,30 @@ public class FolioActivity
         bottomDistraction /= density;
         Log.v(LOG_TAG, "-> getBottomDistraction = " + bottomDistraction);
         return bottomDistraction;
+    }
+
+    /**
+     * Calculates the Rect for visible viewport of the webview.
+     * Visible viewport changes in following cases -
+     * 1. In distraction free mode,
+     * 2. In mobile landscape mode as navigation bar is placed either on left or right side,
+     * 3. In tablets, navigation bar is always placed at bottom of the screen.
+     */
+    @Override
+    public Rect getViewportRect() {
+        //Log.v(LOG_TAG, "-> getViewportRect");
+
+        Rect viewportRect = new Rect(appBarLayout.getInsets());
+        if (distractionFreeMode)
+            viewportRect.left = 0;
+        viewportRect.top = (int) (getTopDistraction() * density);
+        if (distractionFreeMode) {
+            viewportRect.right = displayMetrics.widthPixels;
+        } else {
+            viewportRect.right = displayMetrics.widthPixels - viewportRect.right;
+        }
+        viewportRect.bottom = displayMetrics.heightPixels - ((int) (getBottomDistraction() * density));
+        return viewportRect;
     }
 
     @Override
@@ -767,13 +812,19 @@ public class FolioActivity
 
                     FolioPageFragment folioPageFragment =
                             (FolioPageFragment) mFolioPageFragmentAdapter.getItem(position - 1);
-                    if (folioPageFragment != null)
+                    if (folioPageFragment != null) {
                         folioPageFragment.scrollToLast();
+                        if (folioPageFragment.mWebview != null)
+                            folioPageFragment.mWebview.dismissPopupWindow();
+                    }
 
                     folioPageFragment =
                             (FolioPageFragment) mFolioPageFragmentAdapter.getItem(position + 1);
-                    if (folioPageFragment != null)
+                    if (folioPageFragment != null) {
                         folioPageFragment.scrollToFirst();
+                        if (folioPageFragment.mWebview != null)
+                            folioPageFragment.mWebview.dismissPopupWindow();
+                    }
                 }
             }
         });
@@ -974,4 +1025,57 @@ public class FolioActivity
             return null;
         }
     }
+
+    @Override
+    public void onSupportActionModeStarted(@NonNull ActionMode mode) {
+        super.onSupportActionModeStarted(mode);
+    }
+
+    @Override
+    public void onActionModeStarted(android.view.ActionMode mode) {
+        super.onActionModeStarted(mode);
+    }
+
+    @Nullable
+    @Override
+    public android.view.ActionMode startActionMode(android.view.ActionMode.Callback callback) {
+        return super.startActionMode(callback);
+    }
+
+    @Nullable
+    @Override
+    public ActionMode onWindowStartingSupportActionMode(@NonNull ActionMode.Callback callback) {
+        return super.onWindowStartingSupportActionMode(callback);
+    }
+
+    @Nullable
+    @Override
+    public ActionMode startSupportActionMode(@NonNull ActionMode.Callback callback) {
+        return super.startSupportActionMode(callback);
+    }
+
+    @Nullable
+    @Override
+    public android.view.ActionMode startActionMode(android.view.ActionMode.Callback callback, int type) {
+        return super.startActionMode(callback, type);
+    }
+
+    @Nullable
+    @Override
+    public android.view.ActionMode onWindowStartingActionMode(android.view.ActionMode.Callback callback) {
+        return super.onWindowStartingActionMode(callback);
+    }
+
+    @Nullable
+    @Override
+    public android.view.ActionMode onWindowStartingActionMode(android.view.ActionMode.Callback callback, int type) {
+        return super.onWindowStartingActionMode(callback, type);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+    }
+
+
 }

@@ -12,10 +12,7 @@
     <color name="dark_night">#090609</color>
     <color name="app_green">#71C951</color>
     <color name="app_gray">#bcbcbc</color>
-    <color name="yellow">#FFEB6B</color>
-    <color name="green">#C0ED72</color>
-    <color name="blue">#ADD8FF</color>
-    <color name="pink">#FFB0CA</color>
+
     <color name="gray_text">#B6B6B6</color>
     <color name="red">#ff0000</color>
     <color name="night_text_color">#767676</color>
@@ -26,5 +23,10 @@
     <color name="webview_night">#131313</color>
 
     <color name="edit_text_hint_color">#AAAAAA</color>
+
+    <color name="highlight_yellow">#FFEB6B</color>
+    <color name="highlight_green">#C0ED72</color>
+    <color name="highlight_blue">#ADD8FF</color>
+    <color name="highlight_pink">#FFB0CA</color>
 
 </resources>

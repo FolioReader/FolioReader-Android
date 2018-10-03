@@ -122,7 +122,7 @@ public class FolioPageFragment
 
     private LoadingView loadingView;
     private VerticalSeekbar mScrollSeekbar;
-    private FolioWebView mWebview;
+    public FolioWebView mWebview;
     private WebViewPager webViewPager;
     private TextSelectionSupport mTextSelectionSupport;
     private TextView mPagesLeftTextView, mMinutesLeftTextView;
@@ -132,7 +132,7 @@ public class FolioPageFragment
     private String mSelectedText;
     private Animation mFadeInAnimation, mFadeOutAnimation;
 
-    private Link spineItem;
+    public Link spineItem;
     private int mPosition = -1;
     private String mBookTitle;
     private String mEpubFileName = null;
@@ -282,6 +282,7 @@ public class FolioPageFragment
             getLastReadPosition();
 
         if (isAdded()) {
+            mWebview.dismissPopupWindow();
             loadingView.updateTheme();
             loadingView.show();
             mIsPageReloaded = true;
@@ -457,34 +458,35 @@ public class FolioPageFragment
         mWebview.setWebViewClient(webViewClient);
         mWebview.setWebChromeClient(webChromeClient);
 
-        mTextSelectionSupport = TextSelectionSupport.support(getActivity(), mWebview);
-        mTextSelectionSupport.setSelectionListener(new TextSelectionSupport.SelectionListener() {
-            @Override
-            public void startSelection() {
-            }
-
-            @Override
-            public void selectionChanged(String text) {
-                mSelectedText = text;
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mWebview.loadUrl("javascript:alert(getRectForSelectedText())");
-                    }
-                });
-            }
-
-            @Override
-            public void endSelection() {
-
-            }
-        });
+//        mTextSelectionSupport = TextSelectionSupport.support(getActivity(), mWebview);
+//        mTextSelectionSupport.setSelectionListener(new TextSelectionSupport.SelectionListener() {
+//            @Override
+//            public void startSelection() {
+//            }
+//
+//            @Override
+//            public void selectionChanged(String text) {
+//                mSelectedText = text;
+//                getActivity().runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        mWebview.loadUrl("javascript:alert(getRectForSelectedText())");
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void endSelection() {
+//
+//            }
+//        });
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
         new HtmlTask(this).execute(getWebviewUrl());
     }
 
     private WebViewClient webViewClient = new WebViewClient() {
+
         @Override
         public void onPageFinished(WebView view, String url) {
 
@@ -651,7 +653,7 @@ public class FolioPageFragment
             super.onConsoleMessage(cm);
             String msg = cm.message() + ", From line " + cm.lineNumber() + " of " +
                     cm.sourceId();
-            return FolioWebView.onWebViewConsoleMessage(cm, FolioWebView.LOG_TAG, msg);
+            return FolioWebView.onWebViewConsoleMessage(cm, "WebViewConsole", msg);
         }
 
         @Override
@@ -669,7 +671,7 @@ public class FolioPageFragment
                     if (HighLightTable.deleteHighlight(message)) {
                         String rangy = HighlightUtil.generateRangyString(getPageName());
                         loadRangy(view, rangy);
-                        mTextSelectionSupport.endSelectionMode();
+                        //mTextSelectionSupport.endSelectionMode();
                         if (highlightImpl != null) {
                             HighlightUtil.sendHighlightBroadcastEvent(
                                     FolioPageFragment.this.getActivity().getApplicationContext(),
@@ -969,12 +971,12 @@ public class FolioPageFragment
         if (actionId == ACTION_ID_COPY) {
             UiUtil.copyToClipboard(getActivity(), mSelectedText);
             Toast.makeText(getActivity(), getString(R.string.copied), Toast.LENGTH_SHORT).show();
-            mTextSelectionSupport.endSelectionMode();
+            //mTextSelectionSupport.endSelectionMode();
         } else if (actionId == ACTION_ID_SHARE) {
             UiUtil.share(getActivity(), mSelectedText);
         } else if (actionId == ACTION_ID_DEFINE) {
             showDictDialog(mSelectedText);
-            mTextSelectionSupport.endSelectionMode();
+            //mTextSelectionSupport.endSelectionMode();
         } else if (actionId == ACTION_ID_HIGHLIGHT) {
             onHighlight(view, width, height, true);
         }
@@ -1034,7 +1036,7 @@ public class FolioPageFragment
             onHighlightColors(view, isCreated);
         } else if (actionId == ACTION_ID_SHARE) {
             UiUtil.share(getActivity(), mSelectedText);
-            mTextSelectionSupport.endSelectionMode();
+            //mTextSelectionSupport.endSelectionMode();
         } else if (actionId == ACTION_ID_DELETE) {
             highlightRemove();
         }
@@ -1088,7 +1090,7 @@ public class FolioPageFragment
         } else if (actionId == ACTION_ID_HIGHLIGHT_UNDERLINE) {
             highlight(HighlightImpl.HighlightStyle.Underline, isCreated);
         }
-        mTextSelectionSupport.endSelectionMode();
+        //mTextSelectionSupport.endSelectionMode();
     }
 
     @Override

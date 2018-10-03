@@ -72,8 +72,7 @@ android {
 
     lintOptions {
         abortOnError false
-        disable 'LogNotTimber', 'StringFormatInTimber', 'ThrowableNotAtBeginning',
-                'BinaryOperationInTimber', 'TimberArgCount', 'TimberArgTypes', 'TimberTagLength'
+        lintConfig file("lint.xml")
     }
 
     checkstyle {

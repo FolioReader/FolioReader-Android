@@ -87,13 +87,13 @@ public class HighlightImpl implements Parcelable, HighLight {
         public static String classForStyle(HighlightStyle style) {
             switch (style) {
                 case Yellow:
-                    return "yellow";
+                    return "highlight_yellow";
                 case Green:
-                    return "green";
+                    return "highlight_green";
                 case Blue:
-                    return "blue";
+                    return "highlight_blue";
                 case Pink:
-                    return "pink";
+                    return "highlight_pink";
                 case Underline:
                     return "underline";
                 case DottetUnderline:

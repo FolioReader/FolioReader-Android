@@ -1,5 +1,7 @@
 package com.folioreader.ui.folio.activity;
 
+import android.graphics.Rect;
+
 import com.folioreader.Config;
 import com.folioreader.model.ReadPosition;
 
@@ -26,4 +28,6 @@ public interface FolioActivityCallback {
     int getTopDistraction();
 
     int getBottomDistraction();
+
+    Rect getViewportRect();
 }

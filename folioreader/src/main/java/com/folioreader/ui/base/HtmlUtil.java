@@ -48,6 +48,9 @@ public final class HtmlUtil {
         jsPath = jsPath + String.format(context.getString(R.string.script_tag),
                 "file:///android_asset/android.selection.js") + "\n";
 
+        jsPath = jsPath + String.format(context.getString(R.string.script_tag),
+                "file:///android_asset/js/rangefix.js") + "\n";
+
         jsPath = jsPath + String.format(context.getString(R.string.script_tag_method_call),
                 "setMediaOverlayStyleColors('#C0ED72','#C0ED72')") + "\n";
 

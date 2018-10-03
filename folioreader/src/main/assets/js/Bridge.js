@@ -117,6 +117,15 @@ var getRectForSelectedText = function(elm) {
     return "{{" + rect.left + "," + rect.top + "}, {" + rect.width + "," + rect.height + "}}";
 }
 
+function getSelectionRect() {
+    console.debug("-> getSelectionRect");
+
+    var range = window.getSelection().getRangeAt(0);
+    //var rect = range.getBoundingClientRect();
+    var rect = RangeFix.getBoundingClientRect(range);
+    FolioWebView.setSelectionRect(rect.left, rect.top, rect.right, rect.bottom);
+}
+
 // Method that call that a hightlight was clicked
 // with URL scheme and rect informations
 var callHighlightURL = function(elm) {
