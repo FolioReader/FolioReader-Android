@@ -28,7 +28,7 @@ allprojects {
 }
 
 ext {
-    LIBRARY_VERSION = '0.4.3'
+    LIBRARY_VERSION = '0.4.4'
     R2_STREAMER_VERSION = '0.1.8'
 
     VERSION_NAME = "1.0"
