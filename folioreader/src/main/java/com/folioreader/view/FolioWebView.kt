@@ -1,583 +1,526 @@
-package com.folioreader.view;
+package com.folioreader.view
 
-import android.content.Context;
-import android.graphics.Rect;
-import android.os.Build;
-import android.os.Handler;
-import android.support.annotation.RequiresApi;
-import android.support.v4.view.GestureDetectorCompat;
-import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.ActionMode;
-import android.view.ActionMode.Callback;
-import android.view.GestureDetector;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.webkit.ConsoleMessage;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
-import android.widget.PopupWindow;
-
-import com.folioreader.Config;
-import com.folioreader.R;
-import com.folioreader.ui.folio.activity.FolioActivityCallback;
-import com.folioreader.ui.folio.fragment.FolioPageFragment;
-
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import android.content.Context
+import android.graphics.Rect
+import android.os.Build
+import android.os.Handler
+import android.support.annotation.RequiresApi
+import android.support.v4.view.GestureDetectorCompat
+import android.util.AttributeSet
+import android.util.DisplayMetrics
+import android.util.Log
+import android.view.*
+import android.view.ActionMode.Callback
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.webkit.ConsoleMessage
+import android.webkit.JavascriptInterface
+import android.webkit.WebView
+import android.widget.PopupWindow
+import com.folioreader.Config
+import com.folioreader.R
+import com.folioreader.ui.folio.activity.FolioActivityCallback
+import com.folioreader.ui.folio.fragment.FolioPageFragment
 
 /**
  * @author by mahavir on 3/31/16.
  */
-public class FolioWebView extends WebView {
+class FolioWebView : WebView {
 
-    public static final String LOG_TAG = FolioWebView.class.getSimpleName();
-    private int horizontalPageCount = 0;
-    private DisplayMetrics displayMetrics;
-    private float density;
-    private ScrollListener mScrollListener;
-    private SeekBarListener mSeekBarListener;
-    private GestureDetectorCompat gestureDetector;
-    private MotionEvent eventActionDown;
-    private int pageWidthCssDp;
-    private float pageWidthCssPixels;
-    private WebViewPager webViewPager;
-    private Handler handler;
-    private FolioActivityCallback folioActivityCallback;
-    private FolioPageFragment parentFragment;
+    companion object {
 
-    private ActionMode actionMode;
-    private TextSelectionCb textSelectionCb;
-    private TextSelectionCb2 textSelectionCb2;
-    private Rect selectionRect = new Rect();
-    private Rect popupRect = new Rect();
-    private PopupWindow popupWindow = new PopupWindow();
-    private View viewTextSelection;
-    private final int IS_SCROLLING_CHECK_TIMER = 100;
-    private final int IS_SCROLLING_CHECK_MAX_DURATION = 10000;
-    private int isScrollingCheckDuration;
-    private Runnable isScrollingRunnable;
-    private int oldScrollX;
-    private int oldScrollY;
-    private int lastTouchAction;
+        val LOG_TAG: String = FolioWebView::class.java.simpleName
+        private const val IS_SCROLLING_CHECK_TIMER = 100
+        private const val IS_SCROLLING_CHECK_MAX_DURATION = 10000
 
-    private enum LastScrollType {
+        @JvmStatic
+        fun onWebViewConsoleMessage(cm: ConsoleMessage, LOG_TAG: String, msg: String): Boolean {
+            when (cm.messageLevel()) {
+                ConsoleMessage.MessageLevel.LOG -> {
+                    Log.v(LOG_TAG, msg)
+                    return true
+                }
+                ConsoleMessage.MessageLevel.DEBUG, ConsoleMessage.MessageLevel.TIP -> {
+                    Log.d(LOG_TAG, msg)
+                    return true
+                }
+                ConsoleMessage.MessageLevel.WARNING -> {
+                    Log.w(LOG_TAG, msg)
+                    return true
+                }
+                ConsoleMessage.MessageLevel.ERROR -> {
+                    Log.e(LOG_TAG, msg)
+                    return true
+                }
+                else -> return false
+            }
+        }
+    }
+
+    private var horizontalPageCount = 0
+    private var displayMetrics: DisplayMetrics? = null
+    private var density: Float = 0.toFloat()
+    private var mScrollListener: ScrollListener? = null
+    private var mSeekBarListener: SeekBarListener? = null
+    private var gestureDetector: GestureDetectorCompat? = null
+    private var eventActionDown: MotionEvent? = null
+    private var pageWidthCssDp: Int = 0
+    private var pageWidthCssPixels: Float = 0.toFloat()
+    private var webViewPager: WebViewPager? = null
+    private var uiHandler: Handler? = null
+    private var folioActivityCallback: FolioActivityCallback? = null
+    private var parentFragment: FolioPageFragment? = null
+
+    private var actionMode: ActionMode? = null
+    private var textSelectionCb: TextSelectionCb? = null
+    private var textSelectionCb2: TextSelectionCb2? = null
+    private var selectionRect = Rect()
+    private val popupRect = Rect()
+    private var popupWindow = PopupWindow()
+    private var viewTextSelection: View? = null
+    private var isScrollingCheckDuration: Int = 0
+    private var isScrollingRunnable: Runnable? = null
+    private var oldScrollX: Int = 0
+    private var oldScrollY: Int = 0
+    private var lastTouchAction: Int = 0
+
+    private var lastScrollType: LastScrollType? = null
+
+    val contentHeightVal: Int
+        get() = Math.floor((this.contentHeight * this.scale).toDouble()).toInt()
+
+    val webViewHeight: Int
+        get() = this.measuredHeight
+
+    private enum class LastScrollType {
         USER, PROGRAMMATIC
     }
 
-    private LastScrollType lastScrollType;
+    private inner class HorizontalGestureListener : GestureDetector.SimpleOnGestureListener() {
 
-    private class HorizontalGestureListener
-            extends GestureDetector.SimpleOnGestureListener {
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent event) {
-            Log.v(LOG_TAG, "-> onSingleTapUp");
-            dismissPopupWindow();
-            folioActivityCallback.toggleSystemUI();
-            return false;
+        override fun onSingleTapUp(event: MotionEvent): Boolean {
+            Log.v(LOG_TAG, "-> onSingleTapUp")
+            dismissPopupWindow()
+            folioActivityCallback!!.toggleSystemUI()
+            return false
         }
 
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
             //Log.d(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
-            lastScrollType = LastScrollType.USER;
-            return false;
+            lastScrollType = LastScrollType.USER
+            return false
         }
 
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             //Log.d(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
 
-            if (!webViewPager.isScrolling()) {
+            if (!webViewPager!!.isScrolling) {
                 // Need to complete the scroll as ViewPager thinks these touch events should not
                 // scroll it's pages.
                 //Log.d(LOG_TAG, "-> onFling -> completing scroll");
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Delayed to avoid inconsistency of scrolling in WebView
-                        scrollTo(getScrollXPixelsForPage(webViewPager.getCurrentItem()), 0);
-                    }
-                }, 100);
+                uiHandler!!.postDelayed({
+                    // Delayed to avoid inconsistency of scrolling in WebView
+                    scrollTo(getScrollXPixelsForPage(webViewPager!!.currentItem), 0)
+                }, 100)
             }
 
-            lastScrollType = LastScrollType.USER;
-            return true;
+            lastScrollType = LastScrollType.USER
+            return true
         }
 
-        @Override
-        public boolean onDown(MotionEvent event) {
+        override fun onDown(event: MotionEvent): Boolean {
             //Log.v(LOG_TAG, "-> onDown -> " + event.toString());
 
-            eventActionDown = MotionEvent.obtain(event);
-            FolioWebView.super.onTouchEvent(event);
-            return true;
+            eventActionDown = MotionEvent.obtain(event)
+            super@FolioWebView.onTouchEvent(event)
+            return true
         }
     }
 
-    public void dismissPopupWindow() {
-        Log.d(LOG_TAG, "-> dismissPopupWindow -> " + parentFragment.spineItem.getHref());
-        popupWindow.dismiss();
-        selectionRect = new Rect();
-        handler.removeCallbacks(isScrollingRunnable);
-        isScrollingCheckDuration = 0;
+    fun dismissPopupWindow() {
+        Log.d(LOG_TAG, "-> dismissPopupWindow -> " + parentFragment!!.spineItem.href!!)
+        popupWindow.dismiss()
+        selectionRect = Rect()
+        uiHandler!!.removeCallbacks(isScrollingRunnable)
+        isScrollingCheckDuration = 0
     }
 
-    @Override
-    public void destroy() {
-        super.destroy();
-        Log.d(LOG_TAG, "-> destroy");
+    override fun destroy() {
+        super.destroy()
+        Log.d(LOG_TAG, "-> destroy")
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.d(LOG_TAG, "-> onPause");
-        dismissPopupWindow();
+    override fun onPause() {
+        super.onPause()
+        Log.d(LOG_TAG, "-> onPause")
+        dismissPopupWindow()
     }
 
-    private class VerticalGestureListener
-            extends GestureDetector.SimpleOnGestureListener {
+    private inner class VerticalGestureListener : GestureDetector.SimpleOnGestureListener() {
 
-        @Override
-        public boolean onSingleTapUp(MotionEvent event) {
-            Log.v(LOG_TAG, "-> onSingleTapUp");
-            dismissPopupWindow();
-            folioActivityCallback.toggleSystemUI();
-            return false;
+        override fun onSingleTapUp(event: MotionEvent): Boolean {
+            Log.v(LOG_TAG, "-> onSingleTapUp")
+            dismissPopupWindow()
+            folioActivityCallback!!.toggleSystemUI()
+            return false
         }
 
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
             //Log.v(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
-            lastScrollType = LastScrollType.USER;
-            return false;
+            lastScrollType = LastScrollType.USER
+            return false
         }
 
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             //Log.v(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
-            lastScrollType = LastScrollType.USER;
-            return false;
+            lastScrollType = LastScrollType.USER
+            return false
         }
     }
 
-    public FolioWebView(Context context) {
-        super(context);
-    }
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
-    public FolioWebView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+    private fun init() {
 
-    public FolioWebView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
+        uiHandler = Handler()
+        displayMetrics = resources.displayMetrics
+        density = displayMetrics!!.density
 
-    private void init() {
-
-        handler = new Handler();
-        displayMetrics = getResources().getDisplayMetrics();
-        density = displayMetrics.density;
-
-        if (folioActivityCallback.getDirection() == Config.Direction.HORIZONTAL) {
-            gestureDetector = new GestureDetectorCompat(getContext(), new HorizontalGestureListener());
+        gestureDetector = if (folioActivityCallback!!.direction == Config.Direction.HORIZONTAL) {
+            GestureDetectorCompat(context, HorizontalGestureListener())
         } else {
-            gestureDetector = new GestureDetectorCompat(getContext(), new VerticalGestureListener());
+            GestureDetectorCompat(context, VerticalGestureListener())
         }
 
-        viewTextSelection = LayoutInflater.from(getContext()).inflate(R.layout.text_selection, null);
-        viewTextSelection.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
+        viewTextSelection = LayoutInflater.from(context).inflate(R.layout.text_selection, null)
+        viewTextSelection!!.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
     }
 
-    @SuppressWarnings("unused")
     @JavascriptInterface
-    public void setCompatMode(String compatMode) {
-        Log.v(LOG_TAG, "-> setCompatMode -> compatMode = " + compatMode);
-        if (compatMode.equals(getContext().getString(R.string.back_compat))) {
+    fun setCompatMode(compatMode: String) {
+        Log.v(LOG_TAG, "-> setCompatMode -> compatMode = $compatMode")
+        if (compatMode == context.getString(R.string.back_compat)) {
             Log.e(LOG_TAG, "-> Web page loaded in Quirks mode. Please report to developer " +
                     "for debugging with current EPUB file as many features might stop working " +
-                    "(ex. Horizontal scroll feature).");
+                    "(ex. Horizontal scroll feature).")
         }
     }
 
-    public void setParentFragment(FolioPageFragment parentFragment) {
-        this.parentFragment = parentFragment;
+    fun setParentFragment(parentFragment: FolioPageFragment) {
+        this.parentFragment = parentFragment
     }
 
-    public void setFolioActivityCallback(FolioActivityCallback folioActivityCallback) {
-        this.folioActivityCallback = folioActivityCallback;
-        init();
+    fun setFolioActivityCallback(folioActivityCallback: FolioActivityCallback) {
+        this.folioActivityCallback = folioActivityCallback
+        init()
     }
 
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, t, r, b);
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        super.onLayout(changed, l, t, r, b)
 
-        pageWidthCssDp = (int) Math.ceil((getMeasuredWidth() / density));
-        pageWidthCssPixels = pageWidthCssDp * density;
+        pageWidthCssDp = Math.ceil((measuredWidth / density).toDouble()).toInt()
+        pageWidthCssPixels = pageWidthCssDp * density
     }
 
-    public void setScrollListener(ScrollListener listener) {
-        mScrollListener = listener;
+    fun setScrollListener(listener: ScrollListener) {
+        mScrollListener = listener
     }
 
-    public void setSeekBarListener(SeekBarListener listener) {
-        mSeekBarListener = listener;
+    fun setSeekBarListener(listener: SeekBarListener) {
+        mSeekBarListener = listener
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
         //Log.v(LOG_TAG, "-> onTouchEvent -> " + AppUtil.actionToString(event.getAction()));
 
-        lastTouchAction = event.getAction();
+        lastTouchAction = event.action
 
-        if (folioActivityCallback.getDirection() == Config.Direction.HORIZONTAL) {
-            return computeHorizontalScroll(event);
+        return if (folioActivityCallback!!.direction == Config.Direction.HORIZONTAL) {
+            computeHorizontalScroll(event)
         } else {
-            return computeVerticalScroll(event);
+            computeVerticalScroll(event)
         }
     }
 
-    private boolean computeVerticalScroll(MotionEvent event) {
+    private fun computeVerticalScroll(event: MotionEvent): Boolean {
 
-        gestureDetector.onTouchEvent(event);
-        return super.onTouchEvent(event);
+        gestureDetector!!.onTouchEvent(event)
+        return super.onTouchEvent(event)
     }
 
-    private boolean computeHorizontalScroll(MotionEvent event) {
+    private fun computeHorizontalScroll(event: MotionEvent): Boolean {
         //Log.v(LOG_TAG, "-> computeHorizontalScroll");
 
-        webViewPager.dispatchTouchEvent(event);
-        boolean gestureReturn = gestureDetector.onTouchEvent(event);
-        if (gestureReturn)
-            return true;
-        return super.onTouchEvent(event);
+        webViewPager!!.dispatchTouchEvent(event)
+        val gestureReturn = gestureDetector!!.onTouchEvent(event)
+        return if (gestureReturn) true else super.onTouchEvent(event)
     }
 
-    public int getScrollXDpForPage(int page) {
+    fun getScrollXDpForPage(page: Int): Int {
         //Log.v(LOG_TAG, "-> getScrollXDpForPage -> page = " + page);
-        return page * pageWidthCssDp;
+        return page * pageWidthCssDp
     }
 
-    public int getScrollXPixelsForPage(int page) {
+    fun getScrollXPixelsForPage(page: Int): Int {
         //Log.v(LOG_TAG, "-> getScrollXPixelsForPage -> page = " + page);
-        return (int) Math.ceil(page * pageWidthCssPixels);
+        return Math.ceil((page * pageWidthCssPixels).toDouble()).toInt()
     }
 
-    public void setHorizontalPageCount(int horizontalPageCount) {
-        this.horizontalPageCount = horizontalPageCount;
+    fun setHorizontalPageCount(horizontalPageCount: Int) {
+        this.horizontalPageCount = horizontalPageCount
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (webViewPager == null)
-                    webViewPager = ((View) getParent()).findViewById(R.id.webViewPager);
+        uiHandler!!.post {
+            if (webViewPager == null)
+                webViewPager = (parent as View).findViewById(R.id.webViewPager)
 
-                webViewPager.setHorizontalPageCount(FolioWebView.this.horizontalPageCount);
-            }
-        });
+            webViewPager!!.setHorizontalPageCount(this@FolioWebView.horizontalPageCount)
+        }
     }
 
-    @Override
-    public void scrollTo(int x, int y) {
-        super.scrollTo(x, y);
+    override fun scrollTo(x: Int, y: Int) {
+        super.scrollTo(x, y)
         //Log.d(LOG_TAG, "-> scrollTo -> x = " + x);
-        lastScrollType = LastScrollType.PROGRAMMATIC;
+        lastScrollType = LastScrollType.PROGRAMMATIC
     }
 
-    @Override
-    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        if (mScrollListener != null) mScrollListener.onScrollChange(t);
-        super.onScrollChanged(l, t, oldl, oldt);
+    override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
+        if (mScrollListener != null) mScrollListener!!.onScrollChange(t)
+        super.onScrollChanged(l, t, oldl, oldt)
 
         if (lastScrollType == LastScrollType.USER) {
             //Log.d(LOG_TAG, "-> onScrollChanged -> scroll initiated by user");
-            loadUrl(getContext().getString(R.string.make_search_results_invisible));
-            parentFragment.searchItemVisible = null;
+            loadUrl(context.getString(R.string.make_search_results_invisible))
+            parentFragment!!.searchItemVisible = null
         }
 
-        lastScrollType = null;
+        lastScrollType = null
     }
 
-    public int getContentHeightVal() {
-        return (int) Math.floor(this.getContentHeight() * this.getScale());
+    interface ScrollListener {
+        fun onScrollChange(percent: Int)
     }
 
-    public int getWebViewHeight() {
-        return this.getMeasuredHeight();
+    interface SeekBarListener {
+        fun fadeInSeekBarIfInvisible()
     }
 
-    public interface ScrollListener {
-        void onScrollChange(int percent);
-    }
+    private inner class TextSelectionCb : ActionMode.Callback {
 
-    public interface SeekBarListener {
-        void fadeInSeekBarIfInvisible();
-    }
-
-    public static boolean onWebViewConsoleMessage(ConsoleMessage cm, String LOG_TAG, String msg) {
-        switch (cm.messageLevel()) {
-            case LOG:
-                Log.v(LOG_TAG, msg);
-                return true;
-            case DEBUG:
-            case TIP:
-                Log.d(LOG_TAG, msg);
-                return true;
-            case WARNING:
-                Log.w(LOG_TAG, msg);
-                return true;
-            case ERROR:
-                Log.e(LOG_TAG, msg);
-                return true;
-        }
-        return false;
-    }
-
-    private class TextSelectionCb implements ActionMode.Callback {
-
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            Log.d(LOG_TAG, "-> onCreateActionMode");
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            Log.d(LOG_TAG, "-> onCreateActionMode")
             //mode.getMenuInflater().inflate(R.menu.menu_text_selection, menu);
-            return true;
+            return true
         }
 
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            Log.d(LOG_TAG, "-> onPrepareActionMode");
-            loadUrl("javascript:getSelectionRect();");
-            return false;
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            Log.d(LOG_TAG, "-> onPrepareActionMode")
+            loadUrl("javascript:getSelectionRect();")
+            return false
         }
 
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            Log.d(LOG_TAG, "-> onActionItemClicked");
-            return false;
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+            Log.d(LOG_TAG, "-> onActionItemClicked")
+            return false
         }
 
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            Log.d(LOG_TAG, "-> onDestroyActionMode");
-            dismissPopupWindow();
+        override fun onDestroyActionMode(mode: ActionMode) {
+            Log.d(LOG_TAG, "-> onDestroyActionMode")
+            dismissPopupWindow()
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private class TextSelectionCb2 extends ActionMode.Callback2 {
+    private inner class TextSelectionCb2 : ActionMode.Callback2() {
 
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            Log.d(LOG_TAG, "-> onCreateActionMode");
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            Log.d(LOG_TAG, "-> onCreateActionMode")
             //mode.getMenuInflater().inflate(R.menu.menu_text_selection, menu);
-            menu.clear();
-            return true;
+            menu.clear()
+            return true
         }
 
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            Log.d(LOG_TAG, "-> onPrepareActionMode");
-            return false;
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            Log.d(LOG_TAG, "-> onPrepareActionMode")
+            return false
         }
 
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            Log.d(LOG_TAG, "-> onActionItemClicked");
-            return false;
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+            Log.d(LOG_TAG, "-> onActionItemClicked")
+            return false
         }
 
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            Log.d(LOG_TAG, "-> onDestroyActionMode");
-            dismissPopupWindow();
+        override fun onDestroyActionMode(mode: ActionMode) {
+            Log.d(LOG_TAG, "-> onDestroyActionMode")
+            dismissPopupWindow()
         }
 
-        public void onGetContentRect(ActionMode mode, View view, Rect outRect) {
-            Log.d(LOG_TAG, "-> onGetContentRect");
-            loadUrl("javascript:getSelectionRect();");
+        override fun onGetContentRect(mode: ActionMode, view: View, outRect: Rect) {
+            Log.d(LOG_TAG, "-> onGetContentRect")
+            loadUrl("javascript:getSelectionRect();")
         }
     }
 
-    @Override
-    public ActionMode startActionMode(Callback callback) {
-        Log.d(LOG_TAG, "-> startActionMode");
+    override fun startActionMode(callback: Callback): ActionMode {
+        Log.d(LOG_TAG, "-> startActionMode")
 
-        textSelectionCb = new TextSelectionCb();
-        actionMode = super.startActionMode(textSelectionCb);
-        actionMode.finish();
-        return actionMode;
+        textSelectionCb = TextSelectionCb()
+        actionMode = super.startActionMode(textSelectionCb)
+        actionMode!!.finish()
+        return actionMode as ActionMode
 
         //Comment above code and uncomment below line for stock text selection
         //return super.startActionMode(callback);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    public ActionMode startActionMode(Callback callback, int type) {
-        Log.d(LOG_TAG, "-> startActionMode");
+    override fun startActionMode(callback: Callback, type: Int): ActionMode {
+        Log.d(LOG_TAG, "-> startActionMode")
 
-        textSelectionCb2 = new TextSelectionCb2();
-        actionMode = super.startActionMode(textSelectionCb2, type);
-        actionMode.finish();
-        return actionMode;
+        textSelectionCb2 = TextSelectionCb2()
+        actionMode = super.startActionMode(textSelectionCb2, type)
+        actionMode!!.finish()
+        return actionMode as ActionMode
 
         //Comment above code and uncomment below line for stock text selection
         //return super.startActionMode(callback, type);
     }
 
     @JavascriptInterface
-    public void setSelectionRect(final int left, final int top, final int right, final int bottom) {
+    fun setSelectionRect(left: Int, top: Int, right: Int, bottom: Int) {
 
-        Rect currentSelectionRect;
-        int newLeft = (int) (left * density);
-        int newTop = (int) (top * density);
-        int newRight = (int) (right * density);
-        int newBottom = (int) (bottom * density);
-        currentSelectionRect = new Rect(newLeft, newTop, newRight, newBottom);
-        Log.d(LOG_TAG, "-> setSelectionRect -> " + currentSelectionRect);
+        val currentSelectionRect: Rect
+        val newLeft = (left * density).toInt()
+        val newTop = (top * density).toInt()
+        val newRight = (right * density).toInt()
+        val newBottom = (bottom * density).toInt()
+        currentSelectionRect = Rect(newLeft, newTop, newRight, newBottom)
+        Log.d(LOG_TAG, "-> setSelectionRect -> $currentSelectionRect")
 
-        computeTextSelectionRect(currentSelectionRect);
+        computeTextSelectionRect(currentSelectionRect)
     }
 
-    private void computeTextSelectionRect(Rect currentSelectionRect) {
-        Log.v(LOG_TAG, "-> computeTextSelectionRect");
+    private fun computeTextSelectionRect(currentSelectionRect: Rect) {
+        Log.v(LOG_TAG, "-> computeTextSelectionRect")
 
-        Rect viewportRect = folioActivityCallback.getViewportRect();
-        Log.d(LOG_TAG, "-> viewportRect -> " + viewportRect);
+        val viewportRect = folioActivityCallback!!.viewportRect
+        Log.d(LOG_TAG, "-> viewportRect -> $viewportRect")
 
         if (!Rect.intersects(viewportRect, currentSelectionRect)) {
-            Log.i(LOG_TAG, "-> currentSelectionRect doesn't intersects viewportRect");
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    popupWindow.dismiss();
-                    handler.removeCallbacks(isScrollingRunnable);
-                }
-            });
-            return;
+            Log.i(LOG_TAG, "-> currentSelectionRect doesn't intersects viewportRect")
+            uiHandler!!.post {
+                popupWindow.dismiss()
+                uiHandler!!.removeCallbacks(isScrollingRunnable)
+            }
+            return
         }
-        Log.i(LOG_TAG, "-> currentSelectionRect intersects viewportRect");
+        Log.i(LOG_TAG, "-> currentSelectionRect intersects viewportRect")
 
-        if (selectionRect.equals(currentSelectionRect)) {
+        if (selectionRect == currentSelectionRect) {
             Log.i(LOG_TAG, "-> setSelectionRect -> currentSelectionRect is equal to previous " +
-                    "selectionRect so no need to computeTextSelectionRect and show popupWindow again");
-            return;
+                    "selectionRect so no need to computeTextSelectionRect and show popupWindow again")
+            return
         }
 
         Log.i(LOG_TAG, "-> setSelectionRect -> currentSelectionRect is not equal to previous " +
-                "selectionRect so computeTextSelectionRect and show popupWindow");
-        selectionRect = currentSelectionRect;
+                "selectionRect so computeTextSelectionRect and show popupWindow")
+        selectionRect = currentSelectionRect
 
-        Rect aboveSelectionRect = new Rect(viewportRect);
-        aboveSelectionRect.bottom = selectionRect.top;
-        Rect belowSelectionRect = new Rect(viewportRect);
+        val aboveSelectionRect = Rect(viewportRect)
+        aboveSelectionRect.bottom = selectionRect.top
+        val belowSelectionRect = Rect(viewportRect)
         //TODO: -> Add the handle heights
-        belowSelectionRect.top = selectionRect.bottom + 50;
+        belowSelectionRect.top = selectionRect.bottom + 50
 
         //Log.d(LOG_TAG, "-> aboveSelectionRect -> " + aboveSelectionRect);
         //Log.d(LOG_TAG, "-> belowSelectionRect -> " + belowSelectionRect);
 
-        popupRect.left = viewportRect.left;
+        popupRect.left = viewportRect.left
         // popupRect initialisation for belowSelectionRect
         // TODO -> Explain this more
-        popupRect.top = belowSelectionRect.top;
-        popupRect.right = popupRect.left + viewTextSelection.getMeasuredWidth();
-        popupRect.bottom = popupRect.top + viewTextSelection.getMeasuredHeight();
+        popupRect.top = belowSelectionRect.top
+        popupRect.right = popupRect.left + viewTextSelection!!.measuredWidth
+        popupRect.bottom = popupRect.top + viewTextSelection!!.measuredHeight
         //Log.d(LOG_TAG, "-> Pre decision popupRect -> " + popupRect);
 
-        int popupY;
+        val popupY: Int
         if (belowSelectionRect.contains(popupRect)) {
-            Log.i(LOG_TAG, "-> show below");
-            popupY = belowSelectionRect.top;
+            Log.i(LOG_TAG, "-> show below")
+            popupY = belowSelectionRect.top
 
         } else {
 
             // popupRect initialisation for aboveSelectionRect
-            popupRect.top = aboveSelectionRect.top;
-            popupRect.bottom = popupRect.top + viewTextSelection.getMeasuredHeight();
+            popupRect.top = aboveSelectionRect.top
+            popupRect.bottom = popupRect.top + viewTextSelection!!.measuredHeight
 
             if (aboveSelectionRect.contains(popupRect)) {
-                Log.i(LOG_TAG, "-> show above");
-                popupY = aboveSelectionRect.bottom - popupRect.height();
+                Log.i(LOG_TAG, "-> show above")
+                popupY = aboveSelectionRect.bottom - popupRect.height()
 
             } else {
 
-                Log.i(LOG_TAG, "-> show in middle");
-                int popupYDiff = (viewTextSelection.getMeasuredHeight() - selectionRect.height()) / 2;
-                popupY = selectionRect.top - popupYDiff;
+                Log.i(LOG_TAG, "-> show in middle")
+                val popupYDiff = (viewTextSelection!!.measuredHeight - selectionRect.height()) / 2
+                popupY = selectionRect.top - popupYDiff
             }
         }
 
-        int popupXDiff = (viewTextSelection.getMeasuredWidth() - selectionRect.width()) / 2;
-        int popupX = selectionRect.left - popupXDiff;
+        val popupXDiff = (viewTextSelection!!.measuredWidth - selectionRect.width()) / 2
+        val popupX = selectionRect.left - popupXDiff
 
-        popupRect.offsetTo(popupX, popupY);
+        popupRect.offsetTo(popupX, popupY)
         //Log.d(LOG_TAG, "-> Post decision popupRect -> " + popupRect);
 
         // Check if popupRect left side is going outside of the viewportRect
         if (popupRect.left < viewportRect.left) {
-            popupRect.right += 0 - popupRect.left;
-            popupRect.left = 0;
+            popupRect.right += 0 - popupRect.left
+            popupRect.left = 0
         }
 
         // Check if popupRect right side is going outside of the viewportRect
         if (popupRect.right > viewportRect.right) {
-            int dx = popupRect.right - viewportRect.right;
-            popupRect.left -= dx;
-            popupRect.right -= dx;
+            val dx = popupRect.right - viewportRect.right
+            popupRect.left -= dx
+            popupRect.right -= dx
         }
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                showTextSelectionPopup();
-            }
-        });
+        uiHandler!!.post { showTextSelectionPopup() }
     }
 
-    private void showTextSelectionPopup() {
-        Log.v(LOG_TAG, "-> showTextSelectionPopup");
-        Log.d(LOG_TAG, "-> showTextSelectionPopup -> To be laid out popupRect -> " + popupRect);
+    private fun showTextSelectionPopup() {
+        Log.v(LOG_TAG, "-> showTextSelectionPopup")
+        Log.d(LOG_TAG, "-> showTextSelectionPopup -> To be laid out popupRect -> $popupRect")
 
-        popupWindow.dismiss();
-        oldScrollX = getScrollX();
-        oldScrollY = getScrollY();
+        popupWindow.dismiss()
+        oldScrollX = scrollX
+        oldScrollY = scrollY
 
-        isScrollingRunnable = new Runnable() {
-            @Override
-            public void run() {
-                handler.removeCallbacks(isScrollingRunnable);
-                int currentScrollX = getScrollX();
-                int currentScrollY = getScrollY();
-                boolean inTouchMode = lastTouchAction == MotionEvent.ACTION_DOWN ||
-                        lastTouchAction == MotionEvent.ACTION_MOVE;
+        isScrollingRunnable = Runnable {
+            uiHandler!!.removeCallbacks(isScrollingRunnable)
+            val currentScrollX = scrollX
+            val currentScrollY = scrollY
+            val inTouchMode = lastTouchAction == MotionEvent.ACTION_DOWN || lastTouchAction == MotionEvent.ACTION_MOVE
 
-                if (oldScrollX == currentScrollX && oldScrollY == currentScrollY && !inTouchMode) {
-                    Log.i(LOG_TAG, "-> Stopped scrolling, show Popup");
-                    popupWindow.dismiss();
-                    popupWindow = new PopupWindow(viewTextSelection, WRAP_CONTENT, WRAP_CONTENT);
-                    popupWindow.setClippingEnabled(false);
-                    popupWindow.showAtLocation(FolioWebView.this, Gravity.NO_GRAVITY,
-                            popupRect.left, popupRect.top);
-                } else {
-                    Log.i(LOG_TAG, "-> Still scrolling, don't show Popup");
-                    oldScrollX = currentScrollX;
-                    oldScrollY = currentScrollY;
-                    isScrollingCheckDuration += IS_SCROLLING_CHECK_TIMER;
-                    if (isScrollingCheckDuration < IS_SCROLLING_CHECK_MAX_DURATION)
-                        handler.postDelayed(isScrollingRunnable, IS_SCROLLING_CHECK_TIMER);
-                }
+            if (oldScrollX == currentScrollX && oldScrollY == currentScrollY && !inTouchMode) {
+                Log.i(LOG_TAG, "-> Stopped scrolling, show Popup")
+                popupWindow.dismiss()
+                popupWindow = PopupWindow(viewTextSelection, WRAP_CONTENT, WRAP_CONTENT)
+                popupWindow.isClippingEnabled = false
+                popupWindow.showAtLocation(this@FolioWebView, Gravity.NO_GRAVITY,
+                        popupRect.left, popupRect.top)
+            } else {
+                Log.i(LOG_TAG, "-> Still scrolling, don't show Popup")
+                oldScrollX = currentScrollX
+                oldScrollY = currentScrollY
+                isScrollingCheckDuration += IS_SCROLLING_CHECK_TIMER
+                if (isScrollingCheckDuration < IS_SCROLLING_CHECK_MAX_DURATION)
+                    uiHandler!!.postDelayed(isScrollingRunnable, IS_SCROLLING_CHECK_TIMER.toLong())
             }
-        };
+        }
 
-        handler.removeCallbacks(isScrollingRunnable);
-        isScrollingCheckDuration = 0;
-        handler.postDelayed(isScrollingRunnable, IS_SCROLLING_CHECK_TIMER);
+        uiHandler!!.removeCallbacks(isScrollingRunnable)
+        isScrollingCheckDuration = 0
+        uiHandler!!.postDelayed(isScrollingRunnable, IS_SCROLLING_CHECK_TIMER.toLong())
     }
 }
