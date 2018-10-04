@@ -70,7 +70,6 @@
     <string name="setmediaoverlaystyle">javascript:setMediaOverlayStyle(\'%s\')</string>
     <string name="go_to_anchor" translatable="false">javascript:goToAnchor(\'%s\')</string>
     <string name="go_to_highlight" translatable="false">javascript:goToHighlight(\'%s\')</string>
-    <string name="getHighlightString">javascript:getHighlightString(\'%s\')</string>
     <string name="sethighlightstyle">javascript:setHighlightStyle(\'%s\');</string>
     <string name="css_tag"><![CDATA[<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />]]></string>
     <string name="script_tag"><![CDATA[<script type=\"text/javascript\" src=\"%s\"></script>]]></string>
