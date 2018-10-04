@@ -95,7 +95,7 @@ public class HighlightImpl implements Parcelable, HighLight {
                 case Pink:
                     return "highlight_pink";
                 case Underline:
-                    return "underline";
+                    return "highlight_underline";
                 case DottetUnderline:
                     return "mediaOverlayStyle1";
                 case TextColor:

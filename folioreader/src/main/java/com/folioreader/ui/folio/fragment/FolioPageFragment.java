@@ -70,10 +70,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.readium.r2.shared.Link;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.Locale;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -304,7 +301,7 @@ public class FolioPageFragment
     public void updateHighlight(UpdateHighlightEvent event) {
         if (isAdded()) {
             this.rangy = HighlightUtil.generateRangyString(getPageName());
-            loadRangy(mWebview, this.rangy);
+            loadRangy(this.rangy);
         }
     }
 
@@ -506,7 +503,7 @@ public class FolioPageFragment
             String rangy = HighlightUtil.generateRangyString(getPageName());
             FolioPageFragment.this.rangy = rangy;
             if (!rangy.isEmpty())
-                loadRangy(mWebview, rangy);
+                loadRangy(rangy);
 
             if (mIsPageReloaded) {
 
@@ -586,33 +583,13 @@ public class FolioPageFragment
             if (url.isEmpty())
                 return true;
 
-            if (Uri.parse(url).getScheme().startsWith("highlight")) {
-                final Pattern pattern = Pattern.compile(getString(R.string.pattern));
-                try {
-                    String htmlDecode = URLDecoder.decode(url, "UTF-8");
-                    Matcher matcher = pattern.matcher(htmlDecode.substring(12));
-                    if (matcher.matches()) {
-                        double left = Double.parseDouble(matcher.group(1));
-                        double top = Double.parseDouble(matcher.group(2));
-                        double width = Double.parseDouble(matcher.group(3));
-                        double height = Double.parseDouble(matcher.group(4));
-                        onHighlight((int) (UiUtil.convertDpToPixel((float) left, getActivity())),
-                                (int) (UiUtil.convertDpToPixel((float) top, getActivity())),
-                                (int) (UiUtil.convertDpToPixel((float) width, getActivity())),
-                                (int) (UiUtil.convertDpToPixel((float) height, getActivity())));
-                    }
-                } catch (UnsupportedEncodingException e) {
-                    Log.e(LOG_TAG, e.getMessage());
-                }
-            } else {
-                boolean urlOfEpub = mActivityCallback.goToChapter(url);
-
-                if (!urlOfEpub) {
-                    // Otherwise, give the default behavior (open in browser)
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    startActivity(intent);
-                }
+            boolean urlOfEpub = mActivityCallback.goToChapter(url);
+            if (!urlOfEpub) {
+                // Otherwise, give the default behavior (open in browser)
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(intent);
             }
+
             return true;
         }
 
@@ -662,55 +639,26 @@ public class FolioPageFragment
 
         @Override
         public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-            if (FolioPageFragment.this.isVisible()) {
-                String rangyPattern = "\\d+\\$\\d+\\$\\d+\\$\\w+\\$";
-                Pattern pattern = Pattern.compile(rangyPattern);
-                Matcher matcher = pattern.matcher(message);
-                if (matcher.matches()) {
-                    HighlightImpl highlightImpl = HighLightTable.getHighlightForRangy(message);
-                    if (HighLightTable.deleteHighlight(message)) {
-                        String rangy = HighlightUtil.generateRangyString(getPageName());
-                        loadRangy(view, rangy);
-                        //mTextSelectionSupport.endSelectionMode();
-                        if (highlightImpl != null) {
-                            HighlightUtil.sendHighlightBroadcastEvent(
-                                    FolioPageFragment.this.getActivity().getApplicationContext(),
-                                    highlightImpl,
-                                    HighLight.HighLightAction.DELETE);
-                        }
-                    }
-                } else if (TextUtils.isDigitsOnly(message)) {
-                    try {
-                        mTotalMinutes = Integer.parseInt(message);
-                    } catch (NumberFormatException e) {
-                        mTotalMinutes = 0;
-                    }
-                } else {
-                    pattern = Pattern.compile(getString(R.string.pattern));
-                    matcher = pattern.matcher(message);
-                    if (matcher.matches()) {
-                        double left = Double.parseDouble(matcher.group(1));
-                        double top = Double.parseDouble(matcher.group(2));
-                        double width = Double.parseDouble(matcher.group(3));
-                        double height = Double.parseDouble(matcher.group(4));
-                        showTextSelectionMenu((int) (UiUtil.convertDpToPixel((float) left,
-                                getActivity())),
-                                (int) (UiUtil.convertDpToPixel((float) top,
-                                        getActivity())),
-                                (int) (UiUtil.convertDpToPixel((float) width,
-                                        getActivity())),
-                                (int) (UiUtil.convertDpToPixel((float) height,
-                                        getActivity())));
-                    } else {
-                        // to handle TTS playback when highlight is deleted.
-                        Pattern p = Pattern.compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}");
-                        if (!p.matcher(message).matches() && (!message.equals("undefined")) && isCurrentFragment()) {
-                            mediaController.speakAudio(message);
-                        }
-                    }
+
+            // This if block can be dropped
+            if (!FolioPageFragment.this.isVisible())
+                return true;
+
+            if (TextUtils.isDigitsOnly(message)) {
+                try {
+                    mTotalMinutes = Integer.parseInt(message);
+                } catch (NumberFormatException e) {
+                    mTotalMinutes = 0;
                 }
-                result.confirm();
+            } else {
+                // to handle TTS playback when highlight is deleted.
+                Pattern p = Pattern.compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}");
+                if (!p.matcher(message).matches() && (!message.equals("undefined")) && isCurrentFragment()) {
+                    mediaController.speakAudio(message);
+                }
             }
+
+            result.confirm();
             return true;
         }
     };
@@ -778,8 +726,8 @@ public class FolioPageFragment
         mWebview.setHorizontalPageCount(horizontalPageCount);
     }
 
-    private void loadRangy(WebView view, String rangy) {
-        view.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
+    public void loadRangy(String rangy) {
+        mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.setHighlights('%s');}", rangy));
     }
 
     private void setupScrollBar() {
@@ -920,11 +868,11 @@ public class FolioPageFragment
         outState.putParcelable(BUNDLE_SEARCH_ITEM, searchItemVisible);
     }
 
-    public void highlight(HighlightImpl.HighlightStyle style, boolean isCreated) {
-        if (isCreated) {
+    public void highlight(HighlightImpl.HighlightStyle style, boolean isAlreadyCreated) {
+        if (!isAlreadyCreated) {
             mWebview.loadUrl(String.format("javascript:if(typeof ssReader !== \"undefined\"){ssReader.highlightSelection('%s');}", HighlightImpl.HighlightStyle.classForStyle(style)));
         } else {
-            mWebview.loadUrl(String.format("javascript:setHighlightStyle('%s')", "highlight_" + HighlightImpl.HighlightStyle.classForStyle(style)));
+            mWebview.loadUrl(String.format("javascript:setHighlightStyle('%s')", HighlightImpl.HighlightStyle.classForStyle(style)));
         }
     }
 
@@ -978,7 +926,7 @@ public class FolioPageFragment
             showDictDialog(mSelectedText);
             //mTextSelectionSupport.endSelectionMode();
         } else if (actionId == ACTION_ID_HIGHLIGHT) {
-            onHighlight(view, width, height, true);
+            onHighlight(view, width, height, false);
         }
     }
 
@@ -996,7 +944,7 @@ public class FolioPageFragment
         view.setBackgroundColor(Color.TRANSPARENT);
         view.setX(x);
         view.setY(y);
-        onHighlight(view, width, height, false);
+        onHighlight(view, width, height, true);
     }
 
     private void onHighlight(final View view, int width, int height, final boolean isCreated) {
@@ -1113,7 +1061,7 @@ public class FolioPageFragment
         }
     }
 
-    private String getPageName() {
+    public String getPageName() {
         return mBookTitle + "$" + spineItem.getHref();
     }
 
@@ -1140,7 +1088,7 @@ public class FolioPageFragment
             final String rangyString = HighlightUtil.generateRangyString(getPageName());
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
-                    loadRangy(mWebview, rangyString);
+                    loadRangy(rangyString);
                 }
             });
 

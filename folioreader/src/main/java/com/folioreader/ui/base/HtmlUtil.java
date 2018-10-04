@@ -102,7 +102,8 @@ public final class HtmlUtil {
                 break;
         }
 
-        htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
+        htmlContent = htmlContent.replace("<html", "<html class=\"" + classes + "\"" +
+                " onclick=\"onClickHtml()\"");
         return htmlContent;
     }
 }

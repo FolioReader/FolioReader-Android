@@ -117,24 +117,45 @@ var getRectForSelectedText = function(elm) {
     return "{{" + rect.left + "," + rect.top + "}, {" + rect.width + "," + rect.height + "}}";
 }
 
-function getSelectionRect() {
-    console.debug("-> getSelectionRect");
+function getSelectionRect(element) {
+    console.log("-> getSelectionRect");
 
-    var range = window.getSelection().getRangeAt(0);
+    var range;
+    if (element !== undefined) {
+        range = document.createRange();
+        range.selectNodeContents(element);
+    } else {
+        range = window.getSelection().getRangeAt(0);
+    }
+
     //var rect = range.getBoundingClientRect();
     var rect = RangeFix.getBoundingClientRect(range);
     FolioWebView.setSelectionRect(rect.left, rect.top, rect.right, rect.bottom);
 }
 
-// Method that call that a hightlight was clicked
-// with URL scheme and rect informations
-var callHighlightURL = function(elm) {
-    event.stopPropagation();
-    var URLBase = "highlight://";
-    var currentHighlightRect = getRectForSelectedText(elm);
-    thisHighlight = elm;
+function clearSelection() {
+    window.getSelection().removeAllRanges();
+}
 
-    window.location = URLBase + encodeURIComponent(currentHighlightRect);
+function onClickHtml() {
+    console.debug("-> onClickHtml");
+    if (FolioWebView.isPopupShowing()) {
+        FolioWebView.dismissPopupWindow();
+    } else {
+        FolioWebView.toggleSystemUI();
+    }
+}
+
+// onClick method set for highlights
+function onClickHighlight(element) {
+    event.stopPropagation();
+    thisHighlight = element;
+    getSelectionRect(element);
+}
+
+function deleteThisHighlight() {
+    if (thisHighlight !== undefined)
+        FolioWebView.deleteThisHighlight(thisHighlight.id);
 }
 
 // Reading time
@@ -1144,7 +1165,7 @@ function getHighlightString(style) {
 
     elm.appendChild(selectionContents);
     elm.setAttribute("id", id);
-    elm.setAttribute("onclick","callHighlightURL(this);");
+    elm.setAttribute("onclick","onClickHighlight(this);");
     elm.setAttribute("class", style);
 
     range.insertNode(elm);
@@ -1265,7 +1286,7 @@ $(function(){
     highlightSelection: function(color){
       try {
 
-        this.highlighter.highlightSelection("highlight_" + color, null);
+        this.highlighter.highlightSelection(color, null);
         var range = window.getSelection().toString();
         var params = {content: range,rangy: this.getHighlights(),color: color};
         this.clearSelection();

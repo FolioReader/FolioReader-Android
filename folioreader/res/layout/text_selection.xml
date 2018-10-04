@@ -70,26 +70,32 @@
                     android:orientation="horizontal">
 
                     <ImageView
+                        android:id="@+id/deleteHighlight"
                         style="@style/ImageViewTextSelectorMarker"
                         android:src="@drawable/ic_highlight_delete" />
 
                     <ImageView
+                        android:id="@+id/yellowHighlight"
                         style="@style/ImageViewTextSelectorMarker"
                         android:src="@drawable/shape_highlight_yellow" />
 
                     <ImageView
+                        android:id="@+id/greenHighlight"
                         style="@style/ImageViewTextSelectorMarker"
                         android:src="@drawable/shape_highlight_green" />
 
                     <ImageView
+                        android:id="@+id/blueHighlight"
                         style="@style/ImageViewTextSelectorMarker"
                         android:src="@drawable/shape_highlight_blue" />
 
                     <ImageView
+                        android:id="@+id/pinkHighlight"
                         style="@style/ImageViewTextSelectorMarker"
                         android:src="@drawable/shape_highlight_pink" />
 
                     <ImageView
+                        android:id="@+id/underlineHighlight"
                         style="@style/ImageViewTextSelectorMarker"
                         android:src="@drawable/ic_format_underlined" />
 

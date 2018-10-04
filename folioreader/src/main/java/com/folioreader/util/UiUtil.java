@@ -123,7 +123,7 @@ public class UiUtil {
             setUnderLineColor(textView, context, R.color.highlight_blue, R.color.highlight_blue);
         } else if (type.equals("highlight_pink")) {
             setUnderLineColor(textView, context, R.color.highlight_pink, R.color.highlight_pink);
-        } else if (type.equals("underline")) {
+        } else if (type.equals("highlight_underline")) {
             setUnderLineColor(textView, context, android.R.color.transparent, android.R.color.holo_red_dark);
             textView.setUnderlineWidth(2.0f);
         }
