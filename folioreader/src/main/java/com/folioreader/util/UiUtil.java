@@ -201,7 +201,7 @@ public class UiUtil {
                 field.set(editor, drawables);
 
             } else if (Build.VERSION.SDK_INT >= 28) {
-                // TODO: -> Not working for 28
+                // TODO -> Not working for 28
                 // Get the editor
                 field = TextView.class.getDeclaredField("mEditor");
                 field.setAccessible(true);

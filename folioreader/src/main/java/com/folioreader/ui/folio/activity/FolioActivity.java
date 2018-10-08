@@ -244,7 +244,7 @@ public class FolioActivity
                 new IntentFilter(FolioReader.ACTION_CLOSE_FOLIOREADER));
 
         // Fix for screen get turned off while reading
-        // TODO: -> Make this configurable
+        // TODO -> Make this configurable
         // getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setConfig(savedInstanceState);
@@ -548,8 +548,6 @@ public class FolioActivity
             });
         }
     }
-
-    //TODO: -> Add TypedValue support
 
     /**
      * @return returns height of status bar + app bar in dp.
@@ -986,7 +984,7 @@ public class FolioActivity
 
             switch (action) {
                 case ACTION_SEARCH_CLEAR:
-                    //TODO: -> rename reset to clear
+                    //TODO -> rename reset to clear
                     resetSearchResults();
                     break;
             }

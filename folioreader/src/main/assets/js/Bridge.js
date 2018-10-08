@@ -49,11 +49,6 @@ function getBodyText() {
     return document.body.innerText;
 }
 
-// Method that returns only selected text plain
-var getSelectedText = function() {
-    return window.getSelection().toString();
-}
-
 // Method that gets the Rect of current selected text
 // and returns in a JSON format
 var getRectForSelectedText = function(elm) {
@@ -1157,6 +1152,7 @@ function getSelectionRect(element) {
 }
 
 function clearSelection() {
+    console.log("-> clearSelection");
     window.getSelection().removeAllRanges();
 }
 
@@ -1171,6 +1167,7 @@ function onClickHtml() {
 
 // onClick method set for highlights
 function onClickHighlight(element) {
+    console.log("-> onClickHighlight");
     event.stopPropagation();
     thisHighlight = element;
     getSelectionRect(element);
@@ -1179,4 +1176,15 @@ function onClickHighlight(element) {
 function deleteThisHighlight() {
     if (thisHighlight !== undefined)
         FolioWebView.deleteThisHighlight(thisHighlight.id);
+}
+
+function onTextSelectionItemClicked(id) {
+    var selectionType = window.getSelection().type;
+    var selectedText = "";
+    if (selectionType == "Range") {
+        selectedText = window.getSelection().toString();
+    } else {
+       selectedText = thisHighlight.textContent;
+    }
+    FolioWebView.onTextSelectionItemClicked(id, selectedText);
 }
