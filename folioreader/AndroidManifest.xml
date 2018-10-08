@@ -20,7 +20,7 @@
         <activity
             android:name=".ui.folio.activity.FolioActivity"
             android:label="@string/app_name"
-            android:theme="@style/FolioAppDayTheme" />
+            android:theme="@style/FolioActivityDayTheme" />
 
         <activity
             android:name=".ui.folio.activity.ContentHighlightActivity"

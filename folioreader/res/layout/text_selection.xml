@@ -14,7 +14,7 @@
         <android.support.constraint.ConstraintLayout
             android:layout_width="288dp"
             android:layout_height="wrap_content"
-            android:background="#FFF">
+            android:background="?popUpWindowBackground">
 
             <LinearLayout
                 android:id="@+id/firstSectionLayout"
@@ -72,7 +72,7 @@
                     <ImageView
                         android:id="@+id/deleteHighlight"
                         style="@style/ImageViewTextSelectorMarker"
-                        android:src="@drawable/ic_highlight_delete" />
+                        app:srcCompat="@drawable/ic_highlight_delete" />
 
                     <ImageView
                         android:id="@+id/yellowHighlight"
@@ -97,7 +97,7 @@
                     <ImageView
                         android:id="@+id/underlineHighlight"
                         style="@style/ImageViewTextSelectorMarker"
-                        android:src="@drawable/ic_format_underlined" />
+                        app:srcCompat="@drawable/ic_format_underlined" />
 
                 </LinearLayout>
 

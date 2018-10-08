@@ -39,6 +39,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -235,6 +236,10 @@ public class FolioActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Need to add when vector drawables support library is used.
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+
         handler = new Handler();
         Display display = getWindowManager().getDefaultDisplay();
         displayMetrics = getResources().getDisplayMetrics();

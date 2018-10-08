@@ -280,6 +280,7 @@ public class FolioPageFragment
 
         if (isAdded()) {
             mWebview.dismissPopupWindow();
+            mWebview.initViewTextSelection();
             loadingView.updateTheme();
             loadingView.show();
             mIsPageReloaded = true;

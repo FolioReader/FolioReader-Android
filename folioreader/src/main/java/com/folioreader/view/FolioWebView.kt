@@ -28,6 +28,7 @@ import com.folioreader.model.sqlite.HighLightTable
 import com.folioreader.ui.folio.activity.FolioActivityCallback
 import com.folioreader.ui.folio.fragment.DictionaryFragment
 import com.folioreader.ui.folio.fragment.FolioPageFragment
+import com.folioreader.util.AppUtil
 import com.folioreader.util.HighlightUtil
 import com.folioreader.util.UiUtil
 import kotlinx.android.synthetic.main.text_selection.view.*
@@ -210,10 +211,17 @@ class FolioWebView : WebView {
         initViewTextSelection()
     }
 
-    private fun initViewTextSelection() {
+    fun initViewTextSelection() {
         Log.v(LOG_TAG, "-> initViewTextSelection")
 
-        viewTextSelection = LayoutInflater.from(context).inflate(R.layout.text_selection, null)
+        val config = AppUtil.getSavedConfig(context)
+        val ctw = if (config.isNightMode) {
+            ContextThemeWrapper(context, R.style.FolioNightTheme)
+        } else {
+            ContextThemeWrapper(context, R.style.FolioDayTheme)
+        }
+
+        viewTextSelection = LayoutInflater.from(ctw).inflate(R.layout.text_selection, null)
         viewTextSelection.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
 
         viewTextSelection.yellowHighlight.setOnClickListener {
