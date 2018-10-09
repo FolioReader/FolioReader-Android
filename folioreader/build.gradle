@@ -109,5 +109,8 @@ dependencies {
     implementation('com.github.codetoart:r2-streamer-kotlin:1.0.3-2') {
         exclude group: "org.slf4j", module: "slf4j-api"
     }
+
+    // To use only ReflectionUtils in Spring framework
+    implementation 'org.springframework:spring-core:4.3.19.RELEASE'
 }
 apply from: '../folioreader/bintray/bintrayv1.gradle'

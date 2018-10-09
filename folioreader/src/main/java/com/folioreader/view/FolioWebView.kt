@@ -2,6 +2,8 @@ package com.folioreader.view
 
 import android.content.Context
 import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -25,13 +27,17 @@ import com.folioreader.R
 import com.folioreader.model.HighLight
 import com.folioreader.model.HighlightImpl.HighlightStyle
 import com.folioreader.model.sqlite.HighLightTable
+import com.folioreader.ui.folio.activity.FolioActivity
 import com.folioreader.ui.folio.activity.FolioActivityCallback
 import com.folioreader.ui.folio.fragment.DictionaryFragment
 import com.folioreader.ui.folio.fragment.FolioPageFragment
 import com.folioreader.util.AppUtil
 import com.folioreader.util.HighlightUtil
 import com.folioreader.util.UiUtil
+import dalvik.system.PathClassLoader
 import kotlinx.android.synthetic.main.text_selection.view.*
+import org.springframework.util.ReflectionUtils
+import java.lang.ref.WeakReference
 
 /**
  * @author by mahavir on 3/31/16.
@@ -490,6 +496,14 @@ class FolioWebView : WebView {
         textSelectionCb = TextSelectionCb()
         actionMode = super.startActionMode(textSelectionCb)
         actionMode?.finish()
+
+        /*try {
+            applyThemeColorToHandles()
+        } catch (e: Exception) {
+            Log.w(LOG_TAG, "-> startActionMode -> Failed to apply theme colors to selection " +
+                    "handles", e)
+        }*/
+
         return actionMode as ActionMode
 
         //Comment above code and uncomment below line for stock text selection
@@ -503,10 +517,94 @@ class FolioWebView : WebView {
         textSelectionCb2 = TextSelectionCb2()
         actionMode = super.startActionMode(textSelectionCb2, type)
         actionMode?.finish()
+
+        /*try {
+            applyThemeColorToHandles()
+        } catch (e: Exception) {
+            Log.w(LOG_TAG, "-> startActionMode -> Failed to apply theme colors to selection " +
+                    "handles", e)
+        }*/
+
         return actionMode as ActionMode
 
         //Comment above code and uncomment below line for stock text selection
         //return super.startActionMode(callback, type)
+    }
+
+    private fun applyThemeColorToHandles() {
+        Log.v(LOG_TAG, "-> applyThemeColorToHandles")
+
+        if (Build.VERSION.SDK_INT < 23) {
+            val folioActivityRef: WeakReference<FolioActivity> = folioActivityCallback.activity
+            val mWindowManagerField = ReflectionUtils.findField(FolioActivity::class.java, "mWindowManager")
+            mWindowManagerField.isAccessible = true
+            val mWindowManager = mWindowManagerField.get(folioActivityRef.get())
+
+            val windowManagerImplClass = Class.forName("android.view.WindowManagerImpl")
+            val mGlobalField = ReflectionUtils.findField(windowManagerImplClass, "mGlobal")
+            mGlobalField.isAccessible = true
+            val mGlobal = mGlobalField.get(mWindowManager)
+
+            val windowManagerGlobalClass = Class.forName("android.view.WindowManagerGlobal")
+            val mViewsField = ReflectionUtils.findField(windowManagerGlobalClass, "mViews")
+            mViewsField.isAccessible = true
+            val mViews = mViewsField.get(mGlobal) as ArrayList<View>
+            val config = AppUtil.getSavedConfig(context)
+
+            for (view in mViews) {
+                val handleViewClass = Class.forName("com.android.org.chromium.content.browser.input.HandleView")
+
+                if (handleViewClass.isInstance(view)) {
+                    val mDrawableField = ReflectionUtils.findField(handleViewClass, "mDrawable")
+                    mDrawableField.isAccessible = true
+                    val mDrawable = mDrawableField.get(view) as BitmapDrawable
+                    UiUtil.setColorIntToDrawable(config.themeColor, mDrawable)
+                }
+            }
+
+        } else {
+            val folioActivityRef: WeakReference<FolioActivity> = folioActivityCallback.activity
+            val mWindowManagerField = ReflectionUtils.findField(FolioActivity::class.java, "mWindowManager")
+            mWindowManagerField.isAccessible = true
+            val mWindowManager = mWindowManagerField.get(folioActivityRef.get())
+
+            val windowManagerImplClass = Class.forName("android.view.WindowManagerImpl")
+            val mGlobalField = ReflectionUtils.findField(windowManagerImplClass, "mGlobal")
+            mGlobalField.isAccessible = true
+            val mGlobal = mGlobalField.get(mWindowManager)
+
+            val windowManagerGlobalClass = Class.forName("android.view.WindowManagerGlobal")
+            val mViewsField = ReflectionUtils.findField(windowManagerGlobalClass, "mViews")
+            mViewsField.isAccessible = true
+            val mViews = mViewsField.get(mGlobal) as ArrayList<View>
+            val config = AppUtil.getSavedConfig(context)
+
+            for (view in mViews) {
+                val popupDecorViewClass = Class.forName("android.widget.PopupWindow\$PopupDecorView")
+
+                if (!popupDecorViewClass.isInstance(view))
+                    continue
+
+                val mChildrenField = ReflectionUtils.findField(popupDecorViewClass, "mChildren")
+                mChildrenField.isAccessible = true
+                val mChildren = mChildrenField.get(view) as kotlin.Array<View>
+
+                //val pathClassLoader = PathClassLoader("/system/app/Chrome/Chrome.apk", ClassLoader.getSystemClassLoader())
+
+                val pathClassLoader = PathClassLoader("/system/app/Chrome/Chrome.apk", folioActivityRef.get()?.classLoader)
+
+                val popupTouchHandleDrawableClass = Class.forName("org.chromium.android_webview.PopupTouchHandleDrawable",
+                        true, pathClassLoader)
+
+                //if (!popupTouchHandleDrawableClass.isInstance(mChildren[0]))
+                //    continue
+
+                val mDrawableField = ReflectionUtils.findField(popupTouchHandleDrawableClass, "mDrawable")
+                mDrawableField.isAccessible = true
+                val mDrawable = mDrawableField.get(mChildren[0]) as Drawable
+                UiUtil.setColorIntToDrawable(config.themeColor, mDrawable)
+            }
+        }
     }
 
     @JavascriptInterface

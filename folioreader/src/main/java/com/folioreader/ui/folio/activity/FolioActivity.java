@@ -81,6 +81,7 @@ import org.readium.r2.streamer.parser.EpubParser;
 import org.readium.r2.streamer.parser.PubBox;
 import org.readium.r2.streamer.server.Server;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -609,6 +610,11 @@ public class FolioActivity
         }
         viewportRect.bottom = displayMetrics.heightPixels - ((int) (getBottomDistraction() * density));
         return viewportRect;
+    }
+
+    @Override
+    public WeakReference<FolioActivity> getActivity() {
+        return new WeakReference<>(this);
     }
 
     @Override

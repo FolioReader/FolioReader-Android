@@ -5,6 +5,8 @@ import android.graphics.Rect;
 import com.folioreader.Config;
 import com.folioreader.model.ReadPosition;
 
+import java.lang.ref.WeakReference;
+
 public interface FolioActivityCallback {
 
     int getCurrentChapterIndex();
@@ -30,4 +32,6 @@ public interface FolioActivityCallback {
     int getBottomDistraction();
 
     Rect getViewportRect();
+
+    WeakReference<FolioActivity> getActivity();
 }
