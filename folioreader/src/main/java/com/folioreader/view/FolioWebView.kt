@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.annotation.RequiresApi
+import android.support.v4.content.ContextCompat
 import android.support.v4.view.GestureDetectorCompat
 import android.util.AttributeSet
 import android.util.DisplayMetrics
@@ -101,6 +102,7 @@ class FolioWebView : WebView {
     private var oldScrollY: Int = 0
     private var lastTouchAction: Int = 0
     private var destroyed: Boolean = false
+    private var handleHeight: Int = 0
 
     private var lastScrollType: LastScrollType? = null
 
@@ -219,6 +221,10 @@ class FolioWebView : WebView {
 
     fun initViewTextSelection() {
         Log.v(LOG_TAG, "-> initViewTextSelection")
+
+        val textSelectionMiddleDrawable = ContextCompat.getDrawable(context,
+                R.drawable.abc_text_select_handle_middle_mtrl_dark)
+        handleHeight = textSelectionMiddleDrawable?.intrinsicHeight ?: (24 * density).toInt()
 
         val config = AppUtil.getSavedConfig(context)
         val ctw = if (config.isNightMode) {
@@ -648,17 +654,20 @@ class FolioWebView : WebView {
         selectionRect = currentSelectionRect
 
         val aboveSelectionRect = Rect(viewportRect)
-        aboveSelectionRect.bottom = selectionRect.top
+        aboveSelectionRect.bottom = selectionRect.top - (8 * density).toInt()
         val belowSelectionRect = Rect(viewportRect)
-        //TODO -> Add the handle heights
-        belowSelectionRect.top = selectionRect.bottom + 50
+        belowSelectionRect.top = selectionRect.bottom + handleHeight
 
         //Log.d(LOG_TAG, "-> aboveSelectionRect -> " + aboveSelectionRect);
         //Log.d(LOG_TAG, "-> belowSelectionRect -> " + belowSelectionRect);
 
+        // Priority to show popupWindow will be as following -
+        // 1. Show popupWindow below selectionRect, if space available
+        // 2. Show popupWindow above selectionRect, if space available
+        // 3. Show popupWindow in the middle of selectionRect
+
+        //popupRect initialisation for belowSelectionRect
         popupRect.left = viewportRect.left
-        // popupRect initialisation for belowSelectionRect
-        // TODO -> Explain this more
         popupRect.top = belowSelectionRect.top
         popupRect.right = popupRect.left + viewTextSelection.measuredWidth
         popupRect.bottom = popupRect.top + viewTextSelection.measuredHeight

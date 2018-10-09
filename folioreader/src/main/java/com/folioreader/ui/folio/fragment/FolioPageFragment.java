@@ -30,9 +30,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bossturban.webviewmarker.TextSelectionSupport;
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.FolioReader;
@@ -47,8 +45,6 @@ import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.event.RewindIndexEvent;
 import com.folioreader.model.event.UpdateHighlightEvent;
-import com.folioreader.model.quickaction.ActionItem;
-import com.folioreader.model.quickaction.QuickAction;
 import com.folioreader.model.search.SearchItem;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.base.HtmlTask;
@@ -121,7 +117,6 @@ public class FolioPageFragment
     private VerticalSeekbar mScrollSeekbar;
     public FolioWebView mWebview;
     private WebViewPager webViewPager;
-    private TextSelectionSupport mTextSelectionSupport;
     private TextView mPagesLeftTextView, mMinutesLeftTextView;
     private FolioActivityCallback mActivityCallback;
 
@@ -455,29 +450,6 @@ public class FolioPageFragment
 
         mWebview.setWebViewClient(webViewClient);
         mWebview.setWebChromeClient(webChromeClient);
-
-//        mTextSelectionSupport = TextSelectionSupport.support(getActivity(), mWebview);
-//        mTextSelectionSupport.setSelectionListener(new TextSelectionSupport.SelectionListener() {
-//            @Override
-//            public void startSelection() {
-//            }
-//
-//            @Override
-//            public void selectionChanged(String text) {
-//                mSelectedText = text;
-//                getActivity().runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        mWebview.loadUrl("javascript:alert(getRectForSelectedText())");
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void endSelection() {
-//
-//            }
-//        });
 
         mWebview.getSettings().setDefaultTextEncodingName("utf-8");
         new HtmlTask(this).execute(getWebviewUrl());
@@ -875,171 +847,6 @@ public class FolioPageFragment
         } else {
             mWebview.loadUrl(String.format("javascript:setHighlightStyle('%s')", HighlightImpl.HighlightStyle.classForStyle(style)));
         }
-    }
-
-    public void highlightRemove() {
-        mWebview.loadUrl("javascript:alert(removeThisHighlight())");
-    }
-
-    public void showTextSelectionMenu(int x, int y, final int width, final int height) {
-        final ViewGroup root =
-                (ViewGroup) getActivity().getWindow()
-                        .getDecorView().findViewById(android.R.id.content);
-        final View view = new View(getActivity());
-        view.setLayoutParams(new ViewGroup.LayoutParams(width, height));
-        view.setBackgroundColor(Color.TRANSPARENT);
-
-        root.addView(view);
-
-        view.setX(x);
-        view.setY(y);
-        final QuickAction quickAction =
-                new QuickAction(getActivity(), QuickAction.HORIZONTAL);
-        quickAction.addActionItem(new ActionItem(ACTION_ID_COPY,
-                getString(R.string.copy)));
-        quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT,
-                getString(R.string.highlight)));
-        if (!mSelectedText.trim().contains(" ")) {
-            quickAction.addActionItem(new ActionItem(ACTION_ID_DEFINE,
-                    getString(R.string.define)));
-        }
-        quickAction.addActionItem(new ActionItem(ACTION_ID_SHARE,
-                getString(R.string.share)));
-        quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
-            @Override
-            public void onItemClick(QuickAction source, int pos, int actionId) {
-                quickAction.dismiss();
-                root.removeView(view);
-                onTextSelectionActionItemClicked(actionId, view, width, height);
-            }
-        });
-        quickAction.show(view, width, height);
-    }
-
-    private void onTextSelectionActionItemClicked(int actionId, View view, int width, int height) {
-        if (actionId == ACTION_ID_COPY) {
-            UiUtil.copyToClipboard(getActivity(), mSelectedText);
-            Toast.makeText(getActivity(), getString(R.string.copied), Toast.LENGTH_SHORT).show();
-            //mTextSelectionSupport.endSelectionMode();
-        } else if (actionId == ACTION_ID_SHARE) {
-            UiUtil.share(getActivity(), mSelectedText);
-        } else if (actionId == ACTION_ID_DEFINE) {
-            showDictDialog(mSelectedText);
-            //mTextSelectionSupport.endSelectionMode();
-        } else if (actionId == ACTION_ID_HIGHLIGHT) {
-            onHighlight(view, width, height, false);
-        }
-    }
-
-    private void showDictDialog(String mSelectedText) {
-        DictionaryFragment dictionaryFragment = new DictionaryFragment();
-        Bundle b = new Bundle();
-        b.putString(Constants.SELECTED_WORD, mSelectedText);
-        dictionaryFragment.setArguments(b);
-        dictionaryFragment.show(getFragmentManager(), DictionaryFragment.class.getName());
-    }
-
-    private void onHighlight(int x, int y, int width, int height) {
-        final View view = new View(getActivity());
-        view.setLayoutParams(new ViewGroup.LayoutParams(width, height));
-        view.setBackgroundColor(Color.TRANSPARENT);
-        view.setX(x);
-        view.setY(y);
-        onHighlight(view, width, height, true);
-    }
-
-    private void onHighlight(final View view, int width, int height, final boolean isCreated) {
-        ViewGroup root =
-                (ViewGroup) getActivity().getWindow().
-                        getDecorView().findViewById(android.R.id.content);
-        ViewGroup parent = (ViewGroup) view.getParent();
-        if (parent == null) {
-            root.addView(view);
-        } else {
-            final int index = parent.indexOfChild(view);
-            parent.removeView(view);
-            parent.addView(view, index);
-        }
-
-        final QuickAction quickAction = new QuickAction(getActivity(), QuickAction.HORIZONTAL);
-        quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT_COLOR,
-                getResources().getDrawable(R.drawable.colors_marker)));
-        quickAction.addActionItem(new ActionItem(ACTION_ID_DELETE,
-                getResources().getDrawable(R.drawable.ic_action_discard)));
-        quickAction.addActionItem(new ActionItem(ACTION_ID_SHARE,
-                getResources().getDrawable(R.drawable.ic_action_share)));
-        final ViewGroup finalRoot = root;
-        quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
-            @Override
-            public void onItemClick(QuickAction source, int pos, int actionId) {
-                quickAction.dismiss();
-                finalRoot.removeView(view);
-                onHighlightActionItemClicked(actionId, view, isCreated);
-            }
-        });
-        quickAction.show(view, width, height);
-    }
-
-    private void onHighlightActionItemClicked(int actionId, View view, boolean isCreated) {
-        if (actionId == ACTION_ID_HIGHLIGHT_COLOR) {
-            onHighlightColors(view, isCreated);
-        } else if (actionId == ACTION_ID_SHARE) {
-            UiUtil.share(getActivity(), mSelectedText);
-            //mTextSelectionSupport.endSelectionMode();
-        } else if (actionId == ACTION_ID_DELETE) {
-            highlightRemove();
-        }
-    }
-
-    private void onHighlightColors(final View view, final boolean isCreated) {
-        ViewGroup root =
-                (ViewGroup) getActivity().getWindow()
-                        .getDecorView().findViewById(android.R.id.content);
-        ViewGroup parent = (ViewGroup) view.getParent();
-        if (parent == null) {
-            root.addView(view);
-        } else {
-            final int index = parent.indexOfChild(view);
-            parent.removeView(view);
-            parent.addView(view, index);
-        }
-
-        final QuickAction quickAction = new QuickAction(getActivity(), QuickAction.HORIZONTAL);
-        quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT_YELLOW,
-                getResources().getDrawable(R.drawable.ic_yellow_marker)));
-        quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT_GREEN,
-                getResources().getDrawable(R.drawable.ic_green_marker)));
-        quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT_BLUE,
-                getResources().getDrawable(R.drawable.ic_blue_marker)));
-        quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT_PINK,
-                getResources().getDrawable(R.drawable.ic_pink_marker)));
-        quickAction.addActionItem(new ActionItem(ACTION_ID_HIGHLIGHT_UNDERLINE,
-                getResources().getDrawable(R.drawable.ic_underline_marker)));
-        final ViewGroup finalRoot = root;
-        quickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
-            @Override
-            public void onItemClick(QuickAction source, int pos, int actionId) {
-                quickAction.dismiss();
-                finalRoot.removeView(view);
-                onHighlightColorsActionItemClicked(actionId, view, isCreated);
-            }
-        });
-        quickAction.show(view);
-    }
-
-    private void onHighlightColorsActionItemClicked(int actionId, View view, boolean isCreated) {
-        if (actionId == ACTION_ID_HIGHLIGHT_YELLOW) {
-            highlight(HighlightImpl.HighlightStyle.Yellow, isCreated);
-        } else if (actionId == ACTION_ID_HIGHLIGHT_GREEN) {
-            highlight(HighlightImpl.HighlightStyle.Green, isCreated);
-        } else if (actionId == ACTION_ID_HIGHLIGHT_BLUE) {
-            highlight(HighlightImpl.HighlightStyle.Blue, isCreated);
-        } else if (actionId == ACTION_ID_HIGHLIGHT_PINK) {
-            highlight(HighlightImpl.HighlightStyle.Pink, isCreated);
-        } else if (actionId == ACTION_ID_HIGHLIGHT_UNDERLINE) {
-            highlight(HighlightImpl.HighlightStyle.Underline, isCreated);
-        }
-        //mTextSelectionSupport.endSelectionMode();
     }
 
     @Override
