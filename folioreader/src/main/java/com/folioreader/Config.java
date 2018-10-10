@@ -107,7 +107,7 @@ public class Config implements Parcelable {
         direction = getDirectionFromString(LOG_TAG, jsonObject.optString(CONFIG_DIRECTION));
     }
 
-    public static Direction getDirectionFromString(String LOG_TAG, String directionString) {
+    public static Direction getDirectionFromString(final String LOG_TAG, String directionString) {
 
         switch (directionString) {
             case "VERTICAL":
@@ -121,7 +121,7 @@ public class Config implements Parcelable {
         }
     }
 
-    public static AllowedDirection getAllowedDirectionFromString(String LOG_TAG,
+    public static AllowedDirection getAllowedDirectionFromString(final String LOG_TAG,
                                                                  String allowedDirectionString) {
 
         switch (allowedDirectionString) {
@@ -230,12 +230,14 @@ public class Config implements Parcelable {
                     "allowedDirection to " + DEFAULT_ALLOWED_DIRECTION + " and direction to " +
                     DEFAULT_DIRECTION);
 
-        } else if (allowedDirection == AllowedDirection.ONLY_VERTICAL && direction != Direction.VERTICAL) {
+        } else if (allowedDirection == AllowedDirection.ONLY_VERTICAL &&
+                direction != Direction.VERTICAL) {
             direction = Direction.VERTICAL;
             Log.w(LOG_TAG, "-> allowedDirection is " + allowedDirection +
                     ", defaulting direction to " + direction);
 
-        } else if (allowedDirection == AllowedDirection.ONLY_HORIZONTAL && direction != Direction.HORIZONTAL) {
+        } else if (allowedDirection == AllowedDirection.ONLY_HORIZONTAL &&
+                direction != Direction.HORIZONTAL) {
             direction = Direction.HORIZONTAL;
             Log.w(LOG_TAG, "-> allowedDirection is " + allowedDirection
                     + ", defaulting direction to " + direction);
@@ -261,12 +263,14 @@ public class Config implements Parcelable {
             Log.w(LOG_TAG, "-> direction cannot be `null` when allowedDirection is " +
                     allowedDirection + ", defaulting direction to " + this.direction);
 
-        } else if (allowedDirection == AllowedDirection.ONLY_VERTICAL && direction != Direction.VERTICAL) {
+        } else if (allowedDirection == AllowedDirection.ONLY_VERTICAL &&
+                direction != Direction.VERTICAL) {
             this.direction = Direction.VERTICAL;
             Log.w(LOG_TAG, "-> direction cannot be `" + direction + "` when allowedDirection is " +
                     allowedDirection + ", defaulting direction to " + this.direction);
 
-        } else if (allowedDirection == AllowedDirection.ONLY_HORIZONTAL && direction != Direction.HORIZONTAL) {
+        } else if (allowedDirection == AllowedDirection.ONLY_HORIZONTAL &&
+                direction != Direction.HORIZONTAL) {
             this.direction = Direction.HORIZONTAL;
             Log.w(LOG_TAG, "-> direction cannot be `" + direction + "` when allowedDirection is " +
                     allowedDirection + ", defaulting direction to " + this.direction);

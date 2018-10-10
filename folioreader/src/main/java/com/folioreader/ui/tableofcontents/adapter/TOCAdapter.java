@@ -60,7 +60,7 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
         }
         viewHolder.sectionTitle.setText(tocLinkWrapper.getTocLink().getTitle());
 
-        if(mConfig.isNightMode()) {
+        if (mConfig.isNightMode()) {
             if (tocLinkWrapper.isGroup()) {
                 viewHolder.children.setImageResource(R.drawable.ic_plus_white_24dp);
             } else {
@@ -98,7 +98,7 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
             viewHolder.children.setVisibility(View.VISIBLE);
         }
 
-        if(mConfig.isNightMode()){
+        if (mConfig.isNightMode()) {
             viewHolder.container.setBackgroundColor(ContextCompat.getColor(mContext,
                     R.color.black));
             viewHolder.children.setBackgroundColor(ContextCompat.getColor(mContext,

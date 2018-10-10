@@ -28,8 +28,8 @@ public class Constants {
     public static final String HREF = "href";
 
     public static String[] getWriteExternalStoragePerms() {
-        return new String[] {
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        return new String[]{
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
         };
     }
 }

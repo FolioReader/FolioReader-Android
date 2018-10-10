@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.folioreader.Config;
 import com.folioreader.Constants;
+import com.folioreader.FolioReader;
 import com.folioreader.R;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
@@ -27,7 +28,6 @@ import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.folio.adapter.HighlightAdapter;
 import com.folioreader.util.AppUtil;
-import com.folioreader.FolioReader;
 import com.folioreader.util.HighlightUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -90,7 +90,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
 
     @Override
     public void deleteHighlight(int id) {
-        if(HighLightTable.deleteHighlight(id)) {
+        if (HighLightTable.deleteHighlight(id)) {
             EventBus.getDefault().post(new UpdateHighlightEvent());
         }
     }
