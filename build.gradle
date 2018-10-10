@@ -27,11 +27,7 @@ allprojects {
         maven { url "http://dl.bintray.com/mobisystech/maven" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
         maven { url 'https://jitpack.io' }
-
-        def localProperties = new Properties()
-        rootProject.file("local.properties").withInputStream { localProperties.load(it) }
-        if (localProperties.hasProperty("localM2Dir"))
-            maven { url uri(localProperties.getProperty("localM2Dir")) }
+        //mavenLocal()
     }
 }
 

@@ -2,7 +2,7 @@ package com.folioreader.model.search
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.folioreader.r2_streamer_java.SearchResult
+import org.readium.r2.streamer.r2_streamer_java.SearchResult
 
 class SearchItem : SearchResult, Parcelable {
 
@@ -12,7 +12,6 @@ class SearchItem : SearchResult, Parcelable {
     constructor(parcel: Parcel) : this() {
         searchIndex = parcel.readInt()
         href = parcel.readString()
-        originalHref = parcel.readString()
         title = parcel.readString()
         searchQuery = parcel.readString()
         matchQuery = parcel.readString()
@@ -25,21 +24,20 @@ class SearchItem : SearchResult, Parcelable {
     }
 
     constructor() : super()
-    constructor(searchIndex: Int, href: String?, originalHref: String?, title: String?,
+    constructor(searchIndex: Int, href: String?, title: String?,
                 searchQuery: String?, matchQuery: String?, sentence: String?,
                 textBefore: String?, textAfter: String?, occurrenceInChapter: Int) :
-            super(searchIndex, href, originalHref, title, searchQuery, matchQuery,
+            super(searchIndex, href, title, searchQuery, matchQuery,
                     sentence, textBefore, textAfter, occurrenceInChapter)
 
     constructor(searchResult: SearchResult) : this(searchResult.searchIndex, searchResult.href,
-            searchResult.originalHref, searchResult.title, searchResult.searchQuery,
-            searchResult.matchQuery, searchResult.sentence, searchResult.textBefore,
-            searchResult.textAfter, searchResult.occurrenceInChapter)
+            searchResult.title, searchResult.searchQuery, searchResult.matchQuery,
+            searchResult.sentence, searchResult.textBefore, searchResult.textAfter,
+            searchResult.occurrenceInChapter)
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(searchIndex)
         parcel.writeString(href)
-        parcel.writeString(originalHref)
         parcel.writeString(title)
         parcel.writeString(searchQuery)
         parcel.writeString(matchQuery)

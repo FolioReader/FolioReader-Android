@@ -741,7 +741,7 @@ public class FolioActivity
                 // In case if SearchActivity is recreated due to screen rotation then FolioActivity
                 // will also be recreated, so mFolioPageViewPager might be null.
                 if (mFolioPageViewPager == null) return;
-                currentChapterIndex = getChapterIndex(Constants.HREF, searchItem.getOriginalHref());
+                currentChapterIndex = getChapterIndex(Constants.HREF, searchItem.getHref());
                 mFolioPageViewPager.setCurrentItem(currentChapterIndex);
                 FolioPageFragment folioPageFragment = getCurrentFragment();
                 if (folioPageFragment == null) return;
@@ -847,7 +847,7 @@ public class FolioActivity
         // will also be recreated, so searchItem is checked here.
         if (searchItem != null) {
 
-            currentChapterIndex = getChapterIndex(Constants.HREF, searchItem.getOriginalHref());
+            currentChapterIndex = getChapterIndex(Constants.HREF, searchItem.getHref());
             mFolioPageViewPager.setCurrentItem(currentChapterIndex);
             FolioPageFragment folioPageFragment = getCurrentFragment();
             if (folioPageFragment == null) return;

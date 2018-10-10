@@ -10,11 +10,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.folioreader.model.search.SearchItem
 import com.folioreader.model.search.SearchItemType
-import com.folioreader.r2_streamer_java.SearchQueryResults
 import com.folioreader.ui.folio.activity.SearchActivity
 import com.folioreader.ui.folio.adapter.ListViewType
 import com.folioreader.ui.folio.adapter.SearchAdapter
 import com.folioreader.util.AppUtil
+import org.readium.r2.streamer.r2_streamer_java.SearchQueryResults
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
