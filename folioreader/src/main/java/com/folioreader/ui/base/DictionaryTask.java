@@ -1,19 +1,21 @@
 package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.model.dictionary.Dictionary;
+import com.folioreader.network.TLSSocketFactory;
 import com.folioreader.util.AppUtil;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * @author gautam chibde on 4/7/17.
@@ -33,10 +35,14 @@ public class DictionaryTask extends AsyncTask<String, Void, Dictionary> {
     protected Dictionary doInBackground(String... strings) {
         String strUrl = strings[0];
         try {
+            Log.v(TAG, "-> doInBackground -> url -> " + strUrl);
             URL url = new URL(strUrl);
-            URLConnection urlConnection = url.openConnection();
-            InputStream inputStream = urlConnection.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil.charsetNameForURLConnection(urlConnection)));
+            HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
+            if (Build.VERSION.SDK_INT <= 20)
+                httpsURLConnection.setSSLSocketFactory(new TLSSocketFactory());
+            InputStream inputStream = httpsURLConnection.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,
+                    AppUtil.charsetNameForURLConnection(httpsURLConnection)));
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -46,7 +52,7 @@ public class DictionaryTask extends AsyncTask<String, Void, Dictionary> {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
             return objectMapper.readValue(stringBuilder.toString(), Dictionary.class);
-        } catch (IOException e) {
+        } catch (Exception e) {
             Log.e(TAG, "DictionaryTask failed", e);
         }
         return null;

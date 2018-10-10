@@ -31,7 +31,7 @@
                 android:layout_centerInParent="true"
                 android:layout_margin="16dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_close_green_24dp" />
+                app:srcCompat="@drawable/ic_close_green_24dp" />
 
             <LinearLayout
                 android:id="@+id/layout_header"
@@ -96,7 +96,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:drawablePadding="8dp"
-            android:drawableTop="@drawable/ic_offline_gray_48dp"
+            android:drawableTop="@drawable/ic_offline_gray_layer_list"
             android:text="offline"
             android:visibility="gone"
             tools:visibility="visible" />

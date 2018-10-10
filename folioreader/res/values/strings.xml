@@ -70,14 +70,11 @@
     <string name="setmediaoverlaystyle">javascript:setMediaOverlayStyle(\'%s\')</string>
     <string name="go_to_anchor" translatable="false">javascript:goToAnchor(\'%s\')</string>
     <string name="go_to_highlight" translatable="false">javascript:goToHighlight(\'%s\')</string>
-    <string name="getHighlightString">javascript:getHighlightString(\'%s\')</string>
     <string name="sethighlightstyle">javascript:setHighlightStyle(\'%s\');</string>
     <string name="css_tag"><![CDATA[<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />]]></string>
     <string name="script_tag"><![CDATA[<script type=\"text/javascript\" src=\"%s\"></script>]]></string>
     <string name="td_tag"><![CDATA[<td>%s</td></tr>]]></string>
     <string name="tr_tag"><![CDATA[<tr><td></td><td>%s</td></tr>]]></string>
-    <string name="pattern">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>
-    <!--<string name="pattern2">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>-->
     <string name="script_tag_method_call"><![CDATA[<script type=\"text/javascript\">%s</script>]]></string>
     <string name="underline_highlights">
         <span style="border-bottom: 1px solid #ff0000;">%s</span>
@@ -104,11 +101,6 @@
     <string name="xhtml_mime_type" translatable="false">application/xhtml+xml</string>
     <string name="html_mime_type" translatable="false">text/html</string>
     <string name="back_compat" translatable="false">BackCompat</string>
-
-    <string name="menu_item_copy">Copy</string>
-    <string name="menu_item_highlight">Highlight</string>
-    <string name="menu_item_define">Define</string>
-    <string name="menu_item_share">Share</string>
 
     <string name="menu_item_search">Search</string>
     <string name="menu_item_config">Configuration</string>

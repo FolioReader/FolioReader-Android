@@ -5,8 +5,6 @@ import android.os.Parcelable;
 import com.folioreader.FolioReader;
 import com.folioreader.ui.folio.activity.FolioActivity;
 
-import org.readium.r2_streamer.model.publication.EpubPublication;
-
 /**
  * Interface contract for last read position
  *
@@ -16,24 +14,14 @@ public interface ReadPosition extends Parcelable {
 
     /**
      * Returns the bookId if sent in {@link FolioReader}'s openBook() else logic defined in
-     * {@link FolioActivity#onLoadPublication(EpubPublication)} will return the bookId.
+     * {@link FolioActivity#onBookInitSuccess()} will return the bookId.
      */
     String getBookId();
-
-    /**
-     * Returns the idref of the spine item.
-     */
-    String getChapterId();
 
     /**
      * Returns the href of the manifest item.
      */
     String getChapterHref();
-
-    /**
-     * Returns the chapter index from spine tag
-     */
-    int getChapterIndex();
 
     /**
      * Returns true if span tag has id

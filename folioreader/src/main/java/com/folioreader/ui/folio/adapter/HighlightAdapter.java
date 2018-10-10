@@ -31,7 +31,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
     private List<HighlightImpl> highlights;
     private HighLightAdapterCallback callback;
     private Context context;
-    private  Config config;
+    private Config config;
 
     public HighlightAdapter(Context context, List<HighlightImpl> highlights, HighLightAdapterCallback callback, Config config) {
         this.context = context;
@@ -55,7 +55,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
                 ((AppCompatActivity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        holder.container.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT,FrameLayout.LayoutParams.WRAP_CONTENT));
+                        holder.container.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
                     }
                 });
             }

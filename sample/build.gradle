@@ -14,6 +14,7 @@ android {
         versionCode VERSION_CODE
         versionName VERSION_NAME
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -52,14 +53,8 @@ android {
     }
 }
 
-repositories {
-    maven {
-        url "http://dl.bintray.com/mobisystech/maven"
-    }
-}
-
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
     implementation "com.android.support.constraint:constraint-layout:$CONSTRAINT_LAYOUT_VERSION"
     testImplementation 'junit:junit:4.12'
@@ -67,4 +62,10 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     implementation project(':folioreader')
+
+    implementation "com.fasterxml.jackson.core:jackson-core:$JACKSON_VERSION"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$JACKSON_VERSION"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$JACKSON_VERSION"
+
+    implementation 'com.android.support:multidex:1.0.3'
 }
