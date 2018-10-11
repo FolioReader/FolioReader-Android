@@ -17,7 +17,7 @@ ext {
     siteUrl = 'https://github.com/FolioReader/FolioReader-Android'
     gitUrl = 'https://github.com/FolioReader/FolioReader-Android.git'
 
-    libraryVersion = LIBRARY_VERSION
+    libraryVersion = FOLIOREADER_SDK_VERSION
 
     developerId = 'mobisystech'
     developerName = 'Folio Reader'
@@ -104,8 +104,8 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:$JACKSON_VERSION"
 
     // R2 modules
-    implementation 'com.github.codetoart:r2-shared-kotlin:1.0.3-2'
-    implementation('com.github.codetoart:r2-streamer-kotlin:1.0.3-4') {
+    implementation "com.github.codetoart:r2-shared-kotlin:$R2_SHARED_KOTLIN_VERSION"
+    implementation("com.github.codetoart:r2-streamer-kotlin:$R2_STREAMER_KOTLIN_VERSION") {
         exclude group: "org.slf4j", module: "slf4j-api"
     }
 
