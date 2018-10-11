@@ -110,12 +110,6 @@
 
         <!-- Naming -->
 
-        <module name="PackageName">
-            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
-            <message key="name.invalidPattern"
-                     value="Package name ''{0}'' must match pattern ''{1}''."/>
-        </module>
-
         <module name="MethodName">
             <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9_]*$"/>
             <message key="name.invalidPattern"
@@ -125,15 +119,6 @@
         <module name="TypeName">
             <message key="name.invalidPattern"
                      value="Type name ''{0}'' must match pattern ''{1}''."/>
-        </module>
-
-        <module name="MemberName">
-            <property name="applyToPublic" value="false" />
-            <property name="applyToPackage" value="false" />
-            <property name="applyToProtected" value="false" />
-            <property name="format" value="^m[A-Z]+[a-z0-9][a-zA-Z0-9]*$"/>
-            <message key="name.invalidPattern"
-                     value="Member name ''{0}'' must match pattern ''{1}''."/>
         </module>
 
         <module name="ParameterName">

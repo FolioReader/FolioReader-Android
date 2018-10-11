@@ -14,7 +14,7 @@ import com.folioreader.ui.folio.activity.SearchActivity
 import com.folioreader.ui.folio.adapter.ListViewType
 import com.folioreader.ui.folio.adapter.SearchAdapter
 import com.folioreader.util.AppUtil
-import org.readium.r2_streamer.model.searcher.SearchQueryResults
+import org.readium.r2.streamer.r2_streamer_java.SearchQueryResults
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader

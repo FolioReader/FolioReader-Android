@@ -13,7 +13,7 @@ public class DictionaryResults {
     @JsonProperty
     private String headword;
     @JsonProperty
-    private String part_of_speech;
+    private String partOfSpeech;
     @JsonProperty
     private List<Pronunciations> pronunciations;
     @JsonProperty
@@ -24,7 +24,7 @@ public class DictionaryResults {
     public String toString() {
         return "DictionaryResults{" +
                 "headword='" + headword + '\'' +
-                ", part_of_speech='" + part_of_speech + '\'' +
+                ", partOfSpeech='" + partOfSpeech + '\'' +
                 ", pronunciations=" + pronunciations +
                 ", senses=" + senses +
                 '}';
@@ -39,11 +39,11 @@ public class DictionaryResults {
     }
 
     public String getPartOfSpeech() {
-        return part_of_speech;
+        return partOfSpeech;
     }
 
-    public void setPartOfSpeech(String part_of_speech) {
-        this.part_of_speech = part_of_speech;
+    public void setPartOfSpeech(String partOfSpeech) {
+        this.partOfSpeech = partOfSpeech;
     }
 
     public List<Pronunciations> getPronunciations() {

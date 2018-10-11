@@ -17,7 +17,7 @@ ext {
     siteUrl = 'https://github.com/FolioReader/FolioReader-Android'
     gitUrl = 'https://github.com/FolioReader/FolioReader-Android.git'
 
-    libraryVersion = LIBRARY_VERSION
+    libraryVersion = FOLIOREADER_SDK_VERSION
 
     developerId = 'mobisystech'
     developerName = 'Folio Reader'
@@ -37,6 +37,7 @@ android {
         targetSdkVersion ANDROID_TARGET_SDK_VERSION
         versionCode VERSION_CODE
         versionName VERSION_NAME
+        vectorDrawables.useSupportLibrary = true
     }
 
     sourceSets {
@@ -72,6 +73,7 @@ android {
 
     lintOptions {
         abortOnError false
+        lintConfig file("lint.xml")
     }
 
     checkstyle {
@@ -79,16 +81,9 @@ android {
     }
 }
 
-repositories {
-    maven {
-        url "http://dl.bintray.com/mobisystech/maven"
-    }
-}
-
 apply from: '../folioreader/bintray/installv1.gradle'
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation project(':webViewMarker')
 
     implementation "com.android.support.constraint:constraint-layout:$CONSTRAINT_LAYOUT_VERSION"
     implementation "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
@@ -96,16 +91,25 @@ dependencies {
     implementation "com.android.support:support-v4:$ANDROID_LIB_VERSION"
     implementation "com.android.support:design:$ANDROID_LIB_VERSION"
 
+    implementation 'org.slf4j:slf4j-android:1.7.25'
     implementation 'com.daimajia.swipelayout:library:1.2.0@aar'
 
     //Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
 
-    // r2-streamer
-    api "org.readium:r2-fetcher:$R2_STREAMER_VERSION"
-    api "org.readium:r2-parser:$R2_STREAMER_VERSION"
-    api "org.readium:r2-server:$R2_STREAMER_VERSION"
-
     implementation 'org.greenrobot:eventbus:3.1.1'
+
+    implementation "com.fasterxml.jackson.core:jackson-core:$JACKSON_VERSION"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$JACKSON_VERSION"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$JACKSON_VERSION"
+
+    // R2 modules
+    implementation "com.github.codetoart:r2-shared-kotlin:$R2_SHARED_KOTLIN_VERSION"
+    implementation("com.github.codetoart:r2-streamer-kotlin:$R2_STREAMER_KOTLIN_VERSION") {
+        exclude group: "org.slf4j", module: "slf4j-api"
+    }
+
+    // To use only ReflectionUtils in Spring framework
+    implementation 'org.springframework:spring-core:4.3.19.RELEASE'
 }
 apply from: '../folioreader/bintray/bintrayv1.gradle'

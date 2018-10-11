@@ -2,7 +2,7 @@ package com.folioreader.model;
 
 import com.folioreader.util.MultiLevelExpIndListAdapter;
 
-import org.readium.r2_streamer.model.tableofcontents.TOCLink;
+import org.readium.r2.shared.Link;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,18 +11,18 @@ import java.util.List;
  * Created by Mahavir on 3/10/17.
  */
 
-public class TOCLinkWrapper implements MultiLevelExpIndListAdapter.ExpIndData{
-    private TOCLink tocLink;
+public class TOCLinkWrapper implements MultiLevelExpIndListAdapter.ExpIndData {
+    private Link tocLink;
     private int indentation;
     private ArrayList<TOCLinkWrapper> tocLinkWrappers;
     private boolean mIsGroup;
     private int mGroupSize;
 
-    public TOCLinkWrapper(TOCLink tocLink, int indentation) {
+    public TOCLinkWrapper(Link tocLink, int indentation) {
         this.tocLink = tocLink;
         this.indentation = indentation;
         this.tocLinkWrappers = new ArrayList<>();
-        this.mIsGroup = (tocLink.getTocLinks()!=null && tocLink.getTocLinks().size()>0);
+        this.mIsGroup = (tocLink.getChildren().size() > 0);
     }
 
     @Override
@@ -44,11 +44,11 @@ public class TOCLinkWrapper implements MultiLevelExpIndListAdapter.ExpIndData{
         this.indentation = indentation;
     }
 
-    public TOCLink getTocLink() {
+    public Link getTocLink() {
         return tocLink;
     }
 
-    public void setTocLink(TOCLink tocLink) {
+    public void setTocLink(Link tocLink) {
         this.tocLink = tocLink;
     }
 

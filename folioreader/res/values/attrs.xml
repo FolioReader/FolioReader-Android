@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <declare-styleable name="UnderlinedTextView">
+        <attr name="underlineWidth" format="dimension" />
+        <attr name="underlineColor" format="color" />
+    </declare-styleable>
+
     <declare-styleable name="StyleableTextView">
         <attr name="folio_font" format="string" />
     </declare-styleable>
@@ -18,5 +24,8 @@
     <attr name="defaultFontColor" format="reference|color" />
     <attr name="searchItemHeaderBackgroundColor" format="reference|color" />
     <attr name="dividerColor" format="reference|color" />
+    <attr name="popUpWindowBackground" format="reference|color" />
+    <attr name="highlightDeleteFillColor" format="reference|color" />
+    <attr name="underlineIconFillColorTop" format="reference|color" />
 
 </resources>

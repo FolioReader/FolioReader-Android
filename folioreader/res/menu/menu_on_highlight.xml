@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_highlight_options" android:title=""
-          android:icon="@drawable/colors_marker" android:onClick="onContextualMenuItemClicked"/>
-    <item android:id="@+id/menu_delete" android:title="" android:icon="@drawable/ic_action_discard"
-          android:onClick="onContextualMenuItemClicked"/>
-    <item android:id="@+id/menu_share" android:title="" android:icon="@drawable/ic_action_share"
-          android:onClick="onContextualMenuItemClicked"/>
-</menu>
