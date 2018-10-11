@@ -69,7 +69,7 @@
             if (typeof el.classList == "object") {
                 el.classList.add(className);
                 el.setAttribute("id", serializedHighlight);
-                el.setAttribute("onclick","callHighlightURL(this)");
+                el.setAttribute("onclick","onClickHighlight(this)");
             } else {
                 var classNameSupported = (typeof el.className == "string");
                 var elClass = classNameSupported ? el.className : el.getAttribute("class");

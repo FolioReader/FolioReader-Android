@@ -97,9 +97,9 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
         val config: Config = AppUtil.getSavedConfig(this)
         if (config.isNightMode) {
-            setTheme(R.style.AppNightTheme)
+            setTheme(R.style.FolioNightTheme)
         } else {
-            setTheme(R.style.AppDayTheme)
+            setTheme(R.style.FolioDayTheme)
         }
 
         setContentView(R.layout.activity_search)

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.folioreader.Constants;
@@ -23,7 +24,10 @@ public class FileUtil {
     private static final String TAG = FileUtil.class.getSimpleName();
     private static final String FOLIO_READER_ROOT = "folioreader";
 
-    public static String saveEpubFileAndLoadLazyBook(final Context context, FolioActivity.EpubSourceType epubSourceType, String epubFilePath, int epubRawId, String epubFileName) {
+    public static String saveEpubFileAndLoadLazyBook(final Context context,
+                                                     FolioActivity.EpubSourceType epubSourceType,
+                                                     String epubFilePath,
+                                                     int epubRawId, String epubFileName) {
         String filePath;
         InputStream epubInputStream;
         boolean isFolderAvailable;
@@ -110,5 +114,14 @@ public class FileUtil {
             Log.e(TAG, e.getMessage());
         }
         return false;
+    }
+
+    public static String getExtensionUppercase(String path) {
+        if (TextUtils.isEmpty(path))
+            return null;
+        int lastIndexOfDot = path.lastIndexOf('.');
+        if (lastIndexOfDot == -1)
+            return null;
+        return path.substring(lastIndexOfDot + 1).toUpperCase();
     }
 }

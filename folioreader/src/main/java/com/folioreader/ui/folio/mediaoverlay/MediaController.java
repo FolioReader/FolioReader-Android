@@ -15,8 +15,8 @@ import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.media_overlay.OverlayItems;
 import com.folioreader.util.UiUtil;
 
-import org.readium.r2_streamer.model.publication.SMIL.Clip;
-import org.readium.r2_streamer.model.publication.SMIL.MediaOverlays;
+import org.readium.r2.shared.Clip;
+import org.readium.r2.shared.MediaOverlays;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,7 +71,8 @@ public class MediaController {
             int currentPosition = mediaPlayer.getCurrentPosition();
             if (mediaPlayer.getDuration() != currentPosition) {
                 if (mediaItemPosition < mediaItems.size()) {
-                    int end = (int) currentClip.end * 1000;
+                    //int end = (int) currentClip.end * 1000;
+                    int end = (int) (currentClip.getEnd() * 1000);
                     if (currentPosition > end) {
                         mediaItemPosition++;
                         currentClip = mediaOverlays.clip(mediaItems.get(mediaItemPosition).getId());
@@ -133,7 +134,7 @@ public class MediaController {
         mediaHandler = new Handler();
         try {
             mediaItemPosition = 0;
-            String uri = Constants.LOCALHOST + mBookTitle + "/" + path;
+            String uri = Constants.LOCALHOST + mBookTitle + path;
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(uri);
             mediaPlayer.prepare();

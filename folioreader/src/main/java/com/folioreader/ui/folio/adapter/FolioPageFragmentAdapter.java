@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
 
-import org.readium.r2_streamer.model.publication.link.Link;
+import org.readium.r2.shared.Link;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

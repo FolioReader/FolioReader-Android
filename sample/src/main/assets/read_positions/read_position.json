@@ -1,8 +1,6 @@
 {
   "bookId": "_simple_book",
-  "chapterId": "id-idp140724860948704",
-  "chapterHref": "ch03.xhtml",
-  "chapterIndex": 5,
+  "chapterHref": "/OEBPS/ch03.xhtml",
   "usingId": false,
   "value": "0"
 }

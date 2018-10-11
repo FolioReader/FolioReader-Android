@@ -128,7 +128,7 @@ public class DictionaryAdapter extends RecyclerView.Adapter<DictionaryAdapter.Di
     }
 
     public void setResults(List<DictionaryResults> resultsList) {
-        if(resultsList != null && !resultsList.isEmpty()) {
+        if (resultsList != null && !resultsList.isEmpty()) {
             results.addAll(resultsList);
             notifyDataSetChanged();
         }

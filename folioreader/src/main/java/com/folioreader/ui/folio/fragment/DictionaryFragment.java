@@ -37,6 +37,8 @@ import com.folioreader.util.AppUtil;
 import com.folioreader.util.UiUtil;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * @author gautam chibde on 4/7/17.
@@ -178,7 +180,7 @@ public class DictionaryFragment extends DialogFragment
     }
 
     private void loadDictionary() {
-        if(noNetwork.getVisibility() == View.VISIBLE || googleSearch.getVisibility() == View.VISIBLE) {
+        if (noNetwork.getVisibility() == View.VISIBLE || googleSearch.getVisibility() == View.VISIBLE) {
             noNetwork.setVisibility(View.GONE);
             googleSearch.setVisibility(View.GONE);
         }
@@ -189,12 +191,17 @@ public class DictionaryFragment extends DialogFragment
         wikiLayout.setVisibility(View.GONE);
         dictResults.setVisibility(View.VISIBLE);
         DictionaryTask task = new DictionaryTask(this);
-        String baseUrl = Constants.DICTIONARY_BASE_URL + word.trim();
-        task.execute(baseUrl);
+        String urlString = null;
+        try {
+            urlString = Constants.DICTIONARY_BASE_URL + URLEncoder.encode(word, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "-> loadDictionary", e);
+        }
+        task.execute(urlString);
     }
 
     private void loadWikipedia() {
-        if(noNetwork.getVisibility() == View.VISIBLE || googleSearch.getVisibility() == View.VISIBLE) {
+        if (noNetwork.getVisibility() == View.VISIBLE || googleSearch.getVisibility() == View.VISIBLE) {
             noNetwork.setVisibility(View.GONE);
             googleSearch.setVisibility(View.GONE);
         }
@@ -205,7 +212,13 @@ public class DictionaryFragment extends DialogFragment
         dictionary.setSelected(false);
         wikipedia.setSelected(true);
         WikipediaTask task = new WikipediaTask(this);
-        task.execute(Constants.WIKIPEDIA_API_URL + word.trim());
+        String urlString = null;
+        try {
+            urlString = Constants.WIKIPEDIA_API_URL + URLEncoder.encode(word, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "-> loadWikipedia", e);
+        }
+        task.execute(urlString);
     }
 
     @Override
