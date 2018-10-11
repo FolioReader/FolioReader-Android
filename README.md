@@ -125,6 +125,9 @@ folioReader.openBook(R.raw.adventures);
 
 Please follow [Issue Template](https://github.com/FolioReader/FolioReader-Android/blob/master/.github/ISSUE_TEMPLATE.md) to report any issue. 
 
+## Share your application
+If you are using FolioReader in your application, share your application link in [this issue](https://github.com/FolioReader/FolioReader-Android/issues/291)
+
 ### Credits
 1. <a href="https://github.com/daimajia/AndroidSwipeLayout">SwipeLayout</a>
 2. <a href="https://github.com/readium/r2-streamer-java">r2-streamer-java</a>
@@ -158,3 +161,4 @@ Please follow [Issue Template](https://github.com/FolioReader/FolioReader-Androi
 
 ## License
 FolioReaderKit is available under the BSD license. See the [LICENSE](https://github.com/FolioReader/FolioReader-Android/blob/master/License.md) file.
+
