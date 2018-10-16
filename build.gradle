@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.KOTLIN_VERSION = '1.2.71'
+    ext.kotlinVersion = "1.2.71"
 
     repositories {
         google()
@@ -16,36 +16,35 @@ buildscript {
 
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 
 allprojects {
     repositories {
+        mavenLocal()
         google()
         jcenter()
-        maven { url "https://dl.bintray.com/mobisystech/maven" }
         maven { url "https://jitpack.io" }
-        mavenLocal()
     }
 }
 
 ext {
-    FOLIOREADER_SDK_VERSION = '0.5.1'
-    R2_STREAMER_KOTLIN_VERSION = '1.0.3-5'
-    R2_SHARED_KOTLIN_VERSION = '1.0.3-2'
+    folioreaderSdkVersion = "0.5.1"
+    r2StreamerKotlinVersion = "1.0.3-6.dev"
+    r2SharedKotlinVersion = "1.0.3-2.local"
 
-    VERSION_NAME = "1.0"
-    VERSION_CODE = 1
+    projectVersionCode = 1
+    projectVersionName = "1.0"
 
-    ANDROID_MIN_SDK = 19
-    ANDROID_COMPILE_SDK_VERSION = 28
-    ANDROID_TARGET_SDK_VERSION = 28
-    ANDROID_LIB_VERSION = '28.0.0'
+    androidMinSdkVersion = 19
+    androidCompileSdkVersion = 28
+    androidTargetSdkVersion = 28
+    androidSupportLibVersion = "28.0.0"
 
-    CONSTRAINT_LAYOUT_VERSION = "1.1.3"
+    constraintLayoutVersion = "1.1.3"
 
-    JACKSON_VERSION = '2.8.6'
+    jacksonVersion = "2.8.6"
 }
 
 task clean(type: Delete) {

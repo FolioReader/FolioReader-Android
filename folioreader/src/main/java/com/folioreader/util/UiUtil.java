@@ -9,6 +9,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -32,6 +33,9 @@ import android.widget.TextView;
 import com.folioreader.AppContext;
 import com.folioreader.R;
 import com.folioreader.view.UnderlinedTextView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
@@ -315,5 +319,19 @@ public class UiUtil {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(color);
         }
+    }
+
+    public static String rectToDOMRectJson(Rect rect) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("x", rect.left);
+            jsonObject.put("y", rect.top);
+            jsonObject.put("width", rect.width());
+            jsonObject.put("height", rect.height());
+            return jsonObject.toString();
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "-> ", e);
+        }
+        return null;
     }
 }

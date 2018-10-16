@@ -1,6 +1,6 @@
 //
 //  Bridge.js
-//  FolioReaderKit
+//  FolioReader-Android
 //
 //  Created by Heberti Almeida on 06/05/15.
 //  Copyright (c) 2015 Folio Reader. All rights reserved.
@@ -10,20 +10,44 @@ var thisHighlight;
 var audioMarkClass;
 var wordsPerMinute = 180;
 
+var Direction = Object.freeze({
+    VERTICAL: "VERTICAL",
+    HORIZONTAL: "HORIZONTAL"
+});
+
+var DisplayUnit = Object.freeze({
+    PX: "PX",
+    DP: "DP",
+    CSS_PX: "CSS_PX"
+});
+
+var scrollWidth;
+var horizontalInterval;
+var horizontalIntervalPeriod = 1000;
+var horizontalIntervalCounter = 0;
+var horizontalIntervalLimit = 3000;
+
+var searchResults = [];
+var lastSearchQuery = null;
+var testCounter = 0;
+var searchResultsInvisible = true;
+
+var viewportRect;
+
 // Class manipulation
-function hasClass(ele,cls) {
-  return !!ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
+function hasClass(ele, cls) {
+    return !!ele.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
 }
 
-function addClass(ele,cls) {
-  if (!hasClass(ele,cls)) ele.className += " "+cls;
+function addClass(ele, cls) {
+    if (!hasClass(ele, cls)) ele.className += " " + cls;
 }
 
-function removeClass(ele,cls) {
-  if (hasClass(ele,cls)) {
-    var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
-    ele.className=ele.className.replace(reg,' ');
-  }
+function removeClass(ele, cls) {
+    if (hasClass(ele, cls)) {
+        var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
+        ele.className = ele.className.replace(reg, ' ');
+    }
 }
 
 // Menu colors
@@ -51,12 +75,12 @@ function getBodyText() {
 
 // Method that gets the Rect of current selected text
 // and returns in a JSON format
-var getRectForSelectedText = function(elm) {
+var getRectForSelectedText = function (elm) {
     if (typeof elm === "undefined") elm = window.getSelection().getRangeAt(0);
 
     var rect = elm.getBoundingClientRect();
     return "{{" + rect.left + "," + rect.top + "}, {" + rect.width + "," + rect.height + "}}";
-}
+};
 
 // Reading time
 function getReadingTime() {
@@ -78,10 +102,10 @@ function scrollAnchor(id) {
  */
 function removeAllClasses(className) {
     var els = document.body.getElementsByClassName(className)
-    if( els.length > 0 )
-    for( i = 0; i <= els.length; i++) {
-        els[i].classList.remove(className);
-    }
+    if (els.length > 0)
+        for (i = 0; i <= els.length; i++) {
+            els[i].classList.remove(className);
+        }
 }
 
 /**
@@ -98,13 +122,13 @@ function audioMarkID(className, id) {
     el.classList.add(className)
 }
 
-function setMediaOverlayStyle(style){
+function setMediaOverlayStyle(style) {
     document.documentElement.classList.remove("mediaOverlayStyle0", "mediaOverlayStyle1", "mediaOverlayStyle2")
     document.documentElement.classList.add(style)
 }
 
 function setMediaOverlayStyleColors(color, colorHighlight) {
-    var stylesheet = document.styleSheets[document.styleSheets.length-1];
+    var stylesheet = document.styleSheets[document.styleSheets.length - 1];
 //    stylesheet.insertRule(".mediaOverlayStyle0 span.epub-media-overlay-playing { background: "+colorHighlight+" !important }")
 //    stylesheet.insertRule(".mediaOverlayStyle1 span.epub-media-overlay-playing { border-color: "+color+" !important }")
 //    stylesheet.insertRule(".mediaOverlayStyle2 span.epub-media-overlay-playing { color: "+color+" !important }")
@@ -115,7 +139,7 @@ var currentIndex = -1;
 
 function findSentenceWithIDInView(els) {
     // @NOTE: is `span` too limiting?
-    for(indx in els) {
+    for (indx in els) {
         var element = els[indx];
 
         // Horizontal scroll
@@ -128,8 +152,8 @@ function findSentenceWithIDInView(els) {
                 return element;
             }
 
-        // Vertical
-        } else if(element.offsetTop > document.body.scrollTop) {
+            // Vertical
+        } else if (element.offsetTop > document.body.scrollTop) {
             currentIndex = indx;
             return element;
         }
@@ -139,8 +163,8 @@ function findSentenceWithIDInView(els) {
 }
 
 function findNextSentenceInArray(els) {
-    if(currentIndex >= 0) {
-        currentIndex ++;
+    if (currentIndex >= 0) {
+        currentIndex++;
         return els[currentIndex];
     }
 
@@ -152,7 +176,7 @@ function resetCurrentSentenceIndex() {
 }
 
 function rewindCurrentIndex() {
-    currentIndex = currentIndex-1;
+    currentIndex = currentIndex - 1;
 }
 
 function getSentenceWithIndex(className) {
@@ -169,7 +193,7 @@ function getSentenceWithIndex(className) {
         if (node.className == "sentence") {
             sentence = node
 
-            for(var i = 0, len = elements.length; i < len; i++) {
+            for (var i = 0, len = elements.length; i < len; i++) {
                 if (elements[i] === sentence) {
                     currentIndex = i;
                     break;
@@ -188,7 +212,7 @@ function getSentenceWithIndex(className) {
 
     scrollToElement(sentence);
 
-    if (audioMarkClass){
+    if (audioMarkClass) {
         removeAllClasses(audioMarkClass);
     }
 
@@ -197,382 +221,207 @@ function getSentenceWithIndex(className) {
     return text;
 }
 
-function wrappingSentencesWithinPTags(){
-    currentIndex = -1;
-    "use strict";
+$(function () {
+    window.ssReader = Class({
+        $singleton: true,
 
-    var rxOpen = new RegExp("<[^\\/].+?>"),
-    rxClose = new RegExp("<\\/.+?>"),
-    rxSupStart = new RegExp("^<sup\\b[^>]*>"),
-    rxSupEnd = new RegExp("<\/sup>"),
-    sentenceEnd = [],
-    rxIndex;
+        init: function () {
+            rangy.init();
 
-    sentenceEnd.push(new RegExp("[^\\d][\\.!\\?]+"));
-    sentenceEnd.push(new RegExp("(?=([^\\\"]*\\\"[^\\\"]*\\\")*[^\\\"]*?$)"));
-    sentenceEnd.push(new RegExp("(?![^\\(]*?\\))"));
-    sentenceEnd.push(new RegExp("(?![^\\[]*?\\])"));
-    sentenceEnd.push(new RegExp("(?![^\\{]*?\\})"));
-    sentenceEnd.push(new RegExp("(?![^\\|]*?\\|)"));
-    sentenceEnd.push(new RegExp("(?![^\\\\]*?\\\\)"));
-    //sentenceEnd.push(new RegExp("(?![^\\/.]*\\/)")); // all could be a problem, but this one is problematic
+            this.highlighter = rangy.createHighlighter();
 
-    rxIndex = new RegExp(sentenceEnd.reduce(function (previousValue, currentValue) {
-                                            return previousValue + currentValue.source;
-                                            }, ""));
+            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_yellow", {
+                ignoreWhiteSpace: true,
+                tagNames: ["span", "a"]
+            }));
 
-    function indexSentenceEnd(html) {
-        var index = html.search(rxIndex);
+            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_green", {
+                ignoreWhiteSpace: true,
+                tagNames: ["span", "a"]
+            }));
 
-        if (index !== -1) {
-            index += html.match(rxIndex)[0].length - 1;
-        }
+            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_blue", {
+                ignoreWhiteSpace: true,
+                tagNames: ["span", "a"]
+            }));
 
-        return index;
-    }
+            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_pink", {
+                ignoreWhiteSpace: true,
+                tagNames: ["span", "a"]
+            }));
 
-    function pushSpan(array, className, string, classNameOpt) {
-        if (!string.match('[a-zA-Z0-9]+')) {
-            array.push(string);
-        } else {
-            array.push('<span class="' + className + '">' + string + '</span>');
-        }
-    }
+            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_underline", {
+                ignoreWhiteSpace: true,
+                tagNames: ["span", "a"]
+            }));
 
-    function addSupToPrevious(html, array) {
-        var sup = html.search(rxSupStart),
-        end = 0,
-        last;
+        },
 
-        if (sup !== -1) {
-            end = html.search(rxSupEnd);
-            if (end !== -1) {
-                last = array.pop();
-                end = end + 6;
-                array.push(last.slice(0, -7) + html.slice(0, end) + last.slice(-7));
-            }
-        }
+        setFontAndada: function () {
+            this.setFont("andada");
+        },
 
-        return html.slice(end);
-    }
+        setFontLato: function () {
+            this.setFont("lato");
+        },
 
-    function paragraphIsSentence(html, array) {
-        var index = indexSentenceEnd(html);
+        setFontPtSerif: function () {
+            this.setFont("pt-serif");
+        },
 
-        if (index === -1 || index === html.length) {
-            pushSpan(array, "sentence", html, "paragraphIsSentence");
-            html = "";
-        }
+        setFontPtSans: function () {
+            this.setFont("pt-sans");
+        },
 
-        return html;
-    }
+        base64encode: function (str) {
+            return btoa(unescape(encodeURIComponent(str)));
+        },
 
-    function paragraphNoMarkup(html, array) {
-        var open = html.search(rxOpen),
-        index = 0;
+        base64decode: function (str) {
+            return decodeURIComponent(escape(atob(str)));
+        },
 
-        if (open === -1) {
-            index = indexSentenceEnd(html);
-            if (index === -1) {
-                index = html.length;
-            }
-
-            pushSpan(array, "sentence", html.slice(0, index += 1), "paragraphNoMarkup");
-        }
-
-        return html.slice(index);
-    }
-
-    function sentenceUncontained(html, array) {
-        var open = html.search(rxOpen),
-        index = 0,
-        close;
-
-        if (open !== -1) {
-            index = indexSentenceEnd(html);
-            if (index === -1) {
-                index = html.length;
-            }
-
-            close = html.search(rxClose);
-            if (index < open || index > close) {
-                pushSpan(array, "sentence", html.slice(0, index += 1), "sentenceUncontained");
-            } else {
-                index = 0;
-            }
-        }
-
-        return html.slice(index);
-    }
-
-    function sentenceContained(html, array) {
-        var open = html.search(rxOpen),
-        index = 0,
-        close,
-        count;
-
-        if (open !== -1) {
-            index = indexSentenceEnd(html);
-            if (index === -1) {
-                index = html.length;
-            }
-
-            close = html.search(rxClose);
-            if (index > open && index < close) {
-                count = html.match(rxClose)[0].length;
-                pushSpan(array, "sentence", html.slice(0, close + count), "sentenceContained");
-                index = close + count;
-            } else {
-                index = 0;
-            }
-        }
-
-        return html.slice(index);
-    }
-
-    function anythingElse(html, array) {
-        pushSpan(array, "sentence", html, "anythingElse");
-
-        return "";
-    }
-
-    function guessSenetences() {
-        var paragraphs = document.getElementsByTagName("p");
-
-        Array.prototype.forEach.call(paragraphs, function (paragraph) {
-            var html = paragraph.innerHTML,
-                length = html.length,
-                array = [],
-                safety = 100;
-
-            while (length && safety) {
-                html = addSupToPrevious(html, array);
-                if (html.length === length) {
-                    if (html.length === length) {
-                        html = paragraphIsSentence(html, array);
-                        if (html.length === length) {
-                            html = paragraphNoMarkup(html, array);
-                            if (html.length === length) {
-                                html = sentenceUncontained(html, array);
-                                if (html.length === length) {
-                                    html = sentenceContained(html, array);
-                                    if (html.length === length) {
-                                        html = anythingElse(html, array);
-                                    }
-                                }
-                            }
-                        }
-                    }
+        clearSelection: function () {
+            if (window.getSelection) {
+                if (window.getSelection().empty) {  // Chrome
+                    window.getSelection().empty();
+                } else if (window.getSelection().removeAllRanges) {  // Firefox
+                    window.getSelection().removeAllRanges();
                 }
-
-                length = html.length;
-                safety -= 1;
+            } else if (document.selection) {  // IE?
+                document.selection.empty();
             }
+        },
 
+        // Public methods
+
+        setFont: function (fontName) {
+            $("#ss-wrapper-font").removeClass().addClass("ss-wrapper-" + fontName);
+        },
+
+        setSize: function (size) {
+            $("#ss-wrapper-size").removeClass().addClass("ss-wrapper-" + size);
+        },
+
+        setTheme: function (theme) {
+            $("body, #ss-wrapper-theme").removeClass().addClass("ss-wrapper-" + theme);
+        },
+
+        setComment: function (comment, inputId) {
+            $("#" + inputId).val(ssReader.base64decode(comment));
+            $("#" + inputId).trigger("input", ["true"]);
+        },
+
+        highlightSelection: function (color) {
             try {
-                paragraph.innerHTML = array.join("");
-            } catch(err) {
-                console.error(err);
-                console.error("-> " + err.message);
+
+                this.highlighter.highlightSelection(color, null);
+                var range = window.getSelection().toString();
+                var params = {content: range, rangy: this.getHighlights(), color: color};
+                this.clearSelection();
+                Highlight.onReceiveHighlights(JSON.stringify(params));
+            } catch (err) {
+                console.log("highlightSelection : " + err);
+            }
+        },
+
+        unHighlightSelection: function () {
+            try {
+                this.highlighter.unhighlightSelection();
+                Highlight.onReceiveHighlights(this.getHighlights());
+            } catch (err) {
+            }
+        },
+
+        getHighlights: function () {
+            try {
+                return this.highlighter.serialize();
+            } catch (err) {
+            }
+        },
+
+        setHighlights: function (serializedHighlight) {
+            try {
+                this.highlighter.removeAllHighlights();
+                this.highlighter.deserialize(serializedHighlight);
+            } catch (err) {
+            }
+        },
+
+        removeAll: function () {
+            try {
+                this.highlighter.removeAllHighlights();
+            } catch (err) {
+            }
+        },
+
+        copy: function () {
+            SSBridge.onCopy(window.getSelection().toString());
+            this.clearSelection();
+        },
+
+        share: function () {
+            SSBridge.onShare(window.getSelection().toString());
+            this.clearSelection();
+        },
+
+        search: function () {
+            SSBridge.onSearch(window.getSelection().toString());
+            this.clearSelection();
+        }
+    });
+
+    if (typeof ssReader !== "undefined") {
+        ssReader.init();
+    }
+
+    $(".verse").click(function () {
+        SSBridge.onVerseClick(ssReader.base64encode($(this).attr("verse")));
+    });
+
+    $("code").each(function (i) {
+        var textarea = $("<textarea class='textarea'/>").attr("id", "input-" + i).on("input propertychange", function (event, isInit) {
+            $(this).css({'height': 'auto', 'overflow-y': 'hidden'}).height(this.scrollHeight);
+            $(this).next().css({'height': 'auto', 'overflow-y': 'hidden'}).height(this.scrollHeight);
+
+            if (!isInit) {
+                var that = this;
+                if (timeout !== null) {
+                    clearTimeout(timeout);
+                }
+                timeout = setTimeout(function () {
+                    SSBridge.onCommentsClick(
+                        ssReader.base64encode($(that).val()),
+                        $(that).attr("id")
+                    );
+                }, 1000);
             }
         });
-    }
+        var border = $("<div class='textarea-border' />");
+        var container = $("<div class='textarea-container' />");
 
-    guessSenetences();
-}
+        $(textarea).appendTo(container);
+        $(border).appendTo(container);
 
-$(function(){
-  window.ssReader = Class({
-    $singleton: true,
-
-    init: function() {
-      rangy.init();
-
-      this.highlighter = rangy.createHighlighter();
-
-      this.highlighter.addClassApplier(rangy.createClassApplier("highlight_yellow", {
-        ignoreWhiteSpace: true,
-        tagNames: ["span", "a"]
-      }));
-
-      this.highlighter.addClassApplier(rangy.createClassApplier("highlight_green", {
-        ignoreWhiteSpace: true,
-        tagNames: ["span", "a"]
-      }));
-
-      this.highlighter.addClassApplier(rangy.createClassApplier("highlight_blue", {
-        ignoreWhiteSpace: true,
-        tagNames: ["span", "a"]
-      }));
-
-      this.highlighter.addClassApplier(rangy.createClassApplier("highlight_pink", {
-        ignoreWhiteSpace: true,
-        tagNames: ["span", "a"]
-      }));
-
-      this.highlighter.addClassApplier(rangy.createClassApplier("highlight_underline", {
-        ignoreWhiteSpace: true,
-        tagNames: ["span", "a"]
-      }));
-
-    },
-
-    setFontAndada: function(){
-      this.setFont("andada");
-    },
-
-    setFontLato: function(){
-      this.setFont("lato");
-    },
-
-    setFontPtSerif: function(){
-      this.setFont("pt-serif");
-    },
-
-    setFontPtSans: function(){
-      this.setFont("pt-sans");
-    },
-
-    base64encode: function(str){
-      return btoa(unescape(encodeURIComponent(str)));
-    },
-
-    base64decode: function(str){
-      return decodeURIComponent(escape(atob(str)));
-    },
-
-    clearSelection: function(){
-      if (window.getSelection) {
-        if (window.getSelection().empty) {  // Chrome
-          window.getSelection().empty();
-        } else if (window.getSelection().removeAllRanges) {  // Firefox
-          window.getSelection().removeAllRanges();
-        }
-      } else if (document.selection) {  // IE?
-        document.selection.empty();
-      }
-    },
-
-    // Public methods
-
-    setFont: function(fontName){
-      $("#ss-wrapper-font").removeClass().addClass("ss-wrapper-"+fontName);
-    },
-
-    setSize: function(size){
-      $("#ss-wrapper-size").removeClass().addClass("ss-wrapper-"+size);
-    },
-
-    setTheme: function(theme){
-      $("body, #ss-wrapper-theme").removeClass().addClass("ss-wrapper-"+theme);
-    },
-
-    setComment: function(comment, inputId){
-      $("#"+inputId).val(ssReader.base64decode(comment));
-      $("#"+inputId).trigger("input", ["true"]);
-    },
-
-    highlightSelection: function(color){
-      try {
-
-        this.highlighter.highlightSelection(color, null);
-        var range = window.getSelection().toString();
-        var params = {content: range,rangy: this.getHighlights(),color: color};
-        this.clearSelection();
-        Highlight.onReceiveHighlights(JSON.stringify(params));
-      } catch(err){
-        console.log("highlightSelection : " + err);
-      }
-    },
-
-    unHighlightSelection: function(){
-      try {
-        this.highlighter.unhighlightSelection();
-        Highlight.onReceiveHighlights(this.getHighlights());
-      } catch(err){}
-    },
-
-    getHighlights: function(){
-      try {
-        return this.highlighter.serialize();
-      } catch(err){}
-    },
-
-    setHighlights: function(serializedHighlight){
-      try {
-        this.highlighter.removeAllHighlights();
-        this.highlighter.deserialize(serializedHighlight);
-      } catch(err){}
-    },
-
-    removeAll: function(){
-      try {
-        this.highlighter.removeAllHighlights();
-      } catch(err){}
-    },
-
-    copy: function(){
-      SSBridge.onCopy(window.getSelection().toString());
-      this.clearSelection();
-    },
-
-    share: function(){
-      SSBridge.onShare(window.getSelection().toString());
-      this.clearSelection();
-    },
-
-    search: function(){
-      SSBridge.onSearch(window.getSelection().toString());
-      this.clearSelection();
-    }
-  });
-
-   if(typeof ssReader !== "undefined"){
-      ssReader.init();
-    }
-
-    $(".verse").click(function(){
-      SSBridge.onVerseClick(ssReader.base64encode($(this).attr("verse")));
+        $(this).after(container);
     });
+});
 
-    $("code").each(function(i){
-      var textarea = $("<textarea class='textarea'/>").attr("id", "input-"+i).on("input propertychange", function(event, isInit) {
-        $(this).css({'height': 'auto', 'overflow-y': 'hidden'}).height(this.scrollHeight);
-        $(this).next().css({'height': 'auto', 'overflow-y': 'hidden'}).height(this.scrollHeight);
-
-        if (!isInit) {
-          var that = this;
-          if (timeout !== null) {
-            clearTimeout(timeout);
-          }
-          timeout = setTimeout(function () {
-            SSBridge.onCommentsClick(
-                ssReader.base64encode($(that).val()),
-                $(that).attr("id")
-            );
-          }, 1000);
-        }
-      });
-      var border = $("<div class='textarea-border' />");
-      var container = $("<div class='textarea-container' />");
-
-      $(textarea).appendTo(container);
-      $(border).appendTo(container);
-
-      $(this).after(container);
+function array_diff(array1, array2) {
+    var difference = $.grep(array1, function (el) {
+        return $.inArray(el, array2) < 0
     });
-  });
-
-function array_diff(array1, array2){
-    var difference = $.grep(array1, function(el) { return $.inArray(el,array2) < 0});
-    return difference.concat($.grep(array2, function(el) { return $.inArray(el,array1) < 0}));;
+    return difference.concat($.grep(array2, function (el) {
+        return $.inArray(el, array1) < 0
+    }));
+    ;
 }
 
 //For testing purpose only
-function sleep(seconds)
-{
-  var e = new Date().getTime() + (seconds * 1000);
-  while (new Date().getTime() <= e) {}
+function sleep(seconds) {
+    var e = new Date().getTime() + (seconds * 1000);
+    while (new Date().getTime() <= e) {
+    }
 }
 
 // Mock objects for testing purpose
@@ -587,8 +436,8 @@ function sleep(seconds)
     },
 
     getDirection : function() {
-        //var direction = "VERTICAL";
-        var direction = "HORIZONTAL";
+        //var direction = Direction.VERTICAL;
+        var direction = Direction.HORIZONTAL;
         console.warn("-> Mock call to FolioPageFragment.getDirection(), return " + direction);
         return direction;
     },
@@ -649,19 +498,19 @@ function isElementVisible(element, isHorizontal) {
 
     var rect = element.getBoundingClientRect();
 
-    if(isHorizontal)
+    if (isHorizontal)
         return rect.left > 0;
     else
         return rect.top > 0;
 }
 
 /**
-Gets the first visible span from the displayed chapter and if it has id then usingId is true with
-value as span id else usingId is false with value as span index. usingId and value is forwarded to
-FolioPageFragment#storeFirstVisibleSpan(boolean, String) JavascriptInterface.
+ Gets the first visible span from the displayed chapter and if it has id then usingId is true with
+ value as span id else usingId is false with value as span index. usingId and value is forwarded to
+ FolioPageFragment#storeFirstVisibleSpan(boolean, String) JavascriptInterface.
 
-@param {boolean} isHorizontal - scrolling type of DirectionalViewpager#mDirection
-*/
+ @param {boolean} isHorizontal - scrolling type of DirectionalViewpager#mDirection
+ */
 function getFirstVisibleSpan(isHorizontal) {
 
     var spanCollection = document.querySelectorAll("span.sentence");
@@ -674,7 +523,7 @@ function getFirstVisibleSpan(isHorizontal) {
     var spanIndex = 0;
     var spanElement;
 
-    for (var i = 0 ; i < spanCollection.length ; i++) {
+    for (var i = 0; i < spanCollection.length; i++) {
         if (isElementVisible(spanCollection[i], isHorizontal)) {
             spanIndex = i;
             spanElement = spanCollection[i];
@@ -688,11 +537,11 @@ function getFirstVisibleSpan(isHorizontal) {
 }
 
 /**
-Scrolls the web page to particular span using id or index
+ Scrolls the web page to particular span using id or index
 
-@param {boolean} usingId - if span tag has id then true or else false
-@param {number} value - if usingId true then span id else span index
-*/
+ @param {boolean} usingId - if span tag has id then true or else false
+ @param {number} value - if usingId true then span id else span index
+ */
 function scrollToSpan(usingId, value) {
 
     if (usingId) {
@@ -700,7 +549,7 @@ function scrollToSpan(usingId, value) {
         if (spanElement)
             scrollToElement(spanElement);
     } else {
-        var spanCollection = document.querySelectorAll("span.sentence");;
+        var spanCollection = document.querySelectorAll("span.sentence");
         if (spanCollection.length == 0 || value < 0 || value >= spanCollection.length
             || value == null) {
             LoadingView.hide();
@@ -712,7 +561,7 @@ function scrollToSpan(usingId, value) {
     LoadingView.hide();
 }
 
-function goToHighlight(highlightId){
+function goToHighlight(highlightId) {
     var element = document.getElementById(highlightId.toString());
     if (element)
         scrollToElement(element);
@@ -731,17 +580,19 @@ function goToAnchor(anchorId) {
 function scrollToLast() {
     console.log("-> scrollToLast");
 
-    var direction = FolioPageFragment.getDirection();
+    var direction = FolioWebView.getDirection();
     var scrollingElement = bodyOrHtml();
 
-    if (direction == "VERTICAL") {
-        scrollingElement.scrollTop =
-        scrollingElement.scrollHeight - document.documentElement.clientHeight;
-
-    } else if (direction == "HORIZONTAL") {
-        scrollingElement.scrollLeft =
-        scrollingElement.scrollWidth - document.documentElement.clientWidth;
-        WebViewPager.setPageToLast();
+    switch (direction) {
+        case Direction.VERTICAL:
+            scrollingElement.scrollTop =
+                scrollingElement.scrollHeight - document.documentElement.clientHeight;
+            break;
+        case Direction.HORIZONTAL:
+            scrollingElement.scrollLeft =
+                scrollingElement.scrollWidth - document.documentElement.clientWidth;
+            WebViewPager.setPageToLast();
+            break;
     }
 
     LoadingView.hide();
@@ -750,15 +601,17 @@ function scrollToLast() {
 function scrollToFirst() {
     console.log("-> scrollToFirst");
 
-    var direction = FolioPageFragment.getDirection();
+    var direction = FolioWebView.getDirection();
     var scrollingElement = bodyOrHtml();
 
-    if (direction == "VERTICAL") {
-        scrollingElement.scrollTop = 0;
-
-    } else if (direction == "HORIZONTAL") {
-        scrollingElement.scrollLeft = 0;
-        WebViewPager.setPageToFirst();
+    switch (direction) {
+        case Direction.VERTICAL:
+            scrollingElement.scrollTop = 0;
+            break;
+        case Direction.HORIZONTAL:
+            scrollingElement.scrollLeft = 0;
+            WebViewPager.setPageToFirst();
+            break;
     }
 
     LoadingView.hide();
@@ -767,12 +620,6 @@ function scrollToFirst() {
 function getCompatMode() {
     FolioWebView.setCompatMode(document.compatMode);
 }
-
-var scrollWidth;
-var horizontalInterval;
-var horizontalIntervalPeriod = 1000;
-var horizontalIntervalCounter = 0;
-var horizontalIntervalLimit = 3000;
 
 function horizontalRecheck() {
 
@@ -895,49 +742,47 @@ function bodyOrHtml() {
 function scrollToElement(element) {
 
     var scrollingElement = bodyOrHtml();
+    var direction = FolioWebView.getDirection();
 
-    if (FolioPageFragment.getDirection() == "VERTICAL") {
+    switch (direction) {
 
-        var topDistraction = FolioPageFragment.getTopDistraction();
-        var pageTop = scrollingElement.scrollTop + topDistraction;
-        var pageBottom = scrollingElement.scrollTop + document.documentElement.clientHeight
-                            - FolioPageFragment.getBottomDistraction();
+        case Direction.VERTICAL:
+            var topDistraction = FolioWebView.getTopDistraction(DisplayUnit.DP);
+            var pageTop = scrollingElement.scrollTop + topDistraction;
+            var pageBottom = scrollingElement.scrollTop + document.documentElement.clientHeight
+                - FolioWebView.getBottomDistraction(DisplayUnit.DP);
 
-        var elementTop = element.offsetTop - 20;
-        elementTop = elementTop < 0 ? 0 : elementTop;
-        var elementBottom = element.offsetTop + element.offsetHeight + 20;
-        var needToScroll = (elementTop < pageTop || elementBottom > pageBottom);
+            var elementTop = element.offsetTop - 20;
+            elementTop = elementTop < 0 ? 0 : elementTop;
+            var elementBottom = element.offsetTop + element.offsetHeight + 20;
+            var needToScroll = (elementTop < pageTop || elementBottom > pageBottom);
 
-        //console.log("-> topDistraction = " + topDistraction);
-        //console.log("-> pageTop = " + pageTop);
-        //console.log("-> elementTop = " + elementTop);
-        //console.log("-> pageBottom = " + pageBottom);
-        //console.log("-> elementBottom = " + elementBottom);
+            //console.log("-> topDistraction = " + topDistraction);
+            //console.log("-> pageTop = " + pageTop);
+            //console.log("-> elementTop = " + elementTop);
+            //console.log("-> pageBottom = " + pageBottom);
+            //console.log("-> elementBottom = " + elementBottom);
 
-        if (needToScroll) {
-            var newScrollTop = elementTop - topDistraction;
-            newScrollTop = newScrollTop < 0 ? 0 : newScrollTop;
-            //console.log("-> Scrolled to = " + newScrollTop);
-            scrollingElement.scrollTop = newScrollTop;
-        }
+            if (needToScroll) {
+                var newScrollTop = elementTop - topDistraction;
+                newScrollTop = newScrollTop < 0 ? 0 : newScrollTop;
+                //console.log("-> Scrolled to = " + newScrollTop);
+                scrollingElement.scrollTop = newScrollTop;
+            }
+            break;
 
-    } else if (FolioPageFragment.getDirection() == "HORIZONTAL") {
-
-        var clientWidth = document.documentElement.clientWidth;
-        var pageIndex = Math.floor(element.offsetLeft / clientWidth);
-        var newScrollLeft = clientWidth * pageIndex;
-        //console.log("-> newScrollLeft = " + newScrollLeft);
-        scrollingElement.scrollLeft = newScrollLeft;
-        WebViewPager.setCurrentPage(pageIndex);
+        case Direction.HORIZONTAL:
+            var clientWidth = document.documentElement.clientWidth;
+            var pageIndex = Math.floor(element.offsetLeft / clientWidth);
+            var newScrollLeft = clientWidth * pageIndex;
+            //console.log("-> newScrollLeft = " + newScrollLeft);
+            scrollingElement.scrollLeft = newScrollLeft;
+            WebViewPager.setCurrentPage(pageIndex);
+            break;
     }
 
     return element;
 }
-
-var searchResults = [];
-var lastSearchQuery = null;
-var testCounter = 0;
-var searchResultsInvisible = true;
 
 // Testing purpose calls
 function test() {
@@ -950,9 +795,8 @@ function test() {
     if (testCounter == 1) {
 
         getCompatMode();
-        wrappingSentencesWithinPTags();
 
-        if (FolioPageFragment.getDirection() == "HORIZONTAL")
+        if (FolioWebView.getDirection() == Direction.HORIZONTAL)
             initHorizontalDirection();
 
         highlightSearchResult(searchQuery, 1);
@@ -996,7 +840,7 @@ function applySearchResultClass(searchQuery) {
     var bodyElement = document.getElementsByTagName('body')[0];
     var elementsInBody = bodyElement.getElementsByTagName('*');
 
-    for (var i = 0 ; i < elementsInBody.length ; i++) {
+    for (var i = 0; i < elementsInBody.length; i++) {
 
         var childNodes = elementsInBody[i].childNodes;
 
@@ -1019,11 +863,11 @@ function applySearchResultClass(searchQuery) {
         }
     }
 
-    for (var i = 0 ; i < searchChildNodesArray.length ; i++) {
+    for (var i = 0; i < searchChildNodesArray.length; i++) {
 
         var searchChildNodes = searchChildNodesArray[i];
 
-        for (var j = 0 ; j < searchChildNodes.length ; j++) {
+        for (var j = 0; j < searchChildNodes.length; j++) {
 
             if (searchChildNodes[j].className == "search-result")
                 searchResults.push(searchChildNodes[j]);
@@ -1044,7 +888,7 @@ function getSearchChildNodes(text, searchQuery) {
     var textChunk = "";
     var searchChildNodes = [];
 
-    for (var i = 0, j = 0 ; i < text.length ; i++) {
+    for (var i = 0, j = 0; i < text.length; i++) {
 
         textChunk += text[i];
 
@@ -1092,7 +936,7 @@ function getSearchChildNodes(text, searchQuery) {
 
 function makeSearchResultsVisible() {
 
-    for (var i = 0 ; i < searchResults.length ; i++) {
+    for (var i = 0; i < searchResults.length; i++) {
         searchResults[i].className = "search-result-visible";
     }
     searchResultsInvisible = false;
@@ -1102,7 +946,7 @@ function makeSearchResultsInvisible() {
 
     if (searchResultsInvisible)
         return;
-    for (var i = 0 ; i < searchResults.length ; i++) {
+    for (var i = 0; i < searchResults.length; i++) {
         if (searchResults[i].className == "search-result-visible")
             searchResults[i].className = "search-result-invisible";
     }
@@ -1122,7 +966,7 @@ function applySearchResultVisibleClass(occurrenceInChapter) {
 
 function resetSearchResults() {
 
-    for (var i = 0 ; i < searchResults.length ; i++) {
+    for (var i = 0; i < searchResults.length; i++) {
         searchResults[i].outerHTML = searchResults[i].innerHTML;
     }
 
@@ -1156,15 +1000,6 @@ function clearSelection() {
     window.getSelection().removeAllRanges();
 }
 
-function onClickHtml() {
-    console.debug("-> onClickHtml");
-    if (FolioWebView.isPopupShowing()) {
-        FolioWebView.dismissPopupWindow();
-    } else {
-        FolioWebView.toggleSystemUI();
-    }
-}
-
 // onClick method set for highlights
 function onClickHighlight(element) {
     console.log("-> onClickHighlight");
@@ -1184,7 +1019,110 @@ function onTextSelectionItemClicked(id) {
     if (selectionType == "Range") {
         selectedText = window.getSelection().toString();
     } else {
-       selectedText = thisHighlight.textContent;
+        selectedText = thisHighlight.textContent;
     }
     FolioWebView.onTextSelectionItemClicked(id, selectedText);
+}
+
+function onClickHtml() {
+    console.debug("-> onClickHtml");
+    if (FolioWebView.isPopupShowing()) {
+        FolioWebView.dismissPopupWindow();
+    } else {
+        FolioWebView.toggleSystemUI();
+    }
+
+    setTimeout(getLastReadPosition, 1000);
+}
+
+function getLastReadPosition() {
+
+    viewportRect = constructDOMRect(FolioWebView.getViewportRect(DisplayUnit.CSS_PX));
+    var node = getFirstVisibleNode(document.body) || document.body;
+
+    var cfi;
+    if (node.nodeType === Node.TEXT_NODE) {
+        cfi = EPUBcfi.Generator.generateCharacterOffsetCFIComponent(node, 0);
+    } else {
+        cfi = EPUBcfi.Generator.generateElementCFIComponent(node);
+    }
+
+    console.debug("-> " + cfi);
+    viewportRect = null;
+}
+
+function constructDOMRect(rectJsonString) {
+    var rectJson = JSON.parse(rectJsonString);
+    return new DOMRect(rectJson.x, rectJson.y, rectJson.width, rectJson.height);
+}
+
+/**
+ * Gets the first partially or completely visible node in viewportRect
+ * @param node
+ * @returns ELEMENT_NODE / TEXT_NODE / null
+ */
+function getFirstVisibleNode(node) {
+
+    var range = document.createRange();
+    range.selectNodeContents(node);
+    var rect = RangeFix.getBoundingClientRect(range);
+    if (rect == null)
+        return null;
+
+    var intersects = rectIntersects(viewportRect, rect);
+    var contains = rectContains(viewportRect, rect);
+
+    if (contains) {
+        // node's rect is completely inside viewportRect.
+        return node;
+
+    } else if (intersects) {
+
+        var childNodes = node.childNodes;
+        for (var i = 0; i < childNodes.length; i++) {
+
+            // EPUB CFI ignores nodes other than ELEMENT_NODE and TEXT_NODE
+            // http://www.idpf.org/epub/linking/cfi/epub-cfi.html#sec-path-child-ref
+
+            if (childNodes[i].nodeType === Node.ELEMENT_NODE || childNodes[i].nodeType === Node.TEXT_NODE) {
+                var childNode = getFirstVisibleNode(childNodes[i]);
+                if (childNode) {
+                    return childNode;
+                }
+            }
+        }
+
+        // No children found or no child's rect completely inside viewportRect,
+        // so returning this node as it's rect intersected with viewportRect.
+        return node;
+    }
+    return null;
+}
+
+/**
+ * Returns true iff the two specified rectangles intersect. In no event are
+ * either of the rectangles modified.
+ *
+ * @param a The first rectangle being tested for intersection
+ * @param b The second rectangle being tested for intersection
+ * @return true iff the two specified rectangles intersect.
+ */
+function rectIntersects(a, b) {
+    return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+}
+
+/**
+ * Returns true iff the specified rectangle b is inside or equal to
+ * rectangle b. An empty rectangle never contains another rectangle.
+ *
+ * @param a The rectangle being tested whether rectangle b is inside this or not.
+ * @param b The rectangle being tested for containment.
+ * @return true iff the specified rectangle r is inside or equal to this
+ *              rectangle
+ */
+function rectContains(a, b) {
+    // check for empty first
+    return a.left < a.right && a.top < a.bottom
+        // now check for containment
+        && a.left <= b.left && a.top <= b.top && a.right >= b.right && a.bottom >= b.bottom;
 }

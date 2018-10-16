@@ -65,6 +65,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.readium.r2.shared.Link;
+import org.readium.r2.shared.Locator;
 
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -84,21 +85,6 @@ public class FolioPageFragment
     private static final String KEY_IS_SMIL_AVAILABLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.IS_SMIL_AVAILABLE";
     private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE = "BUNDLE_READ_POSITION_CONFIG_CHANGE";
     public static final String BUNDLE_SEARCH_ITEM = "BUNDLE_SEARCH_ITEM";
-
-    private static final int ACTION_ID_COPY = 1001;
-    private static final int ACTION_ID_SHARE = 1002;
-    private static final int ACTION_ID_HIGHLIGHT = 1003;
-    private static final int ACTION_ID_DEFINE = 1004;
-
-    private static final int ACTION_ID_HIGHLIGHT_COLOR = 1005;
-    private static final int ACTION_ID_DELETE = 1006;
-
-    private static final int ACTION_ID_HIGHLIGHT_YELLOW = 1007;
-    private static final int ACTION_ID_HIGHLIGHT_GREEN = 1008;
-    private static final int ACTION_ID_HIGHLIGHT_BLUE = 1009;
-    private static final int ACTION_ID_HIGHLIGHT_PINK = 1010;
-    private static final int ACTION_ID_HIGHLIGHT_UNDERLINE = 1011;
-    private static final String KEY_TEXT_ELEMENTS = "text_elements";
     private static final String SPINE_ITEM = "spine_item";
 
     private String mHtmlString = null;
@@ -121,7 +107,6 @@ public class FolioPageFragment
     private FolioActivityCallback mActivityCallback;
 
     private int mTotalMinutes;
-    private String mSelectedText;
     private Animation mFadeInAnimation, mFadeOutAnimation;
 
     public Link spineItem;
@@ -362,24 +347,6 @@ public class FolioPageFragment
         }
     }
 
-    @SuppressWarnings("unused")
-    @JavascriptInterface
-    public String getDirection() {
-        return mActivityCallback.getDirection().toString();
-    }
-
-    @SuppressWarnings("unused")
-    @JavascriptInterface
-    public int getTopDistraction() {
-        return mActivityCallback.getTopDistraction();
-    }
-
-    @SuppressWarnings("unused")
-    @JavascriptInterface
-    public int getBottomDistraction() {
-        return mActivityCallback.getBottomDistraction();
-    }
-
     public void scrollToLast() {
 
         boolean isPageLoading = loadingView == null || loadingView.getVisibility() == View.VISIBLE;
@@ -462,9 +429,6 @@ public class FolioPageFragment
 
             mWebview.loadUrl("javascript:getCompatMode()");
             mWebview.loadUrl("javascript:alert(getReadingTime())");
-
-            if (!hasMediaOverlay)
-                mWebview.loadUrl("javascript:wrappingSentencesWithinPTags()");
 
             if (mActivityCallback.getDirection() == Config.Direction.HORIZONTAL)
                 mWebview.loadUrl("javascript:initHorizontalDirection()");
@@ -601,8 +565,7 @@ public class FolioPageFragment
         @Override
         public boolean onConsoleMessage(final ConsoleMessage cm) {
             super.onConsoleMessage(cm);
-            String msg = cm.message() + ", From line " + cm.lineNumber() + " of " +
-                    cm.sourceId();
+            String msg = cm.message() + " [" + cm.sourceId() + ":" + cm.lineNumber() + "]";
             return FolioWebView.onWebViewConsoleMessage(cm, "WebViewConsole", msg);
         }
 

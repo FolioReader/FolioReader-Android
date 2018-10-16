@@ -3,6 +3,7 @@ package com.folioreader.ui.folio.activity;
 import android.graphics.Rect;
 
 import com.folioreader.Config;
+import com.folioreader.model.DisplayUnit;
 import com.folioreader.model.ReadPosition;
 
 import java.lang.ref.WeakReference;
@@ -27,11 +28,11 @@ public interface FolioActivityCallback {
 
     void setNightMode();
 
-    int getTopDistraction();
+    int getTopDistraction(final DisplayUnit unit);
 
-    int getBottomDistraction();
+    int getBottomDistraction(final DisplayUnit unit);
 
-    Rect getViewportRect();
+    Rect getViewportRect(final DisplayUnit unit);
 
     WeakReference<FolioActivity> getActivity();
 }

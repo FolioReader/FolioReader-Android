@@ -57,6 +57,7 @@ import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.FolioReader;
 import com.folioreader.R;
+import com.folioreader.model.DisplayUnit;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.ReadPosition;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
@@ -84,6 +85,7 @@ import org.readium.r2.streamer.server.Server;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import static com.folioreader.Constants.CHAPTER_SELECTED;
 import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
@@ -465,9 +467,9 @@ public class FolioActivity
 
         int portNumber = getIntent().getIntExtra(Config.INTENT_PORT, Constants.PORT_NUMBER);
         r2StreamerServer = new Server(portNumber);
-        r2StreamerServer.start();
         r2StreamerServer.addEpub(pubBox.getPublication(), pubBox.getContainer(),
                 "/" + bookFileName, null);
+        r2StreamerServer.start();
     }
 
     public void onBookInitFailure() {
@@ -556,19 +558,29 @@ public class FolioActivity
     }
 
     /**
-     * @return returns height of status bar + app bar in dp.
+     * @return returns height of status bar + app bar as requested by param {@link DisplayUnit}
      */
     @Override
-    public int getTopDistraction() {
+    public int getTopDistraction(final DisplayUnit unit) {
+
         int topDistraction = 0;
         if (!distractionFreeMode) {
             topDistraction = getStatusBarHeight();
             if (actionBar != null)
                 topDistraction += actionBar.getHeight();
         }
-        topDistraction /= density;
-        Log.v(LOG_TAG, "-> getTopDistraction = " + topDistraction);
-        return topDistraction;
+
+        switch (unit) {
+            case PX:
+                return topDistraction;
+
+            case DP:
+                topDistraction /= density;
+                return topDistraction;
+
+            default:
+                throw new IllegalArgumentException("-> Illegal argument -> unit = " + unit);
+        }
     }
 
     /**
@@ -576,40 +588,78 @@ public class FolioActivity
      * In mobile landscape mode, navigation bar is either to left or right of the screen.
      * In tablet, navigation bar is always at bottom of the screen.
      *
-     * @return returns height of navigation bar in dp.
+     * @return returns height of navigation bar as requested by param {@link DisplayUnit}
      */
     @Override
-    public int getBottomDistraction() {
+    public int getBottomDistraction(final DisplayUnit unit) {
+
         int bottomDistraction = 0;
         if (!distractionFreeMode)
             bottomDistraction = appBarLayout.getNavigationBarHeight();
-        bottomDistraction /= density;
-        Log.v(LOG_TAG, "-> getBottomDistraction = " + bottomDistraction);
-        return bottomDistraction;
+
+        switch (unit) {
+            case PX:
+                return bottomDistraction;
+
+            case DP:
+                bottomDistraction /= density;
+                return bottomDistraction;
+
+            default:
+                throw new IllegalArgumentException("-> Illegal argument -> unit = " + unit);
+        }
     }
 
     /**
-     * Calculates the Rect for visible viewport of the webview.
+     * Calculates the Rect for visible viewport of the webview in PX.
      * Visible viewport changes in following cases -
      * 1. In distraction free mode,
      * 2. In mobile landscape mode as navigation bar is placed either on left or right side,
      * 3. In tablets, navigation bar is always placed at bottom of the screen.
      */
-    @Override
-    public Rect getViewportRect() {
-        //Log.v(LOG_TAG, "-> getViewportRect");
+    private Rect computeViewportRect() {
+        //Log.v(LOG_TAG, "-> computeViewportRect");
 
         Rect viewportRect = new Rect(appBarLayout.getInsets());
         if (distractionFreeMode)
             viewportRect.left = 0;
-        viewportRect.top = (int) (getTopDistraction() * density);
+        viewportRect.top = getTopDistraction(DisplayUnit.PX);
         if (distractionFreeMode) {
             viewportRect.right = displayMetrics.widthPixels;
         } else {
             viewportRect.right = displayMetrics.widthPixels - viewportRect.right;
         }
-        viewportRect.bottom = displayMetrics.heightPixels - ((int) (getBottomDistraction() * density));
+        viewportRect.bottom = displayMetrics.heightPixels -
+                getBottomDistraction(DisplayUnit.PX);
+
         return viewportRect;
+    }
+
+    @Override
+    public Rect getViewportRect(DisplayUnit unit) {
+
+        Rect viewportRect = computeViewportRect();
+        switch (unit) {
+            case PX:
+                return viewportRect;
+
+            case DP:
+                viewportRect.left /= density;
+                viewportRect.top /= density;
+                viewportRect.right /= density;
+                viewportRect.bottom /= density;
+                return viewportRect;
+
+            case CSS_PX:
+                viewportRect.left = (int) Math.ceil(viewportRect.left / density);
+                viewportRect.top = (int) Math.ceil(viewportRect.top / density);
+                viewportRect.right = (int) Math.ceil(viewportRect.right / density);
+                viewportRect.bottom = (int) Math.ceil(viewportRect.bottom / density);
+                return viewportRect;
+
+            default:
+                throw new IllegalArgumentException("-> Illegal argument -> unit = " + unit);
+        }
     }
 
     @Override

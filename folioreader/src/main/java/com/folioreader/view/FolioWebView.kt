@@ -25,6 +25,7 @@ import android.widget.Toast
 import com.folioreader.Config
 import com.folioreader.Constants
 import com.folioreader.R
+import com.folioreader.model.DisplayUnit
 import com.folioreader.model.HighLight
 import com.folioreader.model.HighlightImpl.HighlightStyle
 import com.folioreader.model.sqlite.HighLightTable
@@ -114,6 +115,30 @@ class FolioWebView : WebView {
 
     private enum class LastScrollType {
         USER, PROGRAMMATIC
+    }
+
+    @JavascriptInterface
+    fun getDirection(): String {
+        return folioActivityCallback.direction.toString()
+    }
+
+    @JavascriptInterface
+    fun getTopDistraction(unitString: String): Int {
+        val unit = DisplayUnit.valueOf(unitString)
+        return folioActivityCallback.getTopDistraction(unit)
+    }
+
+    @JavascriptInterface
+    fun getBottomDistraction(unitString: String): Int {
+        val unit = DisplayUnit.valueOf(unitString)
+        return folioActivityCallback.getBottomDistraction(unit)
+    }
+
+    @JavascriptInterface
+    fun getViewportRect(unitString: String): String {
+        val unit = DisplayUnit.valueOf(unitString)
+        val rect = folioActivityCallback.getViewportRect(unit)
+        return UiUtil.rectToDOMRectJson(rect)
     }
 
     @JavascriptInterface
@@ -630,7 +655,7 @@ class FolioWebView : WebView {
     private fun computeTextSelectionRect(currentSelectionRect: Rect) {
         Log.v(LOG_TAG, "-> computeTextSelectionRect")
 
-        val viewportRect = folioActivityCallback.viewportRect
+        val viewportRect = folioActivityCallback.getViewportRect(DisplayUnit.PX)
         Log.d(LOG_TAG, "-> viewportRect -> $viewportRect")
 
         if (!Rect.intersects(viewportRect, currentSelectionRect)) {

@@ -17,7 +17,7 @@ ext {
     siteUrl = 'https://github.com/FolioReader/FolioReader-Android'
     gitUrl = 'https://github.com/FolioReader/FolioReader-Android.git'
 
-    libraryVersion = FOLIOREADER_SDK_VERSION
+    libraryVersion = folioreaderSdkVersion
 
     developerId = 'mobisystech'
     developerName = 'Folio Reader'
@@ -30,13 +30,13 @@ ext {
 
 android {
     useLibrary 'org.apache.http.legacy'
-    compileSdkVersion ANDROID_COMPILE_SDK_VERSION
+    compileSdkVersion androidCompileSdkVersion
 
     defaultConfig {
-        minSdkVersion ANDROID_MIN_SDK
-        targetSdkVersion ANDROID_TARGET_SDK_VERSION
-        versionCode VERSION_CODE
-        versionName VERSION_NAME
+        minSdkVersion androidMinSdkVersion
+        targetSdkVersion androidTargetSdkVersion
+        versionCode projectVersionCode
+        versionName projectVersionName
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -85,27 +85,27 @@ apply from: '../folioreader/bintray/installv1.gradle'
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation "com.android.support.constraint:constraint-layout:$CONSTRAINT_LAYOUT_VERSION"
-    implementation "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
-    implementation "com.android.support:recyclerview-v7:$ANDROID_LIB_VERSION"
-    implementation "com.android.support:support-v4:$ANDROID_LIB_VERSION"
-    implementation "com.android.support:design:$ANDROID_LIB_VERSION"
+    implementation "com.android.support.constraint:constraint-layout:$constraintLayoutVersion"
+    implementation "com.android.support:appcompat-v7:$androidSupportLibVersion"
+    implementation "com.android.support:recyclerview-v7:$androidSupportLibVersion"
+    implementation "com.android.support:support-v4:$androidSupportLibVersion"
+    implementation "com.android.support:design:$androidSupportLibVersion"
 
     implementation 'org.slf4j:slf4j-android:1.7.25'
     implementation 'com.daimajia.swipelayout:library:1.2.0@aar'
 
     //Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
     implementation 'org.greenrobot:eventbus:3.1.1'
 
-    implementation "com.fasterxml.jackson.core:jackson-core:$JACKSON_VERSION"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:$JACKSON_VERSION"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$JACKSON_VERSION"
+    implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
 
     // R2 modules
-    implementation "com.github.codetoart:r2-shared-kotlin:$R2_SHARED_KOTLIN_VERSION"
-    implementation("com.github.codetoart:r2-streamer-kotlin:$R2_STREAMER_KOTLIN_VERSION") {
+    implementation "com.github.codetoart:r2-shared-kotlin:$r2SharedKotlinVersion"
+    implementation("com.github.codetoart:r2-streamer-kotlin:$r2StreamerKotlinVersion") {
         exclude group: "org.slf4j", module: "slf4j-api"
     }
 
