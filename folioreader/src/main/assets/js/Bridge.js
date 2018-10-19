@@ -118,7 +118,7 @@ function audioMarkID(className, id) {
     audioMarkClass = className
     var el = document.getElementById(id);
 
-    scrollToElement(el);
+    scrollToNode(el);
     el.classList.add(className)
 }
 
@@ -210,7 +210,7 @@ function getSentenceWithIndex(className) {
 
     var text = sentence.innerText || sentence.textContent;
 
-    scrollToElement(sentence);
+    scrollToNode(sentence);
 
     if (audioMarkClass) {
         removeAllClasses(audioMarkClass);
@@ -536,35 +536,10 @@ function getFirstVisibleSpan(isHorizontal) {
     FolioPageFragment.storeFirstVisibleSpan(usingId, value);
 }
 
-/**
- Scrolls the web page to particular span using id or index
-
- @param {boolean} usingId - if span tag has id then true or else false
- @param {number} value - if usingId true then span id else span index
- */
-function scrollToSpan(usingId, value) {
-
-    if (usingId) {
-        var spanElement = document.getElementById(value);
-        if (spanElement)
-            scrollToElement(spanElement);
-    } else {
-        var spanCollection = document.querySelectorAll("span.sentence");
-        if (spanCollection.length == 0 || value < 0 || value >= spanCollection.length
-            || value == null) {
-            LoadingView.hide();
-            return;
-        }
-        scrollToElement(spanCollection[value]);
-    }
-
-    LoadingView.hide();
-}
-
 function goToHighlight(highlightId) {
     var element = document.getElementById(highlightId.toString());
     if (element)
-        scrollToElement(element);
+        scrollToNode(element);
 
     LoadingView.hide();
 }
@@ -572,7 +547,7 @@ function goToHighlight(highlightId) {
 function goToAnchor(anchorId) {
     var element = document.getElementById(anchorId);
     if (element)
-        scrollToElement(element);
+        scrollToNode(element);
 
     LoadingView.hide();
 }
@@ -728,6 +703,7 @@ function postInitHorizontalDirection() {
     FolioPageFragment.setHorizontalPageCount(pageCount);
 }
 
+// TODO -> Check if this is required?
 function bodyOrHtml() {
     if ('scrollingElement' in document) {
         return document.scrollingElement;
@@ -739,10 +715,42 @@ function bodyOrHtml() {
     return document.documentElement;
 }
 
-function scrollToElement(element) {
+/**
+ * @param {Node} node {@link ELEMENT_NODE} / {@link TEXT_NODE}
+ * @returns {Node} node {@link ELEMENT_NODE} / {@link TEXT_NODE}
+ */
+function scrollToNode(node) {
 
     var scrollingElement = bodyOrHtml();
     var direction = FolioWebView.getDirection();
+
+    // For Direction.VERTICAL
+    var nodeOffsetTop, nodeOffsetHeight;
+
+    // For Direction.HORIZONTAL
+    var nodeOffsetLeft;
+
+    switch (node.nodeType) {
+
+        case Node.TEXT_NODE:
+            var range = document.createRange();
+            range.selectNode(node);
+            var rect = RangeFix.getBoundingClientRect(range);
+            nodeOffsetTop = scrollingElement.scrollTop + rect.top;
+            nodeOffsetHeight = rect.height;
+            nodeOffsetLeft = scrollingElement.scrollLeft + rect.left;
+            break;
+
+        case Node.ELEMENT_NODE:
+            nodeOffsetTop = node.offsetTop;
+            nodeOffsetHeight = node.offsetHeight;
+            nodeOffsetLeft = node.offsetLeft;
+            break;
+
+        default:
+            console.error("-> Illegal Argument Exception, node.nodeType found " + node.nodeType);
+            return null;
+    }
 
     switch (direction) {
 
@@ -752,9 +760,9 @@ function scrollToElement(element) {
             var pageBottom = scrollingElement.scrollTop + document.documentElement.clientHeight
                 - FolioWebView.getBottomDistraction(DisplayUnit.DP);
 
-            var elementTop = element.offsetTop - 20;
+            var elementTop = nodeOffsetTop - 20;
             elementTop = elementTop < 0 ? 0 : elementTop;
-            var elementBottom = element.offsetTop + element.offsetHeight + 20;
+            var elementBottom = nodeOffsetTop + nodeOffsetHeight + 20;
             var needToScroll = (elementTop < pageTop || elementBottom > pageBottom);
 
             //console.log("-> topDistraction = " + topDistraction);
@@ -773,7 +781,7 @@ function scrollToElement(element) {
 
         case Direction.HORIZONTAL:
             var clientWidth = document.documentElement.clientWidth;
-            var pageIndex = Math.floor(element.offsetLeft / clientWidth);
+            var pageIndex = Math.floor(nodeOffsetLeft / clientWidth);
             var newScrollLeft = clientWidth * pageIndex;
             //console.log("-> newScrollLeft = " + newScrollLeft);
             scrollingElement.scrollLeft = newScrollLeft;
@@ -781,7 +789,7 @@ function scrollToElement(element) {
             break;
     }
 
-    return element;
+    return node;
 }
 
 // Testing purpose calls
@@ -961,7 +969,7 @@ function applySearchResultVisibleClass(occurrenceInChapter) {
     searchResult.className = "search-result-visible";
     searchResultsInvisible = false;
 
-    scrollToElement(searchResult);
+    scrollToNode(searchResult);
 }
 
 function resetSearchResults() {
@@ -1032,10 +1040,10 @@ function onClickHtml() {
         FolioWebView.toggleSystemUI();
     }
 
-    setTimeout(getLastReadPosition, 1000);
+    //setTimeout(computeLastReadCfi, 1000);
 }
 
-function getLastReadPosition() {
+function computeLastReadCfi() {
 
     viewportRect = constructDOMRect(FolioWebView.getViewportRect(DisplayUnit.CSS_PX));
     var node = getFirstVisibleNode(document.body) || document.body;
@@ -1047,8 +1055,9 @@ function getLastReadPosition() {
         cfi = EPUBcfi.Generator.generateElementCFIComponent(node);
     }
 
-    console.debug("-> " + cfi);
+    cfi = EPUBcfi.Generator.generateCompleteCFI("", cfi);
     viewportRect = null;
+    FolioPageFragment.storeLastReadCfi(cfi);
 }
 
 function constructDOMRect(rectJsonString) {
@@ -1058,13 +1067,13 @@ function constructDOMRect(rectJsonString) {
 
 /**
  * Gets the first partially or completely visible node in viewportRect
- * @param node
- * @returns ELEMENT_NODE / TEXT_NODE / null
+ * @param {Node} node
+ * @returns {Node} {@link ELEMENT_NODE} / {@link TEXT_NODE} / null
  */
 function getFirstVisibleNode(node) {
 
     var range = document.createRange();
-    range.selectNodeContents(node);
+    range.selectNode(node);
     var rect = RangeFix.getBoundingClientRect(range);
     if (rect == null)
         return null;
@@ -1097,6 +1106,17 @@ function getFirstVisibleNode(node) {
         return node;
     }
     return null;
+}
+
+function scrollToCfi(cfi) {
+
+    try {
+        var $node = EPUBcfi.Interpreter.getTargetElementWithPartialCFI(cfi, document);
+        scrollToNode($node[0]);
+    } catch (e) {
+        console.error("-> " + e);
+    }
+    LoadingView.hide();
 }
 
 /**

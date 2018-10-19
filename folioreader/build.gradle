@@ -51,11 +51,6 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
-
     packagingOptions {
         exclude 'META-INF/ASL2.0'
         exclude 'META-INF/DEPENDENCIES.txt'
@@ -104,9 +99,12 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
 
     // R2 modules
-    implementation "com.github.codetoart:r2-shared-kotlin:$r2SharedKotlinVersion"
-    implementation("com.github.codetoart:r2-streamer-kotlin:$r2StreamerKotlinVersion") {
+    api("com.github.codetoart:r2-shared-kotlin:$r2SharedKotlinVersion") {
+        changing = true
+    }
+    api("com.github.codetoart:r2-streamer-kotlin:$r2StreamerKotlinVersion") {
         exclude group: "org.slf4j", module: "slf4j-api"
+        changing = true
     }
 
     // To use only ReflectionUtils in Spring framework

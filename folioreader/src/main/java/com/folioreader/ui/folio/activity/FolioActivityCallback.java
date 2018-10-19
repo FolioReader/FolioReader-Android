@@ -4,7 +4,7 @@ import android.graphics.Rect;
 
 import com.folioreader.Config;
 import com.folioreader.model.DisplayUnit;
-import com.folioreader.model.ReadPosition;
+import com.folioreader.model.locators.ReadLocator;
 
 import java.lang.ref.WeakReference;
 
@@ -12,7 +12,7 @@ public interface FolioActivityCallback {
 
     int getCurrentChapterIndex();
 
-    ReadPosition getEntryReadPosition();
+    ReadLocator getEntryReadLocator();
 
     boolean goToChapter(String href);
 
@@ -20,7 +20,7 @@ public interface FolioActivityCallback {
 
     void onDirectionChange(Config.Direction newDirection);
 
-    void storeLastReadPosition(ReadPosition lastReadPosition);
+    void storeLastReadLocator(ReadLocator lastReadLocator);
 
     void toggleSystemUI();
 

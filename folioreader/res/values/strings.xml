@@ -115,4 +115,8 @@
         <item quantity="other">%d results</item>
     </plurals>
 
+    <!-- JS Calls -->
+    <string name="callComputeLastReadCfi" translatable="false">javascript:computeLastReadCfi()</string>
+    <string name="callScrollToCfi" translatable="false">javascript:scrollToCfi(\"%s\")</string>
+
 </resources>

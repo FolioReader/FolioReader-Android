@@ -59,8 +59,8 @@ import com.folioreader.FolioReader;
 import com.folioreader.R;
 import com.folioreader.model.DisplayUnit;
 import com.folioreader.model.HighlightImpl;
-import com.folioreader.model.ReadPosition;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
+import com.folioreader.model.locators.ReadLocator;
 import com.folioreader.model.search.SearchItem;
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter;
 import com.folioreader.ui.folio.adapter.SearchAdapter;
@@ -85,7 +85,6 @@ import org.readium.r2.streamer.server.Server;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import static com.folioreader.Constants.CHAPTER_SELECTED;
 import static com.folioreader.Constants.HIGHLIGHT_SELECTED;
@@ -101,8 +100,8 @@ public class FolioActivity
 
     public static final String INTENT_EPUB_SOURCE_PATH = "com.folioreader.epub_asset_path";
     public static final String INTENT_EPUB_SOURCE_TYPE = "epub_source_type";
-    public static final String EXTRA_READ_POSITION = "com.folioreader.extra.READ_POSITION";
-    private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE = "BUNDLE_READ_POSITION_CONFIG_CHANGE";
+    public static final String EXTRA_READ_LOCATOR = "com.folioreader.extra.READ_LOCATOR";
+    private static final String BUNDLE_READ_LOCATOR_CONFIG_CHANGE = "BUNDLE_READ_LOCATOR_CONFIG_CHANGE";
     private static final String BUNDLE_DISTRACTION_FREE_MODE = "BUNDLE_DISTRACTION_FREE_MODE";
     public static final String EXTRA_SEARCH_ITEM = "EXTRA_SEARCH_ITEM";
     public static final String ACTION_SEARCH_CLEAR = "ACTION_SEARCH_CLEAR";
@@ -125,8 +124,8 @@ public class FolioActivity
 
     private int currentChapterIndex;
     private FolioPageFragmentAdapter mFolioPageFragmentAdapter;
-    private ReadPosition entryReadPosition;
-    private ReadPosition lastReadPosition;
+    private ReadLocator entryReadLocator;
+    private ReadLocator lastReadLocator;
     private Bundle outState;
     private Bundle savedInstanceState;
 
@@ -197,7 +196,7 @@ public class FolioActivity
         if (action != null && action.equals(FolioReader.ACTION_CLOSE_FOLIOREADER)) {
 
             if (topActivity == null || !topActivity) {
-                // FolioActivity was already left, so no need to broadcast ReadPosition again.
+                // FolioActivity was already left, so no need to broadcast ReadLocator again.
                 // Finish activity without going through onPause() and onStop()
                 finish();
 
@@ -224,7 +223,7 @@ public class FolioActivity
 
         String action = getIntent().getAction();
         if (action != null && action.equals(FolioReader.ACTION_CLOSE_FOLIOREADER)) {
-            // FolioActivity is topActivity, so need to broadcast ReadPosition.
+            // FolioActivity is topActivity, so need to broadcast ReadLocator.
             finish();
         }
     }
@@ -512,7 +511,7 @@ public class FolioActivity
 
         FolioPageFragment folioPageFragment = getCurrentFragment();
         if (folioPageFragment == null) return;
-        entryReadPosition = folioPageFragment.getLastReadPosition();
+        entryReadLocator = folioPageFragment.getLastReadLocator();
         SearchItem searchItemVisible = folioPageFragment.searchItemVisible;
 
         direction = newDirection;
@@ -742,11 +741,11 @@ public class FolioActivity
     }
 
     @Override
-    public ReadPosition getEntryReadPosition() {
-        if (entryReadPosition != null) {
-            ReadPosition tempReadPosition = entryReadPosition;
-            entryReadPosition = null;
-            return tempReadPosition;
+    public ReadLocator getEntryReadLocator() {
+        if (entryReadLocator != null) {
+            ReadLocator tempReadLocator = entryReadLocator;
+            entryReadLocator = null;
+            return tempReadLocator;
         }
         return null;
     }
@@ -823,7 +822,7 @@ public class FolioActivity
         super.onDestroy();
 
         if (outState != null)
-            outState.putParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE, lastReadPosition);
+            outState.putSerializable(BUNDLE_READ_LOCATOR_CONFIG_CHANGE, lastReadLocator);
 
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         localBroadcastManager.unregisterReceiver(searchReceiver);
@@ -906,15 +905,15 @@ public class FolioActivity
 
         } else {
 
-            ReadPosition readPosition;
+            ReadLocator readLocator;
             if (savedInstanceState == null) {
-                readPosition = getIntent().getParcelableExtra(FolioActivity.EXTRA_READ_POSITION);
-                entryReadPosition = readPosition;
+                readLocator = getIntent().getParcelableExtra(FolioActivity.EXTRA_READ_LOCATOR);
+                entryReadLocator = readLocator;
             } else {
-                readPosition = savedInstanceState.getParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE);
-                lastReadPosition = readPosition;
+                readLocator = savedInstanceState.getParcelable(BUNDLE_READ_LOCATOR_CONFIG_CHANGE);
+                lastReadLocator = readLocator;
             }
-            currentChapterIndex = getChapterIndex(readPosition);
+            currentChapterIndex = getChapterIndex(readLocator);
             mFolioPageViewPager.setCurrentItem(currentChapterIndex);
         }
 
@@ -922,12 +921,12 @@ public class FolioActivity
                 new IntentFilter(ACTION_SEARCH_CLEAR));
     }
 
-    private int getChapterIndex(ReadPosition readPosition) {
+    private int getChapterIndex(ReadLocator readLocator) {
 
-        if (readPosition == null) {
+        if (readLocator == null) {
             return 0;
-        } else if (!TextUtils.isEmpty(readPosition.getChapterHref())) {
-            return getChapterIndex(Constants.HREF, readPosition.getChapterHref());
+        } else if (!TextUtils.isEmpty(readLocator.getHref())) {
+            return getChapterIndex(Constants.HREF, readLocator.getHref());
         }
 
         return 0;
@@ -964,9 +963,9 @@ public class FolioActivity
     }
 
     @Override
-    public void storeLastReadPosition(ReadPosition lastReadPosition) {
-        Log.v(LOG_TAG, "-> storeLastReadPosition");
-        this.lastReadPosition = lastReadPosition;
+    public void storeLastReadLocator(ReadLocator lastReadLocator) {
+        Log.v(LOG_TAG, "-> storeLastReadLocator");
+        this.lastReadLocator = lastReadLocator;
     }
 
     private void setConfig(Bundle savedInstanceState) {

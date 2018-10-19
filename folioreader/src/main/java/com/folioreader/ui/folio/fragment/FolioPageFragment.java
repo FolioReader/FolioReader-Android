@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -37,14 +38,13 @@ import com.folioreader.FolioReader;
 import com.folioreader.R;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
-import com.folioreader.model.ReadPosition;
-import com.folioreader.model.ReadPositionImpl;
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.event.ReloadDataEvent;
 import com.folioreader.model.event.RewindIndexEvent;
 import com.folioreader.model.event.UpdateHighlightEvent;
+import com.folioreader.model.locators.ReadLocator;
 import com.folioreader.model.search.SearchItem;
 import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.base.HtmlTask;
@@ -65,8 +65,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.readium.r2.shared.Link;
-import org.readium.r2.shared.Locator;
+import org.readium.r2.shared.Locations;
 
+import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -83,7 +84,7 @@ public class FolioPageFragment
     public static final String KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.BOOK_TITLE";
     public static final String KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.ui.folio.fragment.FolioPageFragment.EPUB_FILE_NAME";
     private static final String KEY_IS_SMIL_AVAILABLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.IS_SMIL_AVAILABLE";
-    private static final String BUNDLE_READ_POSITION_CONFIG_CHANGE = "BUNDLE_READ_POSITION_CONFIG_CHANGE";
+    private static final String BUNDLE_READ_LOCATOR_CONFIG_CHANGE = "BUNDLE_READ_LOCATOR_CONFIG_CHANGE";
     public static final String BUNDLE_SEARCH_ITEM = "BUNDLE_SEARCH_ITEM";
     private static final String SPINE_ITEM = "spine_item";
 
@@ -93,7 +94,7 @@ public class FolioPageFragment
     private String rangy = "";
     private String highlightId;
 
-    private ReadPosition lastReadPosition;
+    private ReadLocator lastReadLocator;
     private Bundle outState;
     private Bundle savedInstanceState;
 
@@ -256,7 +257,7 @@ public class FolioPageFragment
     public void reload(ReloadDataEvent reloadDataEvent) {
 
         if (isCurrentFragment())
-            getLastReadPosition();
+            getLastReadLocator();
 
         if (isAdded()) {
             mWebview.dismissPopupWindow();
@@ -452,8 +453,8 @@ public class FolioPageFragment
                     mWebview.loadUrl(call);
 
                 } else if (isCurrentFragment()) {
-                    mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
-                            lastReadPosition.isUsingId(), lastReadPosition.getValue()));
+                    String cfi = lastReadLocator.getLocations().getCfi();
+                    mWebview.loadUrl(String.format(getString(R.string.callScrollToCfi), cfi));
 
                 } else {
                     if (mPosition == mActivityCallback.getCurrentChapterIndex() - 1) {
@@ -484,20 +485,20 @@ public class FolioPageFragment
 
             } else if (isCurrentFragment()) {
 
-                ReadPosition readPosition;
+                ReadLocator readLocator;
                 if (savedInstanceState == null) {
-                    Log.v(LOG_TAG, "-> onPageFinished -> took from getEntryReadPosition");
-                    readPosition = mActivityCallback.getEntryReadPosition();
+                    Log.v(LOG_TAG, "-> onPageFinished -> took from getEntryReadLocator");
+                    readLocator = mActivityCallback.getEntryReadLocator();
                 } else {
                     Log.v(LOG_TAG, "-> onPageFinished -> took from bundle");
-                    readPosition = savedInstanceState.getParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE);
-                    savedInstanceState.remove(BUNDLE_READ_POSITION_CONFIG_CHANGE);
+                    readLocator = savedInstanceState.getParcelable(BUNDLE_READ_LOCATOR_CONFIG_CHANGE);
+                    savedInstanceState.remove(BUNDLE_READ_LOCATOR_CONFIG_CHANGE);
                 }
 
-                if (readPosition != null) {
-                    Log.v(LOG_TAG, "-> scrollToSpan -> " + readPosition.getValue());
-                    mWebview.loadUrl(String.format("javascript:scrollToSpan(%b, %s)",
-                            readPosition.isUsingId(), readPosition.getValue()));
+                if (readLocator != null) {
+                    String cfi = readLocator.getLocations().getCfi();
+                    Log.v(LOG_TAG, "-> onPageFinished -> readLocator -> " + cfi);
+                    mWebview.loadUrl(String.format(getString(R.string.callScrollToCfi), cfi));
                 } else {
                     loadingView.hide();
                 }
@@ -608,45 +609,35 @@ public class FolioPageFragment
         //TODO save last media overlay item
 
         if (isCurrentFragment())
-            getLastReadPosition();
+            getLastReadLocator();
     }
 
-    /**
-     * Calls the /assets/js/Bridge.js#getFirstVisibleSpan(boolean)
-     */
-    public ReadPosition getLastReadPosition() {
-        Log.v(LOG_TAG, "-> getLastReadPosition -> " + spineItem.getHref());
-
+    public ReadLocator getLastReadLocator() {
+        Log.v(LOG_TAG, "-> getLastReadLocator -> " + spineItem.getHref());
         try {
             synchronized (this) {
-                boolean isHorizontal = mActivityCallback.getDirection() ==
-                        Config.Direction.HORIZONTAL;
-                mWebview.loadUrl("javascript:getFirstVisibleSpan(" + isHorizontal + ")");
-
-                wait(2000);
+                mWebview.loadUrl(getString(R.string.callComputeLastReadCfi));
+                wait(5000);
             }
         } catch (InterruptedException e) {
             Log.e(LOG_TAG, "-> ", e);
         }
-
-        return lastReadPosition;
+        return lastReadLocator;
     }
 
-    /**
-     * Callback method called from /assets/js/Bridge.js#getFirstVisibleSpan(boolean)
-     * and then ReadPositionImpl is broadcast to {@link FolioReader#readPositionReceiver}
-     *
-     * @param usingId if span tag has id then true or else false
-     * @param value   if usingId true then span id else span index
-     */
-    @SuppressWarnings("unused")
     @JavascriptInterface
-    public void storeFirstVisibleSpan(boolean usingId, String value) {
+    public void storeLastReadCfi(String cfi) {
 
         synchronized (this) {
-            lastReadPosition = new ReadPositionImpl(mBookId, spineItem.getHref(), usingId, value);
-            Intent intent = new Intent(FolioReader.ACTION_SAVE_READ_POSITION);
-            intent.putExtra(FolioReader.EXTRA_READ_POSITION, lastReadPosition);
+            String href = spineItem.getHref();
+            if (href == null) href = "";
+            long created = new Date().getTime();
+            Locations locations = new Locations();
+            locations.setCfi(cfi);
+            lastReadLocator = new ReadLocator(mBookId, href, created, locations);
+
+            Intent intent = new Intent(FolioReader.ACTION_SAVE_READ_LOCATOR);
+            intent.putExtra(FolioReader.EXTRA_READ_LOCATOR, (Parcelable) lastReadLocator);
             LocalBroadcastManager.getInstance(getContext()).sendBroadcast(intent);
 
             notify();
@@ -872,9 +863,9 @@ public class FolioPageFragment
 
         if (isCurrentFragment()) {
             if (outState != null)
-                outState.putParcelable(BUNDLE_READ_POSITION_CONFIG_CHANGE, lastReadPosition);
+                outState.putSerializable(BUNDLE_READ_LOCATOR_CONFIG_CHANGE, lastReadLocator);
             if (getActivity() != null && !getActivity().isFinishing())
-                mActivityCallback.storeLastReadPosition(lastReadPosition);
+                mActivityCallback.storeLastReadLocator(lastReadLocator);
         }
         if (mWebview != null) mWebview.destroy();
     }
