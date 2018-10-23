@@ -30,7 +30,7 @@ public class Config implements Parcelable {
     private static final AllowedDirection DEFAULT_ALLOWED_DIRECTION = AllowedDirection.ONLY_VERTICAL;
     private static final Direction DEFAULT_DIRECTION = Direction.VERTICAL;
     private static final int DEFAULT_THEME_COLOR_INT =
-            ContextCompat.getColor(AppContext.get(), R.color.app_green);
+            ContextCompat.getColor(AppContext.get(), R.color.default_theme_accent_color);
 
     private int font = 3;
     private int fontSize = 2;

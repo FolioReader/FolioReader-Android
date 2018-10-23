@@ -577,7 +577,7 @@ public class FolioPageFragment
         @Override
         public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
 
-            // This if block can be dropped
+            // Check if this `if` block can be dropped?
             if (!FolioPageFragment.this.isVisible())
                 return true;
 
@@ -668,7 +668,7 @@ public class FolioPageFragment
         mScrollSeekbar = (VerticalSeekbar) mRootView.findViewById(R.id.scrollSeekbar);
         mScrollSeekbar.getProgressDrawable()
                 .setColorFilter(getResources()
-                                .getColor(R.color.app_green),
+                                .getColor(R.color.default_theme_accent_color),
                         PorterDuff.Mode.SRC_IN);
     }
 

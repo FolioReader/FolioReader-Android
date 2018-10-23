@@ -6,7 +6,7 @@
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryDark">@color/white</item>
-        <item name="colorAccent">@color/app_green</item>
+        <item name="colorAccent">@color/default_theme_accent_color</item>
         <item name="actionBarStyle">@style/FolioActivityDayTheme.ActionBarStyle</item>
         <item name="toolbarStyle">@style/ToolbarStyle</item>
         <item name="android:statusBarColor" tools:targetApi="lollipop">@color/black</item>
@@ -34,7 +34,7 @@
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/white</item>
         <item name="colorPrimaryDark">@color/white</item>
-        <item name="colorAccent">@color/app_green</item>
+        <item name="colorAccent">@color/default_theme_accent_color</item>
         <item name="actionBarStyle">@style/ActionBarDayStyle</item>
         <item name="android:statusBarColor" tools:targetApi="lollipop">@color/black</item>
 

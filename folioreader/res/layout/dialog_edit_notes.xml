@@ -39,7 +39,7 @@
             android:layout_marginTop="8dp"
             android:text="@string/save_note"
             android:textColor="@android:color/white"
-            android:background="@color/app_green"
+            android:background="@color/default_theme_accent_color"
             android:textAllCaps="false"
             android:textSize="16sp" />
     </RelativeLayout>

@@ -7,6 +7,6 @@
 
     <corners android:radius="12dp"/>
 
-    <solid android:color="@color/app_green"/>
+    <solid android:color="@color/default_theme_accent_color"/>
 
 </shape>  

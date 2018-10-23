@@ -15,6 +15,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:indeterminateTint="@color/app_green" />
+        tools:indeterminateTint="@color/default_theme_accent_color" />
 
 </merge>

@@ -31,7 +31,7 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
     companion object {
         @JvmField
         val LOG_TAG: String = MediaControllerFragment::class.java.simpleName
-        const val BUNDLE_IS_VISIBLE = "isVisible"
+        private const val BUNDLE_IS_VISIBLE = "BUNDLE_IS_VISIBLE"
 
         @JvmStatic
         fun getInstance(supportFragmentManager: FragmentManager,
@@ -47,7 +47,7 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
     }
 
     private lateinit var config: Config
-    lateinit var callback: MediaControllerCallback
+    private lateinit var callback: MediaControllerCallback
     private var isPlaying: Boolean = false
     private lateinit var bottomSheetDialog: BottomSheetDialog
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
@@ -55,23 +55,23 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
     var visible: Boolean = false
 
     private var container: RelativeLayout? = null
-    private var prev_button: ImageButton? = null
-    private var play_button: ImageButton? = null
-    private var next_button: ImageButton? = null
-    private var playback_speed_Layout: LinearLayout? = null
-    private var btn_half_speed: StyleableTextView? = null
-    private var btn_one_x_speed: StyleableTextView? = null
-    private var btn_one_and_half_speed: StyleableTextView? = null
-    private var btn_twox_speed: StyleableTextView? = null
-    private var btn_backcolor_style: StyleableTextView? = null
-    private var btn_text_undeline_style: StyleableTextView? = null
-    private var btn_text_color_style: StyleableTextView? = null
+    private var prevButton: ImageButton? = null
+    private var playPauseButton: ImageButton? = null
+    private var nextButton: ImageButton? = null
+    private var playbackSpeedLayout: LinearLayout? = null
+    private var btnHalfSpeed: StyleableTextView? = null
+    private var btnOneXSpeed: StyleableTextView? = null
+    private var btnOneAndHalfSpeed: StyleableTextView? = null
+    private var btnTwoXSpeed: StyleableTextView? = null
+    private var btnBackColorStyle: StyleableTextView? = null
+    private var btnTextUnderlineStyle: StyleableTextView? = null
+    private var btnTextColorStyle: StyleableTextView? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         Log.v(LOG_TAG, "-> onCreateDialog")
 
         bottomSheetDialog = BottomSheetDialog(context!!)
-        var view = View.inflate(context, R.layout.view_audio_player, null)
+        val view = View.inflate(context, R.layout.view_audio_player, null)
         bindViews(view)
         bottomSheetDialog.setContentView(view)
         bottomSheetBehavior = BottomSheetBehavior.from(view.parent as View)
@@ -96,17 +96,17 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
     private fun bindViews(view: View) {
 
         container = view.findViewById(R.id.container)
-        prev_button = view.findViewById(R.id.prev_button)
-        play_button = view.findViewById(R.id.play_button)
-        next_button = view.findViewById(R.id.next_button)
-        playback_speed_Layout = view.findViewById(R.id.playback_speed_Layout)
-        btn_half_speed = view.findViewById(R.id.btn_half_speed)
-        btn_one_x_speed = view.findViewById(R.id.btn_one_x_speed)
-        btn_one_and_half_speed = view.findViewById(R.id.btn_one_and_half_speed)
-        btn_twox_speed = view.findViewById(R.id.btn_twox_speed)
-        btn_backcolor_style = view.findViewById(R.id.btn_backcolor_style)
-        btn_text_undeline_style = view.findViewById(R.id.btn_text_undeline_style)
-        btn_text_color_style = view.findViewById(R.id.btn_text_color_style)
+        prevButton = view.findViewById(R.id.prev_button)
+        playPauseButton = view.findViewById(R.id.play_pause_button)
+        nextButton = view.findViewById(R.id.next_button)
+        playbackSpeedLayout = view.findViewById(R.id.playback_speed_Layout)
+        btnHalfSpeed = view.findViewById(R.id.btn_half_speed)
+        btnOneXSpeed = view.findViewById(R.id.btn_one_x_speed)
+        btnOneAndHalfSpeed = view.findViewById(R.id.btn_one_and_half_speed)
+        btnTwoXSpeed = view.findViewById(R.id.btn_twox_speed)
+        btnBackColorStyle = view.findViewById(R.id.btn_backcolor_style)
+        btnTextUnderlineStyle = view.findViewById(R.id.btn_text_undeline_style)
+        btnTextColorStyle = view.findViewById(R.id.btn_text_color_style)
     }
 
     override fun onStart() {
@@ -144,7 +144,7 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
             return
 
         visible = savedInstanceState.getBoolean(BUNDLE_IS_VISIBLE)
-        Log.v(LOG_TAG, "-> onViewStateRestored -> $visible")
+        //Log.v(LOG_TAG, "-> onViewStateRestored -> $visible")
     }
 
     fun show(fragmentManager: FragmentManager) {
@@ -152,10 +152,10 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
 
         visible = true
         if (isAdded) {
-            Log.v(LOG_TAG, "-> Is already added")
+            //Log.v(LOG_TAG, "-> Is already added")
             dialog.show()
         } else {
-            Log.v(LOG_TAG, "-> Not added")
+            //Log.v(LOG_TAG, "-> Not added")
             show(fragmentManager, MediaControllerFragment.LOG_TAG)
         }
     }
@@ -169,17 +169,17 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
         config = AppUtil.getSavedConfig(context)
 
         if (Build.VERSION.SDK_INT >= 24) {
-            btn_one_and_half_speed?.text = Html.fromHtml(context!!.getString(R.string.one_and_half_speed), 0)
-            btn_half_speed?.text = Html.fromHtml(context!!.getString(R.string.half_speed_text), 0)
-            btn_text_undeline_style?.text = Html.fromHtml(context!!.getString(R.string.style_underline), 0)
+            btnOneAndHalfSpeed?.text = Html.fromHtml(context!!.getString(R.string.one_and_half_speed), 0)
+            btnHalfSpeed?.text = Html.fromHtml(context!!.getString(R.string.half_speed_text), 0)
+            btnTextUnderlineStyle?.text = Html.fromHtml(context!!.getString(R.string.style_underline), 0)
         } else {
-            btn_one_and_half_speed?.text = Html.fromHtml(context!!.getString(R.string.one_and_half_speed))
-            btn_half_speed?.text = Html.fromHtml(context!!.getString(R.string.half_speed_text))
-            btn_text_undeline_style?.text = Html.fromHtml(context!!.getString(R.string.style_underline))
+            btnOneAndHalfSpeed?.text = Html.fromHtml(context!!.getString(R.string.one_and_half_speed))
+            btnHalfSpeed?.text = Html.fromHtml(context!!.getString(R.string.half_speed_text))
+            btnTextUnderlineStyle?.text = Html.fromHtml(context!!.getString(R.string.style_underline))
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-            playback_speed_Layout?.visibility = View.GONE
+            playbackSpeedLayout?.visibility = View.GONE
 
         if (config.isNightMode) setNightMode()
 
@@ -189,87 +189,85 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
 
     private fun initColors() {
 
-        btn_half_speed?.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context!!, R.color.grey_color)))
-        btn_one_and_half_speed?.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context!!, R.color.grey_color)))
-        btn_twox_speed?.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context!!, R.color.grey_color)))
-        btn_one_x_speed?.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context!!, R.color.grey_color)))
-        btn_text_undeline_style?.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context!!, R.color.grey_color)))
-        btn_backcolor_style?.setTextColor(UiUtil.getColorList(ContextCompat.getColor(context!!, R.color.white), ContextCompat.getColor(context!!, R.color.grey_color)))
-        btn_backcolor_style?.setBackgroundDrawable(UiUtil.createStateDrawable(config.themeColor, ContextCompat.getColor(context!!, android.R.color.transparent)))
-        btn_text_color_style?.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context!!, R.color.grey_color)))
-        UiUtil.setColorIntToDrawable(config.themeColor, play_button?.drawable)
-        UiUtil.setColorIntToDrawable(config.themeColor, next_button?.drawable)
-        UiUtil.setColorIntToDrawable(config.themeColor, prev_button?.drawable)
+        btnHalfSpeed?.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context!!, R.color.grey_color)))
+        btnOneAndHalfSpeed?.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context!!, R.color.grey_color)))
+        btnTwoXSpeed?.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context!!, R.color.grey_color)))
+        btnOneXSpeed?.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context!!, R.color.grey_color)))
+        btnTextUnderlineStyle?.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context!!, R.color.grey_color)))
+        btnBackColorStyle?.setTextColor(UiUtil.getColorList(ContextCompat.getColor(context!!, R.color.white), ContextCompat.getColor(context!!, R.color.grey_color)))
+        btnBackColorStyle?.setBackgroundDrawable(UiUtil.createStateDrawable(config.themeColor, ContextCompat.getColor(context!!, android.R.color.transparent)))
+        btnTextColorStyle?.setTextColor(UiUtil.getColorList(config.themeColor, ContextCompat.getColor(context!!, R.color.grey_color)))
+        UiUtil.setColorIntToDrawable(config.themeColor, playPauseButton?.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, nextButton?.drawable)
+        UiUtil.setColorIntToDrawable(config.themeColor, prevButton?.drawable)
     }
 
     private fun initListeners() {
 
-        play_button?.setOnClickListener {
-            callback.let {
-                if (isPlaying) {
-                    callback.pause()
-                    play_button?.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.play_icon))
-                    UiUtil.setColorIntToDrawable(config.themeColor, play_button?.drawable)
-                } else {
-                    callback.play()
-                    play_button?.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.pause_btn))
-                    UiUtil.setColorIntToDrawable(config.themeColor, play_button?.drawable)
-                }
-                isPlaying = !isPlaying
+        playPauseButton?.setOnClickListener {
+            if (isPlaying) {
+                playPauseButton?.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.ic_play))
+                UiUtil.setColorIntToDrawable(config.themeColor, playPauseButton?.drawable)
+                callback.pause()
+            } else {
+                playPauseButton?.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.ic_pause))
+                UiUtil.setColorIntToDrawable(config.themeColor, playPauseButton?.drawable)
+                callback.play()
             }
+            isPlaying = !isPlaying
         }
 
-        btn_half_speed?.setOnClickListener {
+        btnHalfSpeed?.setOnClickListener {
             toggleSpeedControlButtons(true, false, false, false)
             EventBus.getDefault().post(MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.HALF))
         }
 
-        btn_one_x_speed?.setOnClickListener {
+        btnOneXSpeed?.setOnClickListener {
             toggleSpeedControlButtons(false, true, false, false)
             EventBus.getDefault().post(MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.ONE))
         }
 
-        btn_one_and_half_speed?.setOnClickListener {
+        btnOneAndHalfSpeed?.setOnClickListener {
             toggleSpeedControlButtons(false, false, true, false)
             EventBus.getDefault().post(MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.ONE_HALF))
         }
 
-        btn_twox_speed?.setOnClickListener {
+        btnTwoXSpeed?.setOnClickListener {
             toggleSpeedControlButtons(false, false, false, true)
             EventBus.getDefault().post(MediaOverlaySpeedEvent(MediaOverlaySpeedEvent.Speed.TWO))
         }
 
-        btn_backcolor_style?.setOnClickListener {
+        btnBackColorStyle?.setOnClickListener {
             toggleTextStyle(true, false, false)
             EventBus.getDefault().post(MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.DEFAULT))
         }
 
-        btn_text_undeline_style?.setOnClickListener {
+        btnTextUnderlineStyle?.setOnClickListener {
             toggleTextStyle(false, true, false)
             EventBus.getDefault().post(MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.UNDERLINE))
         }
 
-        btn_text_color_style?.setOnClickListener {
+        btnTextColorStyle?.setOnClickListener {
             toggleTextStyle(false, false, true)
             EventBus.getDefault().post(MediaOverlayHighlightStyleEvent(MediaOverlayHighlightStyleEvent.Style.BACKGROUND))
         }
     }
 
     private fun toggleTextStyle(backColor: Boolean, underline: Boolean, textColor: Boolean) {
-        btn_backcolor_style?.isSelected = backColor
-        btn_text_undeline_style?.isSelected = underline
-        btn_text_color_style?.isSelected = textColor
+        btnBackColorStyle?.isSelected = backColor
+        btnTextUnderlineStyle?.isSelected = underline
+        btnTextColorStyle?.isSelected = textColor
     }
 
     private fun toggleSpeedControlButtons(half: Boolean, one: Boolean, oneHalf: Boolean, two: Boolean) {
-        btn_half_speed?.isSelected = half
-        btn_one_x_speed?.isSelected = one
-        btn_one_and_half_speed?.isSelected = oneHalf
-        btn_twox_speed?.isSelected = two
+        btnHalfSpeed?.isSelected = half
+        btnOneXSpeed?.isSelected = one
+        btnOneAndHalfSpeed?.isSelected = oneHalf
+        btnTwoXSpeed?.isSelected = two
     }
 
     fun setPlayButtonDrawable() {
-        play_button?.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.play_icon))
+        playPauseButton?.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.ic_play))
     }
 
     fun setNightMode() {

@@ -191,7 +191,7 @@ function getSentenceWithIndex(className) {
         node = sel.anchorNode.parentNode;
 
         if (node.className == "sentence") {
-            sentence = node
+            sentence = node;
 
             for (var i = 0, len = elements.length; i < len; i++) {
                 if (elements[i] === sentence) {
@@ -217,7 +217,7 @@ function getSentenceWithIndex(className) {
     }
 
     audioMarkClass = className;
-    sentence.classList.add(className)
+    sentence.classList.add(className);
     return text;
 }
 

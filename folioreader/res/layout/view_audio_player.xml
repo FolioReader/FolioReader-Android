@@ -24,15 +24,15 @@
             android:layout_height="match_parent"
             android:layout_weight="0.2"
             android:background="@android:color/transparent"
-            android:src="@drawable/prev_con" />
+            app:srcCompat="@drawable/ic_fast_rewind" />
 
         <ImageButton
-            android:id="@+id/play_button"
+            android:id="@+id/play_pause_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.2"
             android:background="@android:color/transparent"
-            android:src="@drawable/play_icon" />
+            app:srcCompat="@drawable/ic_play" />
 
         <ImageButton
             android:id="@+id/next_button"
@@ -40,7 +40,7 @@
             android:layout_height="match_parent"
             android:layout_weight="0.2"
             android:background="@android:color/transparent"
-            android:src="@drawable/next_icon" />
+            app:srcCompat="@drawable/ic_fast_forward" />
 
         <LinearLayout
             android:layout_width="0dp"
