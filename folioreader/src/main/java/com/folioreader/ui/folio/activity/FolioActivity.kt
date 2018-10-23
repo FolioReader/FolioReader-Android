@@ -509,7 +509,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         Log.v(LOG_TAG, "-> onDirectionChange")
 
         var folioPageFragment: FolioPageFragment? = currentFragment ?: return
-        entryReadLocator = folioPageFragment!!.lastReadLocator
+        entryReadLocator = folioPageFragment!!.getLastReadLocator()
         val searchItemVisible = folioPageFragment.searchItemVisible
 
         direction = newDirection
@@ -832,14 +832,14 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                     if (folioPageFragment != null) {
                         folioPageFragment.scrollToLast()
                         if (folioPageFragment.mWebview != null)
-                            folioPageFragment.mWebview.dismissPopupWindow()
+                            folioPageFragment.mWebview!!.dismissPopupWindow()
                     }
 
                     folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position + 1) as FolioPageFragment
                     if (folioPageFragment != null) {
                         folioPageFragment.scrollToFirst()
                         if (folioPageFragment.mWebview != null)
-                            folioPageFragment.mWebview.dismissPopupWindow()
+                            folioPageFragment.mWebview!!.dismissPopupWindow()
                     }
                 }
             }
