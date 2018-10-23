@@ -1,228 +1,180 @@
-package com.folioreader.view;
+package com.folioreader.view
 
-import android.content.Context;
-import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.JavascriptInterface;
+import android.content.Context
+import android.os.Handler
+import android.support.v4.view.GestureDetectorCompat
+import android.support.v4.view.PagerAdapter
+import android.support.v4.view.ViewPager
+import android.util.AttributeSet
+import android.util.Log
+import android.view.*
+import android.webkit.JavascriptInterface
+import com.folioreader.R
 
-import com.folioreader.R;
+class WebViewPager : ViewPager {
 
-public class WebViewPager extends ViewPager {
+    companion object {
+        @JvmField
+        val LOG_TAG: String = WebViewPager::class.java.simpleName
+    }
 
-    private static final String LOG_TAG = WebViewPager.class.getSimpleName();
-    private int horizontalPageCount;
-    private FolioWebView folioWebView;
-    private boolean takeOverScrolling;
-    private boolean scrolling;
-    private Handler handler;
-    private GestureDetectorCompat gestureDetector;
+    private var horizontalPageCount: Int = 0
+    private var folioWebView: FolioWebView? = null
+    private var takeOverScrolling: Boolean = false
+    var isScrolling: Boolean = false
+        private set
+    private var uiHandler: Handler? = null
+    private var gestureDetector: GestureDetectorCompat? = null
 
-    private enum LastGestureType {
+    private var lastGestureType: LastGestureType? = null
+
+    private enum class LastGestureType {
         OnSingleTapUp, OnLongPress, OnFling, OnScroll
     }
 
-    private LastGestureType lastGestureType;
-
-    public WebViewPager(@NonNull Context context) {
-        super(context);
-        init();
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+        init()
     }
 
-    public WebViewPager(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
+    private fun init() {
 
-    private void init() {
+        uiHandler = Handler()
+        gestureDetector = GestureDetectorCompat(context, GestureListener())
 
-        handler = new Handler();
-        gestureDetector = new GestureDetectorCompat(getContext(), new GestureListener());
+        addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+                // Log.d(LOG_TAG, "-> onPageScrolled -> position = " + position +
+                // ", positionOffset = " + positionOffset + ", positionOffsetPixels = " + positionOffsetPixels);
 
-        addOnPageChangeListener(new OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//                Log.d(LOG_TAG, "-> onPageScrolled -> position = " + position +
-//                        ", positionOffset = " + positionOffset + ", positionOffsetPixels = " + positionOffsetPixels);
-
-                scrolling = true;
+                isScrolling = true
 
                 if (takeOverScrolling && folioWebView != null) {
-                    int scrollX = folioWebView.getScrollXPixelsForPage(position) + positionOffsetPixels;
+                    val scrollX = folioWebView!!.getScrollXPixelsForPage(position) + positionOffsetPixels
                     //Log.d(LOG_TAG, "-> onPageScrolled -> scrollX = " + scrollX);
-                    folioWebView.scrollTo(scrollX, 0);
+                    folioWebView!!.scrollTo(scrollX, 0)
                 }
 
                 if (positionOffsetPixels == 0) {
                     //Log.d(LOG_TAG, "-> onPageScrolled -> takeOverScrolling = false");
-                    takeOverScrolling = false;
-                    scrolling = false;
+                    takeOverScrolling = false
+                    isScrolling = false
                 }
             }
 
-            @Override
-            public void onPageSelected(int position) {
-                Log.v(LOG_TAG, "-> onPageSelected -> " + position);
+            override fun onPageSelected(position: Int) {
+                Log.v(LOG_TAG, "-> onPageSelected -> $position")
             }
 
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
-        });
+            override fun onPageScrollStateChanged(state: Int) {}
+        })
     }
 
-    public boolean isScrolling() {
-        return scrolling;
-    }
-
-    private String getScrollStateString(int state) {
-        switch (state) {
-            case SCROLL_STATE_IDLE:
-                return "SCROLL_STATE_IDLE";
-            case SCROLL_STATE_DRAGGING:
-                return "SCROLL_STATE_DRAGGING";
-            case SCROLL_STATE_SETTLING:
-                return "SCROLL_STATE_SETTLING";
-            default:
-                return "UNKNOWN_STATE";
+    private fun getScrollStateString(state: Int): String {
+        return when (state) {
+            ViewPager.SCROLL_STATE_IDLE -> "SCROLL_STATE_IDLE"
+            ViewPager.SCROLL_STATE_DRAGGING -> "SCROLL_STATE_DRAGGING"
+            ViewPager.SCROLL_STATE_SETTLING -> "SCROLL_STATE_SETTLING"
+            else -> "UNKNOWN_STATE"
         }
     }
 
-    public void setHorizontalPageCount(int horizontalPageCount) {
+    fun setHorizontalPageCount(horizontalPageCount: Int) {
         //Log.d(LOG_TAG, "-> horizontalPageCount = " + horizontalPageCount);
 
-        this.horizontalPageCount = horizontalPageCount;
-        setAdapter(new WebViewPagerAdapter());
-        setCurrentItem(0);
+        this.horizontalPageCount = horizontalPageCount
+        adapter = WebViewPagerAdapter()
+        currentItem = 0
 
         if (folioWebView == null)
-            folioWebView = ((View) getParent()).findViewById(R.id.folioWebView);
+            folioWebView = (parent as View).findViewById(R.id.folioWebView)
     }
 
-    @SuppressWarnings("unused")
     @JavascriptInterface
-    public void setCurrentPage(final int pageIndex) {
-        Log.v(LOG_TAG, "-> setCurrentItem -> pageIndex = " + pageIndex);
+    fun setCurrentPage(pageIndex: Int) {
+        Log.v(LOG_TAG, "-> setCurrentItem -> pageIndex = $pageIndex")
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                setCurrentItem(pageIndex, false);
-            }
-        });
+        uiHandler!!.post { setCurrentItem(pageIndex, false) }
     }
 
-    @SuppressWarnings("unused")
     @JavascriptInterface
-    public void setPageToLast() {
+    fun setPageToLast() {
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                setCurrentItem(horizontalPageCount - 1);
-            }
-        });
+        uiHandler!!.post { currentItem = horizontalPageCount - 1 }
     }
 
-    @SuppressWarnings("unused")
     @JavascriptInterface
-    public void setPageToFirst() {
+    fun setPageToFirst() {
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                setCurrentItem(0);
-            }
-        });
+        uiHandler!!.post { currentItem = 0 }
     }
 
-    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+    private inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
 
-        @Override
-        public boolean onDown(MotionEvent e) {
-            WebViewPager.super.onTouchEvent(e);
-            return true;
+        override fun onDown(e: MotionEvent): Boolean {
+            super@WebViewPager.onTouchEvent(e)
+            return true
         }
 
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
+        override fun onSingleTapUp(e: MotionEvent): Boolean {
             //Log.d(LOG_TAG, "-> onSingleTapUp");
-            lastGestureType = LastGestureType.OnSingleTapUp;
-            return false;
+            lastGestureType = LastGestureType.OnSingleTapUp
+            return false
         }
 
-        @Override
-        public void onLongPress(MotionEvent e) {
-            super.onLongPress(e);
+        override fun onLongPress(e: MotionEvent) {
+            super.onLongPress(e)
             //Log.d(LOG_TAG, "-> onLongPress -> " + e);
-            lastGestureType = LastGestureType.OnLongPress;
+            lastGestureType = LastGestureType.OnLongPress
         }
 
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
             //Log.v(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
-            lastGestureType = LastGestureType.OnScroll;
-            return false;
+            lastGestureType = LastGestureType.OnScroll
+            return false
         }
 
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             //Log.d(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
-            lastGestureType = LastGestureType.OnFling;
-            return false;
+            lastGestureType = LastGestureType.OnFling
+            return false
         }
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
         //Log.d(LOG_TAG, "-> onTouchEvent -> " + AppUtil.actionToString(event.getAction()));
 
-        boolean gestureReturn = gestureDetector.onTouchEvent(event);
+        val gestureReturn = gestureDetector!!.onTouchEvent(event)
         if (gestureReturn)
-            return true;
+            return true
 
-        boolean superReturn = super.onTouchEvent(event);
+        val superReturn = super.onTouchEvent(event)
 
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            if (lastGestureType == LastGestureType.OnScroll ||
-                    lastGestureType == LastGestureType.OnFling) {
+        if (event.action == MotionEvent.ACTION_UP) {
+            if (lastGestureType == LastGestureType.OnScroll || lastGestureType == LastGestureType.OnFling) {
                 //Log.d(LOG_TAG, "-> onTouchEvent -> takeOverScrolling = true, " + "lastGestureType = " + lastGestureType);
-                takeOverScrolling = true;
+                takeOverScrolling = true
             }
-            lastGestureType = null;
+            lastGestureType = null
         }
 
-        return superReturn;
+        return superReturn
     }
 
-    private class WebViewPagerAdapter extends PagerAdapter {
+    private inner class WebViewPagerAdapter : PagerAdapter() {
 
-        @Override
-        public int getCount() {
-            return horizontalPageCount;
+        override fun getCount(): Int {
+            return horizontalPageCount
         }
 
-        @Override
-        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-            return view == object;
+        override fun isViewFromObject(view: View, `object`: Any): Boolean {
+            return view === `object`
         }
 
-        @NonNull
-        @Override
-        public Object instantiateItem(@NonNull ViewGroup container, int position) {
+        override fun instantiateItem(container: ViewGroup, position: Int): Any {
 
-            View view = LayoutInflater.from(container.getContext())
-                    .inflate(R.layout.view_webview_pager, container, false);
+            val view = LayoutInflater.from(container.context)
+                    .inflate(R.layout.view_webview_pager, container, false)
 
             // Debug code
             // Set alpha for folioWebView in folio_page_fragment.xml to 0.5 also.
@@ -235,13 +187,12 @@ public class WebViewPager extends ViewPager {
             TextView textView = view.findViewById(R.id.textView);
             textView.setText(Integer.toString(position));*/
 
-            container.addView(view);
-            return view;
+            container.addView(view)
+            return view
         }
 
-        @Override
-        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-            container.removeView((View) object);
+        override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+            container.removeView(`object` as View)
         }
     }
 }
