@@ -38,6 +38,7 @@ import com.folioreader.util.HighlightUtil
 import com.folioreader.util.UiUtil
 import dalvik.system.PathClassLoader
 import kotlinx.android.synthetic.main.text_selection.view.*
+import org.json.JSONObject
 import org.springframework.util.ReflectionUtils
 import java.lang.ref.WeakReference
 
@@ -469,13 +470,17 @@ class FolioWebView : WebView {
 
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
             Log.d(LOG_TAG, "-> onCreateActionMode")
-            //mode.getMenuInflater().inflate(R.menu.menu_text_selection, menu);
             return true
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
             Log.d(LOG_TAG, "-> onPrepareActionMode")
-            loadUrl("javascript:getSelectionRect()")
+
+            evaluateJavascript("javascript:getSelectionRect()") { value ->
+                val rectJson = JSONObject(value)
+                setSelectionRect(rectJson.getInt("left"), rectJson.getInt("top"),
+                        rectJson.getInt("right"), rectJson.getInt("bottom"))
+            }
             return false
         }
 
@@ -495,7 +500,6 @@ class FolioWebView : WebView {
 
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
             Log.d(LOG_TAG, "-> onCreateActionMode")
-            //mode.getMenuInflater().inflate(R.menu.menu_text_selection, menu);
             menu.clear()
             return true
         }
@@ -517,7 +521,12 @@ class FolioWebView : WebView {
 
         override fun onGetContentRect(mode: ActionMode, view: View, outRect: Rect) {
             Log.d(LOG_TAG, "-> onGetContentRect")
-            loadUrl("javascript:getSelectionRect()")
+
+            evaluateJavascript("javascript:getSelectionRect()") { value ->
+                val rectJson = JSONObject(value)
+                setSelectionRect(rectJson.getInt("left"), rectJson.getInt("top"),
+                        rectJson.getInt("right"), rectJson.getInt("bottom"))
+            }
         }
     }
 
@@ -641,15 +650,15 @@ class FolioWebView : WebView {
     @JavascriptInterface
     fun setSelectionRect(left: Int, top: Int, right: Int, bottom: Int) {
 
-        val currentSelectionRect: Rect
-        val newLeft = (left * density).toInt()
-        val newTop = (top * density).toInt()
-        val newRight = (right * density).toInt()
-        val newBottom = (bottom * density).toInt()
-        currentSelectionRect = Rect(newLeft, newTop, newRight, newBottom)
+        val currentSelectionRect = Rect()
+        currentSelectionRect.left = (left * density).toInt()
+        currentSelectionRect.top = (top * density).toInt()
+        currentSelectionRect.right = (right * density).toInt()
+        currentSelectionRect.bottom = (bottom * density).toInt()
         Log.d(LOG_TAG, "-> setSelectionRect -> $currentSelectionRect")
 
         computeTextSelectionRect(currentSelectionRect)
+        uiHandler.post { showTextSelectionPopup() }
     }
 
     private fun computeTextSelectionRect(currentSelectionRect: Rect) {
@@ -739,8 +748,6 @@ class FolioWebView : WebView {
             popupRect.left -= dx
             popupRect.right -= dx
         }
-
-        uiHandler.post { showTextSelectionPopup() }
     }
 
     private fun showTextSelectionPopup() {

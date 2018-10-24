@@ -64,22 +64,20 @@ class FolioPageFragment : Fragment(),
         @JvmField
         val LOG_TAG: String = FolioPageFragment::class.java.simpleName
 
-        const val KEY_FRAGMENT_FOLIO_POSITION = "com.folioreader.ui.folio.fragment.FolioPageFragment.POSITION"
-        const val KEY_FRAGMENT_FOLIO_BOOK_TITLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.BOOK_TITLE"
-        const val KEY_FRAGMENT_EPUB_FILE_NAME = "com.folioreader.ui.folio.fragment.FolioPageFragment.EPUB_FILE_NAME"
-        private const val KEY_IS_SMIL_AVAILABLE = "com.folioreader.ui.folio.fragment.FolioPageFragment.IS_SMIL_AVAILABLE"
+        private const val BUNDLE_SPINE_INDEX = "BUNDLE_SPINE_INDEX"
+        private const val BUNDLE_BOOK_TITLE = "BUNDLE_BOOK_TITLE"
+        private const val BUNDLE_SPINE_ITEM = "BUNDLE_SPINE_ITEM"
         private const val BUNDLE_READ_LOCATOR_CONFIG_CHANGE = "BUNDLE_READ_LOCATOR_CONFIG_CHANGE"
         const val BUNDLE_SEARCH_ITEM = "BUNDLE_SEARCH_ITEM"
-        private const val SPINE_ITEM = "spine_item"
 
         @JvmStatic
-        fun newInstance(position: Int, bookTitle: String, spineRef: Link, bookId: String): FolioPageFragment {
+        fun newInstance(spineIndex: Int, bookTitle: String, spineRef: Link, bookId: String): FolioPageFragment {
             val fragment = FolioPageFragment()
             val args = Bundle()
-            args.putInt(KEY_FRAGMENT_FOLIO_POSITION, position)
-            args.putString(KEY_FRAGMENT_FOLIO_BOOK_TITLE, bookTitle)
-            args.putString(FolioReader.INTENT_BOOK_ID, bookId)
-            args.putSerializable(SPINE_ITEM, spineRef)
+            args.putInt(BUNDLE_SPINE_INDEX, spineIndex)
+            args.putString(BUNDLE_BOOK_TITLE, bookTitle)
+            args.putString(FolioReader.EXTRA_BOOK_ID, bookId)
+            args.putSerializable(BUNDLE_SPINE_ITEM, spineRef)
             fragment.arguments = args
             return fragment
         }
@@ -110,9 +108,8 @@ class FolioPageFragment : Fragment(),
     private var mFadeOutAnimation: Animation? = null
 
     var spineItem: Link? = null
-    private var mPosition = -1
+    private var spineIndex = -1
     private var mBookTitle: String? = null
-    private var mEpubFileName: String? = null
     private var mIsPageReloaded: Boolean = false
 
     private var highlightStyle: String? = null
@@ -130,7 +127,7 @@ class FolioPageFragment : Fragment(),
 
     private val isCurrentFragment: Boolean
         get() {
-            return isAdded && mActivityCallback!!.currentChapterIndex == mPosition
+            return isAdded && mActivityCallback!!.currentChapterIndex == spineIndex
         }
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -143,11 +140,10 @@ class FolioPageFragment : Fragment(),
 
         EventBus.getDefault().register(this)
 
-        mPosition = arguments!!.getInt(KEY_FRAGMENT_FOLIO_POSITION)
-        mBookTitle = arguments!!.getString(KEY_FRAGMENT_FOLIO_BOOK_TITLE)
-        mEpubFileName = arguments!!.getString(KEY_FRAGMENT_EPUB_FILE_NAME)
-        spineItem = arguments!!.getSerializable(SPINE_ITEM) as Link
-        mBookId = arguments!!.getString(FolioReader.INTENT_BOOK_ID)
+        spineIndex = arguments!!.getInt(BUNDLE_SPINE_INDEX)
+        mBookTitle = arguments!!.getString(BUNDLE_BOOK_TITLE)
+        spineItem = arguments!!.getSerializable(BUNDLE_SPINE_ITEM) as Link
+        mBookId = arguments!!.getString(FolioReader.EXTRA_BOOK_ID)
 
         if (savedInstanceState != null) {
             searchItemVisible = savedInstanceState.getParcelable(BUNDLE_SEARCH_ITEM)
@@ -428,7 +424,7 @@ class FolioPageFragment : Fragment(),
                     mWebview!!.loadUrl(String.format(getString(R.string.callScrollToCfi), cfi))
 
                 } else {
-                    if (mPosition == mActivityCallback!!.currentChapterIndex - 1) {
+                    if (spineIndex == mActivityCallback!!.currentChapterIndex - 1) {
                         // Scroll to last, the page before current page
                         mWebview!!.loadUrl("javascript:scrollToLast()")
                     } else {
@@ -476,7 +472,7 @@ class FolioPageFragment : Fragment(),
 
             } else {
 
-                if (mPosition == mActivityCallback!!.currentChapterIndex - 1) {
+                if (spineIndex == mActivityCallback!!.currentChapterIndex - 1) {
                     // Scroll to last, the page before current page
                     mWebview!!.loadUrl("javascript:scrollToLast()")
                 } else {
@@ -772,7 +768,7 @@ class FolioPageFragment : Fragment(),
                     html,
                     mBookId,
                     pageName,
-                    mPosition,
+                    spineIndex,
                     rangy)
         }
     }

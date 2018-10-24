@@ -267,7 +267,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             searchQuery = savedInstanceState.getCharSequence(SearchActivity.BUNDLE_SAVE_SEARCH_QUERY)
         }
 
-        mBookId = intent.getStringExtra(FolioReader.INTENT_BOOK_ID)
+        mBookId = intent.getStringExtra(FolioReader.EXTRA_BOOK_ID)
         mEpubSourceType = intent.extras!!.getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE) as EpubSourceType
         if (mEpubSourceType == EpubSourceType.RAW) {
             mEpubRawId = intent.extras!!.getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH)
@@ -409,7 +409,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             intent.putExtra(CHAPTER_SELECTED, "")
         }
 
-        intent.putExtra(FolioReader.INTENT_BOOK_ID, mBookId)
+        intent.putExtra(FolioReader.EXTRA_BOOK_ID, mBookId)
         intent.putExtra(Constants.BOOK_TITLE, bookFileName)
 
         startActivityForResult(intent, RequestCode.CONTENT_HIGHLIGHT.value)

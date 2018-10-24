@@ -28,7 +28,13 @@ public class FolioReader {
 
     @SuppressLint("StaticFieldLeak")
     private static FolioReader singleton = null;
-    public static final String INTENT_BOOK_ID = "book_id";
+
+    public static final String EXTRA_BOOK_ID = "com.folioreader.extra.BOOK_ID";
+    public static final String EXTRA_READ_LOCATOR = "com.folioreader.extra.READ_LOCATOR";
+    public static final String ACTION_SAVE_READ_LOCATOR = "com.folioreader.action.SAVE_READ_LOCATOR";
+    public static final String ACTION_CLOSE_FOLIOREADER = "com.folioreader.action.CLOSE_FOLIOREADER";
+    public static final String ACTION_FOLIOREADER_CLOSED = "com.folioreader.action.FOLIOREADER_CLOSED";
+
     private Context context;
     private Config config;
     private boolean overrideConfig;
@@ -36,10 +42,6 @@ public class FolioReader {
     private ReadLocatorListener readLocatorListener;
     private OnClosedListener onClosedListener;
     private ReadLocator readLocator;
-    public static final String ACTION_SAVE_READ_LOCATOR = "com.folioreader.action.SAVE_READ_LOCATOR";
-    public static final String ACTION_CLOSE_FOLIOREADER = "com.folioreader.action.CLOSE_FOLIOREADER";
-    public static final String ACTION_FOLIOREADER_CLOSED = "com.folioreader.action.FOLIOREADER_CLOSED";
-    public static final String EXTRA_READ_LOCATOR = "com.folioreader.extra.READ_LOCATOR";
 
     public interface OnClosedListener {
         /**
@@ -142,7 +144,7 @@ public class FolioReader {
     public FolioReader openBook(String assetOrSdcardPath, int port, String bookId) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
         intent.putExtra(Config.INTENT_PORT, port);
-        intent.putExtra(INTENT_BOOK_ID, bookId);
+        intent.putExtra(EXTRA_BOOK_ID, bookId);
         context.startActivity(intent);
         return singleton;
     }
@@ -150,14 +152,14 @@ public class FolioReader {
     public FolioReader openBook(int rawId, int port, String bookId) {
         Intent intent = getIntentFromUrl(null, rawId);
         intent.putExtra(Config.INTENT_PORT, port);
-        intent.putExtra(INTENT_BOOK_ID, bookId);
+        intent.putExtra(EXTRA_BOOK_ID, bookId);
         context.startActivity(intent);
         return singleton;
     }
 
     public FolioReader openBook(String assetOrSdcardPath, String bookId) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
-        intent.putExtra(INTENT_BOOK_ID, bookId);
+        intent.putExtra(EXTRA_BOOK_ID, bookId);
         context.startActivity(intent);
         return singleton;
     }

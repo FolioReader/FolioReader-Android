@@ -111,7 +111,7 @@ public class ContentHighlightActivity extends AppCompatActivity {
     private void loadHighlightsFragment() {
         findViewById(R.id.btn_contents).setSelected(false);
         findViewById(R.id.btn_highlights).setSelected(true);
-        String bookId = getIntent().getStringExtra(FolioReader.INTENT_BOOK_ID);
+        String bookId = getIntent().getStringExtra(FolioReader.EXTRA_BOOK_ID);
         String bookTitle = getIntent().getStringExtra(Constants.BOOK_TITLE);
         HighlightFragment highlightFragment = HighlightFragment.newInstance(bookId, bookTitle);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

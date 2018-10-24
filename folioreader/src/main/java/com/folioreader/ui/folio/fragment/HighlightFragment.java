@@ -42,7 +42,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     public static HighlightFragment newInstance(String bookId, String epubTitle) {
         HighlightFragment highlightFragment = new HighlightFragment();
         Bundle args = new Bundle();
-        args.putString(FolioReader.INTENT_BOOK_ID, bookId);
+        args.putString(FolioReader.EXTRA_BOOK_ID, bookId);
         args.putString(Constants.BOOK_TITLE, epubTitle);
         highlightFragment.setArguments(args);
         return highlightFragment;
@@ -65,7 +65,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
         super.onViewCreated(view, savedInstanceState);
         RecyclerView highlightsView = (RecyclerView) mRootView.findViewById(R.id.rv_highlights);
         Config config = AppUtil.getSavedConfig(getActivity());
-        mBookId = getArguments().getString(FolioReader.INTENT_BOOK_ID);
+        mBookId = getArguments().getString(FolioReader.EXTRA_BOOK_ID);
 
         if (config.isNightMode()) {
             mRootView.findViewById(R.id.rv_highlights).

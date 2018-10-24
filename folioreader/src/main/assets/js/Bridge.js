@@ -494,48 +494,6 @@ var LoadingView = {
     }
 };*/
 
-function isElementVisible(element, isHorizontal) {
-
-    var rect = element.getBoundingClientRect();
-
-    if (isHorizontal)
-        return rect.left > 0;
-    else
-        return rect.top > 0;
-}
-
-/**
- Gets the first visible span from the displayed chapter and if it has id then usingId is true with
- value as span id else usingId is false with value as span index. usingId and value is forwarded to
- FolioPageFragment#storeFirstVisibleSpan(boolean, String) JavascriptInterface.
-
- @param {boolean} isHorizontal - scrolling type of DirectionalViewpager#mDirection
- */
-function getFirstVisibleSpan(isHorizontal) {
-
-    var spanCollection = document.querySelectorAll("span.sentence");
-
-    if (spanCollection.length == 0) {
-        FolioPageFragment.storeFirstVisibleSpan(false, 0);
-        return;
-    }
-
-    var spanIndex = 0;
-    var spanElement;
-
-    for (var i = 0; i < spanCollection.length; i++) {
-        if (isElementVisible(spanCollection[i], isHorizontal)) {
-            spanIndex = i;
-            spanElement = spanCollection[i];
-            break;
-        }
-    }
-
-    var usingId = spanElement.id ? true : false;
-    var value = usingId ? spanElement.id : spanIndex;
-    FolioPageFragment.storeFirstVisibleSpan(usingId, value);
-}
-
 function goToHighlight(highlightId) {
     var element = document.getElementById(highlightId.toString());
     if (element)
@@ -716,8 +674,8 @@ function bodyOrHtml() {
 }
 
 /**
- * @param {Node} node {@link ELEMENT_NODE} / {@link TEXT_NODE}
- * @returns {Node} node {@link ELEMENT_NODE} / {@link TEXT_NODE}
+ * @param {(Element|Text)} node
+ * @returns {(Element|Text)} node
  */
 function scrollToNode(node) {
 
@@ -987,6 +945,11 @@ function escapeRegExp(str) {
     return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }
 
+/**
+ * Returns JSON of selection rect
+ * @param {Element} [element]
+ * @returns {object} JSON of {@link DOMRect}
+ */
 function getSelectionRect(element) {
     console.log("-> getSelectionRect");
 
@@ -1000,7 +963,12 @@ function getSelectionRect(element) {
 
     //var rect = range.getBoundingClientRect();
     var rect = RangeFix.getBoundingClientRect(range);
-    FolioWebView.setSelectionRect(rect.left, rect.top, rect.right, rect.bottom);
+    return {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom
+    };
 }
 
 function clearSelection() {
@@ -1013,7 +981,8 @@ function onClickHighlight(element) {
     console.log("-> onClickHighlight");
     event.stopPropagation();
     thisHighlight = element;
-    getSelectionRect(element);
+    var rectJson = getSelectionRect(element);
+    FolioWebView.setSelectionRect(rectJson.left, rectJson.top, rectJson.right, rectJson.bottom);
 }
 
 function deleteThisHighlight() {
@@ -1039,8 +1008,6 @@ function onClickHtml() {
     } else {
         FolioWebView.toggleSystemUI();
     }
-
-    //setTimeout(computeLastReadCfi, 1000);
 }
 
 function computeLastReadCfi() {
@@ -1067,8 +1034,8 @@ function constructDOMRect(rectJsonString) {
 
 /**
  * Gets the first partially or completely visible node in viewportRect
- * @param {Node} node
- * @returns {Node} {@link ELEMENT_NODE} / {@link TEXT_NODE} / null
+ * @param {Node} node Accepts {@link Element} or {@link Text}
+ * @returns {(Node|null)} Returns {@link Element} or {@link Text} or null
  */
 function getFirstVisibleNode(node) {
 
@@ -1123,9 +1090,9 @@ function scrollToCfi(cfi) {
  * Returns true iff the two specified rectangles intersect. In no event are
  * either of the rectangles modified.
  *
- * @param a The first rectangle being tested for intersection
- * @param b The second rectangle being tested for intersection
- * @return true iff the two specified rectangles intersect.
+ * @param {DOMRect} a The first rectangle being tested for intersection
+ * @param {DOMRect} b The second rectangle being tested for intersection
+ * @returns {boolean} returns true iff the two specified rectangles intersect.
  */
 function rectIntersects(a, b) {
     return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
@@ -1135,10 +1102,9 @@ function rectIntersects(a, b) {
  * Returns true iff the specified rectangle b is inside or equal to
  * rectangle b. An empty rectangle never contains another rectangle.
  *
- * @param a The rectangle being tested whether rectangle b is inside this or not.
- * @param b The rectangle being tested for containment.
- * @return true iff the specified rectangle r is inside or equal to this
- *              rectangle
+ * @param {DOMRect} a The rectangle being tested whether rectangle b is inside this or not.
+ * @param {DOMRect} b The rectangle being tested for containment.
+ * @returns {boolean} returns true iff the specified rectangle r is inside or equal to this rectangle
  */
 function rectContains(a, b) {
     // check for empty first
