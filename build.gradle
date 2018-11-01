@@ -52,6 +52,9 @@ ext {
     constraintLayoutVersion = "1.1.3"
 
     jacksonVersion = "2.9.7"
+    // When Kotlin Class doesn't contain default Constructor GSON can be used to deserialize
+    // See FolioReader-Android/folioreader/src/test/java/com/folioreader/android/LocatorUnitTest.kt
+    gsonVersion = "2.8.5"
 }
 
 task clean(type: Delete) {

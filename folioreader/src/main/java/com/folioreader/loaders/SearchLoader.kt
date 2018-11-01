@@ -6,15 +6,15 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.content.AsyncTaskLoader
 import android.util.Log
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.folioreader.model.search.SearchItem
 import com.folioreader.model.search.SearchItemType
+import com.folioreader.model.search.SearchLocator
 import com.folioreader.ui.folio.activity.SearchActivity
 import com.folioreader.ui.folio.adapter.ListViewType
 import com.folioreader.ui.folio.adapter.SearchAdapter
 import com.folioreader.util.AppUtil
-import org.readium.r2.streamer.r2_streamer_java.SearchQueryResults
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import org.readium.r2.shared.Locator
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -66,7 +66,7 @@ class SearchLoader : AsyncTaskLoader<Any?> {
     override fun loadInBackground(): Any? {
         Log.v(LOG_TAG, "-> loadInBackground")
 
-        var searchQueryResults: SearchQueryResults? = null
+        var locatorList: MutableList<Locator>? = null
 
         try {
             val searchUri: Uri? = loaderBundle?.getParcelable(SearchActivity.BUNDLE_SEARCH_URI)
@@ -87,11 +87,12 @@ class SearchLoader : AsyncTaskLoader<Any?> {
 
             //Thread.sleep(6000)
 
-            val objectMapper = ObjectMapper()
+            /*val objectMapper = ObjectMapper()
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            searchQueryResults = objectMapper.readValue(stringBuilder.toString(),
-                    SearchQueryResults::class.java)
-            Log.v(LOG_TAG, "-> loadInBackground -> " + stringBuilder.toString())
+            locatorList = objectMapper.readValue(stringBuilder.toString())*/
+            val locatorType = object : TypeToken<MutableList<Locator>>() {}.type
+            locatorList = Gson().fromJson(stringBuilder.toString(), locatorType)
+            Log.d(LOG_TAG, "-> loadInBackground -> " + stringBuilder.toString())
 
             inputStream.close()
             urlConnection.disconnect()
@@ -101,17 +102,17 @@ class SearchLoader : AsyncTaskLoader<Any?> {
         }
 
         return when {
-            searchQueryResults == null -> {
+            locatorList == null -> {
                 val dataBundle = Bundle()
                 dataBundle.putString(ListViewType.KEY, ListViewType.FAILURE_VIEW.toString())
                 dataBundle
             }
-            searchQueryResults.searchCount == 0 -> {
+            locatorList.size == 0 -> {
                 val dataBundle = Bundle()
                 dataBundle.putString(ListViewType.KEY, ListViewType.EMPTY_VIEW.toString())
                 dataBundle
             }
-            else -> initSearchItemList(searchQueryResults)
+            else -> initSearchLocatorList(locatorList)
         }
     }
 
@@ -128,38 +129,35 @@ class SearchLoader : AsyncTaskLoader<Any?> {
         return running
     }
 
-    private fun initSearchItemList(searchQueryResults: SearchQueryResults): Bundle {
-        Log.v(LOG_TAG, "-> initSearchItemList")
+    private fun initSearchLocatorList(locatorList: MutableList<Locator>): Bundle {
+        Log.v(LOG_TAG, "-> initSearchLocatorList")
 
-        val searchItemList = ArrayList<SearchItem>()
+        val searchLocatorList: MutableList<SearchLocator> = mutableListOf()
 
-        val searchCountItem = SearchItem()
+        val searchCountItem = SearchLocator()
         searchCountItem.searchItemType = SearchItemType.SEARCH_COUNT_ITEM
-        searchCountItem.primaryContents = searchQueryResults.searchCount.toString()
-        searchItemList.add(searchCountItem)
+        searchCountItem.primaryContents = locatorList.size.toString()
+        searchLocatorList.add(searchCountItem)
 
-        var title: String? = null
+        var resourceHref: String? = null
 
-        for (searchResult in searchQueryResults.searchResultList) {
+        for (locator in locatorList) {
 
-            if (title != searchResult.title) {
-                title = searchResult.title
-                val titleItem = SearchItem()
-                titleItem.searchItemType = SearchItemType.PAGE_TITLE_ITEM
-                titleItem.primaryContents = title
-                searchItemList.add(titleItem)
+            if (resourceHref != locator.href) {
+                resourceHref = locator.href
+                val titleLocator = SearchLocator()
+                titleLocator.searchItemType = SearchItemType.RESOURCE_TITLE_ITEM
+                titleLocator.primaryContents = locator.title
+                searchLocatorList.add(titleLocator)
             }
 
-            val searchResultItem = SearchItem(searchResult)
-            searchResultItem.searchItemType = SearchItemType.SEARCH_RESULT_ITEM
-            searchResultItem.primaryContents = searchResultItem.sentence
-            searchItemList.add(searchResultItem)
+            val searchResultItem = SearchLocator(locator, SearchItemType.SEARCH_RESULT_ITEM)
+            searchLocatorList.add(searchResultItem)
         }
 
         val dataBundle = Bundle()
         dataBundle.putString(ListViewType.KEY, ListViewType.NORMAL_VIEW.toString())
-        dataBundle.putParcelableArrayList("DATA", searchItemList)
-
+        dataBundle.putParcelableArrayList("DATA", ArrayList(searchLocatorList))
         return dataBundle
     }
 }

@@ -85,6 +85,7 @@ dependencies {
     implementation "com.android.support:recyclerview-v7:$androidSupportLibVersion"
     implementation "com.android.support:support-v4:$androidSupportLibVersion"
     implementation "com.android.support:design:$androidSupportLibVersion"
+    testImplementation 'junit:junit:4.12'
 
     implementation 'org.slf4j:slf4j-android:1.7.25'
     implementation 'com.daimajia.swipelayout:library:1.2.0@aar'
@@ -97,6 +98,8 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
 
     // R2 modules
     api("com.github.codetoart:r2-shared-kotlin:$r2SharedKotlinVersion") {

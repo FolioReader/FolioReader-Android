@@ -13,8 +13,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.folioreader.R
-import com.folioreader.model.search.SearchItem
 import com.folioreader.model.search.SearchItemType
+import com.folioreader.model.search.SearchLocator
 
 class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -26,7 +26,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private val context: Context
     private var listViewType: ListViewType
-    var searchItemList: ArrayList<SearchItem>? = null
+    var searchLocatorList: MutableList<SearchLocator>? = null
         private set
     var onItemClickListener: OnItemClickListener? = null
 
@@ -35,22 +35,22 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         this.context = context
         listViewType = ListViewType.fromString(dataBundle.getString("ListViewType"))
-        searchItemList = dataBundle.getParcelableArrayList("DATA")
+        searchLocatorList = dataBundle.getParcelableArrayList("DATA")
     }
 
     fun changeDataBundle(dataBundle: Bundle) {
 
         listViewType = ListViewType.fromString(dataBundle.getString(ListViewType.KEY))
-        searchItemList = dataBundle.getParcelableArrayList("DATA")
+        searchLocatorList = dataBundle.getParcelableArrayList("DATA")
         notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {
 
-        return if (searchItemList == null || searchItemList!!.size == 0) {
+        return if (searchLocatorList == null || searchLocatorList?.size == 0) {
             1
         } else {
-            searchItemList!!.size
+            searchLocatorList!!.size
         }
     }
 
@@ -147,7 +147,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
         val textViewCount: TextView = itemView.findViewById(R.id.textViewCount)
         val textViewTitle: TextView = itemView.findViewById(R.id.textViewTitle)
         val textViewResult: TextView = itemView.findViewById(R.id.textViewResult)
-        lateinit var searchItem: SearchItem
+        lateinit var searchLocator: SearchLocator
 
         init {
             listViewType = ListViewType.NORMAL_VIEW
@@ -156,12 +156,12 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
         override fun onBind(position: Int) {
 
             itemPosition = position
-            searchItem = searchItemList!![position]
+            searchLocator = searchLocatorList!![position]
 
-            when (searchItem.searchItemType) {
+            when (searchLocator.searchItemType) {
 
                 SearchItemType.SEARCH_COUNT_ITEM -> {
-                    val count: Int = searchItem.primaryContents?.toInt()!!
+                    val count: Int = searchLocator.primaryContents?.toInt()!!
                     textViewCount.text = context.resources.getQuantityString(
                             R.plurals.numberOfSearchResults, count, count)
                     textViewCount.visibility = View.VISIBLE
@@ -171,8 +171,8 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     itemView.setOnClickListener(null)
                 }
 
-                SearchItemType.PAGE_TITLE_ITEM -> {
-                    textViewTitle.text = searchItem.primaryContents
+                SearchItemType.RESOURCE_TITLE_ITEM -> {
+                    textViewTitle.text = searchLocator.primaryContents
                     textViewTitle.visibility = View.VISIBLE
                     textViewCount.visibility = View.GONE
                     textViewResult.visibility = View.GONE
@@ -182,11 +182,11 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 SearchItemType.SEARCH_RESULT_ITEM -> {
 
-                    val spannableString = SpannableString(searchItem.textBefore
-                            + searchItem.matchQuery
-                            + searchItem.textAfter)
-                    val from = searchItem.textBefore.length
-                    val to = from + searchItem.matchQuery.length
+                    val spannableString = SpannableString(searchLocator.text?.before
+                            + searchLocator.text?.hightlight
+                            + searchLocator.text?.after)
+                    val from = searchLocator.text?.before?.length ?: 0
+                    val to = from + (searchLocator.text?.hightlight?.length ?: 0)
                     spannableString.setSpan(StyleSpan(Typeface.BOLD), from, to, 0)
                     spannableString.setSpan(UnderlineSpan(), from, to, 0)
                     textViewResult.text = spannableString
@@ -196,6 +196,9 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     textViewTitle.visibility = View.GONE
 
                     itemView.setOnClickListener(this)
+                }
+
+                else -> {
                 }
             }
         }

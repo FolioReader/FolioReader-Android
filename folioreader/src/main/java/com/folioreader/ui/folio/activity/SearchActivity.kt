@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.support.v4.app.LoaderManager
 import android.support.v4.content.Loader
 import android.support.v4.content.LocalBroadcastManager
@@ -345,13 +346,13 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
         if (adapter is SearchAdapter) {
             if (viewHolder is SearchAdapter.NormalViewHolder) {
-                Log.v(LOG_TAG, "-> onItemClick -> " + viewHolder.searchItem)
+                Log.v(LOG_TAG, "-> onItemClick -> " + viewHolder.searchLocator)
 
                 val intent = Intent()
                 searchAdapterDataBundle.putInt(BUNDLE_FIRST_VISIBLE_ITEM_INDEX,
                         linearLayoutManager.findFirstVisibleItemPosition())
                 intent.putExtra(SearchAdapter.DATA_BUNDLE, searchAdapterDataBundle)
-                intent.putExtra(FolioActivity.EXTRA_SEARCH_ITEM, viewHolder.searchItem)
+                intent.putExtra(FolioActivity.EXTRA_SEARCH_ITEM, viewHolder.searchLocator as Parcelable)
                 intent.putExtra(BUNDLE_SAVE_SEARCH_QUERY, searchView.query)
                 setResult(ResultCode.ITEM_SELECTED.value, intent)
                 finish()
