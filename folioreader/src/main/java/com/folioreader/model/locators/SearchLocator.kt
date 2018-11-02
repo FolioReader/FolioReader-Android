@@ -1,4 +1,4 @@
-package com.folioreader.model.search
+package com.folioreader.model.locators
 
 import android.os.Parcel
 import android.os.Parcelable
@@ -6,16 +6,23 @@ import org.readium.r2.shared.Locations
 import org.readium.r2.shared.Locator
 import org.readium.r2.shared.LocatorText
 
-// TODO -> Move to locator package
+enum class SearchItemType {
+    UNKNOWN_ITEM,
+    SEARCH_COUNT_ITEM,
+    RESOURCE_TITLE_ITEM,
+    SEARCH_RESULT_ITEM
+}
+
 class SearchLocator : Locator, Parcelable {
 
-    var primaryContents: String? = text?.before + text?.hightlight + text?.after
+    var primaryContents: String
     var searchItemType: SearchItemType
 
-    constructor() : this(Locator("", 0, "", Locations(), null), SearchItemType.UNKNOWN_ITEM)
+    constructor() : this(Locator("", 0, "", Locations(), null), "", SearchItemType.UNKNOWN_ITEM)
 
-    constructor(locator: Locator, searchItemType: SearchItemType) :
+    constructor(locator: Locator, primaryContents: String, searchItemType: SearchItemType) :
             super(locator.href, locator.created, locator.title, locator.locations, locator.text) {
+        this.primaryContents = primaryContents
         this.searchItemType = searchItemType
     }
 
@@ -26,7 +33,7 @@ class SearchLocator : Locator, Parcelable {
                     parcel.readString()!!,
                     parcel.readSerializable() as Locations,
                     parcel.readSerializable() as LocatorText?
-            ), SearchItemType.valueOf(parcel.readString()!!))
+            ), parcel.readString()!!, SearchItemType.valueOf(parcel.readString()!!))
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(href)
@@ -34,6 +41,7 @@ class SearchLocator : Locator, Parcelable {
         parcel.writeString(title)
         parcel.writeSerializable(locations)
         parcel.writeSerializable(text)
+        parcel.writeString(primaryContents)
         parcel.writeString(searchItemType.name)
     }
 

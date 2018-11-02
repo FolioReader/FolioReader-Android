@@ -53,7 +53,7 @@ import com.folioreader.model.DisplayUnit
 import com.folioreader.model.HighlightImpl
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent
 import com.folioreader.model.locators.ReadLocator
-import com.folioreader.model.search.SearchItem
+import com.folioreader.model.locators.SearchLocator
 import com.folioreader.ui.folio.adapter.FolioPageFragmentAdapter
 import com.folioreader.ui.folio.adapter.SearchAdapter
 import com.folioreader.ui.folio.fragment.FolioPageFragment
@@ -103,10 +103,12 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private var mEpubRawId = 0
     private var mediaControllerFragment: MediaControllerFragment? = null
     private var direction: Config.Direction = Config.Direction.VERTICAL
+
     private var searchUri: Uri? = null
     private var searchAdapterDataBundle: Bundle? = null
     private var searchQuery: CharSequence? = null
-    private var searchItem: SearchItem? = null
+    private var searchLocator: SearchLocator? = null
+
     private var displayMetrics: DisplayMetrics? = null
     private var density: Float = 0.toFloat()
     private var topActivity: Boolean? = null
@@ -164,11 +166,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             Log.v(LOG_TAG, "-> searchReceiver -> onReceive -> " + intent.action!!)
 
             val action = intent.action ?: return
-
             when (action) {
-                ACTION_SEARCH_CLEAR ->
-                    //TODO -> rename reset to clear
-                    resetSearchResults()
+                ACTION_SEARCH_CLEAR -> clearSearchLocator()
             }
         }
     }
@@ -510,7 +509,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
         var folioPageFragment: FolioPageFragment? = currentFragment ?: return
         entryReadLocator = folioPageFragment!!.getLastReadLocator()
-        val searchItemVisible = folioPageFragment.searchItemVisible
+        val searchLocatorVisible = folioPageFragment.searchLocatorVisible
 
         direction = newDirection
 
@@ -520,10 +519,10 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         mFolioPageViewPager!!.adapter = mFolioPageFragmentAdapter
         mFolioPageViewPager!!.currentItem = currentChapterIndex
 
-        folioPageFragment = currentFragment
-        if (folioPageFragment == null) return
-        if (searchItemVisible != null)
-            folioPageFragment.highlightSearchItem(searchItemVisible)
+        folioPageFragment = currentFragment ?: return
+        searchLocatorVisible?.let {
+            folioPageFragment.highlightSearchLocator(searchLocatorVisible)
+        }
     }
 
     fun initDistractionFreeMode(savedInstanceState: Bundle?) {
@@ -755,15 +754,15 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
             if (resultCode == SearchActivity.ResultCode.ITEM_SELECTED.value) {
 
-                searchItem = data.getParcelableExtra(EXTRA_SEARCH_ITEM)
+                searchLocator = data.getParcelableExtra(EXTRA_SEARCH_ITEM)
                 // In case if SearchActivity is recreated due to screen rotation then FolioActivity
                 // will also be recreated, so mFolioPageViewPager might be null.
                 if (mFolioPageViewPager == null) return
-                currentChapterIndex = getChapterIndex(Constants.HREF, searchItem!!.href)
+                currentChapterIndex = getChapterIndex(Constants.HREF, searchLocator!!.href)
                 mFolioPageViewPager!!.currentItem = currentChapterIndex
                 val folioPageFragment = currentFragment ?: return
-                folioPageFragment.highlightSearchItem(searchItem!!)
-                searchItem = null
+                folioPageFragment.highlightSearchLocator(searchLocator!!)
+                searchLocator = null
             }
 
         } else if (requestCode == RequestCode.CONTENT_HIGHLIGHT.value && resultCode == Activity.RESULT_OK &&
@@ -851,14 +850,14 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         mFolioPageViewPager!!.adapter = mFolioPageFragmentAdapter
 
         // In case if SearchActivity is recreated due to screen rotation then FolioActivity
-        // will also be recreated, so searchItem is checked here.
-        if (searchItem != null) {
+        // will also be recreated, so searchLocator is checked here.
+        if (searchLocator != null) {
 
-            currentChapterIndex = getChapterIndex(Constants.HREF, searchItem!!.href)
+            currentChapterIndex = getChapterIndex(Constants.HREF, searchLocator!!.href)
             mFolioPageViewPager!!.currentItem = currentChapterIndex
             val folioPageFragment = currentFragment ?: return
-            folioPageFragment.highlightSearchItem(searchItem!!)
-            searchItem = null
+            folioPageFragment.highlightSearchLocator(searchLocator!!)
+            searchLocator = null
 
         } else {
 
@@ -981,13 +980,13 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         return direction
     }
 
-    private fun resetSearchResults() {
-        Log.v(LOG_TAG, "-> resetSearchResults")
+    private fun clearSearchLocator() {
+        Log.v(LOG_TAG, "-> clearSearchLocator")
 
         val fragments = mFolioPageFragmentAdapter!!.fragments
         for (i in fragments.indices) {
             val folioPageFragment = fragments[i] as FolioPageFragment?
-            folioPageFragment?.resetSearchResults()
+            folioPageFragment?.clearSearchLocator()
         }
 
         val savedStateList = mFolioPageFragmentAdapter!!.savedStateList
@@ -995,7 +994,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             for (i in savedStateList.indices) {
                 val savedState = savedStateList[i]
                 val bundle = FolioPageFragmentAdapter.getBundleFromSavedState(savedState)
-                bundle?.putParcelable(FolioPageFragment.BUNDLE_SEARCH_ITEM, null)
+                bundle?.putParcelable(FolioPageFragment.BUNDLE_SEARCH_LOCATOR, null)
             }
         }
     }

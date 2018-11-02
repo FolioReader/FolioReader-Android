@@ -13,8 +13,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.folioreader.R
-import com.folioreader.model.search.SearchItemType
-import com.folioreader.model.search.SearchLocator
+import com.folioreader.model.locators.SearchItemType
+import com.folioreader.model.locators.SearchLocator
 
 class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -161,7 +161,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
             when (searchLocator.searchItemType) {
 
                 SearchItemType.SEARCH_COUNT_ITEM -> {
-                    val count: Int = searchLocator.primaryContents?.toInt()!!
+                    val count: Int = searchLocator.primaryContents.toInt()
                     textViewCount.text = context.resources.getQuantityString(
                             R.plurals.numberOfSearchResults, count, count)
                     textViewCount.visibility = View.VISIBLE

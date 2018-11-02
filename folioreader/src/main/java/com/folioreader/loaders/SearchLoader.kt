@@ -6,8 +6,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.content.AsyncTaskLoader
 import android.util.Log
-import com.folioreader.model.search.SearchItemType
-import com.folioreader.model.search.SearchLocator
+import com.folioreader.model.locators.SearchItemType
+import com.folioreader.model.locators.SearchLocator
 import com.folioreader.ui.folio.activity.SearchActivity
 import com.folioreader.ui.folio.adapter.ListViewType
 import com.folioreader.ui.folio.adapter.SearchAdapter
@@ -151,7 +151,13 @@ class SearchLoader : AsyncTaskLoader<Any?> {
                 searchLocatorList.add(titleLocator)
             }
 
-            val searchResultItem = SearchLocator(locator, SearchItemType.SEARCH_RESULT_ITEM)
+            val primaryContents = StringBuilder()
+                    .append(locator.text?.before ?: "")
+                    .append(locator.text?.hightlight ?: "")
+                    .append(locator.text?.after ?: "")
+                    .toString()
+            val searchResultItem = SearchLocator(locator, primaryContents,
+                    SearchItemType.SEARCH_RESULT_ITEM)
             searchLocatorList.add(searchResultItem)
         }
 

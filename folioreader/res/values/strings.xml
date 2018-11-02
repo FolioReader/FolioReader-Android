@@ -84,10 +84,6 @@
     <string name="please_enter_note">please enter a note</string>
     <string name="contents">Contents</string>
 
-    <string name="highlight_search_result" translatable="false">javascript:highlightSearchResult(\"%s\", %d)</string>
-    <string name="make_search_results_invisible" translatable="false">javascript:makeSearchResultsInvisible()</string>
-    <string name="reset_search_results" translatable="false">javascript:resetSearchResults()</string>
-
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="debug_start_drag">Starting drag!</string>
@@ -100,7 +96,6 @@
 
     <string name="xhtml_mime_type" translatable="false">application/xhtml+xml</string>
     <string name="html_mime_type" translatable="false">text/html</string>
-    <string name="back_compat" translatable="false">BackCompat</string>
 
     <string name="menu_item_search">Search</string>
     <string name="menu_item_config">Configuration</string>
@@ -118,5 +113,7 @@
     <!-- JS Calls -->
     <string name="callComputeLastReadCfi" translatable="false">javascript:computeLastReadCfi()</string>
     <string name="callScrollToCfi" translatable="false">javascript:scrollToCfi(\"%s\")</string>
+    <string name="callHighlightSearchLocator" translatable="false">javascript:highlightSearchLocator(\"%s\")</string>
+    <string name="callClearSelection" translatable="false">javascript:clearSelection()</string>
 
 </resources>

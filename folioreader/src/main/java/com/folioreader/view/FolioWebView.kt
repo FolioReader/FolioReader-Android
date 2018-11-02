@@ -360,16 +360,6 @@ class FolioWebView : WebView {
         }
     }
 
-    @JavascriptInterface
-    fun setCompatMode(compatMode: String) {
-        Log.v(LOG_TAG, "-> setCompatMode -> compatMode = $compatMode")
-        if (compatMode == context.getString(R.string.back_compat)) {
-            Log.e(LOG_TAG, "-> Web page loaded in Quirks mode. Please report to developer " +
-                    "for debugging with current EPUB file as many features might stop working " +
-                    "(ex. Horizontal scroll feature).")
-        }
-    }
-
     fun setParentFragment(parentFragment: FolioPageFragment) {
         this.parentFragment = parentFragment
     }
@@ -451,8 +441,7 @@ class FolioWebView : WebView {
 
         if (lastScrollType == LastScrollType.USER) {
             //Log.d(LOG_TAG, "-> onScrollChanged -> scroll initiated by user");
-            loadUrl(context.getString(R.string.make_search_results_invisible))
-            parentFragment.searchItemVisible = null
+            parentFragment.searchLocatorVisible = null
         }
 
         lastScrollType = null

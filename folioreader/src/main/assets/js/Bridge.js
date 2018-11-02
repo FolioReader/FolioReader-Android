@@ -27,11 +27,6 @@ var horizontalIntervalPeriod = 1000;
 var horizontalIntervalCounter = 0;
 var horizontalIntervalLimit = 3000;
 
-var searchResults = [];
-var lastSearchQuery = null;
-var testCounter = 0;
-var searchResultsInvisible = true;
-
 var viewportRect;
 
 // Class manipulation
@@ -118,7 +113,7 @@ function audioMarkID(className, id) {
     audioMarkClass = className
     var el = document.getElementById(id);
 
-    scrollToNode(el);
+    scrollToNodeOrRange(el);
     el.classList.add(className)
 }
 
@@ -210,7 +205,7 @@ function getSentenceWithIndex(className) {
 
     var text = sentence.innerText || sentence.textContent;
 
-    scrollToNode(sentence);
+    scrollToNodeOrRange(sentence);
 
     if (audioMarkClass) {
         removeAllClasses(audioMarkClass);
@@ -497,7 +492,7 @@ var LoadingView = {
 function goToHighlight(highlightId) {
     var element = document.getElementById(highlightId.toString());
     if (element)
-        scrollToNode(element);
+        scrollToNodeOrRange(element);
 
     LoadingView.hide();
 }
@@ -505,7 +500,7 @@ function goToHighlight(highlightId) {
 function goToAnchor(anchorId) {
     var element = document.getElementById(anchorId);
     if (element)
-        scrollToNode(element);
+        scrollToNodeOrRange(element);
 
     LoadingView.hide();
 }
@@ -550,8 +545,12 @@ function scrollToFirst() {
     LoadingView.hide();
 }
 
-function getCompatMode() {
-    FolioWebView.setCompatMode(document.compatMode);
+function checkCompatMode() {
+    if (document.compatMode === "BackCompat") {
+        console.error("-> Web page loaded in Quirks mode. Please report to developer " +
+            "for debugging with current EPUB file, as many features might stop working " +
+            "(ex. Horizontal scroll feature).")
+    }
 }
 
 function horizontalRecheck() {
@@ -674,10 +673,10 @@ function bodyOrHtml() {
 }
 
 /**
- * @param {(Element|Text)} node
- * @returns {(Element|Text)} node
+ * @param {(Element|Text|Range)} nodeOrRange
+ * @returns {(Element|Text|Range)} nodeOrRange
  */
-function scrollToNode(node) {
+function scrollToNodeOrRange(nodeOrRange) {
 
     var scrollingElement = bodyOrHtml();
     var direction = FolioWebView.getDirection();
@@ -688,26 +687,28 @@ function scrollToNode(node) {
     // For Direction.HORIZONTAL
     var nodeOffsetLeft;
 
-    switch (node.nodeType) {
+    if (nodeOrRange instanceof Range || nodeOrRange.nodeType === Node.TEXT_NODE) {
 
-        case Node.TEXT_NODE:
+        var rect;
+        if (nodeOrRange.nodeType && nodeOrRange.nodeType === Node.TEXT_NODE) {
             var range = document.createRange();
-            range.selectNode(node);
-            var rect = RangeFix.getBoundingClientRect(range);
-            nodeOffsetTop = scrollingElement.scrollTop + rect.top;
-            nodeOffsetHeight = rect.height;
-            nodeOffsetLeft = scrollingElement.scrollLeft + rect.left;
-            break;
+            range.selectNode(nodeOrRange);
+            rect = RangeFix.getBoundingClientRect(range);
+        } else {
+            rect = RangeFix.getBoundingClientRect(nodeOrRange);
+        }
+        nodeOffsetTop = scrollingElement.scrollTop + rect.top;
+        nodeOffsetHeight = rect.height;
+        nodeOffsetLeft = scrollingElement.scrollLeft + rect.left;
 
-        case Node.ELEMENT_NODE:
-            nodeOffsetTop = node.offsetTop;
-            nodeOffsetHeight = node.offsetHeight;
-            nodeOffsetLeft = node.offsetLeft;
-            break;
+    } else if (nodeOrRange.nodeType === Node.ELEMENT_NODE) {
 
-        default:
-            console.error("-> Illegal Argument Exception, node.nodeType found " + node.nodeType);
-            return null;
+        nodeOffsetTop = nodeOrRange.offsetTop;
+        nodeOffsetHeight = nodeOrRange.offsetHeight;
+        nodeOffsetLeft = nodeOrRange.offsetLeft;
+
+    } else {
+        throw("-> Illegal Argument Exception, nodeOrRange -> " + nodeOrRange);
     }
 
     switch (direction) {
@@ -747,202 +748,26 @@ function scrollToNode(node) {
             break;
     }
 
-    return node;
+    return nodeOrRange;
 }
 
-// Testing purpose calls
-function test() {
+function highlightSearchLocator(rangeCfi) {
 
-    ++testCounter;
-    console.log("-> testCounter = " + testCounter);
+    try {
+        var $obj = EPUBcfi.Interpreter.getRangeTargetElements(rangeCfi, document);
 
-    var searchQuery = "look";
+        var range = document.createRange();
+        range.setStart($obj.startElement, $obj.startOffset);
+        range.setEnd($obj.endElement, $obj.endOffset);
 
-    if (testCounter == 1) {
-
-        getCompatMode();
-
-        if (FolioWebView.getDirection() == Direction.HORIZONTAL)
-            initHorizontalDirection();
-
-        highlightSearchResult(searchQuery, 1);
-
-    } else if (testCounter == 2) {
-
-        makeSearchResultsInvisible();
-
-    } else if (testCounter == 3) {
-
-        highlightSearchResult(searchQuery, 2);
-
-    } else if (testCounter == 4) {
-
-    }
-}
-
-function highlightSearchResult(searchQuery, occurrenceInChapter) {
-
-    if (searchQuery == lastSearchQuery) {
-        makeSearchResultsInvisible();
-    } else {
-        resetSearchResults();
-        searchResults = applySearchResultClass(searchQuery);
-        console.debug("-> Search Query Found = " + searchResults.length);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        scrollToNodeOrRange(range);
+    } catch (e) {
+        console.error("-> " + e);
     }
 
-    applySearchResultVisibleClass(occurrenceInChapter);
     LoadingView.hide();
-}
-
-function applySearchResultClass(searchQuery) {
-
-    var searchQueryRegExp = new RegExp(escapeRegExp(searchQuery), "i");
-
-    var searchResults = [];
-    var searchChildNodesArray = [];
-    var elementArray = [];
-    var textNodeArray = [];
-
-    var bodyElement = document.getElementsByTagName('body')[0];
-    var elementsInBody = bodyElement.getElementsByTagName('*');
-
-    for (var i = 0; i < elementsInBody.length; i++) {
-
-        var childNodes = elementsInBody[i].childNodes;
-
-        for (var j = 0; j < childNodes.length; j++) {
-
-            if (childNodes[j].nodeType == Node.TEXT_NODE &&
-                childNodes[j].nodeValue.trim().length) {
-                //console.log("-> " + childNodes[j].nodeValue);
-
-                if (childNodes[j].nodeValue.match(searchQueryRegExp)) {
-                    //console.log("-> Found -> " + childNodes[j].nodeValue);
-
-                    searchChildNodesArray.push(
-                        getSearchChildNodes(childNodes[j].nodeValue, searchQuery));
-
-                    elementArray.push(elementsInBody[i]);
-                    textNodeArray.push(childNodes[j]);
-                }
-            }
-        }
-    }
-
-    for (var i = 0; i < searchChildNodesArray.length; i++) {
-
-        var searchChildNodes = searchChildNodesArray[i];
-
-        for (var j = 0; j < searchChildNodes.length; j++) {
-
-            if (searchChildNodes[j].className == "search-result")
-                searchResults.push(searchChildNodes[j]);
-            elementArray[i].insertBefore(searchChildNodes[j], textNodeArray[i]);
-        }
-
-        elementArray[i].removeChild(textNodeArray[i]);
-    }
-
-    lastSearchQuery = searchQuery;
-    return searchResults;
-}
-
-function getSearchChildNodes(text, searchQuery) {
-
-    var arrayIndex = [];
-    var matchIndexStart = -1;
-    var textChunk = "";
-    var searchChildNodes = [];
-
-    for (var i = 0, j = 0; i < text.length; i++) {
-
-        textChunk += text[i];
-
-        if (text[i].match(new RegExp(escapeRegExp(searchQuery[j]), "i"))) {
-
-            if (matchIndexStart == -1)
-                matchIndexStart = i;
-
-            if (searchQuery.length == j + 1) {
-
-                var textNode = document.createTextNode(
-                    textChunk.substring(0, textChunk.length - searchQuery.length));
-
-                var searchNode = document.createElement("span");
-                searchNode.className = "search-result";
-                var queryTextNode = document.createTextNode(
-                    text.substring(matchIndexStart, matchIndexStart + searchQuery.length));
-                searchNode.appendChild(queryTextNode);
-
-                searchChildNodes.push(textNode);
-                searchChildNodes.push(searchNode);
-
-                arrayIndex.push(matchIndexStart);
-                matchIndexStart = -1;
-                j = 0;
-                textChunk = "";
-
-            } else {
-                j++;
-            }
-
-        } else {
-            matchIndexStart = -1;
-            j = 0;
-        }
-    }
-
-    if (textChunk !== "") {
-        var textNode = document.createTextNode(textChunk);
-        searchChildNodes.push(textNode);
-    }
-
-    return searchChildNodes;
-}
-
-function makeSearchResultsVisible() {
-
-    for (var i = 0; i < searchResults.length; i++) {
-        searchResults[i].className = "search-result-visible";
-    }
-    searchResultsInvisible = false;
-}
-
-function makeSearchResultsInvisible() {
-
-    if (searchResultsInvisible)
-        return;
-    for (var i = 0; i < searchResults.length; i++) {
-        if (searchResults[i].className == "search-result-visible")
-            searchResults[i].className = "search-result-invisible";
-    }
-    searchResultsInvisible = true;
-}
-
-function applySearchResultVisibleClass(occurrenceInChapter) {
-
-    var searchResult = searchResults[occurrenceInChapter - 1];
-    if (searchResult === undefined)
-        return;
-    searchResult.className = "search-result-visible";
-    searchResultsInvisible = false;
-
-    scrollToNode(searchResult);
-}
-
-function resetSearchResults() {
-
-    for (var i = 0; i < searchResults.length; i++) {
-        searchResults[i].outerHTML = searchResults[i].innerHTML;
-    }
-
-    searchResults = [];
-    lastSearchQuery = null;
-    searchResultsInvisible = true;
-}
-
-function escapeRegExp(str) {
-    return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }
 
 /**
@@ -1022,7 +847,7 @@ function computeLastReadCfi() {
         cfi = EPUBcfi.Generator.generateElementCFIComponent(node);
     }
 
-    cfi = EPUBcfi.Generator.generateCompleteCFI("", cfi);
+    cfi = EPUBcfi.Generator.generateCompleteCFI("/0!", cfi);
     viewportRect = null;
     FolioPageFragment.storeLastReadCfi(cfi);
 }
@@ -1078,8 +903,8 @@ function getFirstVisibleNode(node) {
 function scrollToCfi(cfi) {
 
     try {
-        var $node = EPUBcfi.Interpreter.getTargetElementWithPartialCFI(cfi, document);
-        scrollToNode($node[0]);
+        var $node = EPUBcfi.Interpreter.getTargetElement(cfi, document);
+        scrollToNodeOrRange($node[0]);
     } catch (e) {
         console.error("-> " + e);
     }

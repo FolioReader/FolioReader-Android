@@ -262,8 +262,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
                     supportLoaderManager.restartLoader(SEARCH_LOADER, null, this@SearchActivity)
 
                     val intent = Intent(FolioActivity.ACTION_SEARCH_CLEAR)
-                    LocalBroadcastManager.getInstance(this@SearchActivity)
-                            .sendBroadcast(intent)
+                    LocalBroadcastManager.getInstance(this@SearchActivity).sendBroadcast(intent)
                 }
                 return false
             }

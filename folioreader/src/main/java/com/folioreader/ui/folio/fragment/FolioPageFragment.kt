@@ -30,7 +30,7 @@ import com.folioreader.model.HighLight
 import com.folioreader.model.HighlightImpl
 import com.folioreader.model.event.*
 import com.folioreader.model.locators.ReadLocator
-import com.folioreader.model.search.SearchItem
+import com.folioreader.model.locators.SearchLocator
 import com.folioreader.model.sqlite.HighLightTable
 import com.folioreader.ui.base.HtmlTask
 import com.folioreader.ui.base.HtmlTaskCallback
@@ -68,7 +68,7 @@ class FolioPageFragment : Fragment(),
         private const val BUNDLE_BOOK_TITLE = "BUNDLE_BOOK_TITLE"
         private const val BUNDLE_SPINE_ITEM = "BUNDLE_SPINE_ITEM"
         private const val BUNDLE_READ_LOCATOR_CONFIG_CHANGE = "BUNDLE_READ_LOCATOR_CONFIG_CHANGE"
-        const val BUNDLE_SEARCH_ITEM = "BUNDLE_SEARCH_ITEM"
+        const val BUNDLE_SEARCH_LOCATOR = "BUNDLE_SEARCH_LOCATOR"
 
         @JvmStatic
         fun newInstance(spineIndex: Int, bookTitle: String, spineRef: Link, bookId: String): FolioPageFragment {
@@ -117,7 +117,7 @@ class FolioPageFragment : Fragment(),
     private var mediaController: MediaController? = null
     private var mConfig: Config? = null
     private var mBookId: String? = null
-    var searchItemVisible: SearchItem? = null
+    var searchLocatorVisible: SearchLocator? = null
 
     private val webviewUrl: String
         get() = Constants.LOCALHOST + Uri.encode(mBookTitle) + spineItem!!.href
@@ -145,9 +145,7 @@ class FolioPageFragment : Fragment(),
         spineItem = arguments!!.getSerializable(BUNDLE_SPINE_ITEM) as Link
         mBookId = arguments!!.getString(FolioReader.EXTRA_BOOK_ID)
 
-        if (savedInstanceState != null) {
-            searchItemVisible = savedInstanceState.getParcelable(BUNDLE_SEARCH_ITEM)
-        }
+        searchLocatorVisible = savedInstanceState?.getParcelable(BUNDLE_SEARCH_LOCATOR)
 
         if (spineItem != null) {
             // SMIL Parsing not yet implemented in r2-streamer-kotlin
@@ -395,7 +393,7 @@ class FolioPageFragment : Fragment(),
 
         override fun onPageFinished(view: WebView, url: String) {
 
-            mWebview!!.loadUrl("javascript:getCompatMode()")
+            mWebview!!.loadUrl("javascript:checkCompatMode()")
             mWebview!!.loadUrl("javascript:alert(getReadingTime())")
 
             if (mActivityCallback!!.direction == Config.Direction.HORIZONTAL)
@@ -412,12 +410,11 @@ class FolioPageFragment : Fragment(),
 
             if (mIsPageReloaded) {
 
-                if (searchItemVisible != null) {
-                    val escapedSearchQuery = searchItemVisible!!.searchQuery
-                            .replace("\"", "\\\"")
-                    val call = String.format(getString(R.string.highlight_search_result),
-                            escapedSearchQuery, searchItemVisible!!.occurrenceInChapter)
-                    mWebview!!.loadUrl(call)
+                if (searchLocatorVisible != null) {
+                    val callHighlightSearchLocator = String.format(
+                            getString(R.string.callHighlightSearchLocator),
+                            searchLocatorVisible?.locations?.cfi)
+                    mWebview!!.loadUrl(callHighlightSearchLocator)
 
                 } else if (isCurrentFragment) {
                     val cfi = lastReadLocator!!.locations.cfi
@@ -443,12 +440,11 @@ class FolioPageFragment : Fragment(),
                 mWebview!!.loadUrl(String.format(getString(R.string.go_to_highlight), highlightId))
                 highlightId = null
 
-            } else if (searchItemVisible != null) {
-                val escapedSearchQuery = searchItemVisible!!.searchQuery
-                        .replace("\"", "\\\"")
-                val call = String.format(getString(R.string.highlight_search_result),
-                        escapedSearchQuery, searchItemVisible!!.occurrenceInChapter)
-                mWebview!!.loadUrl(call)
+            } else if (searchLocatorVisible != null) {
+                val callHighlightSearchLocator = String.format(
+                        getString(R.string.callHighlightSearchLocator),
+                        searchLocatorVisible?.locations?.cfi)
+                mWebview!!.loadUrl(callHighlightSearchLocator)
 
             } else if (isCurrentFragment) {
 
@@ -739,12 +735,10 @@ class FolioPageFragment : Fragment(),
      */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        Log.v(LOG_TAG, "-> onSaveInstanceState -> ${spineItem?.href}")
+
         this.outState = outState
-
-        if (isCurrentFragment)
-            Log.v(LOG_TAG, "-> onSaveInstanceState")
-
-        outState.putParcelable(BUNDLE_SEARCH_ITEM, searchItemVisible)
+        outState.putParcelable(BUNDLE_SEARCH_LOCATOR, searchLocatorVisible)
     }
 
     fun highlight(style: HighlightImpl.HighlightStyle, isAlreadyCreated: Boolean) {
@@ -821,22 +815,22 @@ class FolioPageFragment : Fragment(),
         }
     }
 
-    fun highlightSearchItem(searchItem: SearchItem) {
-        Log.v(LOG_TAG, "-> highlightSearchItem")
-        this.searchItemVisible = searchItem
+    fun highlightSearchLocator(searchLocator: SearchLocator) {
+        Log.v(LOG_TAG, "-> highlightSearchLocator")
+        this.searchLocatorVisible = searchLocator
 
         if (loadingView != null && loadingView!!.visibility != View.VISIBLE) {
             loadingView!!.show()
-            val escapedSearchQuery = searchItem.searchQuery.replace("\"", "\\\"")
-            val call = String.format(getString(R.string.highlight_search_result),
-                    escapedSearchQuery, searchItem.occurrenceInChapter)
-            mWebview!!.loadUrl(call)
+            val callHighlightSearchLocator = String.format(
+                    getString(R.string.callHighlightSearchLocator),
+                    searchLocatorVisible?.locations?.cfi)
+            mWebview!!.loadUrl(callHighlightSearchLocator)
         }
     }
 
-    fun resetSearchResults() {
-        Log.v(LOG_TAG, "-> resetSearchResults -> " + spineItem!!.href!!)
-        mWebview!!.loadUrl(getString(R.string.reset_search_results))
-        searchItemVisible = null
+    fun clearSearchLocator() {
+        Log.v(LOG_TAG, "-> clearSearchLocator -> " + spineItem!!.href!!)
+        mWebview!!.loadUrl(getString(R.string.callClearSelection))
+        searchLocatorVisible = null
     }
 }
