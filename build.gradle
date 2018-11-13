@@ -37,14 +37,14 @@ allprojects {
 }
 
 ext {
-    folioreaderSdkVersion = "0.5.1"
-    r2StreamerKotlinVersion = "1.0.3-6.dev"
-    r2SharedKotlinVersion = "1.0.3-3.dev"
+    folioreaderSdkVersion = "0.5.2"
+    r2StreamerKotlinVersion = "1.0.3-7"
+    r2SharedKotlinVersion = "1.0.3-4"
 
     projectVersionCode = 1
     projectVersionName = "1.0"
 
-    androidMinSdkVersion = 19
+    androidMinSdkVersion = 21
     androidCompileSdkVersion = 28
     androidTargetSdkVersion = 28
     androidSupportLibVersion = "28.0.0"

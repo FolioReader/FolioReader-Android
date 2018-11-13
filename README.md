@@ -2,7 +2,7 @@
 
 [![Build Status](https://api.travis-ci.org/FolioReader/FolioReader-Android.svg?branch=master)](https://travis-ci.org/FolioReader/FolioReader-Android)
 
-FolioReader-Android is an ePub reader written in Java.
+FolioReader-Android is an ePub reader written in Java and Kotlin.
 
 ### Features
 
@@ -13,17 +13,17 @@ FolioReader-Android is an ePub reader written in Java.
 - [x] List / Edit / Delete Highlights
 - [x] Handle Internal and External Links
 - [x] Portrait / Landscape
-- [x] Reading Time Left / Pages left
+- [ ] Reading Time Left / Pages left
 - [x] In-App Dictionary
-- [x] Media Overlays (Sync text rendering with audio playback)
-- [x] TTS - Text to Speech Support
+- [ ] Media Overlays (Sync text rendering with audio playback)
+- [ ] TTS - Text to Speech Support
 - [ ] Parse epub cover image
 - [ ] PDF support
 - [x] Book Search
 - [x] Add Notes to a Highlight
 - [ ] Better Documentation
-- [x] Last Read Position Listener
-- [x] Horizontal reading
+- [x] Last Read Locator
+- [x] Horizontal Reading
 - [x] Distraction Free Reading
 
 ## Demo
@@ -31,9 +31,9 @@ FolioReader-Android is an ePub reader written in Java.
 ![Custom fonts](https://cloud.githubusercontent.com/assets/1277242/19012915/0661c7b2-87e0-11e6-81d6-8c71051e1074.gif)
 ##### Day and Night Mode
 ![Day night mode](https://cloud.githubusercontent.com/assets/1277242/19012914/f42059c4-87df-11e6-97f8-29e61a79e8aa.gif)
-##### Text Highlighting 
+##### Text Highlighting
 ![Highlight](https://cloud.githubusercontent.com/assets/1277242/19012904/c2700c3a-87df-11e6-97ed-507765b3ddf0.gif)
-##### Media Overlays 
+##### Media Overlays
 ![Media Overlay](https://cloud.githubusercontent.com/assets/1277242/19012908/d61f3ce2-87df-11e6-8652-d72b6a1ad9a3.gif)
 
 ### Gradle
@@ -44,7 +44,7 @@ Add following dependency to your root project `build.gradle` file:
 allprojects {
     repositories {
         ...
-        maven { url "https://dl.bintray.com/mobisystech/maven" }
+        jcenter()
         maven { url "https://jitpack.io" }
         ...
     }
@@ -56,39 +56,14 @@ Add following dependency to your app module `build.gradle` file:
 ```groovy
 dependencies {
     ...
-    implementation "com.folioreader:folioreader:0.5.1"
+    implementation "com.folioreader:folioreader:0.5.2"
     ...
 }
 ```
 
+### Enable Multidex support
 
-### AndroidManifest
-
-Starting with Android 9.0 (API level 28), cleartext support is disabled by default.
-
-{your-app-module}/res/xml/network_security_config.xml
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<network-security-config>
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">127.0.0.1</domain>
-        <domain includeSubdomains="true">localhost</domain>
-    </domain-config>
-</network-security-config>
-```
-
-Then add network_security_config.xml in your app module's AndroidManifest.xml
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<manifest ...>
-    ...
-    <application android:networkSecurityConfig="@xml/network_security_config">
-    ...
-    </application>
-</manifest>
-```
+Enable Multidex support as explained in this [Android Doc](https://developer.android.com/studio/build/multidex)
 
 ### Usage
 
@@ -100,22 +75,17 @@ FolioReader folioReader = FolioReader.get();
 
 Call the function `openBook()`:
 
-##### opening book from assets - 
+##### opening book from assets -
 
 ```java
 folioReader.openBook("file:///android_asset/TheSilverChair.epub");
 ```
-##### opening book from raw - 
+##### opening book from raw -
 
 ```java
 folioReader.openBook(R.raw.adventures);
 ```
 
-<br />
-
-**Note: From v0.4.1 you don't need to specify permissions and `FolioActivity` tag in AndroidManifest.xml**
-
-<br />
 
 ## WIKI
 
@@ -126,21 +96,21 @@ folioReader.openBook(R.raw.adventures);
     * [Highlight Action](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight-Action)
     * [Highlight Event](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight-Event)
     * [Providing External Highlight](https://github.com/FolioReader/FolioReader-Android/wiki/Providing-External-Highlight)
-* [ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/ReadPosition)
-    * [Get ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/Get-ReadPosition)
-    * [Set ReadPosition](https://github.com/FolioReader/FolioReader-Android/wiki/Set-ReadPosition)
+* [ReadLocator](https://github.com/FolioReader/FolioReader-Android/wiki/ReadLocator)
+    * [Get ReadLocator](https://github.com/FolioReader/FolioReader-Android/wiki/Get-ReadLocator)
+    * [Set ReadLocator](https://github.com/FolioReader/FolioReader-Android/wiki/Set-ReadLocator)
 * [Clean up code](https://github.com/FolioReader/FolioReader-Android/wiki/Clean-up-code)
 
 ## Reporting Issue
 
-Please follow [Issue Template](https://github.com/FolioReader/FolioReader-Android/blob/master/.github/ISSUE_TEMPLATE.md) to report any issue. 
+Please follow [Issue Template](https://github.com/FolioReader/FolioReader-Android/blob/master/.github/ISSUE_TEMPLATE.md) to report any issue.
 
 ## Share your application
 If you are using FolioReader in your application, share your application link in [this issue](https://github.com/FolioReader/FolioReader-Android/issues/291)
 
 ### Credits
 1. <a href="https://github.com/daimajia/AndroidSwipeLayout">SwipeLayout</a>
-2. <a href="https://github.com/readium/r2-streamer-java">r2-streamer-java</a>
+2. <a href="https://github.com/readium/r2-streamer-kotlin">r2-streamer-kotlin</a>
 3. <a href="http://developer.pearson.com/apis/dictionaries">Pearson Dictionaries</a>
 4. <a href="https://github.com/timdown/rangy">rangy</a>
 

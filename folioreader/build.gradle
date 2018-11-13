@@ -110,7 +110,7 @@ dependencies {
         changing = true
     }
 
-    // To use only ReflectionUtils in Spring framework
+    // Only ReflectionUtils in Spring framework is used
     implementation 'org.springframework:spring-core:4.3.19.RELEASE'
 }
 apply from: '../folioreader/bintray/bintrayv1.gradle'

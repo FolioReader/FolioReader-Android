@@ -87,9 +87,6 @@ class SearchLoader : AsyncTaskLoader<Any?> {
 
             //Thread.sleep(6000)
 
-            /*val objectMapper = ObjectMapper()
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            locatorList = objectMapper.readValue(stringBuilder.toString())*/
             val locatorType = object : TypeToken<MutableList<Locator>>() {}.type
             locatorList = Gson().fromJson(stringBuilder.toString(), locatorType)
             Log.d(LOG_TAG, "-> loadInBackground -> " + stringBuilder.toString())

@@ -56,6 +56,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
+    implementation 'com.android.support:multidex:1.0.3'
+
     implementation project(':folioreader')
     //implementation "com.folioreader:folioreader:$folioreaderSdkVersion"
 
@@ -63,6 +65,4 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
-
-    implementation 'com.android.support:multidex:1.0.3'
 }

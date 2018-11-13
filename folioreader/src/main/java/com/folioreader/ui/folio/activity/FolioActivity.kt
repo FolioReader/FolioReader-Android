@@ -461,6 +461,9 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 val cbzParser = CbzParser()
                 cbzParser.parse(path!!, "")
             }
+            else -> {
+                null
+            }
         }
 
         val portNumber = intent.getIntExtra(Config.INTENT_PORT, Constants.PORT_NUMBER)
@@ -470,11 +473,11 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         r2StreamerServer!!.start()
     }
 
-    fun onBookInitFailure() {
+    private fun onBookInitFailure() {
         //TODO -> Fail gracefully
     }
 
-    fun onBookInitSuccess() {
+    private fun onBookInitSuccess() {
 
         val publication = pubBox!!.publication
         spine = publication.spine
@@ -525,7 +528,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         }
     }
 
-    fun initDistractionFreeMode(savedInstanceState: Bundle?) {
+    private fun initDistractionFreeMode(savedInstanceState: Bundle?) {
         Log.v(LOG_TAG, "-> initDistractionFreeMode")
 
         window.decorView.setOnSystemUiVisibilityChangeListener(this)
@@ -673,7 +676,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         }
     }
 
-    fun showSystemUI() {
+    private fun showSystemUI() {
         Log.v(LOG_TAG, "-> showSystemUI")
 
         if (Build.VERSION.SDK_INT >= 16) {
@@ -689,7 +692,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         }
     }
 
-    fun hideSystemUI() {
+    private fun hideSystemUI() {
         Log.v(LOG_TAG, "-> hideSystemUI")
 
         if (Build.VERSION.SDK_INT >= 16) {
