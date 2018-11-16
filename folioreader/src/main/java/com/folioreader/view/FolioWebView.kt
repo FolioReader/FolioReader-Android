@@ -8,9 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.RequiresApi
-import android.support.v4.content.ContextCompat
-import android.support.v4.view.GestureDetectorCompat
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.Log
@@ -22,6 +19,9 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.widget.PopupWindow
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
+import androidx.core.view.GestureDetectorCompat
 import com.folioreader.Config
 import com.folioreader.Constants
 import com.folioreader.R

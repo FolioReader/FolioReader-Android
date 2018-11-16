@@ -3,11 +3,6 @@ package com.folioreader.ui.folio.fragment
 import android.app.Dialog
 import android.os.Build
 import android.os.Bundle
-import android.support.design.widget.BottomSheetBehavior
-import android.support.design.widget.BottomSheetDialog
-import android.support.design.widget.BottomSheetDialogFragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.content.ContextCompat
 import android.text.Html
 import android.util.Log
 import android.view.KeyEvent
@@ -16,6 +11,8 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import com.folioreader.Config
 import com.folioreader.R
 import com.folioreader.model.event.MediaOverlayHighlightStyleEvent
@@ -24,6 +21,9 @@ import com.folioreader.util.AppUtil
 import com.folioreader.util.UiUtil
 import com.folioreader.view.MediaControllerCallback
 import com.folioreader.view.StyleableTextView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.greenrobot.eventbus.EventBus
 
 class MediaControllerFragment : BottomSheetDialogFragment() {

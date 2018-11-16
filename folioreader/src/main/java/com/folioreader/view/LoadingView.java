@@ -3,8 +3,6 @@ package com.folioreader.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Handler;
-import android.support.constraint.ConstraintLayout;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.webkit.JavascriptInterface;
@@ -14,6 +12,9 @@ import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.UiUtil;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class LoadingView extends ConstraintLayout {

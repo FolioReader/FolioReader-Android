@@ -1,7 +1,7 @@
 package com.folioreader.ui.folio.adapter
 
-import android.support.v7.widget.RecyclerView
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
 
 open class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     var listViewType: ListViewType = ListViewType.UNKNOWN_VIEW

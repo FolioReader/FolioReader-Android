@@ -2,13 +2,13 @@ package com.folioreader.view
 
 import android.content.Context
 import android.os.Handler
-import android.support.v4.view.GestureDetectorCompat
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
 import android.util.AttributeSet
 import android.util.Log
 import android.view.*
 import android.webkit.JavascriptInterface
+import androidx.core.view.GestureDetectorCompat
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager.widget.ViewPager
 import com.folioreader.R
 
 class WebViewPager : ViewPager {

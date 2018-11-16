@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcelable;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
@@ -19,6 +18,8 @@ import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadLocatorListener;
 
 import java.util.List;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
  * Created by avez raj on 9/13/2017.

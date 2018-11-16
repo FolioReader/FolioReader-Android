@@ -4,8 +4,8 @@ import android.app.SearchManager
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.content.AsyncTaskLoader
 import android.util.Log
+import androidx.loader.content.AsyncTaskLoader
 import com.folioreader.model.locators.SearchItemType
 import com.folioreader.model.locators.SearchLocator
 import com.folioreader.ui.folio.activity.SearchActivity

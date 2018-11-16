@@ -4,9 +4,6 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,6 +18,10 @@ import com.folioreader.util.AppUtil;
 import com.folioreader.util.UiUtil;
 
 import org.readium.r2.shared.Publication;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentTransaction;
 
 public class ContentHighlightActivity extends AppCompatActivity {
     private boolean mIsNightMode;

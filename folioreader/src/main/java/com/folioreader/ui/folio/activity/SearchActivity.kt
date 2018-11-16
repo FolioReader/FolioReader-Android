@@ -6,21 +6,21 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
-import android.support.v4.app.LoaderManager
-import android.support.v4.content.Loader
-import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.app.ActionBar
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SearchView
-import android.support.v7.widget.Toolbar
 import android.text.TextUtils
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
+import androidx.loader.app.LoaderManager
+import androidx.loader.content.Loader
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.folioreader.Config
 import com.folioreader.R
 import com.folioreader.loaders.SearchLoader
@@ -31,7 +31,6 @@ import com.folioreader.util.AppUtil
 import com.folioreader.util.UiUtil
 import com.folioreader.view.FolioSearchView
 import kotlinx.android.synthetic.main.activity_search.*
-import java.lang.Exception
 import java.lang.reflect.Field
 
 class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,

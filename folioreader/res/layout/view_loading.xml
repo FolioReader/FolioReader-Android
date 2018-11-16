@@ -5,7 +5,7 @@
     tools:context="com.folioreader.view.LoadingView"
     tools:layout_height="match_parent"
     tools:layout_width="match_parent"
-    tools:parentTag="android.support.constraint.ConstraintLayout">
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <ProgressBar
         android:id="@+id/progressBar"

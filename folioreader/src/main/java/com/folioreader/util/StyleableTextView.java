@@ -1,10 +1,11 @@
 package com.folioreader.util;
 
 import android.content.Context;
-import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 
 import com.folioreader.R;
+
+import androidx.appcompat.widget.AppCompatTextView;
 
 public class StyleableTextView extends AppCompatTextView {
 
