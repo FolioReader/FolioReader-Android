@@ -1,7 +1,6 @@
 package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
-
 import com.folioreader.model.HighLight;
 import com.folioreader.model.sqlite.HighLightTable;
 

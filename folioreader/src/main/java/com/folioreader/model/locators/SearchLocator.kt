@@ -27,13 +27,14 @@ class SearchLocator : Locator, Parcelable {
     }
 
     constructor(parcel: Parcel) : this(
-            Locator(
-                    parcel.readString()!!,
-                    parcel.readLong(),
-                    parcel.readString()!!,
-                    parcel.readSerializable() as Locations,
-                    parcel.readSerializable() as LocatorText?
-            ), parcel.readString()!!, SearchItemType.valueOf(parcel.readString()!!))
+        Locator(
+            parcel.readString()!!,
+            parcel.readLong(),
+            parcel.readString()!!,
+            parcel.readSerializable() as Locations,
+            parcel.readSerializable() as LocatorText?
+        ), parcel.readString()!!, SearchItemType.valueOf(parcel.readString()!!)
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(href)

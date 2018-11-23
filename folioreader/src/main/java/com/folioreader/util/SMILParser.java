@@ -1,7 +1,6 @@
 package com.folioreader.util;
 
 import com.folioreader.model.media_overlay.OverlayItems;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 

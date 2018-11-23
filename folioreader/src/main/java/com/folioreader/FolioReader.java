@@ -6,20 +6,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcelable;
-
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.locators.ReadLocator;
 import com.folioreader.model.sqlite.DbAdapter;
+import com.folioreader.ui.activity.FolioActivity;
 import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.ui.base.SaveReceivedHighlightTask;
-import com.folioreader.ui.folio.activity.FolioActivity;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadLocatorListener;
 
 import java.util.List;
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
  * Created by avez raj on 9/13/2017.

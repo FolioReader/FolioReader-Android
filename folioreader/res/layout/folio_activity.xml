@@ -5,10 +5,10 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.folio.activity.FolioActivity"
+    tools:context="com.folioreader.ui.activity.FolioActivity"
     tools:menu="@menu/menu_main">
 
-    <com.folioreader.view.DirectionalViewpager
+    <com.folioreader.ui.view.DirectionalViewpager
         android:id="@+id/folioPageViewPager"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.folioreader.view.FolioAppBarLayout
+    <com.folioreader.ui.view.FolioAppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -34,6 +34,6 @@
             app:contentInsetStart="0dp"
             app:contentInsetStartWithNavigation="0dp" />
 
-    </com.folioreader.view.FolioAppBarLayout>
+    </com.folioreader.ui.view.FolioAppBarLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

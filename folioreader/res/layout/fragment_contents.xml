@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.folioreader.ui.tableofcontents.view.TableOfContentFragment">
+    tools:context="com.folioreader.ui.fragment.TableOfContentFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_menu"

@@ -34,7 +34,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_config_ib_night_mode" />
 
-    <com.folioreader.view.StyleableTextView
+    <com.folioreader.ui.view.StyleableTextView
         android:id="@+id/view_config_font_andada"
         android:layout_width="0dp"
         android:layout_height="50dp"
@@ -45,7 +45,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
-    <com.folioreader.view.StyleableTextView
+    <com.folioreader.ui.view.StyleableTextView
         android:id="@+id/view_config_font_lato"
         android:layout_width="0dp"
         android:layout_height="50dp"
@@ -57,7 +57,7 @@
         app:layout_constraintStart_toEndOf="@+id/view_config_font_andada"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
-    <com.folioreader.view.StyleableTextView
+    <com.folioreader.ui.view.StyleableTextView
         android:id="@+id/view_config_font_lora"
         android:layout_width="0dp"
         android:layout_height="50dp"
@@ -69,7 +69,7 @@
         app:layout_constraintStart_toEndOf="@+id/view_config_font_lato"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
-    <com.folioreader.view.StyleableTextView
+    <com.folioreader.ui.view.StyleableTextView
         android:id="@+id/view_config_font_raleway"
         android:layout_width="0dp"
         android:layout_height="50dp"

@@ -1,13 +1,12 @@
 package com.folioreader.util;
 
+import androidx.recyclerview.widget.RecyclerView;
 import com.folioreader.model.TOCLinkWrapper;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Multi-level expandable indentable list adapter.

@@ -19,16 +19,16 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.folio.activity.FolioActivity"
+            android:name="com.folioreader.ui.activity.FolioActivity"
             android:label="@string/app_name"
             android:theme="@style/FolioActivityDayTheme" />
 
         <activity
-            android:name=".ui.folio.activity.ContentHighlightActivity"
+            android:name="com.folioreader.ui.activity.ContentHighlightActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
-            android:name=".ui.folio.activity.SearchActivity"
+            android:name="com.folioreader.ui.activity.SearchActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />

@@ -4,11 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.sqlite.HighLightTable;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,8 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
  * Created by priyank on 5/12/16.

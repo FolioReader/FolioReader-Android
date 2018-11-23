@@ -112,7 +112,7 @@
             android:padding="8dp"
             android:text="Google search"
             android:visibility="gone"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
     </RelativeLayout>
 </RelativeLayout>

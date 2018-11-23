@@ -24,18 +24,21 @@ open class ReadLocator : Locator, Parcelable {
     constructor(bookId: String, href: String, created: Long, locations: Locations) :
             this(bookId, href, created, "", locations, null)
 
-    constructor(bookId: String, href: String, created: Long, title: String, locations: Locations,
-                text: LocatorText?) : super(href, created, title, locations, text) {
+    constructor(
+        bookId: String, href: String, created: Long, title: String, locations: Locations,
+        text: LocatorText?
+    ) : super(href, created, title, locations, text) {
         this.bookId = bookId
     }
 
     constructor(parcel: Parcel) : this(
-            parcel.readString()!!,
-            parcel.readString()!!,
-            parcel.readLong(),
-            parcel.readString()!!,
-            parcel.readSerializable() as Locations,
-            parcel.readSerializable() as LocatorText?)
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readLong(),
+        parcel.readString()!!,
+        parcel.readSerializable() as Locations,
+        parcel.readSerializable() as LocatorText?
+    )
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {
         dest?.writeString(bookId)
@@ -55,9 +58,9 @@ open class ReadLocator : Locator, Parcelable {
         fun fromJson(json: String?): ReadLocator? {
             return try {
                 ObjectMapperSingleton.getObjectMapper()
-                        .reader()
-                        .forType(ReadLocator::class.java)
-                        .readValue(json)
+                    .reader()
+                    .forType(ReadLocator::class.java)
+                    .readValue(json)
             } catch (e: Exception) {
                 Log.e(LOG_TAG, "-> ", e)
                 null

@@ -7,7 +7,7 @@
         android:id="@+id/itemSearch"
         android:icon="@drawable/ic_search"
         android:title="@string/menu_item_search"
-        app:actionViewClass="com.folioreader.view.FolioSearchView"
+        app:actionViewClass="com.folioreader.ui.view.FolioSearchView"
         app:showAsAction="always|collapseActionView"
         tools:showAsAction="always" />
 

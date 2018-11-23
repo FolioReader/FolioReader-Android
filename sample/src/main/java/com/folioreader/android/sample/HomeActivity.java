@@ -19,7 +19,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.Config;
@@ -37,9 +38,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 public class HomeActivity extends AppCompatActivity
         implements OnHighlightListener, ReadLocatorListener, FolioReader.OnClosedListener {

@@ -4,12 +4,10 @@ import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-
-import org.json.JSONObject;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.core.content.ContextCompat;
+import org.json.JSONObject;
 
 /**
  * Configuration class for FolioReader.

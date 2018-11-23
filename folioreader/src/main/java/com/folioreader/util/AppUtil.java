@@ -7,21 +7,15 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-
 import com.folioreader.Config;
 import com.folioreader.Constants;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static com.folioreader.util.SharedPreferenceUtil.getSharedPreferencesString;
 

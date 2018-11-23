@@ -13,26 +13,26 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/indicatorLayout">
 
-        <com.folioreader.view.WebViewPager
+        <com.folioreader.ui.view.WebViewPager
             android:id="@+id/webViewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.folioreader.view.FolioWebView
+        <com.folioreader.ui.view.FolioWebView
             android:id="@+id/folioWebView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
     </FrameLayout>
 
-    <com.folioreader.view.LoadingView
+    <com.folioreader.ui.view.LoadingView
         android:id="@+id/loadingView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:maxVisibleDuration="10000"
         tools:visibility="invisible" />
 
-    <com.folioreader.view.VerticalSeekbar
+    <com.folioreader.ui.view.VerticalSeekbar
         android:id="@+id/scrollSeekbar"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
