@@ -54,6 +54,8 @@ import com.folioreader.model.HighlightImpl
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent
 import com.folioreader.model.locators.ReadLocator
 import com.folioreader.model.locators.SearchLocator
+import com.folioreader.network.QualifiedTypeConverterFactory
+import com.folioreader.network.R2StreamerApi
 import com.folioreader.ui.adapter.FolioPageFragmentAdapter
 import com.folioreader.ui.adapter.SearchAdapter
 import com.folioreader.ui.fragment.FolioPageFragment
@@ -72,6 +74,9 @@ import org.readium.r2.streamer.parser.CbzParser
 import org.readium.r2.streamer.parser.EpubParser
 import org.readium.r2.streamer.parser.PubBox
 import org.readium.r2.streamer.server.Server
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.jackson.JacksonConverterFactory
 import java.lang.ref.WeakReference
 
 class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControllerCallback,
@@ -385,6 +390,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             if (searchUri == null)
                 return true
             val intent = Intent(this, SearchActivity::class.java)
+            intent.putExtra(SearchActivity.BUNDLE_SPINE_SIZE, spine?.size ?: 0)
             intent.putExtra(SearchActivity.BUNDLE_SEARCH_URI, searchUri)
             intent.putExtra(SearchAdapter.DATA_BUNDLE, searchAdapterDataBundle)
             intent.putExtra(SearchActivity.BUNDLE_SAVE_SEARCH_QUERY, searchQuery)
@@ -489,6 +495,18 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             "/" + bookFileName!!, null
         )
         r2StreamerServer!!.start()
+
+        FolioReader.get().retrofit = Retrofit.Builder()
+            .baseUrl(String.format(STREAMER_URL_TEMPLATE, portNumber.toString(), bookFileName))
+            .addConverterFactory(
+                QualifiedTypeConverterFactory(
+                    JacksonConverterFactory.create(),
+                    GsonConverterFactory.create()
+                )
+            )
+            .build()
+
+        FolioReader.get().r2StreamerApi = FolioReader.get().retrofit?.create(R2StreamerApi::class.java)
     }
 
     private fun onBookInitFailure() {
@@ -513,6 +531,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             }
         }
 
+        // searchUri currently not in use as it's uri is constructed through Retrofit,
+        // code kept just in case if required in future.
         for (link in publication.links) {
             if (link.rel.contains("search")) {
                 searchUri = Uri.parse("http://" + link.href!!)
@@ -822,8 +842,11 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         if (r2StreamerServer != null)
             r2StreamerServer!!.stop()
 
-        if (isFinishing)
+        if (isFinishing) {
             localBroadcastManager.sendBroadcast(Intent(FolioReader.ACTION_FOLIOREADER_CLOSED))
+            FolioReader.get().retrofit = null
+            FolioReader.get().r2StreamerApi = null
+        }
     }
 
     override fun getCurrentChapterIndex(): Int {

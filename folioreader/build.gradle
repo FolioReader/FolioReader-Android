@@ -100,6 +100,10 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$versions.jackson"
     implementation "com.google.code.gson:gson:$versions.gson"
 
+    implementation "com.squareup.retrofit2:retrofit:$versions.retrofit"
+    implementation "com.squareup.retrofit2:converter-jackson:$versions.retrofit"
+    implementation "com.squareup.retrofit2:converter-gson:$versions.retrofit"
+
     // R2 modules
     api("com.github.codetoart:r2-shared-kotlin:$versions.r2SharedKotlin") {
         changing = true
@@ -111,5 +115,8 @@ dependencies {
 
     // Only ReflectionUtils in Spring framework is used
     implementation 'org.springframework:spring-core:4.3.19.RELEASE'
+
+    // Lifecycle
+    implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
 }
 apply from: '../folioreader/bintray/bintrayv1.gradle'

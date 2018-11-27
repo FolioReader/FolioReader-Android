@@ -16,32 +16,31 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import androidx.loader.app.LoaderManager
-import androidx.loader.content.Loader
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.folioreader.Config
 import com.folioreader.R
+import com.folioreader.model.locators.SearchLocator
 import com.folioreader.ui.adapter.ListViewType
 import com.folioreader.ui.adapter.OnItemClickListener
 import com.folioreader.ui.adapter.SearchAdapter
-import com.folioreader.ui.loaders.SearchLoader
 import com.folioreader.ui.view.FolioSearchView
 import com.folioreader.util.AppUtil
 import com.folioreader.util.UiUtil
+import com.folioreader.viewmodels.SearchViewModel
 import kotlinx.android.synthetic.main.activity_search.*
 import java.lang.reflect.Field
 
-class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
-    OnItemClickListener {
+class SearchActivity : AppCompatActivity(), OnItemClickListener {
 
     companion object {
         @JvmField
         val LOG_TAG: String = SearchActivity::class.java.simpleName
-        const val SEARCH_LOADER = 101
+        const val BUNDLE_SPINE_SIZE = "BUNDLE_SPINE_SIZE"
         const val BUNDLE_SEARCH_URI = "BUNDLE_SEARCH_URI"
-        const val BUNDLE_IS_SEARCH_LOADER_RUNNING = "BUNDLE_IS_SEARCH_LOADER_RUNNING"
         const val BUNDLE_SAVE_SEARCH_QUERY = "BUNDLE_SAVE_SEARCH_QUERY"
         const val BUNDLE_IS_SOFT_KEYBOARD_VISIBLE = "BUNDLE_IS_SOFT_KEYBOARD_VISIBLE"
         const val BUNDLE_FIRST_VISIBLE_ITEM_INDEX = "BUNDLE_FIRST_VISIBLE_ITEM_INDEX"
@@ -52,6 +51,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         BACK_BUTTON_PRESSED(3)
     }
 
+    private var spineSize: Int = 0
     private lateinit var searchUri: Uri
     private lateinit var searchView: FolioSearchView
     private lateinit var actionBar: ActionBar
@@ -59,10 +59,9 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var searchAdapter: SearchAdapter
     private lateinit var searchAdapterDataBundle: Bundle
-    private var searchLoader: SearchLoader? = null
     private var savedInstanceState: Bundle? = null
     private var softKeyboardVisible: Boolean = true
-
+    private lateinit var searchViewModel: SearchViewModel
 
     // To get collapseButtonView from toolbar for any click events
     private val toolbarOnLayoutChangeListener: View.OnLayoutChangeListener = object : View.OnLayoutChangeListener {
@@ -127,30 +126,32 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
             Log.e(LOG_TAG, "-> ", e)
         }
 
+        spineSize = intent.getIntExtra(BUNDLE_SPINE_SIZE, 0)
         searchUri = intent.getParcelableExtra(BUNDLE_SEARCH_URI)
 
-        var loaderBundle: Bundle? = null
-        val dataBundle = intent.getBundleExtra(SearchAdapter.DATA_BUNDLE)
-        if (dataBundle == null) {
-            searchAdapterDataBundle = Bundle()
-            searchAdapterDataBundle.putString(ListViewType.KEY, ListViewType.INIT_VIEW.toString())
-        } else {
-            searchAdapterDataBundle = dataBundle
-            loaderBundle = Bundle()
-            loaderBundle.putBundle(SearchAdapter.DATA_BUNDLE, dataBundle)
-        }
-
-        searchAdapter = SearchAdapter(this, searchAdapterDataBundle)
+        searchAdapter = SearchAdapter(this)
         searchAdapter.onItemClickListener = this
         linearLayoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.adapter = searchAdapter
 
-        val position = searchAdapterDataBundle.getInt(BUNDLE_FIRST_VISIBLE_ITEM_INDEX)
-        recyclerView.scrollToPosition(position)
+        searchViewModel = ViewModelProviders.of(this).get(SearchViewModel::class.java)
+        searchAdapterDataBundle = searchViewModel.liveAdapterDataBundle.value!!
 
-        searchLoader = supportLoaderManager.initLoader(SEARCH_LOADER, loaderBundle, this)
-                as SearchLoader
+        val bundleFromFolioActivity = intent.getBundleExtra(SearchAdapter.DATA_BUNDLE)
+        if (bundleFromFolioActivity != null) {
+            searchViewModel.liveAdapterDataBundle.value = bundleFromFolioActivity
+            searchAdapterDataBundle = bundleFromFolioActivity
+            searchAdapter.changeDataBundle(bundleFromFolioActivity)
+            val position = bundleFromFolioActivity.getInt(BUNDLE_FIRST_VISIBLE_ITEM_INDEX)
+            Log.d(LOG_TAG, "-> onCreate -> scroll to previous position $position")
+            recyclerView.scrollToPosition(position)
+        }
+
+        searchViewModel.liveAdapterDataBundle.observe(this, Observer<Bundle> { dataBundle ->
+            searchAdapterDataBundle = dataBundle
+            searchAdapter.changeDataBundle(dataBundle)
+        })
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -160,6 +161,7 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
             searchUri = intent.getParcelableExtra(BUNDLE_SEARCH_URI)
         } else {
             intent.putExtra(BUNDLE_SEARCH_URI, searchUri)
+            intent.putExtra(BUNDLE_SPINE_SIZE, spineSize)
         }
 
         setIntent(intent)
@@ -172,11 +174,12 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         Log.v(LOG_TAG, "-> handleSearch")
 
         val query: String = intent.getStringExtra(SearchManager.QUERY)
-        val loaderBundle = Bundle()
-        loaderBundle.putParcelable(BUNDLE_SEARCH_URI, searchUri)
-        loaderBundle.putString(SearchManager.QUERY, query)
-        searchLoader = supportLoaderManager.restartLoader(SEARCH_LOADER, loaderBundle, this)
-                as SearchLoader
+        val newDataBundle = Bundle()
+        newDataBundle.putString(ListViewType.KEY, ListViewType.PAGINATION_IN_PROGRESS_VIEW.toString())
+        newDataBundle.putParcelableArrayList("DATA", ArrayList<SearchLocator>())
+        searchViewModel.liveAdapterDataBundle.value = newDataBundle
+
+        searchViewModel.search(spineSize, query)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -184,10 +187,6 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         Log.v(LOG_TAG, "-> onSaveInstanceState")
 
         outState.putCharSequence(BUNDLE_SAVE_SEARCH_QUERY, searchView.query)
-
-        val searchLoaderRunning = if (searchLoader == null) false else searchLoader!!.isRunning()
-        outState.putBoolean(BUNDLE_IS_SEARCH_LOADER_RUNNING, searchLoaderRunning)
-
         outState.putBoolean(BUNDLE_IS_SOFT_KEYBOARD_VISIBLE, softKeyboardVisible)
     }
 
@@ -196,13 +195,6 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         Log.v(LOG_TAG, "-> onRestoreInstanceState")
 
         this.savedInstanceState = savedInstanceState
-
-        val searchLoaderRunning = savedInstanceState.getBoolean(BUNDLE_IS_SEARCH_LOADER_RUNNING)
-        if (searchLoaderRunning) {
-            searchAdapterDataBundle = Bundle()
-            searchAdapterDataBundle.putString(ListViewType.KEY, ListViewType.LOADING_VIEW.toString())
-            searchAdapter.changeDataBundle(searchAdapterDataBundle)
-        }
     }
 
     private fun navigateBack() {
@@ -265,7 +257,9 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
 
                 if (TextUtils.isEmpty(newText)) {
                     Log.v(LOG_TAG, "-> onQueryTextChange -> Empty Query")
-                    supportLoaderManager.restartLoader(SEARCH_LOADER, null, this@SearchActivity)
+                    //supportLoaderManager.restartLoader(SEARCH_LOADER, null, this@SearchActivity)
+                    searchViewModel.cancelAllSearchCalls()
+                    searchViewModel.init()
 
                     val intent = Intent(FolioActivity.ACTION_SEARCH_CLEAR)
                     LocalBroadcastManager.getInstance(this@SearchActivity).sendBroadcast(intent)
@@ -305,45 +299,6 @@ class SearchActivity : AppCompatActivity(), LoaderManager.LoaderCallbacks<Any?>,
         }
 
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onCreateLoader(id: Int, bundle: Bundle?): Loader<Any?> {
-
-        when (id) {
-
-            SEARCH_LOADER -> {
-                Log.v(LOG_TAG, "-> onCreateLoader -> " + getLoaderName(id))
-                searchAdapterDataBundle = Bundle()
-                searchAdapterDataBundle.putString(ListViewType.KEY, ListViewType.LOADING_VIEW.toString())
-                searchAdapter.changeDataBundle(searchAdapterDataBundle)
-                return SearchLoader(this, bundle)
-            }
-
-            else -> throw UnsupportedOperationException("-> Unknown id: $id in onCreateLoader")
-        }
-    }
-
-    override fun onLoadFinished(loader: Loader<Any?>, data: Any?) {
-
-        when (loader.id) {
-
-            SEARCH_LOADER -> {
-                Log.v(LOG_TAG, "-> onLoadFinished -> " + getLoaderName(loader.id))
-                searchAdapterDataBundle = data as Bundle
-                searchAdapter.changeDataBundle(searchAdapterDataBundle)
-            }
-        }
-    }
-
-    override fun onLoaderReset(loader: Loader<Any?>) {
-        Log.v(LOG_TAG, "-> onLoaderReset -> " + getLoaderName(loader.id))
-    }
-
-    private fun getLoaderName(loaderId: Int): String {
-        return if (loaderId == SEARCH_LOADER)
-            "SEARCH_LOADER"
-        else
-            "UNKNOWN_LOADER"
     }
 
     override fun onItemClick(

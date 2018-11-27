@@ -55,7 +55,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textViewTitle"
-        tools:text="@tools:sample/lorem/random" />
+        tools:text="...republishers to fill in for you as you focus on print and quick-and-dirty ebooks, but a content imperative vital to your survival in the digital future, as I’ll take the odd detour from the planned route to point out..." />
 
     <View
         android:id="@+id/viewLineBottom"

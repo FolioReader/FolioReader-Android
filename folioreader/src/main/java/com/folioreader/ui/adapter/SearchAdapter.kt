@@ -25,37 +25,53 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private val context: Context
-    private var listViewType: ListViewType
-    var searchLocatorList: MutableList<SearchLocator>? = null
-        private set
+    private var listViewType: ListViewType = ListViewType.INIT_VIEW
+    private var searchLocatorList: MutableList<SearchLocator> = mutableListOf()
     var onItemClickListener: OnItemClickListener? = null
+
+    constructor(context: Context) : super() {
+        Log.v(LOG_TAG, "-> constructor")
+
+        this.context = context
+    }
 
     constructor(context: Context, dataBundle: Bundle) : super() {
         Log.v(LOG_TAG, "-> constructor")
 
         this.context = context
-        listViewType = ListViewType.fromString(dataBundle.getString("ListViewType"))
-        searchLocatorList = dataBundle.getParcelableArrayList("DATA")
+        listViewType = ListViewType.fromString(dataBundle.getString(ListViewType.KEY))
+        searchLocatorList = dataBundle.getParcelableArrayList("DATA") ?: mutableListOf()
     }
 
     fun changeDataBundle(dataBundle: Bundle) {
 
         listViewType = ListViewType.fromString(dataBundle.getString(ListViewType.KEY))
-        searchLocatorList = dataBundle.getParcelableArrayList("DATA")
+        searchLocatorList = dataBundle.getParcelableArrayList("DATA") ?: mutableListOf()
         notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {
 
-        return if (searchLocatorList == null || searchLocatorList?.size == 0) {
-            1
-        } else {
-            searchLocatorList!!.size
+        return when {
+            searchLocatorList.size == 0 -> 1
+            listViewType == ListViewType.PAGINATION_IN_PROGRESS_VIEW -> searchLocatorList.size + 1
+            else -> searchLocatorList.size
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        return listViewType.value
+
+        return if (listViewType == ListViewType.PAGINATION_IN_PROGRESS_VIEW &&
+            position == itemCount - 1
+        ) {
+            ListViewType.PAGINATION_IN_PROGRESS_VIEW.value
+
+        } else if (listViewType == ListViewType.PAGINATION_IN_PROGRESS_VIEW) {
+            ListViewType.NORMAL_VIEW.value
+
+        } else {
+            listViewType.value
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -85,6 +101,13 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 viewHolder = NormalViewHolder(itemView)
             }
 
+            ListViewType.PAGINATION_IN_PROGRESS_VIEW.value -> {
+
+                val itemView: View = LayoutInflater.from(context)
+                    .inflate(R.layout.item_search_pagination_in_progress, parent, false)
+                viewHolder = PaginationViewHolder(itemView)
+            }
+
             ListViewType.EMPTY_VIEW.value -> {
 
                 val itemView: View = LayoutInflater.from(context)
@@ -109,21 +132,9 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         val viewHolder = holder as ViewHolder
 
-        when (listViewType) {
+        when (getItemViewType(position)) {
 
-            ListViewType.INIT_VIEW -> {
-            }
-
-            ListViewType.LOADING_VIEW -> {
-            }
-
-            ListViewType.NORMAL_VIEW -> viewHolder.onBind(position)
-
-            ListViewType.EMPTY_VIEW -> {
-            }
-
-            ListViewType.FAILURE_VIEW -> {
-            }
+            ListViewType.NORMAL_VIEW.value -> viewHolder.onBind(position)
 
             else -> {
             }
@@ -156,7 +167,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
         override fun onBind(position: Int) {
 
             itemPosition = position
-            searchLocator = searchLocatorList!![position]
+            searchLocator = searchLocatorList[position]
 
             when (searchLocator.searchItemType) {
 
@@ -211,6 +222,12 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 this@SearchAdapter, this,
                 itemPosition, itemId
             )
+        }
+    }
+
+    inner class PaginationViewHolder(itemView: View) : ViewHolder(itemView) {
+        init {
+            listViewType = ListViewType.PAGINATION_IN_PROGRESS_VIEW
         }
     }
 

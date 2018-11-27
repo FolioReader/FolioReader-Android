@@ -27,5 +27,6 @@
     <attr name="popUpWindowBackground" format="reference|color" />
     <attr name="highlightDeleteFillColor" format="reference|color" />
     <attr name="underlineIconFillColorTop" format="reference|color" />
+    <attr name="scrollBarColor" format="reference|color" />
 
 </resources>

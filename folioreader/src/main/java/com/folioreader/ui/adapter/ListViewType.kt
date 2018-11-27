@@ -10,7 +10,8 @@ enum class ListViewType(val value: Int) {
     LOADING_VIEW(2),
     NORMAL_VIEW(3),
     EMPTY_VIEW(4),
-    FAILURE_VIEW(5);
+    FAILURE_VIEW(5),
+    PAGINATION_IN_PROGRESS_VIEW(6);
 
     companion object {
         const val KEY = "LIST_VIEW_TYPE"
