@@ -254,7 +254,7 @@ class FolioWebView : WebView {
         )
         handleHeight = textSelectionMiddleDrawable?.intrinsicHeight ?: (24 * density).toInt()
 
-        val config = AppUtil.getSavedConfig(context)
+        val config = AppUtil.getSavedConfig(context)!!
         val ctw = if (config.isNightMode) {
             ContextThemeWrapper(context, R.style.FolioNightTheme)
         } else {
@@ -586,7 +586,7 @@ class FolioWebView : WebView {
             val mViewsField = ReflectionUtils.findField(windowManagerGlobalClass, "mViews")
             mViewsField.isAccessible = true
             val mViews = mViewsField.get(mGlobal) as ArrayList<View>
-            val config = AppUtil.getSavedConfig(context)
+            val config = AppUtil.getSavedConfig(context)!!
 
             for (view in mViews) {
                 val handleViewClass = Class.forName("com.android.org.chromium.content.browser.input.HandleView")
@@ -614,7 +614,7 @@ class FolioWebView : WebView {
             val mViewsField = ReflectionUtils.findField(windowManagerGlobalClass, "mViews")
             mViewsField.isAccessible = true
             val mViews = mViewsField.get(mGlobal) as ArrayList<View>
-            val config = AppUtil.getSavedConfig(context)
+            val config = AppUtil.getSavedConfig(context)!!
 
             for (view in mViews) {
                 val popupDecorViewClass = Class.forName("android.widget.PopupWindow\$PopupDecorView")

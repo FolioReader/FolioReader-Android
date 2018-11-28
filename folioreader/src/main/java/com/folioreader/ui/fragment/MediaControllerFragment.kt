@@ -168,7 +168,7 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
     }
 
     private fun initViewStates() {
-        config = AppUtil.getSavedConfig(context)
+        config = AppUtil.getSavedConfig(context)!!
 
         if (Build.VERSION.SDK_INT >= 24) {
             btnOneAndHalfSpeed?.text = Html.fromHtml(context!!.getString(R.string.one_and_half_speed), 0)

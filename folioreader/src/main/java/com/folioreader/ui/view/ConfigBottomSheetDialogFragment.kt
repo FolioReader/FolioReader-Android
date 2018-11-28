@@ -61,7 +61,7 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
             behavior.peekHeight = 0
         }
 
-        config = AppUtil.getSavedConfig(activity)
+        config = AppUtil.getSavedConfig(activity)!!
         initViews()
     }
 
@@ -133,7 +133,7 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
 
         buttonVertical.setOnClickListener {
-            config = AppUtil.getSavedConfig(context)
+            config = AppUtil.getSavedConfig(context)!!
             config.direction = Config.Direction.VERTICAL
             AppUtil.saveConfig(context, config)
             activityCallback.onDirectionChange(Config.Direction.VERTICAL)
@@ -142,7 +142,7 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
 
         buttonHorizontal.setOnClickListener {
-            config = AppUtil.getSavedConfig(context)
+            config = AppUtil.getSavedConfig(context)!!
             config.direction = Config.Direction.HORIZONTAL
             AppUtil.saveConfig(context, config)
             activityCallback.onDirectionChange(Config.Direction.HORIZONTAL)

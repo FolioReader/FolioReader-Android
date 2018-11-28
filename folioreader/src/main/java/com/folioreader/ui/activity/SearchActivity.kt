@@ -97,7 +97,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
         super.onCreate(savedInstanceState)
         Log.v(LOG_TAG, "-> onCreate")
 
-        val config: Config = AppUtil.getSavedConfig(this)
+        val config: Config = AppUtil.getSavedConfig(this)!!
         if (config.isNightMode) {
             setTheme(R.style.FolioNightTheme)
         } else {
@@ -219,7 +219,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
         Log.v(LOG_TAG, "-> onCreateOptionsMenu")
         menuInflater.inflate(R.menu.menu_search, menu!!)
 
-        val config: Config = AppUtil.getSavedConfig(applicationContext)
+        val config: Config = AppUtil.getSavedConfig(applicationContext)!!
         val itemSearch: MenuItem = menu.findItem(R.id.itemSearch)
         UiUtil.setColorIntToDrawable(config.themeColor, itemSearch.icon)
 
