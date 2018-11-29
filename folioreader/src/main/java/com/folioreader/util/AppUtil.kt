@@ -13,6 +13,7 @@ import com.folioreader.util.SharedPreferenceUtil.getSharedPreferencesString
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.net.ServerSocket
 import java.net.URLConnection
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,7 +26,7 @@ class AppUtil {
     companion object {
 
         private val SMIL_ELEMENTS = "smil_elements"
-        private val TAG = AppUtil::class.java.simpleName
+        private val LOG_TAG = AppUtil::class.java.simpleName
         private val FOLIO_READER_ROOT = "folioreader"
 
         private enum class FileType {
@@ -51,7 +52,7 @@ class AppUtil {
                     map[key] = value!!.toString()
                 }
             } catch (e: JSONException) {
-                Log.e(TAG, "toMap failed", e)
+                Log.e(LOG_TAG, "toMap failed", e)
             }
 
             return map
@@ -101,7 +102,7 @@ class AppUtil {
                     obj.toString()
                 )
             } catch (e: JSONException) {
-                Log.e(TAG, e.message)
+                Log.e(LOG_TAG, e.message)
             }
 
         }
@@ -114,7 +115,7 @@ class AppUtil {
                     val jsonObject = JSONObject(json)
                     return Config(jsonObject)
                 } catch (e: JSONException) {
-                    Log.e(TAG, e.message)
+                    Log.e(LOG_TAG, e.message)
                     return null
                 }
 
@@ -160,6 +161,29 @@ class AppUtil {
                 view = View(activity)
             imm.hideSoftInputFromWindow(view.windowToken, 0)
             view.clearFocus()
+        }
+
+        fun getAvailablePortNumber(portNumber: Int): Int {
+
+            var serverSocket: ServerSocket? = null
+            var portNumberAvailable: Int
+
+            try {
+                serverSocket = ServerSocket(portNumber)
+                Log.d(LOG_TAG, "-> getAvailablePortNumber -> portNumber $portNumber available")
+                portNumberAvailable = portNumber
+            } catch (e: Exception) {
+                serverSocket = ServerSocket(0)
+                portNumberAvailable = serverSocket.localPort
+                Log.w(
+                    LOG_TAG, "-> getAvailablePortNumber -> portNumber $portNumber not available, " +
+                            "$portNumberAvailable is available"
+                )
+            } finally {
+                serverSocket?.close()
+            }
+
+            return portNumberAvailable
         }
     }
 }

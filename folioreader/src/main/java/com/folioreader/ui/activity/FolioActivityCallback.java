@@ -34,4 +34,6 @@ public interface FolioActivityCallback {
     Rect getViewportRect(final DisplayUnit unit);
 
     WeakReference<FolioActivity> getActivity();
+
+    String getStreamerUrl();
 }

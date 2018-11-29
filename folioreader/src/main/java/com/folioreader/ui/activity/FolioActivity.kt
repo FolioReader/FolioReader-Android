@@ -54,8 +54,6 @@ import com.folioreader.model.HighlightImpl
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent
 import com.folioreader.model.locators.ReadLocator
 import com.folioreader.model.locators.SearchLocator
-import com.folioreader.network.QualifiedTypeConverterFactory
-import com.folioreader.network.R2StreamerApi
 import com.folioreader.ui.adapter.FolioPageFragmentAdapter
 import com.folioreader.ui.adapter.SearchAdapter
 import com.folioreader.ui.fragment.FolioPageFragment
@@ -74,9 +72,6 @@ import org.readium.r2.streamer.parser.CbzParser
 import org.readium.r2.streamer.parser.EpubParser
 import org.readium.r2.streamer.parser.PubBox
 import org.readium.r2.streamer.server.Server
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.jackson.JacksonConverterFactory
 import java.lang.ref.WeakReference
 
 class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControllerCallback,
@@ -108,6 +103,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private var mEpubRawId = 0
     private var mediaControllerFragment: MediaControllerFragment? = null
     private var direction: Config.Direction = Config.Direction.VERTICAL
+    private var portNumber: Int = Constants.DEFAULT_PORT_NUMBER
+    private var streamerUri: Uri? = null
 
     private var searchUri: Uri? = null
     private var searchAdapterDataBundle: Bundle? = null
@@ -488,25 +485,18 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             }
         }
 
-        val portNumber = intent.getIntExtra(Config.INTENT_PORT, Constants.PORT_NUMBER)
+        portNumber = intent.getIntExtra(FolioReader.EXTRA_PORT_NUMBER, Constants.DEFAULT_PORT_NUMBER)
+        portNumber = AppUtil.getAvailablePortNumber(portNumber)
+
         r2StreamerServer = Server(portNumber)
         r2StreamerServer!!.addEpub(
             pubBox!!.publication, pubBox!!.container,
             "/" + bookFileName!!, null
         )
+
         r2StreamerServer!!.start()
 
-        FolioReader.get().retrofit = Retrofit.Builder()
-            .baseUrl(String.format(STREAMER_URL_TEMPLATE, portNumber.toString(), bookFileName))
-            .addConverterFactory(
-                QualifiedTypeConverterFactory(
-                    JacksonConverterFactory.create(),
-                    GsonConverterFactory.create()
-                )
-            )
-            .build()
-
-        FolioReader.get().r2StreamerApi = FolioReader.get().retrofit?.create(R2StreamerApi::class.java)
+        FolioReader.initRetrofit(streamerUrl)
     }
 
     private fun onBookInitFailure() {
@@ -540,9 +530,17 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             }
         }
         if (searchUri == null)
-            searchUri = Uri.parse(Constants.LOCALHOST + bookFileName + "/search")
+            searchUri = Uri.parse(streamerUrl + "search")
 
         configFolio()
+    }
+
+    override fun getStreamerUrl(): String {
+
+        if (streamerUri == null) {
+            streamerUri = Uri.parse(String.format(STREAMER_URL_TEMPLATE, LOCALHOST, portNumber, bookFileName))
+        }
+        return streamerUri.toString()
     }
 
     override fun onDirectionChange(newDirection: Config.Direction) {

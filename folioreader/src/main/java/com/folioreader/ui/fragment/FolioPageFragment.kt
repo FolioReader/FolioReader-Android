@@ -6,7 +6,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.text.TextUtils
@@ -23,7 +22,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.folioreader.Config
-import com.folioreader.Constants
 import com.folioreader.FolioReader
 import com.folioreader.R
 import com.folioreader.mediaoverlay.MediaController
@@ -107,7 +105,7 @@ class FolioPageFragment : Fragment(),
     private var mFadeInAnimation: Animation? = null
     private var mFadeOutAnimation: Animation? = null
 
-    var spineItem: Link? = null
+    lateinit var spineItem: Link
     private var spineIndex = -1
     private var mBookTitle: String? = null
     private var mIsPageReloaded: Boolean = false
@@ -119,11 +117,10 @@ class FolioPageFragment : Fragment(),
     private var mBookId: String? = null
     var searchLocatorVisible: SearchLocator? = null
 
-    private val webviewUrl: String
-        get() = Constants.LOCALHOST + Uri.encode(mBookTitle) + spineItem!!.href
+    private lateinit var chapterUrl: Uri
 
     val pageName: String
-        get() = mBookTitle + "$" + spineItem!!.href
+        get() = mBookTitle + "$" + spineItem.href
 
     private val isCurrentFragment: Boolean
         get() {
@@ -146,6 +143,8 @@ class FolioPageFragment : Fragment(),
         mBookTitle = arguments!!.getString(BUNDLE_BOOK_TITLE)
         spineItem = arguments!!.getSerializable(BUNDLE_SPINE_ITEM) as Link
         mBookId = arguments!!.getString(FolioReader.EXTRA_BOOK_ID)
+
+        chapterUrl = Uri.parse(mActivityCallback?.streamerUrl + spineItem.href!!.substring(1))
 
         searchLocatorVisible = savedInstanceState?.getParcelable(BUNDLE_SEARCH_LOCATOR)
 
@@ -300,24 +299,22 @@ class FolioPageFragment : Fragment(),
             }*/
             mConfig = AppUtil.getSavedConfig(context)
 
-            val href = spineItem!!.href
-            val path: String
+            val href = spineItem.href
+            var path = ""
             val forwardSlashLastIndex = href!!.lastIndexOf('/')
             if (forwardSlashLastIndex != -1) {
-                path = href.substring(0, forwardSlashLastIndex + 1)
-            } else {
-                path = "/"
+                path = href.substring(1, forwardSlashLastIndex + 1)
             }
 
-            val mimeType: String
-            if (spineItem!!.typeLink!!.equals(getString(R.string.xhtml_mime_type), ignoreCase = true)) {
-                mimeType = getString(R.string.xhtml_mime_type)
-            } else {
-                mimeType = getString(R.string.html_mime_type)
-            }
+            val mimeType: String =
+                if (spineItem.typeLink!!.equals(getString(R.string.xhtml_mime_type), true)) {
+                    getString(R.string.xhtml_mime_type)
+                } else {
+                    getString(R.string.html_mime_type)
+                }
 
             mWebview!!.loadDataWithBaseURL(
-                Constants.LOCALHOST + mBookTitle + path,
+                mActivityCallback?.streamerUrl + path,
                 HtmlUtil.getHtmlContent(context!!, mHtmlString, mConfig!!),
                 mimeType,
                 "UTF-8", null
@@ -347,7 +344,7 @@ class FolioPageFragment : Fragment(),
         }
     }
 
-    @SuppressLint("JavascriptInterface")
+    @SuppressLint("JavascriptInterface", "SetJavaScriptEnabled")
     private fun initWebView() {
 
         val webViewLayout = mRootView!!.findViewById<FrameLayout>(R.id.webViewLayout)
@@ -357,9 +354,6 @@ class FolioPageFragment : Fragment(),
 
         if (activity is FolioActivityCallback)
             mWebview!!.setFolioActivityCallback((activity as FolioActivityCallback?)!!)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-            WebView.setWebContentsDebuggingEnabled(true)
 
         setupScrollBar()
         mWebview!!.addOnLayoutChangeListener { view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
@@ -392,7 +386,7 @@ class FolioPageFragment : Fragment(),
         mWebview!!.webChromeClient = webChromeClient
 
         mWebview!!.settings.defaultTextEncodingName = "utf-8"
-        HtmlTask(this).execute(webviewUrl)
+        HtmlTask(this).execute(chapterUrl.toString())
     }
 
     private val webViewClient = object : WebViewClient() {
@@ -575,7 +569,7 @@ class FolioPageFragment : Fragment(),
 
     override fun onStop() {
         super.onStop()
-        Log.v(LOG_TAG, "-> onStop -> " + spineItem!!.href + " -> " + isCurrentFragment)
+        Log.v(LOG_TAG, "-> onStop -> " + spineItem.href + " -> " + isCurrentFragment)
 
         mediaController!!.stop()
         //TODO save last media overlay item
@@ -585,7 +579,7 @@ class FolioPageFragment : Fragment(),
     }
 
     fun getLastReadLocator(): ReadLocator? {
-        Log.v(LOG_TAG, "-> getLastReadLocator -> " + spineItem!!.href!!)
+        Log.v(LOG_TAG, "-> getLastReadLocator -> " + spineItem.href!!)
         try {
             synchronized(this) {
                 mWebview!!.loadUrl(getString(R.string.callComputeLastReadCfi))
@@ -602,7 +596,7 @@ class FolioPageFragment : Fragment(),
     fun storeLastReadCfi(cfi: String) {
 
         synchronized(this) {
-            var href = spineItem!!.href
+            var href = spineItem.href
             if (href == null) href = ""
             val created = Date().time
             val locations = Locations()
@@ -621,7 +615,7 @@ class FolioPageFragment : Fragment(),
     fun setHorizontalPageCount(horizontalPageCount: Int) {
         Log.v(
             LOG_TAG, "-> setHorizontalPageCount = " + horizontalPageCount
-                    + " -> " + spineItem!!.href
+                    + " -> " + spineItem.href
         )
 
         mWebview!!.setHorizontalPageCount(horizontalPageCount)
@@ -764,7 +758,7 @@ class FolioPageFragment : Fragment(),
      */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        Log.v(LOG_TAG, "-> onSaveInstanceState -> ${spineItem?.href}")
+        Log.v(LOG_TAG, "-> onSaveInstanceState -> ${spineItem.href}")
 
         this.outState = outState
         outState.putParcelable(BUNDLE_SEARCH_LOCATOR, searchLocatorVisible)
@@ -872,7 +866,7 @@ class FolioPageFragment : Fragment(),
     }
 
     fun clearSearchLocator() {
-        Log.v(LOG_TAG, "-> clearSearchLocator -> " + spineItem!!.href!!)
+        Log.v(LOG_TAG, "-> clearSearchLocator -> " + spineItem.href!!)
         mWebview!!.loadUrl(getString(R.string.callClearSelection))
         searchLocatorVisible = null
     }

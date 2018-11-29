@@ -132,7 +132,7 @@ public class MediaController {
         mediaHandler = new Handler();
         try {
             mediaItemPosition = 0;
-            String uri = Constants.LOCALHOST + mBookTitle + path;
+            String uri = Constants.DEFAULT_STREAMER_URL + mBookTitle + path;
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(uri);
             mediaPlayer.prepare();
