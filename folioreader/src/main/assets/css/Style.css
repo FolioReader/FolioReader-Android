@@ -298,7 +298,6 @@ body {
     hyphens: auto !important;
 }
 p, span, div {
-    font-size: 1rem;
     line-height: 1.5 !important;
 }
 @media only screen and (min-device-width: 600px) {
