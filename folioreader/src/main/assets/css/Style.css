@@ -311,23 +311,3 @@ p, span, div {
         hyphens: none !important;
     }
 }
-
-.search-result {
-}
-
-.search-result-visible {
-    background-color: yellow;
-}
-
-.search-result-invisible {
-    animation: search-result-invisible 1s;
-}
-
-@keyframes search-result-invisible {
-    from {
-        background-color: yellow;
-    }
-    to {
-
-    }
-}
