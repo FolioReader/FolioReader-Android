@@ -1,8 +1,8 @@
 def versions = [:]
 
 versions.folioreaderSdk = "0.5.3.dev.3"
-versions.r2SharedKotlin = "1.0.3-5.dev.2"
-versions.r2StreamerKotlin = "1.0.3-8.dev.3"
+versions.r2SharedKotlin = "1.0.4-1.dev.1"
+versions.r2StreamerKotlin = "1.0.4-1.dev.1"
 
 versions.projectVersionCode = 1
 versions.projectVersionName = "1.0"
