@@ -828,6 +828,7 @@ function preInitHorizontalDirection() {
 
     bodyElement.style.webkitColumnGap = (paddingLeft + paddingRight) + 'px';
     bodyElement.style.webkitColumnWidth = pageWidth + 'px';
+    bodyElement.style.columnFill = 'auto';
 
     //console.log("-> window.innerWidth = " + window.innerWidth);
     //console.log("-> window.innerHeight = " + window.innerHeight);
