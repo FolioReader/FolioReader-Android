@@ -297,7 +297,11 @@ body {
     -webkit-hyphens: auto !important;
     hyphens: auto !important;
 }
-:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) > p, span, div {
+:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) > span {
+    font-size: 1rem;
+    line-height: 1.5 !important;
+}
+p, div {
     font-size: 1rem;
     line-height: 1.5 !important;
 }
