@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">FolioReader</string>
+    <string name="folio_app_name">FolioReader</string>
     <string name="share">Compartilhar</string>
     <string name="copy">Copiar</string>
     <string name="send_to">Enviar</string>

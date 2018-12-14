@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath 'com.android.tools.build:gradle:3.2.1'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -38,7 +38,7 @@ ext {
     VERSION_NAME = "1.0"
     VERSION_CODE = 1
 
-    ANDROID_MIN_SDK = 19
+    ANDROID_MIN_SDK = 16
     ANDROID_COMPILE_SDK_VERSION = 28
     ANDROID_TARGET_SDK_VERSION = 28
     ANDROID_LIB_VERSION = '28.0.0'
