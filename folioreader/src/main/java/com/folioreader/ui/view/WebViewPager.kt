@@ -111,38 +111,45 @@ class WebViewPager : ViewPager {
 
     private inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
 
-        override fun onDown(e: MotionEvent): Boolean {
+        override fun onDown(e: MotionEvent?): Boolean {
             super@WebViewPager.onTouchEvent(e)
             return true
         }
 
-        override fun onSingleTapUp(e: MotionEvent): Boolean {
+        override fun onSingleTapUp(e: MotionEvent?): Boolean {
             //Log.d(LOG_TAG, "-> onSingleTapUp");
             lastGestureType = LastGestureType.OnSingleTapUp
             return false
         }
 
-        override fun onLongPress(e: MotionEvent) {
+        override fun onLongPress(e: MotionEvent?) {
             super.onLongPress(e)
             //Log.d(LOG_TAG, "-> onLongPress -> " + e);
             lastGestureType = LastGestureType.OnLongPress
         }
 
-        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
             //Log.v(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
             lastGestureType = LastGestureType.OnScroll
             return false
         }
 
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
             //Log.d(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
             lastGestureType = LastGestureType.OnFling
             return false
         }
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
         //Log.d(LOG_TAG, "-> onTouchEvent -> " + AppUtil.actionToString(event.getAction()));
+
+        if (event == null)
+            return false
+
+        // Rare condition in fast scrolling
+        if (gestureDetector == null)
+            return false
 
         val gestureReturn = gestureDetector!!.onTouchEvent(event)
         if (gestureReturn)
@@ -179,13 +186,13 @@ class WebViewPager : ViewPager {
             // Debug code
             // Set alpha for folioWebView in folio_page_fragment.xml to 0.5 also.
             /*if (position % 2 == 0) {
-                view.setBackgroundResource(R.drawable.green_border_background);
+                view.setBackgroundResource(R.drawable.green_border_background)
             } else {
-                view.setBackgroundResource(R.drawable.blue_border_background);
+                view.setBackgroundResource(R.drawable.blue_border_background)
             }
 
-            TextView textView = view.findViewById(R.id.textView);
-            textView.setText(Integer.toString(position));*/
+            val textView = view.findViewById<TextView>(R.id.textView)
+            textView.text = Integer.toString(position)*/
 
             container.addView(view)
             return view

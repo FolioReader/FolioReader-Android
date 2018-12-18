@@ -156,13 +156,13 @@ class FolioWebView : WebView {
 
     private inner class HorizontalGestureListener : GestureDetector.SimpleOnGestureListener() {
 
-        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
             //Log.d(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
             lastScrollType = LastScrollType.USER
             return false
         }
 
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
             //Log.d(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
 
             if (!webViewPager.isScrolling) {
@@ -179,7 +179,7 @@ class FolioWebView : WebView {
             return true
         }
 
-        override fun onDown(event: MotionEvent): Boolean {
+        override fun onDown(event: MotionEvent?): Boolean {
             //Log.v(LOG_TAG, "-> onDown -> " + event.toString());
 
             eventActionDown = MotionEvent.obtain(event)
@@ -212,13 +212,13 @@ class FolioWebView : WebView {
 
     private inner class VerticalGestureListener : GestureDetector.SimpleOnGestureListener() {
 
-        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
             //Log.v(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
             lastScrollType = LastScrollType.USER
             return false
         }
 
-        override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
             //Log.v(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
             lastScrollType = LastScrollType.USER
             return false
@@ -388,8 +388,11 @@ class FolioWebView : WebView {
         mSeekBarListener = listener
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
         //Log.v(LOG_TAG, "-> onTouchEvent -> " + AppUtil.actionToString(event.getAction()));
+
+        if (event == null)
+            return false
 
         lastTouchAction = event.action
 
@@ -408,6 +411,10 @@ class FolioWebView : WebView {
 
     private fun computeHorizontalScroll(event: MotionEvent): Boolean {
         //Log.v(LOG_TAG, "-> computeHorizontalScroll");
+
+        // Rare condition in fast scrolling
+        if (!::webViewPager.isInitialized)
+            return super.onTouchEvent(event)
 
         webViewPager.dispatchTouchEvent(event)
         val gestureReturn = gestureDetector.onTouchEvent(event)

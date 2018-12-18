@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.os.Parcelable
 import android.text.TextUtils
 import android.util.Log
@@ -81,6 +82,7 @@ class FolioPageFragment : Fragment(),
         }
     }
 
+    private lateinit var uiHandler: Handler
     private var mHtmlString: String? = null
     private val hasMediaOverlay = false
     private var mAnchorId: String? = null
@@ -133,6 +135,7 @@ class FolioPageFragment : Fragment(),
     ): View? {
 
         this.savedInstanceState = savedInstanceState
+        uiHandler = Handler()
 
         if (activity is FolioActivityCallback)
             mActivityCallback = activity as FolioActivityCallback?
@@ -313,12 +316,14 @@ class FolioPageFragment : Fragment(),
                     getString(R.string.html_mime_type)
                 }
 
-            mWebview!!.loadDataWithBaseURL(
-                mActivityCallback?.streamerUrl + path,
-                HtmlUtil.getHtmlContent(context!!, mHtmlString, mConfig!!),
-                mimeType,
-                "UTF-8", null
-            )
+            uiHandler.post {
+                mWebview!!.loadDataWithBaseURL(
+                    mActivityCallback?.streamerUrl + path,
+                    HtmlUtil.getHtmlContent(context!!, mHtmlString, mConfig!!),
+                    mimeType,
+                    "UTF-8", null
+                )
+            }
         }
     }
 

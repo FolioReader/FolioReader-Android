@@ -50,8 +50,8 @@
         android:layout_alignParentBottom="true"
         android:gravity="center"
         android:orientation="horizontal"
-        android:paddingBottom="2dp"
         android:paddingTop="2dp"
+        android:paddingBottom="2dp"
         android:visibility="gone">
 
         <TextView
