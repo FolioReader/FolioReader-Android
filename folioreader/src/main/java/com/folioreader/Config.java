@@ -3,11 +3,10 @@ package com.folioreader;
 import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
-
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.core.content.ContextCompat;
 import org.json.JSONObject;
 
 /**
@@ -26,11 +25,10 @@ public class Config implements Parcelable {
     public static final String CONFIG_IS_TTS = "is_tts";
     public static final String CONFIG_ALLOWED_DIRECTION = "allowed_direction";
     public static final String CONFIG_DIRECTION = "direction";
-    public static final String INTENT_PORT = "port";
     private static final AllowedDirection DEFAULT_ALLOWED_DIRECTION = AllowedDirection.ONLY_VERTICAL;
     private static final Direction DEFAULT_DIRECTION = Direction.VERTICAL;
     private static final int DEFAULT_THEME_COLOR_INT =
-            ContextCompat.getColor(AppContext.get(), R.color.app_green);
+            ContextCompat.getColor(AppContext.get(), R.color.default_theme_accent_color);
 
     private int font = 3;
     private int fontSize = 2;

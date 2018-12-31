@@ -5,15 +5,15 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
 
-    compileSdkVersion ANDROID_COMPILE_SDK_VERSION
+    compileSdkVersion versions.androidCompileSdk
 
     defaultConfig {
         applicationId "com.folioreader.android.sample"
-        minSdkVersion ANDROID_MIN_SDK
-        targetSdkVersion ANDROID_TARGET_SDK_VERSION
-        versionCode VERSION_CODE
-        versionName VERSION_NAME
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        minSdkVersion versions.androidMinSdk
+        targetSdkVersion versions.androidTargetSdk
+        versionCode versions.projectVersionCode
+        versionName versions.projectVersionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
 
@@ -26,11 +26,6 @@ android {
 
     dexOptions {
         javaMaxHeapSize "4G"
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
     }
 
     packagingOptions {
@@ -55,18 +50,19 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "com.android.support:appcompat-v7:$ANDROID_LIB_VERSION"
-    implementation "com.android.support.constraint:constraint-layout:$CONSTRAINT_LAYOUT_VERSION"
+    implementation "androidx.appcompat:appcompat:$versions.appcompat"
+    implementation "androidx.constraintlayout:constraintlayout:$versions.constraintLayout"
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation "androidx.test.ext:junit:1.0.0"
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+
+    implementation 'androidx.multidex:multidex:2.0.0'
 
     implementation project(':folioreader')
-    //implementation "com.folioreader:folioreader:$FOLIOREADER_SDK_VERSION"
+    //implementation "com.folioreader:folioreader:$versions.folioreaderSdk"
 
-    implementation "com.fasterxml.jackson.core:jackson-core:$JACKSON_VERSION"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:$JACKSON_VERSION"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$JACKSON_VERSION"
-
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation "com.fasterxml.jackson.core:jackson-core:$versions.jackson"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$versions.jackson"
 }

@@ -9,15 +9,13 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
-import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -28,10 +26,14 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.core.content.ContextCompat;
 import com.folioreader.AppContext;
 import com.folioreader.R;
-import com.folioreader.view.UnderlinedTextView;
+import com.folioreader.ui.view.UnderlinedTextView;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
@@ -166,7 +168,7 @@ public class UiUtil {
             int color = ContextCompat.getColor(AppContext.get(), colorResId);
             drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
         } catch (Resources.NotFoundException e) {
-            Log.e(LOG_TAG, "-> ", e);
+            Log.e(LOG_TAG, "-> Exception in setColorResToDrawable -> ", e);
         }
     }
 
@@ -315,5 +317,19 @@ public class UiUtil {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(color);
         }
+    }
+
+    public static String rectToDOMRectJson(Rect rect) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("x", rect.left);
+            jsonObject.put("y", rect.top);
+            jsonObject.put("width", rect.width());
+            jsonObject.put("height", rect.height());
+            return jsonObject.toString();
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "-> ", e);
+        }
+        return null;
     }
 }

@@ -43,7 +43,7 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <com.folioreader.view.UnderlinedTextView
+        <com.folioreader.ui.view.UnderlinedTextView
             android:id="@+id/utv_highlight_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -5,11 +5,10 @@ import com.folioreader.model.HighLight;
 import java.util.Date;
 
 /**
- *
  * Class contain data structure for highlight data. If user want to
  * provide external highlight data to folio activity. class should implement to
  * {@link HighLight} with contains required members.
- *
+ * <p>
  * Created by gautam chibde on 12/10/17.
  */
 

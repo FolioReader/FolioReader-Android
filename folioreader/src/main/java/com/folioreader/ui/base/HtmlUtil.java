@@ -1,7 +1,6 @@
 package com.folioreader.ui.base;
 
 import android.content.Context;
-
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
@@ -46,10 +45,10 @@ public final class HtmlUtil {
                 "file:///android_asset/js/Bridge.js") + "\n";
 
         jsPath = jsPath + String.format(context.getString(R.string.script_tag),
-                "file:///android_asset/android.selection.js") + "\n";
+                "file:///android_asset/js/rangefix.js") + "\n";
 
         jsPath = jsPath + String.format(context.getString(R.string.script_tag),
-                "file:///android_asset/js/rangefix.js") + "\n";
+                "file:///android_asset/js/readium-cfi.umd.js") + "\n";
 
         jsPath = jsPath + String.format(context.getString(R.string.script_tag_method_call),
                 "setMediaOverlayStyleColors('#C0ED72','#C0ED72')") + "\n";

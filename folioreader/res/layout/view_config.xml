@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
@@ -34,7 +34,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_config_ib_night_mode" />
 
-    <com.folioreader.view.StyleableTextView
+    <com.folioreader.ui.view.StyleableTextView
         android:id="@+id/view_config_font_andada"
         android:layout_width="0dp"
         android:layout_height="50dp"
@@ -45,7 +45,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
-    <com.folioreader.view.StyleableTextView
+    <com.folioreader.ui.view.StyleableTextView
         android:id="@+id/view_config_font_lato"
         android:layout_width="0dp"
         android:layout_height="50dp"
@@ -57,7 +57,7 @@
         app:layout_constraintStart_toEndOf="@+id/view_config_font_andada"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
-    <com.folioreader.view.StyleableTextView
+    <com.folioreader.ui.view.StyleableTextView
         android:id="@+id/view_config_font_lora"
         android:layout_width="0dp"
         android:layout_height="50dp"
@@ -69,7 +69,7 @@
         app:layout_constraintStart_toEndOf="@+id/view_config_font_lato"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
-    <com.folioreader.view.StyleableTextView
+    <com.folioreader.ui.view.StyleableTextView
         android:id="@+id/view_config_font_raleway"
         android:layout_width="0dp"
         android:layout_height="50dp"
@@ -164,4 +164,4 @@
         app:layout_constraintStart_toEndOf="@+id/buttonVertical"
         app:layout_constraintTop_toBottomOf="@+id/view5" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

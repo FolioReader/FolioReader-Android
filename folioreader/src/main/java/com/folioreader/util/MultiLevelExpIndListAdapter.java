@@ -1,7 +1,6 @@
 package com.folioreader.util;
 
-import android.support.v7.widget.RecyclerView;
-
+import androidx.recyclerview.widget.RecyclerView;
 import com.folioreader.model.TOCLinkWrapper;
 
 import java.util.ArrayList;
