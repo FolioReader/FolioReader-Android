@@ -31,7 +31,7 @@ artifacts {
 
 // Bintray
 def propertiesFile = project.rootProject.file('local.properties')
-if( propertiesFile.exists()) {
+if (propertiesFile.exists()) {
     Properties properties = new Properties()
     properties.load(propertiesFile.newDataInputStream())
 

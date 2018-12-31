@@ -2,10 +2,10 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.folioreader.view.LoadingView"
+    tools:context="com.folioreader.ui.view.LoadingView"
     tools:layout_height="match_parent"
     tools:layout_width="match_parent"
-    tools:parentTag="android.support.constraint.ConstraintLayout">
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -15,6 +15,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:indeterminateTint="@color/app_green" />
+        tools:indeterminateTint="@color/default_theme_accent_color" />
 
 </merge>

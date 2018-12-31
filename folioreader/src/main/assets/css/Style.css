@@ -297,8 +297,7 @@ body {
     -webkit-hyphens: auto !important;
     hyphens: auto !important;
 }
-:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) > p, span, div {
-    font-size: 1rem;
+p, span, div {
     line-height: 1.5 !important;
 }
 @media only screen and (min-device-width: 600px) {
@@ -309,25 +308,5 @@ body {
     body {
         -webkit-hyphens: none !important;
         hyphens: none !important;
-    }
-}
-
-.search-result {
-}
-
-.search-result-visible {
-    background-color: yellow;
-}
-
-.search-result-invisible {
-    animation: search-result-invisible 1s;
-}
-
-@keyframes search-result-invisible {
-    from {
-        background-color: yellow;
-    }
-    to {
-
     }
 }

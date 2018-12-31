@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.folio.activity.FolioActivity">
+    tools:context="com.folioreader.ui.activity.FolioActivity">
 
     <item
         android:id="@+id/itemSearch"
@@ -22,6 +22,7 @@
         android:id="@+id/itemTts"
         android:icon="@drawable/man_speech_icon"
         android:title="@string/menu_item_tts"
+        android:visible="false"
         app:showAsAction="ifRoom"
         tools:showAsAction="always" />
 
