@@ -47,7 +47,7 @@ task findbugs(type: FindBugs,
     effort = "max"
     reportLevel = "high"
     excludeFilter = new File("$qualityConfigDir/findbugs/android-exclude-filter.xml")
-    classes = files("$project.rootDir/folioreader/build/intermediates/classes")
+    classes = files("$project.rootDir/folioreader/build/intermediates/javac")
 
     source 'src'
     include '**/*.java'

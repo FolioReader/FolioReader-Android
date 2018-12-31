@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.folioreader.Config;
-import com.folioreader.Constants;
 import com.folioreader.R;
 import com.folioreader.model.TOCLinkWrapper;
 import com.folioreader.ui.adapter.TOCAdapter;
@@ -39,7 +38,7 @@ public class TableOfContentFragment extends Fragment implements TOCAdapter.TOCCa
                                                      String selectedChapterHref, String bookTitle) {
         TableOfContentFragment tableOfContentFragment = new TableOfContentFragment();
         Bundle args = new Bundle();
-        args.putSerializable(Constants.PUBLICATION, publication);
+        args.putSerializable(PUBLICATION, publication);
         args.putString(SELECTED_CHAPTER_POSITION, selectedChapterHref);
         args.putString(BOOK_TITLE, bookTitle);
         tableOfContentFragment.setArguments(args);
@@ -49,7 +48,7 @@ public class TableOfContentFragment extends Fragment implements TOCAdapter.TOCCa
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        publication = (Publication) getArguments().getSerializable(Constants.PUBLICATION);
+        publication = (Publication) getArguments().getSerializable(PUBLICATION);
     }
 
     @Override

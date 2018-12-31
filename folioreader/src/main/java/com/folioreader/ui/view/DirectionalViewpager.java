@@ -333,6 +333,7 @@ public class DirectionalViewpager extends ViewGroup {
         initViewPager();
     }
 
+    @SuppressWarnings("PMD.UnnecessaryFullyQualifiedName")
     void initViewPager() {
         setWillNotDraw(false);
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);

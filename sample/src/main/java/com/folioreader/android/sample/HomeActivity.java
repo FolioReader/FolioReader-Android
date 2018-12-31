@@ -97,7 +97,7 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void saveReadLocator(ReadLocator readLocator) {
-        Log.i(LOG_TAG, "-> ReadLocator -> " + readLocator.toJson());
+        Log.i(LOG_TAG, "-> saveReadLocator -> " + readLocator.toJson());
     }
 
     /*

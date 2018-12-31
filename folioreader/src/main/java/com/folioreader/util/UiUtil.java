@@ -168,7 +168,7 @@ public class UiUtil {
             int color = ContextCompat.getColor(AppContext.get(), colorResId);
             drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
         } catch (Resources.NotFoundException e) {
-            Log.e(LOG_TAG, "-> ", e);
+            Log.e(LOG_TAG, "-> Exception in setColorResToDrawable -> ", e);
         }
     }
 

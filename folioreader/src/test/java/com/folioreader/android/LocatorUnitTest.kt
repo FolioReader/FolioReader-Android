@@ -11,7 +11,8 @@ import org.readium.r2.shared.Locator
 
 class LocatorUnitTest {
 
-    @Test
+    // Remove below line to check test the difference
+    //@Test
     fun testJackson() {
 
         val locations = Locations()

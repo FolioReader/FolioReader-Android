@@ -2,7 +2,7 @@
 
 [![Build Status](https://api.travis-ci.org/FolioReader/FolioReader-Android.svg?branch=master)](https://travis-ci.org/FolioReader/FolioReader-Android)
 
-FolioReader-Android is an ePub reader written in Java and Kotlin.
+FolioReader-Android is an EPUB reader written in Java and Kotlin.
 
 ### Features
 
@@ -56,7 +56,7 @@ Add following dependency to your app module `build.gradle` file:
 ```groovy
 dependencies {
     ...
-    implementation "com.folioreader:folioreader:0.5.2"
+    implementation "com.folioreader:folioreader:0.5.3"
     ...
 }
 ```
@@ -97,8 +97,6 @@ folioReader.openBook(R.raw.adventures);
     * [Highlight Event](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight-Event)
     * [Providing External Highlight](https://github.com/FolioReader/FolioReader-Android/wiki/Providing-External-Highlight)
 * [ReadLocator](https://github.com/FolioReader/FolioReader-Android/wiki/ReadLocator)
-    * [Get ReadLocator](https://github.com/FolioReader/FolioReader-Android/wiki/Get-ReadLocator)
-    * [Set ReadLocator](https://github.com/FolioReader/FolioReader-Android/wiki/Set-ReadLocator)
 * [Clean up code](https://github.com/FolioReader/FolioReader-Android/wiki/Clean-up-code)
 
 ## Reporting Issue
