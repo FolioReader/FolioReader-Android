@@ -101,6 +101,7 @@ folioReader.openBook(R.raw.adventures);
 
 ## Reporting Issue
 
+See [KNOWN_ISSUES](https://github.com/FolioReader/FolioReader-Android/blob/master/KNOWN_ISSUES.md) and [CHANGELOG](https://github.com/FolioReader/FolioReader-Android/blob/master/CHANGELOG.md) first before reporting any issue. <br />
 Please follow [Issue Template](https://github.com/FolioReader/FolioReader-Android/blob/master/.github/ISSUE_TEMPLATE.md) to report any issue.
 
 ## Share your application
