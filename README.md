@@ -56,7 +56,7 @@ Add following dependency to your app module `build.gradle` file:
 ```groovy
 dependencies {
     ...
-    implementation "com.folioreader:folioreader:0.5.3"
+    implementation "com.folioreader:folioreader:0.5.4"
     ...
 }
 ```
@@ -83,7 +83,7 @@ folioReader.openBook("file:///android_asset/TheSilverChair.epub");
 ##### opening book from raw -
 
 ```java
-folioReader.openBook(R.raw.adventures);
+folioReader.openBook(R.raw.accessible_epub_3);
 ```
 
 

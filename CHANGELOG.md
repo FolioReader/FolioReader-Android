@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.5.4
+
+- Search API from codetoart/r2-streamer-kotlin now use window.find() instead of Rangy solution.
+
 ## 0.5.3
 
 - FolioReader migrated to AndroidX. You will have to migrate your project to AndroidX. Read more about it here - [Migrating to AndroidX](https://developer.android.com/jetpack/androidx/migrate)
