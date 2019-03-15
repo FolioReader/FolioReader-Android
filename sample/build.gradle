@@ -53,8 +53,8 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$versions.appcompat"
     implementation "androidx.constraintlayout:constraintlayout:$versions.constraintLayout"
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation "androidx.test.ext:junit:1.0.0"
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation "androidx.test.ext:junit:1.1.0"
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
     implementation project(':folioreader')
     //implementation "com.folioreader:folioreader:$versions.folioreaderSdk"
