@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.text.TextUtils
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -32,13 +31,12 @@ import com.folioreader.util.AppUtil
 import com.folioreader.util.UiUtil
 import com.folioreader.viewmodels.SearchViewModel
 import kotlinx.android.synthetic.main.activity_search.*
+import timber.log.Timber
 import java.lang.reflect.Field
 
 class SearchActivity : AppCompatActivity(), OnItemClickListener {
 
     companion object {
-        @JvmField
-        val LOG_TAG: String = SearchActivity::class.java.simpleName
         const val BUNDLE_SPINE_SIZE = "BUNDLE_SPINE_SIZE"
         const val BUNDLE_SEARCH_URI = "BUNDLE_SEARCH_URI"
         const val BUNDLE_SAVE_SEARCH_QUERY = "BUNDLE_SAVE_SEARCH_QUERY"
@@ -78,11 +76,11 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
                     continue
 
                 if (contentDescription == "Collapse") {
-                    Log.v(LOG_TAG, "-> initActionBar -> mCollapseButtonView found")
+                    Timber.v("-> initActionBar -> mCollapseButtonView found")
                     collapseButtonView = view as ImageButton
 
                     collapseButtonView?.setOnClickListener {
-                        Log.v(LOG_TAG, "-> onClick -> collapseButtonView")
+                        Timber.v("-> onClick -> collapseButtonView")
                         navigateBack()
                     }
 
@@ -95,7 +93,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.v(LOG_TAG, "-> onCreate")
+        Timber.v("-> onCreate")
 
         val config: Config = AppUtil.getSavedConfig(this)!!
         if (config.isNightMode) {
@@ -109,7 +107,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
     }
 
     private fun init(config: Config) {
-        Log.v(LOG_TAG, "-> init")
+        Timber.v("-> init")
 
         setSupportActionBar(toolbar)
         toolbar.addOnLayoutChangeListener(toolbarOnLayoutChangeListener)
@@ -123,7 +121,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
             val collapseIcon: Drawable = fieldCollapseIcon.get(toolbar) as Drawable
             UiUtil.setColorIntToDrawable(config.themeColor, collapseIcon)
         } catch (e: Exception) {
-            Log.e(LOG_TAG, "-> ", e)
+            Timber.e(e)
         }
 
         spineSize = intent.getIntExtra(BUNDLE_SPINE_SIZE, 0)
@@ -144,7 +142,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
             searchAdapterDataBundle = bundleFromFolioActivity
             searchAdapter.changeDataBundle(bundleFromFolioActivity)
             val position = bundleFromFolioActivity.getInt(BUNDLE_FIRST_VISIBLE_ITEM_INDEX)
-            Log.d(LOG_TAG, "-> onCreate -> scroll to previous position $position")
+            Timber.d("-> onCreate -> scroll to previous position $position")
             recyclerView.scrollToPosition(position)
         }
 
@@ -155,7 +153,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
     }
 
     override fun onNewIntent(intent: Intent) {
-        Log.v(LOG_TAG, "-> onNewIntent")
+        Timber.v("-> onNewIntent")
 
         if (intent.hasExtra(BUNDLE_SEARCH_URI)) {
             searchUri = intent.getParcelableExtra(BUNDLE_SEARCH_URI)
@@ -171,7 +169,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
     }
 
     private fun handleSearch() {
-        Log.v(LOG_TAG, "-> handleSearch")
+        Timber.v("-> handleSearch")
 
         val query: String = intent.getStringExtra(SearchManager.QUERY)
         val newDataBundle = Bundle()
@@ -184,7 +182,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        Log.v(LOG_TAG, "-> onSaveInstanceState")
+        Timber.v("-> onSaveInstanceState")
 
         outState.putCharSequence(BUNDLE_SAVE_SEARCH_QUERY, searchView.query)
         outState.putBoolean(BUNDLE_IS_SOFT_KEYBOARD_VISIBLE, softKeyboardVisible)
@@ -192,13 +190,13 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        Log.v(LOG_TAG, "-> onRestoreInstanceState")
+        Timber.v("-> onRestoreInstanceState")
 
         this.savedInstanceState = savedInstanceState
     }
 
     private fun navigateBack() {
-        Log.v(LOG_TAG, "-> navigateBack")
+        Timber.v("-> navigateBack")
 
         val intent = Intent()
         searchAdapterDataBundle.putInt(
@@ -212,11 +210,11 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
     }
 
     override fun onBackPressed() {
-        Log.v(LOG_TAG, "-> onBackPressed")
+        Timber.v("-> onBackPressed")
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        Log.v(LOG_TAG, "-> onCreateOptionsMenu")
+        Timber.v("-> onCreateOptionsMenu")
         menuInflater.inflate(R.menu.menu_search, menu!!)
 
         val config: Config = AppUtil.getSavedConfig(applicationContext)!!
@@ -256,7 +254,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
             override fun onQueryTextChange(newText: String?): Boolean {
 
                 if (TextUtils.isEmpty(newText)) {
-                    Log.v(LOG_TAG, "-> onQueryTextChange -> Empty Query")
+                    Timber.v("-> onQueryTextChange -> Empty Query")
                     //supportLoaderManager.restartLoader(SEARCH_LOADER, null, this@SearchActivity)
                     searchViewModel.cancelAllSearchCalls()
                     searchViewModel.init()
@@ -275,7 +273,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
             }
 
             override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
-                Log.v(LOG_TAG, "-> onMenuItemActionCollapse")
+                Timber.v("-> onMenuItemActionCollapse")
                 navigateBack()
                 return false
             }
@@ -293,7 +291,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
         val itemId = item?.itemId
 
         if (itemId == R.id.itemSearch) {
-            Log.v(LOG_TAG, "-> onOptionsItemSelected -> ${item.title}")
+            Timber.v("-> onOptionsItemSelected -> %s", item.title)
             //onSearchRequested()
             return true
         }
@@ -308,7 +306,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
 
         if (adapter is SearchAdapter) {
             if (viewHolder is SearchAdapter.NormalViewHolder) {
-                Log.v(LOG_TAG, "-> onItemClick -> " + viewHolder.searchLocator)
+                Timber.v("-> onItemClick -> %s", viewHolder.searchLocator)
 
                 val intent = Intent()
                 searchAdapterDataBundle.putInt(

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,14 +36,15 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
         this.config = config;
     }
 
+    @NonNull
     @Override
-    public HighlightHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public HighlightHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new HighlightHolder(LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.row_highlight, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(final HighlightHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final HighlightHolder holder, final int position) {
 
         holder.container.postDelayed(new Runnable() {
             @Override
@@ -151,13 +153,13 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
 
         HighlightHolder(View itemView) {
             super(itemView);
-            container = (RelativeLayout) itemView.findViewById(R.id.container);
-            swipeLinearLayout = (LinearLayout) itemView.findViewById(R.id.swipe_linear_layout);
-            content = (UnderlinedTextView) itemView.findViewById(R.id.utv_highlight_content);
-            delete = (ImageView) itemView.findViewById(R.id.iv_delete);
-            editNote = (ImageView) itemView.findViewById(R.id.iv_edit_note);
-            date = (TextView) itemView.findViewById(R.id.tv_highlight_date);
-            note = (TextView) itemView.findViewById(R.id.tv_note);
+            container = itemView.findViewById(R.id.container);
+            swipeLinearLayout = itemView.findViewById(R.id.swipe_linear_layout);
+            content = itemView.findViewById(R.id.utv_highlight_content);
+            delete = itemView.findViewById(R.id.iv_delete);
+            editNote = itemView.findViewById(R.id.iv_edit_note);
+            date = itemView.findViewById(R.id.tv_highlight_date);
+            note = itemView.findViewById(R.id.tv_note);
         }
     }
 

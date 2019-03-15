@@ -28,8 +28,6 @@ public class LoadingView extends ConstraintLayout {
         }
     };
 
-    private static final String LOG_TAG = LoadingView.class.getSimpleName();
-
     public LoadingView(Context context) {
         super(context);
         init(context, null, 0);
@@ -86,7 +84,7 @@ public class LoadingView extends ConstraintLayout {
     @SuppressWarnings("unused")
     @JavascriptInterface
     public void show() {
-        //Log.d(LOG_TAG, "-> show");
+        //Timber.d("-> show");
 
         handler.removeCallbacks(hideRunnable);
         handler.post(new Runnable() {
@@ -103,7 +101,7 @@ public class LoadingView extends ConstraintLayout {
     @SuppressWarnings("unused")
     @JavascriptInterface
     public void hide() {
-        //Log.d(LOG_TAG, "-> hide");
+        //Timber.d("-> hide");
 
         handler.removeCallbacks(hideRunnable);
         handler.post(new Runnable() {
@@ -117,7 +115,7 @@ public class LoadingView extends ConstraintLayout {
     @SuppressWarnings("unused")
     @JavascriptInterface
     public void visible() {
-        //Log.d(LOG_TAG, "-> visible");
+        //Timber.d("-> visible");
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -129,7 +127,7 @@ public class LoadingView extends ConstraintLayout {
     @SuppressWarnings("unused")
     @JavascriptInterface
     public void invisible() {
-        //Log.d(LOG_TAG, "-> invisible");
+        //Timber.d("-> invisible");
         handler.post(new Runnable() {
             @Override
             public void run() {

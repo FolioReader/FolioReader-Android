@@ -1,7 +1,6 @@
 package com.folioreader.viewmodels
 
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.folioreader.FolioReader
@@ -13,13 +12,9 @@ import org.readium.r2.shared.Locator
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import timber.log.Timber
 
 class SearchViewModel : ViewModel() {
-
-    companion object {
-        val LOG_TAG: String = SearchViewModel::class.java.simpleName
-    }
-
     var liveAdapterDataBundle: MutableLiveData<Bundle> = MutableLiveData()
     private var r2StreamerApi: R2StreamerApi? = FolioReader.get().r2StreamerApi
     private var searchCallCount: Int = 0
@@ -32,7 +27,7 @@ class SearchViewModel : ViewModel() {
     }
 
     fun init() {
-        Log.v(LOG_TAG, "-> init")
+        Timber.v("-> init")
 
         val bundle = Bundle()
         bundle.putString(ListViewType.KEY, ListViewType.INIT_VIEW.toString())
@@ -41,8 +36,8 @@ class SearchViewModel : ViewModel() {
     }
 
     fun search(spineSize: Int, query: String) {
-        //Log.v(LOG_TAG, "-> search")
-        Log.d(LOG_TAG, "-> search -> spineSize = $spineSize, query = $query")
+        //Timber.v("-> search")
+        Timber.d("-> search -> spineSize = $spineSize, query = $query")
 
         cancelAllSearchCalls()
 
@@ -60,7 +55,7 @@ class SearchViewModel : ViewModel() {
     }
 
     fun cancelAllSearchCalls() {
-        Log.v(LOG_TAG, "-> cancelAllSearchCalls")
+        Timber.v("-> cancelAllSearchCalls")
 
         searchCallList.forEach { it.cancel() }
         searchCallList.clear()
@@ -68,14 +63,14 @@ class SearchViewModel : ViewModel() {
 
     inner class SearchApiCallback : Callback<List<Locator>> {
         override fun onFailure(call: Call<List<Locator>>, t: Throwable) {
-            Log.e(LOG_TAG, "-> search -> onFailure", t)
+            Timber.e(t, "-> search -> onFailure")
 
             val bundle = processSingleSearchResponse(call, null, t)
             mergeSearchResponse(bundle, call)
         }
 
         override fun onResponse(call: Call<List<Locator>>, response: Response<List<Locator>>) {
-            Log.d(LOG_TAG, "-> search -> onResponse")
+            Timber.d("-> search -> onResponse")
 
             val bundle = processSingleSearchResponse(call, response, null)
             mergeSearchResponse(bundle, call)
@@ -83,7 +78,7 @@ class SearchViewModel : ViewModel() {
     }
 
     private fun mergeSearchResponse(bundle: Bundle, call: Call<List<Locator>>) {
-        Log.v(LOG_TAG, "-> mergeSearchResponse")
+        Timber.v("-> mergeSearchResponse")
 
         if (call.isCanceled)
             return
@@ -146,7 +141,7 @@ class SearchViewModel : ViewModel() {
         response: Response<List<Locator>>?,
         t: Throwable?
     ): Bundle {
-        Log.d(LOG_TAG, "-> processSingleSearchResponse")
+        Timber.d("-> processSingleSearchResponse")
 
         val locatorList = response?.body()
         return when {
@@ -169,7 +164,7 @@ class SearchViewModel : ViewModel() {
     }
 
     private fun initSearchLocatorList(locatorList: MutableList<Locator>): Bundle {
-        Log.v(LOG_TAG, "-> initSearchLocatorList")
+        Timber.v("-> initSearchLocatorList")
 
         val searchLocatorList: MutableList<SearchLocator> = mutableListOf()
 

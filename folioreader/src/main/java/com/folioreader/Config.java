@@ -3,19 +3,18 @@ package com.folioreader;
 import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import org.json.JSONObject;
+import timber.log.Timber;
 
 /**
  * Configuration class for FolioReader.
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class Config implements Parcelable {
-
-    private static final String LOG_TAG = Config.class.getSimpleName();
     public static final String INTENT_CONFIG = "config";
     public static final String EXTRA_OVERRIDE_CONFIG = "com.folioreader.extra.OVERRIDE_CONFIG";
     public static final String CONFIG_FONT = "font";
@@ -87,8 +86,8 @@ public class Config implements Parcelable {
         nightMode = in.readByte() != 0;
         themeColor = in.readInt();
         showTts = in.readByte() != 0;
-        allowedDirection = getAllowedDirectionFromString(LOG_TAG, in.readString());
-        direction = getDirectionFromString(LOG_TAG, in.readString());
+        allowedDirection = getAllowedDirectionFromString(in.readString());
+        direction = getDirectionFromString(in.readString());
     }
 
     public Config() {
@@ -100,29 +99,28 @@ public class Config implements Parcelable {
         nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHT_MODE);
         themeColor = getValidColorInt(jsonObject.optInt(CONFIG_THEME_COLOR_INT));
         showTts = jsonObject.optBoolean(CONFIG_IS_TTS);
-        allowedDirection = getAllowedDirectionFromString(LOG_TAG,
+        allowedDirection = getAllowedDirectionFromString(
                 jsonObject.optString(CONFIG_ALLOWED_DIRECTION));
-        direction = getDirectionFromString(LOG_TAG, jsonObject.optString(CONFIG_DIRECTION));
+        direction = getDirectionFromString(jsonObject.optString(CONFIG_DIRECTION));
     }
 
-    public static Direction getDirectionFromString(final String LOG_TAG, String directionString) {
+    public static Direction getDirectionFromString(@Nullable String directionString) {
 
-        switch (directionString) {
+        switch (directionString == null? "null" : directionString) {
             case "VERTICAL":
                 return Direction.VERTICAL;
             case "HORIZONTAL":
                 return Direction.HORIZONTAL;
             default:
-                Log.w(LOG_TAG, "-> Illegal argument directionString = `" + directionString
-                        + "`, defaulting direction to " + DEFAULT_DIRECTION);
+                Timber.w("-> Illegal argument directionString = `%s`, defaulting direction to %s",
+                        directionString, DEFAULT_DIRECTION);
                 return DEFAULT_DIRECTION;
         }
     }
 
-    public static AllowedDirection getAllowedDirectionFromString(final String LOG_TAG,
-                                                                 String allowedDirectionString) {
+    public static AllowedDirection getAllowedDirectionFromString(@Nullable String allowedDirectionString) {
 
-        switch (allowedDirectionString) {
+        switch (allowedDirectionString == null? "null" : allowedDirectionString) {
             case "ONLY_VERTICAL":
                 return AllowedDirection.ONLY_VERTICAL;
             case "ONLY_HORIZONTAL":
@@ -130,9 +128,8 @@ public class Config implements Parcelable {
             case "VERTICAL_AND_HORIZONTAL":
                 return AllowedDirection.VERTICAL_AND_HORIZONTAL;
             default:
-                Log.w(LOG_TAG, "-> Illegal argument allowedDirectionString = `"
-                        + allowedDirectionString + "`, defaulting allowedDirection to "
-                        + DEFAULT_ALLOWED_DIRECTION);
+                Timber.w("-> Illegal argument allowedDirectionString = `%s`, defaulting allowedDirection to %s",
+                        allowedDirectionString, DEFAULT_ALLOWED_DIRECTION);
                 return DEFAULT_ALLOWED_DIRECTION;
         }
     }
@@ -167,8 +164,8 @@ public class Config implements Parcelable {
     @ColorInt
     private int getValidColorInt(@ColorInt int colorInt) {
         if (colorInt >= 0) {
-            Log.w(LOG_TAG, "-> getValidColorInt -> Invalid argument colorInt = " + colorInt +
-                    ", Returning DEFAULT_THEME_COLOR_INT = " + DEFAULT_THEME_COLOR_INT);
+            Timber.w("-> getValidColorInt -> Invalid argument colorInt = %d, Returning DEFAULT_THEME_COLOR_INT = %d",
+                    colorInt, DEFAULT_THEME_COLOR_INT);
             return DEFAULT_THEME_COLOR_INT;
         }
         return colorInt;
@@ -183,8 +180,8 @@ public class Config implements Parcelable {
         try {
             this.themeColor = ContextCompat.getColor(AppContext.get(), colorResId);
         } catch (Resources.NotFoundException e) {
-            Log.w(LOG_TAG, "-> setThemeColorRes -> " + e);
-            Log.w(LOG_TAG, "-> setThemeColorRes -> Defaulting themeColor to " +
+            Timber.w(e, "-> setThemeColorRes -> ");
+            Timber.w("-> setThemeColorRes -> Defaulting themeColor to %d",
                     DEFAULT_THEME_COLOR_INT);
             this.themeColor = DEFAULT_THEME_COLOR_INT;
         }
@@ -224,21 +221,20 @@ public class Config implements Parcelable {
         if (allowedDirection == null) {
             this.allowedDirection = DEFAULT_ALLOWED_DIRECTION;
             direction = DEFAULT_DIRECTION;
-            Log.w(LOG_TAG, "-> allowedDirection cannot be null, defaulting " +
-                    "allowedDirection to " + DEFAULT_ALLOWED_DIRECTION + " and direction to " +
-                    DEFAULT_DIRECTION);
+            Timber.w("-> allowedDirection cannot be null, defaulting allowedDirection to %s and direction to %s",
+                    DEFAULT_ALLOWED_DIRECTION, DEFAULT_DIRECTION);
 
         } else if (allowedDirection == AllowedDirection.ONLY_VERTICAL &&
                 direction != Direction.VERTICAL) {
             direction = Direction.VERTICAL;
-            Log.w(LOG_TAG, "-> allowedDirection is " + allowedDirection +
-                    ", defaulting direction to " + direction);
+            Timber.w("-> allowedDirection is %s, defaulting direction to %s",
+                    allowedDirection, direction);
 
         } else if (allowedDirection == AllowedDirection.ONLY_HORIZONTAL &&
                 direction != Direction.HORIZONTAL) {
             direction = Direction.HORIZONTAL;
-            Log.w(LOG_TAG, "-> allowedDirection is " + allowedDirection
-                    + ", defaulting direction to " + direction);
+            Timber.w("-> allowedDirection is %s, defaulting direction to %s",
+                    allowedDirection, direction);
         }
 
         return this;
@@ -258,20 +254,20 @@ public class Config implements Parcelable {
 
         if (allowedDirection == AllowedDirection.VERTICAL_AND_HORIZONTAL && direction == null) {
             this.direction = DEFAULT_DIRECTION;
-            Log.w(LOG_TAG, "-> direction cannot be `null` when allowedDirection is " +
-                    allowedDirection + ", defaulting direction to " + this.direction);
+            Timber.w("-> direction cannot be `null` when allowedDirection is %s, defaulting direction to %s",
+                    allowedDirection, this.direction);
 
         } else if (allowedDirection == AllowedDirection.ONLY_VERTICAL &&
                 direction != Direction.VERTICAL) {
             this.direction = Direction.VERTICAL;
-            Log.w(LOG_TAG, "-> direction cannot be `" + direction + "` when allowedDirection is " +
-                    allowedDirection + ", defaulting direction to " + this.direction);
+            Timber.w("-> direction cannot be `%s` when allowedDirection is %s, defaulting direction to %s",
+                    direction, allowedDirection, this.direction);
 
         } else if (allowedDirection == AllowedDirection.ONLY_HORIZONTAL &&
                 direction != Direction.HORIZONTAL) {
             this.direction = Direction.HORIZONTAL;
-            Log.w(LOG_TAG, "-> direction cannot be `" + direction + "` when allowedDirection is " +
-                    allowedDirection + ", defaulting direction to " + this.direction);
+            Timber.w("-> direction cannot be `%s` when allowedDirection is %s, defaulting direction to %s",
+                    direction, allowedDirection, this.direction);
 
         } else {
             this.direction = direction;

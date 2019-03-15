@@ -3,7 +3,6 @@ package com.folioreader.util
 import android.app.Activity
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -13,6 +12,7 @@ import com.folioreader.util.SharedPreferenceUtil.getSharedPreferencesString
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import timber.log.Timber
 import java.net.ServerSocket
 import java.net.URLConnection
 import java.text.SimpleDateFormat
@@ -26,7 +26,6 @@ class AppUtil {
     companion object {
 
         private val SMIL_ELEMENTS = "smil_elements"
-        private val LOG_TAG = AppUtil::class.java.simpleName
         private val FOLIO_READER_ROOT = "folioreader"
 
         private enum class FileType {
@@ -52,7 +51,7 @@ class AppUtil {
                     map[key] = value!!.toString()
                 }
             } catch (e: JSONException) {
-                Log.e(LOG_TAG, "toMap failed", e)
+                Timber.e(e, "toMap failed")
             }
 
             return map
@@ -102,7 +101,7 @@ class AppUtil {
                     obj.toString()
                 )
             } catch (e: JSONException) {
-                Log.e(LOG_TAG, e.message)
+                Timber.e(e)
             }
 
         }
@@ -115,7 +114,7 @@ class AppUtil {
                     val jsonObject = JSONObject(json)
                     return Config(jsonObject)
                 } catch (e: JSONException) {
-                    Log.e(LOG_TAG, e.message)
+                    Timber.e(e)
                     return null
                 }
 
@@ -170,14 +169,14 @@ class AppUtil {
 
             try {
                 serverSocket = ServerSocket(portNumber)
-                Log.d(LOG_TAG, "-> getAvailablePortNumber -> portNumber $portNumber available")
+                Timber.d("-> getAvailablePortNumber -> portNumber $portNumber available")
                 portNumberAvailable = portNumber
             } catch (e: Exception) {
                 serverSocket = ServerSocket(0)
                 portNumberAvailable = serverSocket.localPort
-                Log.w(
-                    LOG_TAG, "-> getAvailablePortNumber -> portNumber $portNumber not available, " +
-                            "$portNumberAvailable is available"
+                Timber.w(
+                    "-> getAvailablePortNumber -> portNumber %d not available, %d is available",
+                    portNumber, portNumberAvailable
                 )
             } finally {
                 serverSocket?.close()
