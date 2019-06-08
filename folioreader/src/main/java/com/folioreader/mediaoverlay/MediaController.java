@@ -107,6 +107,8 @@ public class MediaController {
                 if (status != TextToSpeech.ERROR) {
                     mTextToSpeech.setLanguage(Locale.UK);
                     mTextToSpeech.setSpeechRate(0.70f);
+                } else {
+                    return;
                 }
 
                 mTextToSpeech.setOnUtteranceCompletedListener(
