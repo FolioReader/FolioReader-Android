@@ -472,8 +472,10 @@ class FolioPageFragment : Fragment(),
 
                 if (readLocator != null) {
                     val cfi = readLocator.locations.cfi
-                    Log.v(LOG_TAG, "-> onPageFinished -> readLocator -> " + cfi!!)
-                    mWebview!!.loadUrl(String.format(getString(R.string.callScrollToCfi), cfi))
+                    cfi?.let {
+                        Log.v(LOG_TAG, "-> onPageFinished -> readLocator -> $cfi")
+                        mWebview!!.loadUrl(String.format(getString(R.string.callScrollToCfi), cfi))
+                    }
                 } else {
                     loadingView!!.hide()
                 }
@@ -839,7 +841,7 @@ class FolioPageFragment : Fragment(),
             if (outState != null)
                 outState!!.putSerializable(BUNDLE_READ_LOCATOR_CONFIG_CHANGE, lastReadLocator)
             if (activity != null && !activity!!.isFinishing)
-                mActivityCallback!!.storeLastReadLocator(lastReadLocator)
+                mActivityCallback?.storeLastReadLocator(lastReadLocator)
         }
         if (mWebview != null) mWebview!!.destroy()
     }

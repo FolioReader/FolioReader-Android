@@ -54,6 +54,7 @@ import com.folioreader.model.HighlightImpl
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent
 import com.folioreader.model.locators.ReadLocator
 import com.folioreader.model.locators.SearchLocator
+import com.folioreader.model.sqlite.DbAdapter
 import com.folioreader.ui.adapter.FolioPageFragmentAdapter
 import com.folioreader.ui.adapter.SearchAdapter
 import com.folioreader.ui.fragment.FolioPageFragment
@@ -244,6 +245,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
         // Need to add when vector drawables support library is used.
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        DbAdapter.initialize(this)
 
         handler = Handler()
         val display = windowManager.defaultDisplay

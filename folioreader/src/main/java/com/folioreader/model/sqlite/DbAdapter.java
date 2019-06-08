@@ -19,57 +19,12 @@ public class DbAdapter {
         FolioDatabaseHelper.clearInstance();
     }
 
-    public static boolean insert(String table, ContentValues contentValues) {
-
-        return mDatabase.insert(table, null, contentValues) > 0;
-    }
-
-    public static boolean update(String table, String key, String value, ContentValues contentValues) {
-
-        return mDatabase.update(table, contentValues, key + "=?", new String[]{value}) > 0;
-    }
-
     public static Cursor getHighLightsForBookId(String bookId) {
         return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.COL_BOOK_ID + " = \"" + bookId + "\"", null);
     }
 
-    public boolean deleteAll(String table) {
-        return mDatabase.delete(table, null, null) > 0;
-    }
-
-    public boolean deleteAll(String table, String whereClause, String[] whereArgs) {
-        return mDatabase.delete(table, whereClause + "=?", whereArgs) > 0;
-    }
-
-    public Cursor getAll(String table, String[] projection, String selection,
-                         String[] selectionArgs, String orderBy) {
-        return mDatabase.query(table, projection, selection, selectionArgs, null, null, orderBy);
-    }
-
-    public Cursor getAll(String table) {
-        return getAll(table, null, null, null, null);
-    }
-
-    public Cursor get(String table, long id, String[] projection, String key) throws SQLException {
-        return mDatabase.query(table, projection,
-                key + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
-    }
-
-    public static Cursor getAllByKey(String table, String[] projection, String key, String value) throws SQLException {
-        return mDatabase.query(table, projection,
-                key + "=?", new String[]{value}, null, null, null, null);
-    }
-
-    public Cursor get(String table, long id) throws SQLException {
-        return get(table, id, null, FolioDatabaseHelper.KEY_ID);
-    }
-
     public static boolean deleteById(String table, String key, String value) {
         return mDatabase.delete(table, key + "=?", new String[]{value}) > 0;
-    }
-
-    public Cursor getMaxId(String tableName, String key) {
-        return mDatabase.rawQuery("SELECT MAX(" + key + ") FROM " + tableName, null);
     }
 
     public static long saveHighLight(ContentValues highlightContentValues) {
