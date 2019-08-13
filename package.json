@@ -1,0 +1,19 @@
+{
+  "name": "folioreader-android",
+  "version": "0.5.4",
+  "description": "FolioReader EBook Reader",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jacobtabak/FolioReader-Android.git"
+  },
+  "author": "",
+  "license": "SEE LICENSE IN License.md",
+  "bugs": {
+    "url": "https://github.com/jacobtabak/FolioReader-Android/issues"
+  },
+  "homepage": "https://github.com/jacobtabak/FolioReader-Android#readme"
+}
