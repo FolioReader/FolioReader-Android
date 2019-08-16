@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 apply from: '../config/quality/quality.gradle'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply from: '../versions.gradle'
 
 ext {
     bintrayRepo = 'maven'
@@ -16,7 +17,7 @@ ext {
     siteUrl = 'https://github.com/FolioReader/FolioReader-Android'
     gitUrl = 'https://github.com/FolioReader/FolioReader-Android.git'
 
-    libraryVersion = folioreaderSdkVersion
+    libraryVersion = versions.folioreaderSdk
 
     developerId = 'mobisystech'
     developerName = 'Folio Reader'
@@ -29,13 +30,13 @@ ext {
 
 android {
     useLibrary 'org.apache.http.legacy'
-    compileSdkVersion androidCompileSdkVersion
+    compileSdkVersion versions.androidCompileSdkVersion
 
     defaultConfig {
-        minSdkVersion androidMinSdkVersion
-        targetSdkVersion androidTargetSdkVersion
-        versionCode projectVersionCode
-        versionName projectVersionName
+        minSdkVersion versions.androidMinSdkVersion
+        targetSdkVersion versions.androidTargetSdkVersion
+        versionCode versions.projectVersionCode
+        versionName versions.projectVersionName
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -78,32 +79,32 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation "com.android.support.constraint:constraint-layout:$constraintLayoutVersion"
-    implementation "com.android.support:appcompat-v7:$androidSupportLibVersion"
-    implementation "com.android.support:recyclerview-v7:$androidSupportLibVersion"
-    implementation "com.android.support:support-v4:$androidSupportLibVersion"
-    implementation "com.android.support:design:$androidSupportLibVersion"
+    implementation "com.android.support.constraint:constraint-layout:$versions.constraintLayoutVersion"
+    implementation "com.android.support:appcompat-v7:$versions.androidSupportLibVersion"
+    implementation "com.android.support:recyclerview-v7:$versions.androidSupportLibVersion"
+    implementation "com.android.support:support-v4:$versions.androidSupportLibVersion"
+    implementation "com.android.support:design:$versions.androidSupportLibVersion"
     testImplementation 'junit:junit:4.12'
 
     implementation 'org.slf4j:slf4j-android:1.7.25'
     implementation 'com.daimajia.swipelayout:library:1.2.0@aar'
 
     //Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlinVersion"
 
     implementation 'org.greenrobot:eventbus:3.1.1'
 
-    implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
-    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-core:$versions.jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$versions.jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonVersion"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$versions.jacksonVersion"
+    implementation "com.google.code.gson:gson:$versions.gsonVersion"
 
     // R2 modules
-    api("com.github.codetoart:r2-shared-kotlin:$r2SharedKotlinVersion") {
+    api("com.github.codetoart:r2-shared-kotlin:$versions.r2SharedKotlinVersion") {
         changing = true
     }
-    api("com.github.codetoart:r2-streamer-kotlin:$r2StreamerKotlinVersion") {
+    api("com.github.codetoart:r2-streamer-kotlin:$versions.r2StreamerKotlinVersion") {
         exclude group: "org.slf4j", module: "slf4j-api"
         changing = true
     }

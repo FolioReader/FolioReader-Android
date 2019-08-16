@@ -2,17 +2,18 @@ apply plugin: 'com.android.application'
 apply plugin: 'checkstyle'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply from: '../versions.gradle'
 
 android {
 
-    compileSdkVersion androidCompileSdkVersion
+    compileSdkVersion versions.androidCompileSdkVersion
 
     defaultConfig {
         applicationId "com.folioreader.android.sample"
-        minSdkVersion androidMinSdkVersion
-        targetSdkVersion androidTargetSdkVersion
-        versionCode projectVersionCode
-        versionName projectVersionName
+        minSdkVersion versions.androidMinSdkVersion
+        targetSdkVersion versions.androidTargetSdkVersion
+        versionCode versions.projectVersionCode
+        versionName versions.projectVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -50,8 +51,8 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "com.android.support:appcompat-v7:$androidSupportLibVersion"
-    implementation "com.android.support.constraint:constraint-layout:$constraintLayoutVersion"
+    implementation "com.android.support:appcompat-v7:$versions.androidSupportLibVersion"
+    implementation "com.android.support.constraint:constraint-layout:$versions.constraintLayoutVersion"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
@@ -61,8 +62,8 @@ dependencies {
     implementation project(':folioreader')
     //implementation "com.folioreader:folioreader:$folioreaderSdkVersion"
 
-    implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-core:$versions.jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$versions.jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$versions.jacksonVersion"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$versions.jacksonVersion"
 }

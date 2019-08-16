@@ -1,0 +1,22 @@
+def versions = [:]
+
+versions.folioreaderSdk = "0.5.2"
+versions.r2StreamerKotlinVersion = "1.0.3-7"
+versions.r2SharedKotlinVersion = "1.0.3-4"
+
+versions.projectVersionCode = 1
+versions.projectVersionName = "1.0"
+
+versions.androidMinSdkVersion = 21
+versions.androidCompileSdkVersion = 28
+versions.androidTargetSdkVersion = 28
+versions.androidSupportLibVersion = "28.0.0"
+
+versions.constraintLayoutVersion = "1.1.3"
+
+versions.jacksonVersion = "2.9.7"
+// When Kotlin Class doesn't contain default Constructor GSON can be used to deserialize
+// See FolioReader-Android/folioreader/src/test/java/com/folioreader/android/LocatorUnitTest.kt
+versions.gsonVersion = "2.8.5"
+
+ext.versions = versions
