@@ -1,0 +1,63 @@
+/*
+ * Module: r2-streamer-kotlin
+ * Developers: Aferdita Muriqi, Clément Baumann
+ *
+ * Copyright (c) 2018. Readium Foundation. All rights reserved.
+ * Use of this source code is governed by a BSD-style license which is detailed in the
+ * LICENSE file present in the project repository where this source code is maintained.
+ */
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply from: '../versions.gradle'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 27
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+    implementation project(':r2-shared-kotlin')
+
+    //TODO conflicting support libraries, excluding these
+    implementation('com.mcxiaoke.koi:core:0.5.5') {
+        exclude module: 'support-v4'
+    }
+    // useful extensions (only ~100k)
+    implementation('com.mcxiaoke.koi:async:0.5.5') {
+        exclude module: 'support-v4'
+    }
+    implementation "com.android.support:appcompat-v7:$versions.androidSupportLibVersion"
+    api 'org.nanohttpd:nanohttpd:2.3.1'
+    api 'org.nanohttpd:nanohttpd-nanolets:2.3.1'
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'commons-io:commons-io:2.4'
+    implementation 'org.zeroturnaround:zt-zip:1.12'
+    implementation 'joda-time:joda-time:2.9.9'
+    implementation 'nl.komponents.kovenant:kovenant:3.3.0'
+
+    final JACKSON_VERSION = '2.8.6'
+    implementation "com.fasterxml.jackson.core:jackson-core:$JACKSON_VERSION"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$JACKSON_VERSION"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$JACKSON_VERSION"
+    implementation 'org.jsoup:jsoup:1.10.2'
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+}

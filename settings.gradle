@@ -1,1 +1,1 @@
-include ':folioreader', ':sample'
+include ':folioreader', ':sample', ':r2-shared-kotlin', ':r2-streamer-kotlin'

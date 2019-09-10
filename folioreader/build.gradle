@@ -100,14 +100,8 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$versions.jacksonVersion"
     implementation "com.google.code.gson:gson:$versions.gsonVersion"
 
-    // R2 modules
-    api("com.github.codetoart:r2-shared-kotlin:$versions.r2SharedKotlinVersion") {
-        changing = true
-    }
-    api("com.github.codetoart:r2-streamer-kotlin:$versions.r2StreamerKotlinVersion") {
-        exclude group: "org.slf4j", module: "slf4j-api"
-        changing = true
-    }
+    api project(":r2-shared-kotlin")
+    api project(":r2-streamer-kotlin")
 
     // Only ReflectionUtils in Spring framework is used
     implementation 'org.springframework:spring-core:4.3.19.RELEASE'
