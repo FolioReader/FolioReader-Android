@@ -69,6 +69,7 @@ import org.greenrobot.eventbus.EventBus
 import org.readium.r2.shared.Link
 import org.readium.r2.shared.Publication
 import org.readium.r2.streamer.parser.CbzParser
+import org.readium.r2.streamer.parser.EncryptedEpubParser
 import org.readium.r2.streamer.parser.EpubParser
 import org.readium.r2.streamer.parser.PubBox
 import org.readium.r2.streamer.server.Server
@@ -456,6 +457,10 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             Publication.EXTENSION.EPUB -> {
                 val epubParser = EpubParser()
                 epubParser.parse(path!!, "")
+            }
+            Publication.EXTENSION.NPUB -> {
+                val key = "abcxyzqwertasdfgzxcvb"
+                EncryptedEpubParser(key).parse(path!!, "") // TODO: figure out why it's not working
             }
             Publication.EXTENSION.CBZ -> {
                 val cbzParser = CbzParser()
