@@ -37,14 +37,14 @@ const val mimetype = "application/epub+zip"
 const val mimetypeOEBPS = "application/oebps-package+xml"
 const val mediaOverlayURL = "media-overlay?resource="
 
-class EpubParser : PublicationParser {
+open class EpubParser : PublicationParser {
 
     private val opfParser = OPFParser()
     private val ndp = NavigationDocumentParser()
     private val ncxp = NCXParser()
     private val encp = EncryptionParser()
 
-    private fun generateContainerFrom(path: String): EpubContainer {
+    protected open fun generateContainerFrom(path: String): EpubContainer {
         val isDirectory = File(path).isDirectory
         val container: EpubContainer?
 
