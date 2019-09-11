@@ -61,35 +61,8 @@ class EncryptedContainerEpub constructor(
         return null
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private fun getDecryptedZipFile(relativePath: String): ZipFile {
-        Timber.tag("TRAVIS").v("IT'S CALLING INTO THE CODE, IT'S HAPPENING!!!")
+        Timber.d("IT'S CALLING INTO THE CODE, IT'S HAPPENING!!!")
         val encrypted = FileInputStream(relativePath)
 
         val headerInfo = ByteArray(HEADER_INFO_DISPLACEMENT)
@@ -112,11 +85,11 @@ class EncryptedContainerEpub constructor(
             FileOutputStream(outputFile).use { output ->
                 input.copyTo(output)
                 output.flush()
-                Timber.tag("TRAVIS").v("COPIED!!")
+                Timber.d("COPIED!!")
             }
         }
 
-        Timber.tag("TRAVIS").v("zipfile built!!")
+        Timber.d("zipfile built!!")
         return ZipFile(outputFile.path)
     }
 

@@ -460,7 +460,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             }
             Publication.EXTENSION.NPUB -> {
                 val key = "abcxyzqwertasdfgzxcvb"
-                EncryptedEpubParser(key).parse(path!!, "") // TODO: TRAVIS
+                EncryptedEpubParser(key).parse(path!!, "") // TODO: figure out why it's not working
             }
             Publication.EXTENSION.CBZ -> {
                 val cbzParser = CbzParser()
