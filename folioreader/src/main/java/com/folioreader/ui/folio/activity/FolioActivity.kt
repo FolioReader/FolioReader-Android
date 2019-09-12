@@ -453,13 +453,9 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             throw Exception("-> Unknown book file extension `$extensionString`", e)
         }
 
+        val key = "abcdefghijklmnop"
         pubBox = when (extension) {
             Publication.EXTENSION.EPUB -> {
-                val epubParser = EpubParser()
-                epubParser.parse(path!!, "")
-            }
-            Publication.EXTENSION.NPUB -> {
-                val key = "abcxyzqwertasdfgzxcvb"
                 EncryptedEpubParser(key).parse(path!!, "") // TODO: figure out why it's not working
             }
             Publication.EXTENSION.CBZ -> {

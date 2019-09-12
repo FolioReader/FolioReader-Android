@@ -90,7 +90,6 @@ class Publication : Serializable {
 
     // Parser Type
     enum class EXTENSION(var value: String) {
-        NPUB(".npub"), // encrypted epub?
         EPUB(".epub"),
         CBZ(".cbz"),
         JSON(".json");

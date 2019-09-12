@@ -1,5 +1,6 @@
 package org.readium.r2.streamer.container
 
+import android.util.Log
 import org.readium.r2.shared.Link
 import org.readium.r2.shared.RootFile
 import org.readium.r2.shared.drm.Drm
@@ -54,22 +55,35 @@ class EncryptedContainerEpub constructor(
 
 
     override fun scanForDrm(): Drm? {
-
-        if (ZipUtil.containsEntry(File(rootFile.rootPath), lcplFilePath)) {
-            return Drm(Drm.Brand.Lcp)
-        }
         return null
     }
 
     private fun getDecryptedZipFile(relativePath: String): ZipFile {
-        Timber.d("IT'S CALLING INTO THE CODE, IT'S HAPPENING!!!")
-        val encrypted = FileInputStream(relativePath)
+        val badEncrypted = FileInputStream(relativePath)
+        val badHeaderInfo = ByteArray(HEADER_INFO_DISPLACEMENT)
+        badEncrypted.read(badHeaderInfo, 0, HEADER_INFO_DISPLACEMENT)
+        val badKey = AesHelper.getAesKey(keyString)
+        val badSkeySpec = SecretKeySpec(badKey, AesHelper.ENCRYPTION_ALGORITHM)
+        val badIvSpec = IvParameterSpec(Arrays.copyOfRange(badHeaderInfo, FILE_SIZE_BYTE_DISPLACEMENT, HEADER_INFO_DISPLACEMENT))
+        val badCipher = Cipher.getInstance(CIPHER_ENCODING)
+        badCipher.init(Cipher.DECRYPT_MODE, badSkeySpec, badIvSpec)
 
+        val badOutputFile = File.createTempFile("badDecrypted", ".epub")
+        CipherInputStream(badEncrypted, badCipher).use { input ->
+            FileOutputStream(badOutputFile).use { output ->
+                input.copyTo(output)
+                output.flush()
+                Log.v("TRAVIS", "BAD COPIED!!")
+            }
+        }
+
+
+        // THIS will work, the file is the same one that was
+        val encrypted = FileInputStream(File("/data/user/0/com.folioreader.android.sample/accel_encrypted.epub"))
         val headerInfo = ByteArray(HEADER_INFO_DISPLACEMENT)
-
         encrypted.read(headerInfo, 0, HEADER_INFO_DISPLACEMENT)
 
-        val key = AesHelper.getAesKey(keyString)
+        val key = AesHelper.getAesKey("abcdefghijklmnop")
         val skeySpec = SecretKeySpec(key, AesHelper.ENCRYPTION_ALGORITHM)
 
         val ivSpec = IvParameterSpec(Arrays.copyOfRange(headerInfo, FILE_SIZE_BYTE_DISPLACEMENT, HEADER_INFO_DISPLACEMENT))
@@ -77,19 +91,17 @@ class EncryptedContainerEpub constructor(
         val cipher = Cipher.getInstance(CIPHER_ENCODING)
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivSpec)
 
-        val outputFile = File.createTempFile("abcd", ".epub").apply {
-            deleteOnExit()
-        }
+        val outputFile = File("/data/user/0/com.folioreader.android.sample/decrypted.epub")
 
         CipherInputStream(encrypted, cipher).use { input ->
             FileOutputStream(outputFile).use { output ->
                 input.copyTo(output)
                 output.flush()
-                Timber.d("COPIED!!")
+                Log.v("TRAVIS", "COPIED!!")
             }
         }
 
-        Timber.d("zipfile built!!")
+        Log.v("TRAVIS", "${outputFile.path}")
         return ZipFile(outputFile.path)
     }
 

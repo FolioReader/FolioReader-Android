@@ -12,6 +12,7 @@ package org.readium.r2.streamer.parser
 import org.readium.r2.streamer.container.ContainerEpubDirectory
 import org.readium.r2.streamer.container.EncryptedContainerEpub
 import org.readium.r2.streamer.container.EpubContainer
+import timber.log.Timber
 import java.io.File
 
 class EncryptedEpubParser(private val key: String) : EpubParser() {
@@ -22,10 +23,12 @@ class EncryptedEpubParser(private val key: String) : EpubParser() {
             throw Exception("Missing File")
         }
 
+        Timber.tag("TRAVIS").v("parsing container")
         val container = when (isDirectory) {
             true -> ContainerEpubDirectory(path)
             false -> EncryptedContainerEpub(path, key)
         }
+        Timber.tag("TRAVIS").v("container is null? ${container == null}")
 
         if (!container.successCreated)
             throw Exception("Missing File")
