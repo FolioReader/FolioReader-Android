@@ -67,7 +67,7 @@ public class HomeActivity extends AppCompatActivity
 
                 folioReader.setReadLocator(readLocator);
                 folioReader.setConfig(config, true)
-                    .openBook("/sdcard/Download/accel_encrypted.epub");
+                    .openEncryptedBook("/sdcard/Download/accel_encrypted.epub", "abcdefghijklmnop");
             }
         });
     }

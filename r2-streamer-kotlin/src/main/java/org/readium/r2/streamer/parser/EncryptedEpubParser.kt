@@ -18,17 +18,15 @@ import java.io.File
 class EncryptedEpubParser(private val key: String) : EpubParser() {
 
     override fun generateContainerFrom(path: String): EpubContainer {
-        val isDirectory = File(path).isDirectory // TODO: the path doesn't exist, figure this out
+        val isDirectory = File(path).isDirectory
         if (!File(path).exists()) {
             throw Exception("Missing File")
         }
 
-        Timber.tag("TRAVIS").v("parsing container")
         val container = when (isDirectory) {
             true -> ContainerEpubDirectory(path)
             false -> EncryptedContainerEpub(path, key)
         }
-        Timber.tag("TRAVIS").v("container is null? ${container == null}")
 
         if (!container.successCreated)
             throw Exception("Missing File")

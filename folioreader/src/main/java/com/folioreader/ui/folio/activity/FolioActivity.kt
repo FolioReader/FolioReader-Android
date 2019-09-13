@@ -128,6 +128,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         const val EXTRA_SEARCH_ITEM = "EXTRA_SEARCH_ITEM"
         const val ACTION_SEARCH_CLEAR = "ACTION_SEARCH_CLEAR"
         private const val HIGHLIGHT_ITEM = "highlight_item"
+        const val EXTRA_BOOK_KEY = "book_key"
     }
 
     private val closeBroadcastReceiver = object : BroadcastReceiver() {
@@ -453,10 +454,14 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             throw Exception("-> Unknown book file extension `$extensionString`", e)
         }
 
-        val key = "abcdefghijklmnop"
+        val key: String? = intent.getStringExtra(EXTRA_BOOK_KEY)
         pubBox = when (extension) {
             Publication.EXTENSION.EPUB -> {
-                EncryptedEpubParser(key).parse(path!!, "") // TODO: figure out why it's not working
+                if (key != null) {
+                    EncryptedEpubParser(key).parse(path!!, "")
+                } else {
+                    EpubParser().parse(path!!, "")
+                }
             }
             Publication.EXTENSION.CBZ -> {
                 val cbzParser = CbzParser()
@@ -1002,4 +1007,5 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             }
         }
     }
+
 }

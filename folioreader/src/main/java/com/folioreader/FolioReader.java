@@ -115,6 +115,13 @@ public class FolioReader {
                 new IntentFilter(ACTION_FOLIOREADER_CLOSED));
     }
 
+    public FolioReader openEncryptedBook(String assetOrSdcardPath, String key) {
+        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
+        intent.putExtra(FolioActivity.EXTRA_BOOK_KEY, key);
+        context.startActivity(intent);
+        return singleton;
+    }
+
     public FolioReader openBook(String assetOrSdcardPath) {
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
         context.startActivity(intent);
