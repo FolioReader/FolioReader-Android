@@ -1,5 +1,6 @@
 package org.readium.r2.streamer.container
 
+import android.util.Log
 import org.readium.r2.shared.Link
 import org.readium.r2.shared.RootFile
 import org.readium.r2.shared.drm.Drm
@@ -72,7 +73,10 @@ class EncryptedContainerEpub constructor(
         }
 
         val zipFile = ZipFile(outputFile.path)
-        outputFile.delete()
+        Log.d("FOLIO", "outputFile's path is ${outputFile.path}")
+        if (!outputFile.delete()) {
+            throw IllegalStateException("FILE COULD NOT BE DELETED!")
+        }
         return zipFile
     }
 
