@@ -59,19 +59,15 @@ public class HomeActivity extends AppCompatActivity
         getHighlightsAndSave();
 
         findViewById(R.id.btn_open).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            @Override public void onClick(View v) {
 
                 ReadLocator readLocator = getLastReadLocator();
-
-                Config config = AppUtil.getSavedConfig(getApplicationContext());
-                if (config == null)
-                    config = new Config();
+                Config config = new Config();
                 config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
 
                 folioReader.setReadLocator(readLocator);
                 folioReader.setConfig(config, true)
-                        .openBook(R.raw.accel_encrypted);
+                    .openBook("/sdcard/Download/accel_encrypted.epub");
             }
         });
     }
