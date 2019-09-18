@@ -17,7 +17,7 @@ import java.io.File
 class EncryptedEpubParser(private val key: String) : EpubParser() {
 
     override fun generateContainerFrom(path: String): EpubContainer {
-        val isDirectory = File(path).isDirectory // TODO: the path doesn't exist, figure this out
+        val isDirectory = File(path).isDirectory
         if (!File(path).exists()) {
             throw Exception("Missing File")
         }
