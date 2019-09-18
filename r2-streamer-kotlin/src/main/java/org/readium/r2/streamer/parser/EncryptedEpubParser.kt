@@ -12,7 +12,6 @@ package org.readium.r2.streamer.parser
 import org.readium.r2.streamer.container.ContainerEpubDirectory
 import org.readium.r2.streamer.container.EncryptedContainerEpub
 import org.readium.r2.streamer.container.EpubContainer
-import timber.log.Timber
 import java.io.File
 
 class EncryptedEpubParser(private val key: String) : EpubParser() {
