@@ -41,6 +41,7 @@ import kotlinx.android.synthetic.main.text_selection.view.*
 import org.json.JSONObject
 import org.springframework.util.ReflectionUtils
 import java.lang.ref.WeakReference
+import kotlin.math.floor
 
 /**
  * @author by mahavir on 3/31/16.
@@ -109,10 +110,16 @@ class FolioWebView : WebView {
     private var lastScrollType: LastScrollType? = null
 
     val contentHeightVal: Int
-        get() = Math.floor((this.contentHeight * this.scale).toDouble()).toInt()
+        get() = floor((this.contentHeight * this.scale).toDouble()).toInt()
+
+    val contentWidthVal: Int
+        get() = floor((this.computeHorizontalScrollRange()).toDouble()).toInt()
 
     val webViewHeight: Int
         get() = this.measuredHeight
+
+    val webViewWidth: Int
+        get() = this.measuredWidth
 
     private enum class LastScrollType {
         USER, PROGRAMMATIC
@@ -436,7 +443,7 @@ class FolioWebView : WebView {
     }
 
     override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
-        if (mScrollListener != null) mScrollListener!!.onScrollChange(t)
+        if (mScrollListener != null) mScrollListener!!.onScrollChange(t, l)
         super.onScrollChanged(l, t, oldl, oldt)
 
         if (lastScrollType == LastScrollType.USER) {
@@ -448,7 +455,7 @@ class FolioWebView : WebView {
     }
 
     interface ScrollListener {
-        fun onScrollChange(percent: Int)
+        fun onScrollChange(percentV: Int, percentH: Int)
     }
 
     interface SeekBarListener {

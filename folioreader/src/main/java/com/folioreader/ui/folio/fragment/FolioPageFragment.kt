@@ -50,8 +50,11 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.readium.r2.shared.Link
 import org.readium.r2.shared.Locations
+import org.readium.r2.shared.Publication
 import java.util.*
 import java.util.regex.Pattern
+import kotlin.math.ceil
+import kotlin.math.floor
 
 /**
  * Created by mahavir on 4/2/16.
@@ -71,18 +74,23 @@ class FolioPageFragment : Fragment(),
         const val BUNDLE_SEARCH_LOCATOR = "BUNDLE_SEARCH_LOCATOR"
 
         @JvmStatic
-        fun newInstance(spineIndex: Int, bookTitle: String, spineRef: Link, bookId: String): FolioPageFragment {
+        fun newInstance(spineIndex: Int, bookTitle: String, spineRef: Link, bookId: String, publication: Publication): FolioPageFragment {
             val fragment = FolioPageFragment()
             val args = Bundle()
             args.putInt(BUNDLE_SPINE_INDEX, spineIndex)
             args.putString(BUNDLE_BOOK_TITLE, bookTitle)
             args.putString(FolioReader.EXTRA_BOOK_ID, bookId)
             args.putSerializable(BUNDLE_SPINE_ITEM, spineRef)
+            args.putSerializable(Constants.PUBLICATION, publication)
             fragment.arguments = args
             return fragment
         }
     }
 
+    private var lastCurrentPage: Int = 0
+    private var currentReadingPercent: String = "0"
+    private var overallPercent: Float = 0f
+    private lateinit var publication: Publication
     private var mHtmlString: String? = null
     private val hasMediaOverlay = false
     private var mAnchorId: String? = null
@@ -143,7 +151,10 @@ class FolioPageFragment : Fragment(),
         spineIndex = arguments!!.getInt(BUNDLE_SPINE_INDEX)
         mBookTitle = arguments!!.getString(BUNDLE_BOOK_TITLE)
         spineItem = arguments!!.getSerializable(BUNDLE_SPINE_ITEM) as Link
+        publication = arguments!!.getSerializable(Constants.PUBLICATION) as Publication
         mBookId = arguments!!.getString(FolioReader.EXTRA_BOOK_ID)
+        val currentChapterIndex = getChapterIndex(spineItem?.href!!)
+        overallPercent = currentChapterIndex / publication.tableOfContents.size.toFloat() * 100
 
         searchLocatorVisible = savedInstanceState?.getParcelable(BUNDLE_SEARCH_LOCATOR)
 
@@ -171,6 +182,10 @@ class FolioPageFragment : Fragment(),
         updatePagesLeftTextBg()
 
         return mRootView
+    }
+
+    private fun getChapterIndex(href: String): Int {
+        return publication.tableOfContents.indexOfFirst { it.href == href }
     }
 
     /**
@@ -349,6 +364,7 @@ class FolioPageFragment : Fragment(),
         mWebview!!.setParentFragment(this)
         webViewPager = webViewLayout.findViewById(R.id.webViewPager)
 
+
         if (activity is FolioActivityCallback)
             mWebview!!.setFolioActivityCallback((activity as FolioActivityCallback?)!!)
 
@@ -375,10 +391,21 @@ class FolioPageFragment : Fragment(),
         mWebview!!.addJavascriptInterface(mWebview, "FolioWebView")
 
         mWebview!!.setScrollListener(object : FolioWebView.ScrollListener {
-            override fun onScrollChange(percent: Int) {
+            override fun onScrollChange(percentV: Int, percentH: Int) {
+                val isHorizontalScrolling = mActivityCallback!!.direction == Config.Direction.HORIZONTAL
+                val percent = if (isHorizontalScrolling) percentH else percentV
+                currentReadingPercent = getReadingPercent(
+                    percent,
+                    isHorizontal = isHorizontalScrolling,
+                    overallPercent = overallPercent,
+                    chaptersLen = publication.tableOfContents.size
+                )
 
-                mScrollSeekbar!!.setProgressAndThumb(percent)
-                updatePagesLeftText(percent)
+                val currentPage = getCurrentPage(percent, isHorizontalScrolling)
+                if (currentPage != lastCurrentPage && isCurrentFragment) {
+                    getLastReadLocator()
+                    lastCurrentPage = currentPage
+                }
             }
         })
 
@@ -460,8 +487,10 @@ class FolioPageFragment : Fragment(),
 
                 if (readLocator != null) {
                     val cfi = readLocator.locations.cfi
-                    Log.v(LOG_TAG, "-> onPageFinished -> readLocator -> " + cfi!!)
-                    mWebview!!.loadUrl(String.format(getString(R.string.callScrollToCfi), cfi))
+                    cfi?.let {
+                        Log.v(LOG_TAG, "-> onPageFinished -> readLocator -> $it")
+                        mWebview!!.loadUrl(String.format(getString(R.string.callScrollToCfi), it))
+                    }
                 } else {
                     loadingView!!.hide()
                 }
@@ -571,7 +600,6 @@ class FolioPageFragment : Fragment(),
     }
 
     fun getLastReadLocator(): ReadLocator? {
-        Log.v(LOG_TAG, "-> getLastReadLocator -> " + spineItem!!.href!!)
         try {
             synchronized(this) {
                 mWebview!!.loadUrl(getString(R.string.callComputeLastReadCfi))
@@ -597,6 +625,7 @@ class FolioPageFragment : Fragment(),
 
             val intent = Intent(FolioReader.ACTION_SAVE_READ_LOCATOR)
             intent.putExtra(FolioReader.EXTRA_READ_LOCATOR, lastReadLocator as Parcelable?)
+            intent.putExtra(FolioReader.EXTRA_READ_PERCENT, currentReadingPercent)
             LocalBroadcastManager.getInstance(context!!).sendBroadcast(intent)
 
             (this as java.lang.Object).notify()
@@ -641,38 +670,34 @@ class FolioPageFragment : Fragment(),
         }
     }
 
-    private fun updatePagesLeftText(scrollY: Int) {
-        try {
-            val currentPage = (Math.ceil(scrollY.toDouble() / mWebview!!.webViewHeight) + 1).toInt()
-            val totalPages = Math.ceil(mWebview!!.contentHeightVal.toDouble() / mWebview!!.webViewHeight).toInt()
-            val pagesRemaining = totalPages - currentPage
-            val pagesRemainingStrFormat = if (pagesRemaining > 1)
-                getString(R.string.pages_left)
-            else
-                getString(R.string.page_left)
-            val pagesRemainingStr = String.format(Locale.US,
-                    pagesRemainingStrFormat, pagesRemaining)
+    private fun getReadingPercent(
+        percent: Int = 0,
+        isHorizontal: Boolean,
+        overallPercent: Float,
+        chaptersLen: Int
+    ): String {
+        val currentPage = getCurrentPage(percent, isHorizontal).toDouble()
+        val totalPages = getTotalPages(isHorizontal).toDouble()
 
-            val minutesRemaining = Math.ceil((pagesRemaining * mTotalMinutes).toDouble() / totalPages).toInt()
-            val minutesRemainingStr: String
-            if (minutesRemaining > 1) {
-                minutesRemainingStr = String.format(Locale.US, getString(R.string.minutes_left),
-                        minutesRemaining)
-            } else if (minutesRemaining == 1) {
-                minutesRemainingStr = String.format(Locale.US, getString(R.string.minute_left),
-                        minutesRemaining)
-            } else {
-                minutesRemainingStr = getString(R.string.less_than_minute)
-            }
+        var pagesRemaining = ((currentPage + 1) / totalPages) * 100
+        pagesRemaining = (pagesRemaining / chaptersLen) + overallPercent
+        return String.format("%.2f", pagesRemaining)
+    }
 
-            mMinutesLeftTextView!!.text = minutesRemainingStr
-            mPagesLeftTextView!!.text = pagesRemainingStr
-        } catch (exp: java.lang.ArithmeticException) {
-            Log.e("divide error", exp.toString())
-        } catch (exp: IllegalStateException) {
-            Log.e("divide error", exp.toString())
+    private fun getCurrentPage(percent: Int = 0, isHorizontal: Boolean): Int {
+        var currentPage = (ceil(percent.toDouble() / mWebview!!.webViewHeight) + 1)
+        if (isHorizontal) {
+            currentPage = (floor(percent.toDouble() / mWebview!!.webViewWidth))
         }
+        return currentPage.toInt()
+    }
 
+    private fun getTotalPages(isHorizontal: Boolean): Int {
+        var totalPages = ceil(mWebview!!.contentHeightVal.toDouble() / mWebview!!.webViewHeight)
+        if (isHorizontal) {
+            totalPages = floor(mWebview!!.contentWidthVal.toDouble() / mWebview!!.webViewWidth)
+        }
+        return totalPages.toInt()
     }
 
     private fun initAnimations() {

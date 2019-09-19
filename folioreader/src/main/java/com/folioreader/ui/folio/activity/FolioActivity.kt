@@ -517,14 +517,14 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         Log.v(LOG_TAG, "-> onDirectionChange")
 
         var folioPageFragment: FolioPageFragment? = currentFragment ?: return
-        entryReadLocator = folioPageFragment!!.getLastReadLocator()
-        val searchLocatorVisible = folioPageFragment.searchLocatorVisible
+        entryReadLocator = folioPageFragment?.getLastReadLocator()
+        val searchLocatorVisible = folioPageFragment?.searchLocatorVisible
 
         direction = newDirection
 
         mFolioPageViewPager!!.setDirection(newDirection)
         mFolioPageFragmentAdapter = FolioPageFragmentAdapter(supportFragmentManager,
-                spine, bookFileName, mBookId)
+                spine, bookFileName, mBookId, pubBox!!.publication)
         mFolioPageViewPager!!.adapter = mFolioPageFragmentAdapter
         mFolioPageViewPager!!.currentItem = currentChapterIndex
 
@@ -827,6 +827,14 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                         spine!![currentChapterIndex].href, false, true))
                 mediaControllerFragment!!.setPlayButtonDrawable()
                 currentChapterIndex = position
+
+                val folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position) as FolioPageFragment
+                // We have to delay this call to avoid UI to hang
+                // We reach this part only when we change chapters
+                mFolioPageViewPager?.postDelayed({
+                    folioPageFragment.getLastReadLocator()
+                }, 1000)
+
             }
 
             override fun onPageScrollStateChanged(state: Int) {
@@ -855,7 +863,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
         mFolioPageViewPager!!.setDirection(direction)
         mFolioPageFragmentAdapter = FolioPageFragmentAdapter(supportFragmentManager,
-                spine, bookFileName, mBookId)
+                spine, bookFileName, mBookId, pubBox!!.publication)
         mFolioPageViewPager!!.adapter = mFolioPageFragmentAdapter
 
         // In case if SearchActivity is recreated due to screen rotation then FolioActivity

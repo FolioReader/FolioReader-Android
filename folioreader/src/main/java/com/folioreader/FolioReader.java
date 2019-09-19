@@ -31,6 +31,8 @@ public class FolioReader {
 
     public static final String EXTRA_BOOK_ID = "com.folioreader.extra.BOOK_ID";
     public static final String EXTRA_READ_LOCATOR = "com.folioreader.extra.READ_LOCATOR";
+    public static final String EXTRA_READ_PERCENT = "com.folioreader.extra.READ_PERCENT";
+    public static final String EXTRA_PORT_NUMBER = "com.folioreader.extra.PORT_NUMBER";
     public static final String ACTION_SAVE_READ_LOCATOR = "com.folioreader.action.SAVE_READ_LOCATOR";
     public static final String ACTION_CLOSE_FOLIOREADER = "com.folioreader.action.CLOSE_FOLIOREADER";
     public static final String ACTION_FOLIOREADER_CLOSED = "com.folioreader.action.FOLIOREADER_CLOSED";
