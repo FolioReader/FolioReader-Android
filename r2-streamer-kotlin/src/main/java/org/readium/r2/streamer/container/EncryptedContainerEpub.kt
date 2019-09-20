@@ -81,7 +81,7 @@ class EncryptedContainerEpub constructor(
     }
 
     companion object {
-        private const val FILE_SIZE_BYTE_DISPLACEMENT = 0
+        private const val FILE_SIZE_BYTE_DISPLACEMENT = 8
         private const val INITIAL_VALUE_BYTE_DISPLACEMENT = 16
         private const val HEADER_INFO_DISPLACEMENT = FILE_SIZE_BYTE_DISPLACEMENT + INITIAL_VALUE_BYTE_DISPLACEMENT
 
