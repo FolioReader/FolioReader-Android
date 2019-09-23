@@ -66,16 +66,17 @@ public class HomeActivity extends AppCompatActivity
                 Config config = new Config();
                 config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
 
-                folioReader.setReadLocator(lastReadLocator);
-                folioReader.setOnLocationListener(new FolioReader.OnLocationListener() {
-                    @Override
-                    public void onLocationReceived(String locationCfi, int readingPercent) {
-                        lastReadLocator = ReadLocator.fromJson(locationCfi);
-                    }
-                });
-                folioReader.setConfig(config, true)
-                    .openEncryptedBook("/sdcard/Download/accel_encrypted.epub", "abcdefghijklmnop");
-            }
+                folioReader
+                    .setReadLocator(lastReadLocator)
+                    .setOnLocationListener(new FolioReader.OnLocationChangedListener() {
+                        @Override
+                        public void onLocationChanged(String locationCfi, int readingPercent) {
+                            lastReadLocator = ReadLocator.fromJson(locationCfi);
+                        }
+                    })
+                    .setConfig(config, true)
+                    .openEncryptedBook("/sdcard/Download/accel_encrypted.epub", "abcdefghijklmnop");;
+        }
         });
     }
 

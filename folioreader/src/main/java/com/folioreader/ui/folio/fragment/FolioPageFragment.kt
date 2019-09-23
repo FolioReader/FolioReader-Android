@@ -88,6 +88,7 @@ class FolioPageFragment : Fragment(),
         }
     }
 
+    private var lastLocationChangedType: FolioReader.locationChangedType? = null
     private var lastCurrentPage: Int = 0
     private var currentReadingPercent: Int = 0
     private var overallPercent: Float = 0f
@@ -248,7 +249,7 @@ class FolioPageFragment : Fragment(),
     fun reload(reloadDataEvent: ReloadDataEvent) {
 
         if (isCurrentFragment)
-            getLastReadLocator()
+            getLastReadLocator(FolioReader.locationChangedType.CONFIG_CHANGED)
 
         if (isAdded) {
             mWebview!!.dismissPopupWindow()
@@ -406,7 +407,7 @@ class FolioPageFragment : Fragment(),
                 val currentPage = getCurrentPage(percent, isHorizontalScrolling)
                 if (currentPage != lastCurrentPage && isCurrentFragment) {
                     mWebview?.postDelayed({
-                        getLastReadLocator()
+                        getLastReadLocator(FolioReader.locationChangedType.PAGE_TURN)
                     }, SETTLING_INTERVAL)
                     lastCurrentPage = currentPage
                 }
@@ -599,15 +600,16 @@ class FolioPageFragment : Fragment(),
         mediaController!!.stop()
         //TODO save last media overlay item
 
-        if (isCurrentFragment)
-            getLastReadLocator()
     }
 
-    fun getLastReadLocator(): ReadLocator? {
+    fun getLastReadLocator(locationChangedType: FolioReader.locationChangedType): ReadLocator? {
         try {
-            synchronized(this) {
-                mWebview!!.loadUrl(getString(R.string.callComputeLastReadCfi))
-                (this as java.lang.Object).wait(5000)
+            if (context != null) {
+                synchronized(this) {
+                    lastLocationChangedType = locationChangedType
+                    mWebview!!.loadUrl(getString(R.string.callComputeLastReadCfi))
+                    (this as java.lang.Object).wait(5000)
+                }
             }
         } catch (e: InterruptedException) {
             Log.e(LOG_TAG, "-> ", e)
@@ -630,6 +632,7 @@ class FolioPageFragment : Fragment(),
             val intent = Intent(FolioReader.ACTION_SAVE_READ_LOCATOR)
             intent.putExtra(FolioReader.EXTRA_READ_LOCATOR, lastReadLocator as Parcelable?)
             intent.putExtra(FolioReader.EXTRA_READ_PERCENT, currentReadingPercent)
+            intent.putExtra(FolioReader.EXTRA_LOCATION_CHANGED_TYPE, lastLocationChangedType)
             LocalBroadcastManager.getInstance(context!!).sendBroadcast(intent)
 
             (this as java.lang.Object).notify()

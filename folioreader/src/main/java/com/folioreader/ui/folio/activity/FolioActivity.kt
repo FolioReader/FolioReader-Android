@@ -114,6 +114,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private var density: Float = 0.toFloat()
     private var topActivity: Boolean? = null
     private var taskImportance: Int = 0
+    private var isMenuOpen = false
 
     companion object {
 
@@ -238,6 +239,9 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         super.onStop()
         Log.v(LOG_TAG, "-> onStop")
         topActivity = false
+        if (!isMenuOpen) {
+            currentFragment?.getLastReadLocator(FolioReader.locationChangedType.CLOSE)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -397,7 +401,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     }
 
     fun startContentHighlightActivity() {
-
+        isMenuOpen = true
         val intent = Intent(this@FolioActivity, ContentHighlightActivity::class.java)
 
         intent.putExtra(Constants.PUBLICATION, pubBox!!.publication)
@@ -518,7 +522,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         Log.v(LOG_TAG, "-> onDirectionChange")
 
         var folioPageFragment: FolioPageFragment? = currentFragment ?: return
-        entryReadLocator = folioPageFragment?.getLastReadLocator()
+        entryReadLocator = folioPageFragment?.getLastReadLocator(FolioReader.locationChangedType.CONFIG_CHANGED)
         val searchLocatorVisible = folioPageFragment?.searchLocatorVisible
 
         direction = newDirection
@@ -790,6 +794,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 val folioPageFragment = currentFragment ?: return
                 folioPageFragment.scrollToHighlightId(highlightImpl.rangy)
             }
+        } else {
+            isMenuOpen = false
         }
     }
 
@@ -815,7 +821,6 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     }
 
     private fun configFolio() {
-
         mFolioPageViewPager = findViewById(R.id.folioPageViewPager)
         // Replacing with addOnPageChangeListener(), onPageSelected() is not invoked
         mFolioPageViewPager!!.setOnPageChangeListener(object : DirectionalViewpager.OnPageChangeListener {
@@ -833,7 +838,12 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 // We have to delay this call to avoid UI to hang
                 // We reach this part only when we change chapters
                 mFolioPageViewPager?.postDelayed({
-                    folioPageFragment.getLastReadLocator()
+                    var locationChangedType = FolioReader.locationChangedType.PAGE_TURN
+                    if (isMenuOpen) {
+                        isMenuOpen = false
+                        locationChangedType = FolioReader.locationChangedType.SEEK
+                    }
+                    folioPageFragment.getLastReadLocator(locationChangedType)
                 }, SETTLING_INTERVAL)
 
             }
@@ -845,15 +855,15 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                     Log.v(LOG_TAG, "-> onPageScrollStateChanged -> DirectionalViewpager -> " +
                             "position = " + position)
 
-                    var folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position - 1) as FolioPageFragment
-                    if (folioPageFragment != null) {
+                    var folioPageFragment = mFolioPageFragmentAdapter?.getItem(position - 1)
+                    if (folioPageFragment != null && folioPageFragment is FolioPageFragment) {
                         folioPageFragment.scrollToLast()
                         if (folioPageFragment.mWebview != null)
                             folioPageFragment.mWebview!!.dismissPopupWindow()
                     }
 
-                    folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position + 1) as FolioPageFragment
-                    if (folioPageFragment != null) {
+                    folioPageFragment = mFolioPageFragmentAdapter?.getItem(position + 1)
+                    if (folioPageFragment != null && folioPageFragment is FolioPageFragment) {
                         folioPageFragment.scrollToFirst()
                         if (folioPageFragment.mWebview != null)
                             folioPageFragment.mWebview!!.dismissPopupWindow()

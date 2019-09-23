@@ -5,9 +5,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.location.LocationListener;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
@@ -33,10 +33,14 @@ public class FolioReader {
     public static final String EXTRA_BOOK_ID = "com.folioreader.extra.BOOK_ID";
     public static final String EXTRA_READ_LOCATOR = "com.folioreader.extra.READ_LOCATOR";
     public static final String EXTRA_READ_PERCENT = "com.folioreader.extra.READ_PERCENT";
-    public static final String EXTRA_PORT_NUMBER = "com.folioreader.extra.PORT_NUMBER";
+    public static final String EXTRA_LOCATION_CHANGED_TYPE = "com.folioreader.extra.EXTRA_LOCATION_CHANGED_TYPE";
     public static final String ACTION_SAVE_READ_LOCATOR = "com.folioreader.action.SAVE_READ_LOCATOR";
     public static final String ACTION_CLOSE_FOLIOREADER = "com.folioreader.action.CLOSE_FOLIOREADER";
     public static final String ACTION_FOLIOREADER_CLOSED = "com.folioreader.action.FOLIOREADER_CLOSED";
+
+    public enum locationChangedType {
+        CLOSE, SEEK, PAGE_TURN, CONFIG_CHANGED
+    }
 
     private Context context;
     private Config config;
@@ -45,7 +49,7 @@ public class FolioReader {
     private ReadLocatorListener readLocatorListener;
     private OnClosedListener onClosedListener;
     private ReadLocator readLocator;
-    private OnLocationListener locationListener;
+    private OnLocationChangedListener locationListener;
 
     public interface OnClosedListener {
         /**
@@ -57,8 +61,8 @@ public class FolioReader {
         void onFolioReaderClosed();
     }
 
-    public interface OnLocationListener {
-        void onLocationReceived(String locationCfi, int readingPercent);
+    public interface OnLocationChangedListener {
+        void onLocationChanged(String locationCfi, int readingPercent);
     }
 
     private BroadcastReceiver highlightReceiver = new BroadcastReceiver() {
@@ -80,12 +84,13 @@ public class FolioReader {
             ReadLocator readLocator =
                     (ReadLocator) intent.getSerializableExtra(FolioReader.EXTRA_READ_LOCATOR);
             int progress = intent.getIntExtra(FolioReader.EXTRA_READ_PERCENT, 0);
+            FolioReader.locationChangedType locationChangedType =
+                    (FolioReader.locationChangedType) intent.getSerializableExtra(FolioReader.EXTRA_LOCATION_CHANGED_TYPE);
             if (readLocatorListener != null) {
                 readLocatorListener.saveReadLocator(readLocator);
             }
-
             if (locationListener != null) {
-                locationListener.onLocationReceived(readLocator.toJson(), progress);
+                locationListener.onLocationChanged(readLocator.toJson(), progress);
             }
         }
     };
@@ -239,8 +244,8 @@ public class FolioReader {
         return singleton;
     }
 
-    public FolioReader setOnLocationListener(OnLocationListener onLocationListener) {
-        this.locationListener = onLocationListener;
+    public FolioReader setOnLocationListener(OnLocationChangedListener onLocationChangedListener) {
+        this.locationListener = onLocationChangedListener;
         return singleton;
     }
 
