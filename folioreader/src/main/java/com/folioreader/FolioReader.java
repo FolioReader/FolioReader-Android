@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.LocationListener;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -44,6 +45,7 @@ public class FolioReader {
     private ReadLocatorListener readLocatorListener;
     private OnClosedListener onClosedListener;
     private ReadLocator readLocator;
+    private OnLocationListener locationListener;
 
     public interface OnClosedListener {
         /**
@@ -53,6 +55,10 @@ public class FolioReader {
          * an epub again from your application.
          */
         void onFolioReaderClosed();
+    }
+
+    public interface OnLocationListener {
+        void onLocationReceived(String locationCfi, int readingPercent);
     }
 
     private BroadcastReceiver highlightReceiver = new BroadcastReceiver() {
@@ -73,8 +79,14 @@ public class FolioReader {
 
             ReadLocator readLocator =
                     (ReadLocator) intent.getSerializableExtra(FolioReader.EXTRA_READ_LOCATOR);
-            if (readLocatorListener != null)
+            int progress = intent.getIntExtra(FolioReader.EXTRA_READ_PERCENT, 0);
+            if (readLocatorListener != null) {
                 readLocatorListener.saveReadLocator(readLocator);
+            }
+
+            if (locationListener != null) {
+                locationListener.onLocationReceived(readLocator.toJson(), progress);
+            }
         }
     };
 
@@ -224,6 +236,11 @@ public class FolioReader {
 
     public FolioReader setOnClosedListener(OnClosedListener onClosedListener) {
         this.onClosedListener = onClosedListener;
+        return singleton;
+    }
+
+    public FolioReader setOnLocationListener(OnLocationListener onLocationListener) {
+        this.locationListener = onLocationListener;
         return singleton;
     }
 

@@ -35,6 +35,7 @@ import com.folioreader.model.sqlite.HighLightTable
 import com.folioreader.ui.base.HtmlTask
 import com.folioreader.ui.base.HtmlTaskCallback
 import com.folioreader.ui.base.HtmlUtil
+import com.folioreader.ui.folio.activity.FolioActivity.Companion.SETTLING_INTERVAL
 import com.folioreader.ui.folio.activity.FolioActivityCallback
 import com.folioreader.ui.folio.mediaoverlay.MediaController
 import com.folioreader.ui.folio.mediaoverlay.MediaControllerCallbacks
@@ -88,7 +89,7 @@ class FolioPageFragment : Fragment(),
     }
 
     private var lastCurrentPage: Int = 0
-    private var currentReadingPercent: String = "0"
+    private var currentReadingPercent: Int = 0
     private var overallPercent: Float = 0f
     private lateinit var publication: Publication
     private var mHtmlString: String? = null
@@ -155,6 +156,7 @@ class FolioPageFragment : Fragment(),
         mBookId = arguments!!.getString(FolioReader.EXTRA_BOOK_ID)
         val currentChapterIndex = getChapterIndex(spineItem?.href!!)
         overallPercent = currentChapterIndex / publication.tableOfContents.size.toFloat() * 100
+        currentReadingPercent = overallPercent.toInt()
 
         searchLocatorVisible = savedInstanceState?.getParcelable(BUNDLE_SEARCH_LOCATOR)
 
@@ -403,7 +405,9 @@ class FolioPageFragment : Fragment(),
 
                 val currentPage = getCurrentPage(percent, isHorizontalScrolling)
                 if (currentPage != lastCurrentPage && isCurrentFragment) {
-                    getLastReadLocator()
+                    mWebview?.postDelayed({
+                        getLastReadLocator()
+                    }, SETTLING_INTERVAL)
                     lastCurrentPage = currentPage
                 }
             }
@@ -675,13 +679,13 @@ class FolioPageFragment : Fragment(),
         isHorizontal: Boolean,
         overallPercent: Float,
         chaptersLen: Int
-    ): String {
+    ): Int {
         val currentPage = getCurrentPage(percent, isHorizontal).toDouble()
         val totalPages = getTotalPages(isHorizontal).toDouble()
 
-        var pagesRemaining = ((currentPage + 1) / totalPages) * 100
-        pagesRemaining = (pagesRemaining / chaptersLen) + overallPercent
-        return String.format("%.2f", pagesRemaining)
+        var readingPercent = ((currentPage + 1) / totalPages) * 100
+        readingPercent = (readingPercent / chaptersLen) + overallPercent
+        return readingPercent.toInt()
     }
 
     private fun getCurrentPage(percent: Int = 0, isHorizontal: Boolean): Int {

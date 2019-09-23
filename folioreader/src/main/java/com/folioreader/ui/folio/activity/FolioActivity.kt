@@ -129,6 +129,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         const val ACTION_SEARCH_CLEAR = "ACTION_SEARCH_CLEAR"
         private const val HIGHLIGHT_ITEM = "highlight_item"
         const val EXTRA_BOOK_KEY = "book_key"
+        const val SETTLING_INTERVAL = 1500L
     }
 
     private val closeBroadcastReceiver = object : BroadcastReceiver() {
@@ -833,7 +834,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 // We reach this part only when we change chapters
                 mFolioPageViewPager?.postDelayed({
                     folioPageFragment.getLastReadLocator()
-                }, 1000)
+                }, SETTLING_INTERVAL)
 
             }
 
@@ -1015,5 +1016,4 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             }
         }
     }
-
 }
