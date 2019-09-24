@@ -836,15 +836,15 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                     Log.v(LOG_TAG, "-> onPageScrollStateChanged -> DirectionalViewpager -> " +
                             "position = " + position)
 
-                    var folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position - 1) as FolioPageFragment
-                    if (folioPageFragment != null) {
+                    var folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position - 1)
+                    if (folioPageFragment != null && folioPageFragment is FolioPageFragment) {
                         folioPageFragment.scrollToLast()
                         if (folioPageFragment.mWebview != null)
                             folioPageFragment.mWebview!!.dismissPopupWindow()
                     }
 
-                    folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position + 1) as FolioPageFragment
-                    if (folioPageFragment != null) {
+                    folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position + 1)
+                    if (folioPageFragment != null && folioPageFragment is FolioPageFragment) {
                         folioPageFragment.scrollToFirst()
                         if (folioPageFragment.mWebview != null)
                             folioPageFragment.mWebview!!.dismissPopupWindow()
