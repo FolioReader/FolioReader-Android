@@ -70,7 +70,7 @@ public class HomeActivity extends AppCompatActivity
                     .setReadLocator(lastReadLocator)
                     .setOnLocationListener(new FolioReader.OnLocationChangedListener() {
                         @Override
-                        public void onLocationChanged(String locationCfi, int readingPercent) {
+                        public void onLocationChanged(String locationCfi, int readingPercent, FolioReader.locationChangedType type) {
                             lastReadLocator = ReadLocator.fromJson(locationCfi);
                         }
                     })

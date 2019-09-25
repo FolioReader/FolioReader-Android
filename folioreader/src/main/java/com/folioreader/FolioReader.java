@@ -62,7 +62,7 @@ public class FolioReader {
     }
 
     public interface OnLocationChangedListener {
-        void onLocationChanged(String locationCfi, int readingPercent);
+        void onLocationChanged(String locationCfi, int readingPercent, FolioReader.locationChangedType type);
     }
 
     private BroadcastReceiver highlightReceiver = new BroadcastReceiver() {
@@ -90,7 +90,7 @@ public class FolioReader {
                 readLocatorListener.saveReadLocator(readLocator);
             }
             if (locationListener != null) {
-                locationListener.onLocationChanged(readLocator.toJson(), progress);
+                locationListener.onLocationChanged(readLocator.toJson(), progress, locationChangedType);
             }
         }
     };
