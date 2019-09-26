@@ -29,7 +29,6 @@ import com.folioreader.FolioReader;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.locators.ReadLocator;
 import com.folioreader.ui.base.OnSaveHighlight;
-import com.folioreader.util.AppUtil;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadLocatorListener;
 
@@ -45,6 +44,7 @@ public class HomeActivity extends AppCompatActivity
 
     private static final String LOG_TAG = HomeActivity.class.getSimpleName();
     private FolioReader folioReader;
+    private ReadLocator lastReadLocator;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,15 +60,23 @@ public class HomeActivity extends AppCompatActivity
 
         findViewById(R.id.btn_open).setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-
-                ReadLocator readLocator = getLastReadLocator();
+                if (lastReadLocator == null) {
+                    lastReadLocator = getLastReadLocator();
+                }
                 Config config = new Config();
                 config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
 
-                folioReader.setReadLocator(readLocator);
-                folioReader.setConfig(config, true)
-                    .openEncryptedBook("/sdcard/Download/accel_encrypted.epub", "abcdefghijklmnop");
-            }
+                folioReader
+                    .setReadLocator(lastReadLocator)
+                    .setOnLocationListener(new FolioReader.OnLocationChangedListener() {
+                        @Override
+                        public void onLocationChanged(String locationCfi, int readingPercent, FolioReader.locationChangedType type) {
+                            lastReadLocator = ReadLocator.fromJson(locationCfi);
+                        }
+                    })
+                    .setConfig(config, true)
+                    .openEncryptedBook("/sdcard/Download/accel_encrypted.epub", "abcdefghijklmnop");;
+        }
         });
     }
 

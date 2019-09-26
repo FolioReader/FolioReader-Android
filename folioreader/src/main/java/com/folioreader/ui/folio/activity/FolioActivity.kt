@@ -114,6 +114,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private var density: Float = 0.toFloat()
     private var topActivity: Boolean? = null
     private var taskImportance: Int = 0
+    private var isMenuOpen = false
 
     companion object {
 
@@ -129,6 +130,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         const val ACTION_SEARCH_CLEAR = "ACTION_SEARCH_CLEAR"
         private const val HIGHLIGHT_ITEM = "highlight_item"
         const val EXTRA_BOOK_KEY = "book_key"
+        const val SETTLING_INTERVAL = 1500L
     }
 
     private val closeBroadcastReceiver = object : BroadcastReceiver() {
@@ -237,6 +239,9 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         super.onStop()
         Log.v(LOG_TAG, "-> onStop")
         topActivity = false
+        if (!isMenuOpen) {
+            currentFragment?.getLastReadLocator(FolioReader.locationChangedType.CLOSE)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -396,7 +401,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     }
 
     fun startContentHighlightActivity() {
-
+        isMenuOpen = true
         val intent = Intent(this@FolioActivity, ContentHighlightActivity::class.java)
 
         intent.putExtra(Constants.PUBLICATION, pubBox!!.publication)
@@ -517,14 +522,14 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         Log.v(LOG_TAG, "-> onDirectionChange")
 
         var folioPageFragment: FolioPageFragment? = currentFragment ?: return
-        entryReadLocator = folioPageFragment!!.getLastReadLocator()
-        val searchLocatorVisible = folioPageFragment.searchLocatorVisible
+        entryReadLocator = folioPageFragment?.getLastReadLocator(FolioReader.locationChangedType.CONFIG_CHANGED)
+        val searchLocatorVisible = folioPageFragment?.searchLocatorVisible
 
         direction = newDirection
 
         mFolioPageViewPager!!.setDirection(newDirection)
         mFolioPageFragmentAdapter = FolioPageFragmentAdapter(supportFragmentManager,
-                spine, bookFileName, mBookId)
+                spine, bookFileName, mBookId, pubBox!!.publication)
         mFolioPageViewPager!!.adapter = mFolioPageFragmentAdapter
         mFolioPageViewPager!!.currentItem = currentChapterIndex
 
@@ -789,6 +794,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 val folioPageFragment = currentFragment ?: return
                 folioPageFragment.scrollToHighlightId(highlightImpl.rangy)
             }
+        } else {
+            isMenuOpen = false
         }
     }
 
@@ -814,7 +821,6 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     }
 
     private fun configFolio() {
-
         mFolioPageViewPager = findViewById(R.id.folioPageViewPager)
         // Replacing with addOnPageChangeListener(), onPageSelected() is not invoked
         mFolioPageViewPager!!.setOnPageChangeListener(object : DirectionalViewpager.OnPageChangeListener {
@@ -827,6 +833,19 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                         spine!![currentChapterIndex].href, false, true))
                 mediaControllerFragment!!.setPlayButtonDrawable()
                 currentChapterIndex = position
+
+                val folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position) as FolioPageFragment
+                // We have to delay this call to avoid UI to hang
+                // We reach this part only when we change chapters
+                mFolioPageViewPager?.postDelayed({
+                    var locationChangedType = FolioReader.locationChangedType.PAGE_TURN
+                    if (isMenuOpen) {
+                        isMenuOpen = false
+                        locationChangedType = FolioReader.locationChangedType.SEEK
+                    }
+                    folioPageFragment.getLastReadLocator(locationChangedType)
+                }, SETTLING_INTERVAL)
+
             }
 
             override fun onPageScrollStateChanged(state: Int) {
@@ -836,14 +855,14 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                     Log.v(LOG_TAG, "-> onPageScrollStateChanged -> DirectionalViewpager -> " +
                             "position = " + position)
 
-                    var folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position - 1)
+                    var folioPageFragment = mFolioPageFragmentAdapter?.getItem(position - 1)
                     if (folioPageFragment != null && folioPageFragment is FolioPageFragment) {
                         folioPageFragment.scrollToLast()
                         if (folioPageFragment.mWebview != null)
                             folioPageFragment.mWebview!!.dismissPopupWindow()
                     }
 
-                    folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position + 1)
+                    folioPageFragment = mFolioPageFragmentAdapter?.getItem(position + 1)
                     if (folioPageFragment != null && folioPageFragment is FolioPageFragment) {
                         folioPageFragment.scrollToFirst()
                         if (folioPageFragment.mWebview != null)
@@ -855,7 +874,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
         mFolioPageViewPager!!.setDirection(direction)
         mFolioPageFragmentAdapter = FolioPageFragmentAdapter(supportFragmentManager,
-                spine, bookFileName, mBookId)
+                spine, bookFileName, mBookId, pubBox!!.publication)
         mFolioPageViewPager!!.adapter = mFolioPageFragmentAdapter
 
         // In case if SearchActivity is recreated due to screen rotation then FolioActivity
@@ -1007,5 +1026,4 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             }
         }
     }
-
 }
