@@ -5,5 +5,5 @@ package com.folioreader.ui.base;
  */
 
 public interface HtmlTaskCallback extends BaseMvpView {
-    void onReceiveHtml(String html);
+    void onReceiveHtml(String url, String html);
 }
