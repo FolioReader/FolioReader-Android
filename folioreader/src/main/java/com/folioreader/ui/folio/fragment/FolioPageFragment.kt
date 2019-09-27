@@ -56,6 +56,7 @@ import java.util.*
 import java.util.regex.Pattern
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.round
 
 /**
  * Created by mahavir on 4/2/16.
@@ -88,12 +89,18 @@ class FolioPageFragment : Fragment(),
         }
     }
 
+    public var totalBookSize = 0
+    public var chapterSize = 0
     private var lastLocationChangedType: FolioReader.locationChangedType? = null
     private var lastCurrentPage: Int = 0
+    public var chapterPercent: Float = 0f
+        set(value) {
+            currentReadingPercent = (value * 100).toInt()
+            field = value
+        }
     private var currentReadingPercent: Int = 0
-    private var overallPercent: Float = 0f
     private lateinit var publication: Publication
-    private var mHtmlString: String? = null
+    private var mHtmlString: String = ""
     private val hasMediaOverlay = false
     private var mAnchorId: String? = null
     private var rangy = ""
@@ -155,9 +162,6 @@ class FolioPageFragment : Fragment(),
         spineItem = arguments!!.getSerializable(BUNDLE_SPINE_ITEM) as Link
         publication = arguments!!.getSerializable(Constants.PUBLICATION) as Publication
         mBookId = arguments!!.getString(FolioReader.EXTRA_BOOK_ID)
-        val currentChapterIndex = getChapterIndex(spineItem?.href!!)
-        overallPercent = currentChapterIndex / publication.tableOfContents.size.toFloat() * 100
-        currentReadingPercent = overallPercent.toInt()
 
         searchLocatorVisible = savedInstanceState?.getParcelable(BUNDLE_SEARCH_LOCATOR)
 
@@ -298,7 +302,7 @@ class FolioPageFragment : Fragment(),
         }
     }
 
-    override fun onReceiveHtml(html: String) {
+    override fun onReceiveHtml(url: String, html: String) {
         if (isAdded) {
             mHtmlString = html
             setHtml(false)
@@ -399,9 +403,7 @@ class FolioPageFragment : Fragment(),
                 val percent = if (isHorizontalScrolling) percentH else percentV
                 currentReadingPercent = getReadingPercent(
                     percent,
-                    isHorizontal = isHorizontalScrolling,
-                    overallPercent = overallPercent,
-                    chaptersLen = publication.tableOfContents.size
+                    isHorizontal = isHorizontalScrolling
                 )
 
                 val currentPage = getCurrentPage(percent, isHorizontalScrolling)
@@ -679,16 +681,20 @@ class FolioPageFragment : Fragment(),
 
     private fun getReadingPercent(
         percent: Int = 0,
-        isHorizontal: Boolean,
-        overallPercent: Float,
-        chaptersLen: Int
+        isHorizontal: Boolean
     ): Int {
         val currentPage = getCurrentPage(percent, isHorizontal).toDouble()
         val totalPages = getTotalPages(isHorizontal).toDouble()
 
-        var readingPercent = ((currentPage + 1) / totalPages) * 100
-        readingPercent = (readingPercent / chaptersLen) + overallPercent
-        return readingPercent.toInt()
+        var readingPercent = ((currentPage) / totalPages)
+        if (readingPercent > 1.0) {
+            readingPercent = 1.0
+        }
+
+        val currentChapterPercent = chapterSize.toFloat() / totalBookSize
+
+        readingPercent = ((readingPercent * currentChapterPercent) + this.chapterPercent) * 100
+        return round(readingPercent).toInt()
     }
 
     private fun getCurrentPage(percent: Int = 0, isHorizontal: Boolean): Int {

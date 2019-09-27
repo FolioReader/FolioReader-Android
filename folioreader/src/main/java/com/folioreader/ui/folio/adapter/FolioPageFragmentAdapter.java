@@ -1,5 +1,6 @@
 package com.folioreader.ui.folio.adapter;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -7,6 +8,9 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import com.folioreader.Constants;
+import com.folioreader.ui.base.HtmlTask;
+import com.folioreader.ui.base.HtmlTaskCallback;
 import com.folioreader.ui.folio.fragment.FolioPageFragment;
 
 import org.readium.r2.shared.Link;
@@ -15,12 +19,14 @@ import org.readium.r2.shared.Publication;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author mahavir on 4/2/16.
  */
-public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
+public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter implements HtmlTaskCallback {
 
     private static final String LOG_TAG = FolioPageFragmentAdapter.class.getSimpleName();
     private List<Link> mSpineReferences;
@@ -29,6 +35,10 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
     private ArrayList<Fragment> fragments;
     private ArrayList<Fragment.SavedState> savedStateList;
     private Publication publication;
+    private Map<String, Integer> chapterSizesMap = new HashMap<>();
+    private List<Integer> chapterSizesSequence = new ArrayList<>();
+    private List<Float> chapterPercentSequence = new ArrayList<>();
+    private int totalBookSize = 0;
 
     public FolioPageFragmentAdapter(FragmentManager fragmentManager, List<Link> spineReferences,
                                     String epubFileName, String bookId, Publication publication) {
@@ -38,6 +48,51 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
         this.mBookId = bookId;
         this.publication = publication;
         fragments = new ArrayList<>(Arrays.asList(new Fragment[mSpineReferences.size()]));
+        loadAllFragments(mSpineReferences);
+    }
+
+    private void loadAllFragments(List<Link> references) {
+        for (int i = 0; i < references.size(); i++) {
+            Fragment fragment = fragments.get(i);
+            if (fragment == null) {
+                fragment = FolioPageFragment.newInstance(i, mEpubFileName, mSpineReferences.get(i), mBookId, publication);
+                fragments.set(i, fragment);
+                String url = Constants.LOCALHOST + Uri.encode(mEpubFileName) + mSpineReferences.get(i).getHref();
+                (new HtmlTask(this)).execute(url);
+            }
+        }
+    }
+
+    public void updateBookSize() {
+        for (int i = 0; i < fragments.size(); i++) {
+            FolioPageFragment frag = (FolioPageFragment) fragments.get(i);
+            if (frag == null) {
+                continue;
+            }
+            frag.setChapterPercent(chapterPercentSequence.get(i));
+            frag.setChapterSize(chapterSizesSequence.get(i));
+            frag.setTotalBookSize(totalBookSize);
+        }
+    }
+
+
+    private void createPercentageTable() {
+        for (Link chapter : mSpineReferences) {
+            Integer chapterSize = chapterSizesMap.get(chapter.getHref());
+            chapterSizesSequence.add(chapterSize);
+        }
+
+        for (int i = 0; i < chapterSizesSequence.size(); i++) {
+            List<Integer> sizesUntilChapter = chapterSizesSequence.subList(0, i);
+            float totalSizeUntilChapter = 0;
+            for (int j = 0; j < sizesUntilChapter.size(); j++) {
+                if (sizesUntilChapter.get(j) != null) {
+                    totalSizeUntilChapter += sizesUntilChapter.get(j);
+                }
+            }
+
+            chapterPercentSequence.add(totalSizeUntilChapter/totalBookSize);
+        }
     }
 
     @Override
@@ -65,6 +120,9 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
             fragment = FolioPageFragment.newInstance(position,
                     mEpubFileName, mSpineReferences.get(position), mBookId, publication);
             fragments.set(position, fragment);
+            ((FolioPageFragment)fragment).setChapterPercent(chapterPercentSequence.get(position));
+            ((FolioPageFragment)fragment).setChapterSize(chapterSizesSequence.get(position));
+            ((FolioPageFragment)fragment).setTotalBookSize(totalBookSize);
         }
         return fragment;
     }
@@ -104,5 +162,26 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
         return mSpineReferences.size();
+    }
+
+    @Override
+    public void onReceiveHtml(String url, String html) {
+        String key = url.replace(Constants.LOCALHOST, "");
+        key = key.replace(Uri.encode(mEpubFileName), "");
+        chapterSizesMap.put(key, html.length());
+        if (chapterSizesMap.size() == mSpineReferences.size()) {
+            totalBookSize = 0;
+            for (int val :
+                    chapterSizesMap.values()) {
+                totalBookSize += val;
+            }
+            createPercentageTable();
+            updateBookSize();
+        }
+    }
+
+    @Override
+    public void onError() {
+
     }
 }

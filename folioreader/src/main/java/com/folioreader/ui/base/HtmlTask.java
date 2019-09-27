@@ -2,6 +2,7 @@ package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.Pair;
 
 import com.folioreader.util.AppUtil;
 
@@ -19,7 +20,7 @@ import java.net.URLConnection;
  * @author by gautam on 12/6/17.
  */
 
-public class HtmlTask extends AsyncTask<String, Void, String> {
+public class HtmlTask extends AsyncTask<String, Void, Pair<String, String>> {
 
     private static final String TAG = "HtmlTask";
 
@@ -30,7 +31,7 @@ public class HtmlTask extends AsyncTask<String, Void, String> {
     }
 
     @Override
-    protected String doInBackground(String... urls) {
+    protected Pair<String, String> doInBackground(String... urls) {
         String strUrl = urls[0];
         try {
             URL url = new URL(strUrl);
@@ -44,7 +45,7 @@ public class HtmlTask extends AsyncTask<String, Void, String> {
             }
             if (stringBuilder.length() > 0)
                 stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-            return stringBuilder.toString();
+            return new Pair<>(strUrl, stringBuilder.toString());
         } catch (IOException e) {
             Log.e(TAG, "HtmlTask failed", e);
         }
@@ -52,9 +53,9 @@ public class HtmlTask extends AsyncTask<String, Void, String> {
     }
 
     @Override
-    protected void onPostExecute(String htmlString) {
-        if (htmlString != null) {
-            callback.onReceiveHtml(htmlString);
+    protected void onPostExecute(Pair<String, String> htmlPair) {
+        if (htmlPair.second != null) {
+            callback.onReceiveHtml(htmlPair.first, htmlPair.second);
         } else {
             callback.onError();
         }
