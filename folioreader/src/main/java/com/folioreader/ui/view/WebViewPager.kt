@@ -3,21 +3,15 @@ package com.folioreader.ui.view
 import android.content.Context
 import android.os.Handler
 import android.util.AttributeSet
-import android.util.Log
 import android.view.*
 import android.webkit.JavascriptInterface
 import androidx.core.view.GestureDetectorCompat
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.folioreader.R
+import timber.log.Timber
 
 class WebViewPager : ViewPager {
-
-    companion object {
-        @JvmField
-        val LOG_TAG: String = WebViewPager::class.java.simpleName
-    }
-
     private var horizontalPageCount: Int = 0
     private var folioWebView: FolioWebView? = null
     private var takeOverScrolling: Boolean = false
@@ -44,26 +38,26 @@ class WebViewPager : ViewPager {
 
         addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-                // Log.d(LOG_TAG, "-> onPageScrolled -> position = " + position +
+                // Timber.d("-> onPageScrolled -> position = " + position +
                 // ", positionOffset = " + positionOffset + ", positionOffsetPixels = " + positionOffsetPixels);
 
                 isScrolling = true
 
                 if (takeOverScrolling && folioWebView != null) {
                     val scrollX = folioWebView!!.getScrollXPixelsForPage(position) + positionOffsetPixels
-                    //Log.d(LOG_TAG, "-> onPageScrolled -> scrollX = " + scrollX);
+                    //Timber.d("-> onPageScrolled -> scrollX = " + scrollX);
                     folioWebView!!.scrollTo(scrollX, 0)
                 }
 
                 if (positionOffsetPixels == 0) {
-                    //Log.d(LOG_TAG, "-> onPageScrolled -> takeOverScrolling = false");
+                    //Timber.d("-> onPageScrolled -> takeOverScrolling = false");
                     takeOverScrolling = false
                     isScrolling = false
                 }
             }
 
             override fun onPageSelected(position: Int) {
-                Log.v(LOG_TAG, "-> onPageSelected -> $position")
+                Timber.v("-> onPageSelected -> $position")
             }
 
             override fun onPageScrollStateChanged(state: Int) {}
@@ -80,7 +74,7 @@ class WebViewPager : ViewPager {
     }
 
     fun setHorizontalPageCount(horizontalPageCount: Int) {
-        //Log.d(LOG_TAG, "-> horizontalPageCount = " + horizontalPageCount);
+        //Timber.d("-> horizontalPageCount = " + horizontalPageCount);
 
         this.horizontalPageCount = horizontalPageCount
         adapter = WebViewPagerAdapter()
@@ -92,7 +86,7 @@ class WebViewPager : ViewPager {
 
     @JavascriptInterface
     fun setCurrentPage(pageIndex: Int) {
-        Log.v(LOG_TAG, "-> setCurrentItem -> pageIndex = $pageIndex")
+        Timber.v("-> setCurrentItem -> pageIndex = $pageIndex")
 
         uiHandler!!.post { setCurrentItem(pageIndex, false) }
     }
@@ -117,32 +111,32 @@ class WebViewPager : ViewPager {
         }
 
         override fun onSingleTapUp(e: MotionEvent?): Boolean {
-            //Log.d(LOG_TAG, "-> onSingleTapUp");
+            //Timber.d("-> onSingleTapUp");
             lastGestureType = LastGestureType.OnSingleTapUp
             return false
         }
 
         override fun onLongPress(e: MotionEvent?) {
             super.onLongPress(e)
-            //Log.d(LOG_TAG, "-> onLongPress -> " + e);
+            //Timber.d("-> onLongPress -> " + e);
             lastGestureType = LastGestureType.OnLongPress
         }
 
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
-            //Log.v(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
+            //Timber.v("-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
             lastGestureType = LastGestureType.OnScroll
             return false
         }
 
         override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
-            //Log.d(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
+            //Timber.d("-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
             lastGestureType = LastGestureType.OnFling
             return false
         }
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        //Log.d(LOG_TAG, "-> onTouchEvent -> " + AppUtil.actionToString(event.getAction()));
+        //Timber.d("-> onTouchEvent -> " + AppUtil.actionToString(event.getAction()));
 
         if (event == null)
             return false
@@ -159,7 +153,7 @@ class WebViewPager : ViewPager {
 
         if (event.action == MotionEvent.ACTION_UP) {
             if (lastGestureType == LastGestureType.OnScroll || lastGestureType == LastGestureType.OnFling) {
-                //Log.d(LOG_TAG, "-> onTouchEvent -> takeOverScrolling = true, " + "lastGestureType = " + lastGestureType);
+                //Timber.d("-> onTouchEvent -> takeOverScrolling = true, " + "lastGestureType = " + lastGestureType);
                 takeOverScrolling = true
             }
             lastGestureType = null

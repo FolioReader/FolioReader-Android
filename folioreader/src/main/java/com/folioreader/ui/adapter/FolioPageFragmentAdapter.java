@@ -1,13 +1,13 @@
 package com.folioreader.ui.adapter;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import com.folioreader.ui.fragment.FolioPageFragment;
 import org.readium.r2.shared.Link;
+import timber.log.Timber;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -18,8 +18,6 @@ import java.util.List;
  * @author mahavir on 4/2/16.
  */
 public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
-
-    private static final String LOG_TAG = FolioPageFragmentAdapter.class.getSimpleName();
     private List<Link> mSpineReferences;
     private String mEpubFileName;
     private String mBookId;
@@ -76,7 +74,7 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
                 field.setAccessible(true);
                 savedStateList = (ArrayList<Fragment.SavedState>) field.get(this);
             } catch (Exception e) {
-                Log.e(LOG_TAG, "-> ", e);
+                Timber.e(e);
             }
         }
 
@@ -91,7 +89,7 @@ public class FolioPageFragmentAdapter extends FragmentStatePagerAdapter {
             field.setAccessible(true);
             bundle = (Bundle) field.get(savedState);
         } catch (Exception e) {
-            Log.v(LOG_TAG, "-> " + e);
+            Timber.v(e);
         }
         return bundle;
     }

@@ -2,7 +2,6 @@ package com.folioreader.model.locators
 
 import android.os.Parcel
 import android.os.Parcelable
-import android.util.Log
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
@@ -11,6 +10,7 @@ import com.folioreader.util.ObjectMapperSingleton
 import org.readium.r2.shared.Locations
 import org.readium.r2.shared.Locator
 import org.readium.r2.shared.LocatorText
+import timber.log.Timber
 
 @JsonPropertyOrder("bookId", "href", "created", "locations")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -50,10 +50,6 @@ open class ReadLocator : Locator, Parcelable {
     }
 
     companion object {
-
-        @JvmField
-        val LOG_TAG: String = ReadLocator::class.java.simpleName
-
         @JvmStatic
         fun fromJson(json: String?): ReadLocator? {
             return try {
@@ -62,7 +58,7 @@ open class ReadLocator : Locator, Parcelable {
                     .forType(ReadLocator::class.java)
                     .readValue(json)
             } catch (e: Exception) {
-                Log.e(LOG_TAG, "-> ", e)
+                Timber.e(e)
                 null
             }
         }
@@ -90,7 +86,7 @@ open class ReadLocator : Locator, Parcelable {
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL)
             objectMapper.writeValueAsString(this)
         } catch (e: Exception) {
-            Log.e(LOG_TAG, "-> ", e)
+            Timber.e(e)
             null
         }
     }

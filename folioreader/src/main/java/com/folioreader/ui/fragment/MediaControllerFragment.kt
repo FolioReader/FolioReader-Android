@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
-import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
@@ -25,6 +24,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.greenrobot.eventbus.EventBus
+import timber.log.Timber
 
 class MediaControllerFragment : BottomSheetDialogFragment() {
 
@@ -70,7 +70,7 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
     private var btnTextColorStyle: StyleableTextView? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        Log.v(LOG_TAG, "-> onCreateDialog")
+        Timber.v("-> onCreateDialog")
 
         bottomSheetDialog = BottomSheetDialog(context!!)
         val view = View.inflate(context, R.layout.view_audio_player, null)
@@ -82,8 +82,8 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
         mTouchOutsideView.setOnTouchListener { _, event ->
 
             if (event.action == MotionEvent.ACTION_DOWN) {
-                Log.v(LOG_TAG, "-> onTouch -> touch_outside -> ${getView()}")
-                dialog.hide()
+                Timber.v("-> onTouch -> touch_outside -> %s", getView())
+                dialog?.hide()
                 visible = false
                 return@setOnTouchListener true
             }
@@ -113,12 +113,12 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
 
     override fun onStart() {
         super.onStart()
-        Log.v(LOG_TAG, "-> onStart")
+        Timber.v("-> onStart")
 
-        dialog.setOnKeyListener { _, keyCode, event ->
+        dialog?.setOnKeyListener { _, keyCode, event ->
             if (event.action == MotionEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
-                Log.v(LOG_TAG, "-> Back button pressed")
-                dialog.hide()
+                Timber.v("-> Back button pressed")
+                dialog?.hide()
                 visible = false
                 return@setOnKeyListener true
             }
@@ -129,42 +129,42 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
 
         if (!visible)
-            dialog.hide()
+            dialog?.hide()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        Log.v(LOG_TAG, "-> onSaveInstanceState -> $visible")
+        Timber.v("-> onSaveInstanceState -> $visible")
         outState.putBoolean(BUNDLE_IS_VISIBLE, visible)
     }
 
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
-        Log.v(LOG_TAG, "-> onViewStateRestored")
+        Timber.v("-> onViewStateRestored")
 
         if (savedInstanceState == null)
             return
 
         visible = savedInstanceState.getBoolean(BUNDLE_IS_VISIBLE)
-        //Log.v(LOG_TAG, "-> onViewStateRestored -> $visible")
+        //Timber.v("-> onViewStateRestored -> $visible")
     }
 
     fun show(fragmentManager: FragmentManager) {
-        Log.v(LOG_TAG, "-> show")
+        Timber.v("-> show")
 
         visible = true
         if (isAdded) {
-            //Log.v(LOG_TAG, "-> Is already added")
-            dialog.show()
+            //Timber.v("-> Is already added")
+            dialog?.show()
         } else {
-            //Log.v(LOG_TAG, "-> Not added")
+            //Timber.v("-> Not added")
             show(fragmentManager, MediaControllerFragment.LOG_TAG)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.v(LOG_TAG, "-> onDestroyView")
+        Timber.v("-> onDestroyView")
     }
 
     private fun initViewStates() {

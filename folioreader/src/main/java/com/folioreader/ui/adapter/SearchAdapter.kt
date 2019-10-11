@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,12 +14,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.folioreader.R
 import com.folioreader.model.locators.SearchItemType
 import com.folioreader.model.locators.SearchLocator
+import timber.log.Timber
 
 class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     companion object {
-        @JvmField
-        val LOG_TAG: String? = SearchAdapter::class.java.simpleName
         const val DATA_BUNDLE = "DATA_BUNDLE"
     }
 
@@ -30,13 +28,13 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
     var onItemClickListener: OnItemClickListener? = null
 
     constructor(context: Context) : super() {
-        Log.v(LOG_TAG, "-> constructor")
+        Timber.v("-> constructor")
 
         this.context = context
     }
 
     constructor(context: Context, dataBundle: Bundle) : super() {
-        Log.v(LOG_TAG, "-> constructor")
+        Timber.v("-> constructor")
 
         this.context = context
         listViewType = ListViewType.fromString(dataBundle.getString(ListViewType.KEY))

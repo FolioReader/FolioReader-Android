@@ -4,7 +4,6 @@ import android.app.SearchManager
 import android.content.ComponentName
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -15,14 +14,9 @@ import androidx.core.graphics.ColorUtils
 import com.folioreader.Config
 import com.folioreader.R
 import com.folioreader.util.UiUtil
+import timber.log.Timber
 
 class FolioSearchView : SearchView {
-
-    companion object {
-        @JvmField
-        val LOG_TAG: String = FolioSearchView::class.java.simpleName
-    }
-
     private lateinit var searchAutoComplete: SearchView.SearchAutoComplete
 
     constructor(context: Context?) : super(context)
@@ -30,7 +24,7 @@ class FolioSearchView : SearchView {
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     fun init(componentName: ComponentName, config: Config) {
-        Log.v(LOG_TAG, "-> init")
+        Timber.v("-> init")
 
         val searchManager: SearchManager = context.getSystemService(Context.SEARCH_SERVICE) as SearchManager
         setSearchableInfo(searchManager.getSearchableInfo(componentName))
@@ -41,7 +35,7 @@ class FolioSearchView : SearchView {
     }
 
     private fun adjustLayout() {
-        Log.v(LOG_TAG, "-> adjustLayout")
+        Timber.v("-> adjustLayout")
 
         // Hide searchHintIcon
         val searchMagIcon: View = findViewById(R.id.search_mag_icon)
@@ -53,7 +47,7 @@ class FolioSearchView : SearchView {
     }
 
     private fun applyTheme(config: Config) {
-        Log.v(LOG_TAG, "-> applyTheme")
+        Timber.v("-> applyTheme")
 
         val searchCloseButton: ImageView = findViewById(R.id.search_close_btn)
         UiUtil.setColorIntToDrawable(config.themeColor, searchCloseButton.drawable)

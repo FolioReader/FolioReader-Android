@@ -16,7 +16,6 @@
 package com.folioreader.android.sample;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
@@ -31,6 +30,7 @@ import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadLocatorListener;
+import timber.log.Timber;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,7 +42,6 @@ import java.util.List;
 public class HomeActivity extends AppCompatActivity
         implements OnHighlightListener, ReadLocatorListener, FolioReader.OnClosedListener {
 
-    private static final String LOG_TAG = HomeActivity.class.getSimpleName();
     private FolioReader folioReader;
 
     @Override
@@ -97,7 +96,7 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void saveReadLocator(ReadLocator readLocator) {
-        Log.i(LOG_TAG, "-> saveReadLocator -> " + readLocator.toJson());
+        Timber.i("-> saveReadLocator -> %s", readLocator.toJson());
     }
 
     /*
@@ -149,13 +148,13 @@ public class HomeActivity extends AppCompatActivity
             }
             return buf.toString();
         } catch (IOException e) {
-            Log.e("HomeActivity", "Error opening asset " + name);
+            Timber.e("Error opening asset %s", name);
         } finally {
             if (in != null) {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    Log.e("HomeActivity", "Error closing asset " + name);
+                    Timber.e("Error closing asset %s", name);
                 }
             }
         }
@@ -177,6 +176,6 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public void onFolioReaderClosed() {
-        Log.v(LOG_TAG, "-> onFolioReaderClosed");
+        Timber.v("-> onFolioReaderClosed");
     }
 }

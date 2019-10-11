@@ -18,7 +18,6 @@ import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.StateSet;
 import android.view.View;
 import android.view.Window;
@@ -34,6 +33,7 @@ import com.folioreader.R;
 import com.folioreader.ui.view.UnderlinedTextView;
 import org.json.JSONException;
 import org.json.JSONObject;
+import timber.log.Timber;
 
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
@@ -43,9 +43,6 @@ import java.util.Hashtable;
  * Created by mahavir on 3/30/16.
  */
 public class UiUtil {
-
-    private static final String LOG_TAG = UiUtil.class.getSimpleName();
-
     public static void setCustomFont(View view, Context ctx, AttributeSet attrs,
                                      int[] attributeSet, int fontId) {
         TypedArray a = ctx.obtainStyledAttributes(attrs, attributeSet);
@@ -66,7 +63,7 @@ public class UiUtil {
                 ((Button) view).setTypeface(tf);
             }
         } catch (Exception e) {
-            Log.e("AppUtil", "Could not get typface  " + asset);
+            Timber.e("Could not get typface %s", asset);
             return false;
         }
 
@@ -168,7 +165,7 @@ public class UiUtil {
             int color = ContextCompat.getColor(AppContext.get(), colorResId);
             drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
         } catch (Resources.NotFoundException e) {
-            Log.e(LOG_TAG, "-> Exception in setColorResToDrawable -> ", e);
+            Timber.e(e, "-> Exception in setColorResToDrawable -> ");
         }
     }
 
@@ -215,7 +212,7 @@ public class UiUtil {
             }
 
         } catch (Exception e) {
-            Log.e(LOG_TAG, "-> ", e);
+            Timber.e(e);
         }
     }
 
@@ -281,7 +278,7 @@ public class UiUtil {
                 fieldCenter.set(editor, drawableCenter);
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, "-> ", e);
+            Timber.e(e);
         }
     }
 
@@ -328,7 +325,7 @@ public class UiUtil {
             jsonObject.put("height", rect.height());
             return jsonObject.toString();
         } catch (JSONException e) {
-            Log.e(LOG_TAG, "-> ", e);
+            Timber.e(e);
         }
         return null;
     }
