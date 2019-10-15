@@ -401,13 +401,13 @@ class FolioPageFragment : Fragment(),
             override fun onScrollChange(percentV: Int, percentH: Int) {
                 val isHorizontalScrolling = mActivityCallback!!.direction == Config.Direction.HORIZONTAL
                 val percent = if (isHorizontalScrolling) percentH else percentV
-                currentReadingPercent = getReadingPercent(
-                    percent,
-                    isHorizontal = isHorizontalScrolling
-                )
 
                 val currentPage = getCurrentPage(percent, isHorizontalScrolling)
                 if (currentPage != lastCurrentPage && isCurrentFragment) {
+                    currentReadingPercent = getReadingPercent(
+                        percent,
+                        isHorizontal = isHorizontalScrolling
+                    )
                     mWebview?.postDelayed({
                         getLastReadLocator(FolioReader.locationChangedType.PAGE_TURN)
                     }, SETTLING_INTERVAL)

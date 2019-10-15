@@ -685,7 +685,7 @@ function scrollToNodeOrRange(nodeOrRange) {
     var nodeOffsetTop, nodeOffsetHeight;
 
     // For Direction.HORIZONTAL
-    var nodeOffsetLeft;
+    var nodeHorizontalOffset;
 
     if (nodeOrRange instanceof Range || nodeOrRange.nodeType === Node.TEXT_NODE) {
 
@@ -699,13 +699,13 @@ function scrollToNodeOrRange(nodeOrRange) {
         }
         nodeOffsetTop = scrollingElement.scrollTop + rect.top;
         nodeOffsetHeight = rect.height;
-        nodeOffsetLeft = scrollingElement.scrollLeft + rect.left;
+        nodeHorizontalOffset = scrollingElement.scrollLeft + rect.right;
 
     } else if (nodeOrRange.nodeType === Node.ELEMENT_NODE) {
 
         nodeOffsetTop = nodeOrRange.offsetTop;
         nodeOffsetHeight = nodeOrRange.offsetHeight;
-        nodeOffsetLeft = nodeOrRange.offsetLeft;
+        nodeHorizontalOffset = nodeOrRange.offsetLeft;
 
     } else {
         throw("-> Illegal Argument Exception, nodeOrRange -> " + nodeOrRange);
@@ -740,7 +740,7 @@ function scrollToNodeOrRange(nodeOrRange) {
 
         case Direction.HORIZONTAL:
             var clientWidth = document.documentElement.clientWidth;
-            var pageIndex = Math.floor(nodeOffsetLeft / clientWidth);
+            var pageIndex = Math.floor(nodeHorizontalOffset / clientWidth);
             var newScrollLeft = clientWidth * pageIndex;
             //console.log("-> newScrollLeft = " + newScrollLeft);
             scrollingElement.scrollLeft = newScrollLeft;
