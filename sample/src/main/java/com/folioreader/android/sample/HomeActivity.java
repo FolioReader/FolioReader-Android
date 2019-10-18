@@ -29,6 +29,7 @@ import com.folioreader.FolioReader;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.locators.ReadLocator;
 import com.folioreader.ui.base.OnSaveHighlight;
+import com.folioreader.util.AppUtil;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadLocatorListener;
 
@@ -77,6 +78,23 @@ public class HomeActivity extends AppCompatActivity
                     .setConfig(config, true)
                     .openEncryptedBook("/sdcard/Download/accel_encrypted.epub", "abcdefghijklmnop");;
         }
+        });
+
+        findViewById(R.id.btn_open_2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ReadLocator readLocator = getLastReadLocator();
+
+                Config config = AppUtil.getSavedConfig(getApplicationContext());
+                if (config == null)
+                    config = new Config();
+                config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
+
+                folioReader.setReadLocator(readLocator);
+                folioReader.setConfig(config, true)
+                    .openBook("file:///android_asset/jacob2.epub");
+            }
         });
     }
 
