@@ -63,4 +63,7 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson"
     implementation "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$versions.jackson"
+
+    //Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
 }

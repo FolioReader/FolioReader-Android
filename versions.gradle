@@ -11,8 +11,8 @@ versions.androidMinSdk = 21
 versions.androidCompileSdk = 28
 versions.androidTargetSdk = 28
 
-versions.androidGradlePlugin = "3.2.1"
-versions.kotlin = "1.3.11"
+versions.androidGradlePlugin = '3.5.1'
+versions.kotlin = "1.3.50"
 
 versions.appcompat = "1.0.2"
 versions.constraintLayout = "1.1.3"
