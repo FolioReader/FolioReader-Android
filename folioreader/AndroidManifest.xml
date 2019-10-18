@@ -9,9 +9,8 @@
     <uses-sdk tools:overrideLibrary="org.readium.r2.streamer, org.readium.r2.shared" />
 
     <application
-        android:allowBackup="true"
-        android:networkSecurityConfig="@xml/network_security_config"
-        tools:replace="android:allowBackup">
+        android:allowBackup="false"
+        android:networkSecurityConfig="@xml/network_security_config">
 
         <provider
             android:name=".AppContext"

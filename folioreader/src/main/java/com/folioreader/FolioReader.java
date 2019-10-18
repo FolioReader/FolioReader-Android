@@ -129,35 +129,35 @@ public class FolioReader {
                 new IntentFilter(ACTION_FOLIOREADER_CLOSED));
     }
 
-    public FolioReader openBook(String assetOrSdcardPath) {
-        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
+    public FolioReader openBook(String assetOrSdcardPath, Class<?> calledActivity) {
+        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0, calledActivity);
         context.startActivity(intent);
         return singleton;
     }
 
-    public FolioReader openBook(int rawId) {
-        Intent intent = getIntentFromUrl(null, rawId);
+    public FolioReader openBook(int rawId, Class<?> calledActivity) {
+        Intent intent = getIntentFromUrl(null, rawId, calledActivity);
         context.startActivity(intent);
         return singleton;
     }
 
-    public FolioReader openBook(String assetOrSdcardPath, String bookId) {
-        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
+    public FolioReader openBook(String assetOrSdcardPath, String bookId, Class<?> calledActivity) {
+        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0, calledActivity);
         intent.putExtra(EXTRA_BOOK_ID, bookId);
         context.startActivity(intent);
         return singleton;
     }
 
-    public FolioReader openBook(int rawId, String bookId) {
-        Intent intent = getIntentFromUrl(null, rawId);
+    public FolioReader openBook(int rawId, String bookId, Class<?> calledActivity) {
+        Intent intent = getIntentFromUrl(null, rawId, calledActivity);
         intent.putExtra(EXTRA_BOOK_ID, bookId);
         context.startActivity(intent);
         return singleton;
     }
 
-    private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId) {
+    private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId, Class<?> calledActivity) {
 
-        Intent intent = new Intent(context, FolioActivity.class);
+        Intent intent = new Intent(context, calledActivity);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.EXTRA_OVERRIDE_CONFIG, overrideConfig);
