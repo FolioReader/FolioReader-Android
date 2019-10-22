@@ -262,6 +262,10 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         // TODO -> Make this configurable
         // getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        //disable screenshots, screen recording
+        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE);
+
         setConfig(savedInstanceState)
         initDistractionFreeMode(savedInstanceState)
 

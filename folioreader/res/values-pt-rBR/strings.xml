@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">FolioReader</string>
-    <string name="share">Compartilhar</string>
-    <string name="copy">Copiar</string>
-    <string name="send_to">Enviar</string>
-    <string name="copied">Copiado</string>
     <string name="less_than_minute">Menos de 1 minuto</string>
     <string name="minute_left">%1$d minuto · </string>
     <string name="minutes_left">%1$d minutos · </string>

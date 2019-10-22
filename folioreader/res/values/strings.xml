@@ -16,11 +16,6 @@
     <string name="minute_left">%1$d minute ·&#160;</string>
     <string name="less_than_minute">Less than a minute ·&#160;</string>
 
-    <string name="copied">Copied</string>
-    <string name="send_to">Send to</string>
-
-    <string name="copy">Copy</string>
-    <string name="share">Share</string>
     <string name="define">Define</string>
     <string name="highlight">Highlight</string>
 

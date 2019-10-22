@@ -145,22 +145,6 @@ public class UiUtil {
         return dp * context.getResources().getDisplayMetrics().density;
     }
 
-    public static void copyToClipboard(Context context, String text) {
-        ClipboardManager clipboard =
-                (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("copy", text);
-        clipboard.setPrimaryClip(clip);
-    }
-
-    public static void share(Context context, String text) {
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, text);
-        sendIntent.setType("text/plain");
-        context.startActivity(Intent.createChooser(sendIntent,
-                context.getResources().getText(R.string.send_to)));
-    }
-
     public static void setColorIntToDrawable(@ColorInt int color, Drawable drawable) {
         drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
     }
