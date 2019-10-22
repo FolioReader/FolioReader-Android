@@ -289,21 +289,11 @@ class FolioWebView : WebView {
             Log.v(LOG_TAG, "-> onClick -> underlineHighlight")
             onHighlightColorItemsClicked(HighlightStyle.Underline, false)
         }
-
         viewTextSelection.deleteHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> deleteHighlight")
             dismissPopupWindow()
             loadUrl("javascript:clearSelection()")
             loadUrl("javascript:deleteThisHighlight()")
-        }
-
-        viewTextSelection.copySelection.setOnClickListener {
-            dismissPopupWindow()
-            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
-        }
-        viewTextSelection.shareSelection.setOnClickListener {
-            dismissPopupWindow()
-            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
         }
         viewTextSelection.defineSelection.setOnClickListener {
             dismissPopupWindow()
@@ -317,15 +307,6 @@ class FolioWebView : WebView {
         uiHandler.post { loadUrl("javascript:clearSelection()") }
 
         when (id) {
-            R.id.copySelection -> {
-                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> copySelection -> $selectedText")
-                UiUtil.copyToClipboard(context, selectedText)
-                Toast.makeText(context, context.getString(R.string.copied), Toast.LENGTH_SHORT).show()
-            }
-            R.id.shareSelection -> {
-                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> shareSelection -> $selectedText")
-                UiUtil.share(context, selectedText)
-            }
             R.id.defineSelection -> {
                 Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> defineSelection -> $selectedText")
                 uiHandler.post { showDictDialog(selectedText) }
