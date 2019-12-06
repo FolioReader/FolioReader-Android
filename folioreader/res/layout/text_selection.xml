@@ -25,12 +25,13 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
+                <ImageView
                     android:id="@+id/copySelection"
-                    style="@style/TextViewTextSelector"
+                    style="@style/ImageViewTextSelectorMarker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/copy" />
+                    android:src="@drawable/ic_action_file_copy" />
+
 
                 <TextView
                     android:id="@+id/shareSelection"
@@ -69,25 +70,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:id="@+id/deleteHighlight"
-                        style="@style/ImageViewTextSelectorMarker"
-                        app:srcCompat="@drawable/ic_highlight_delete" />
-
-                    <ImageView
-                        android:id="@+id/yellowHighlight"
-                        style="@style/ImageViewTextSelectorMarker"
-                        android:src="@drawable/shape_highlight_yellow" />
-
-                    <ImageView
-                        android:id="@+id/greenHighlight"
-                        style="@style/ImageViewTextSelectorMarker"
-                        android:src="@drawable/shape_highlight_green" />
-
-                    <ImageView
-                        android:id="@+id/blueHighlight"
-                        style="@style/ImageViewTextSelectorMarker"
-                        android:src="@drawable/shape_highlight_blue" />
 
                     <ImageView
                         android:id="@+id/pinkHighlight"
@@ -95,10 +77,31 @@
                         android:src="@drawable/shape_highlight_pink" />
 
                     <ImageView
+                        android:id="@+id/yellowHighlight"
+                        style="@style/ImageViewTextSelectorMarker"
+                        android:src="@drawable/shape_highlight_orange" />
+
+                    <ImageView
+                        android:id="@+id/blueHighlight"
+                        style="@style/ImageViewTextSelectorMarker"
+                        android:src="@drawable/shape_highlight_blue" />
+
+
+                    <ImageView
+                        android:id="@+id/greenHighlight"
+                        style="@style/ImageViewTextSelectorMarker"
+                        android:src="@drawable/shape_highlight_green" />
+
+
+                    <ImageView
                         android:id="@+id/underlineHighlight"
                         style="@style/ImageViewTextSelectorMarker"
                         app:srcCompat="@drawable/ic_format_underlined" />
 
+                    <ImageView
+                        android:id="@+id/deleteHighlight"
+                        style="@style/ImageViewTextSelectorMarker"
+                        app:srcCompat="@drawable/ic_highlight_delete" />
                 </LinearLayout>
 
             </HorizontalScrollView>

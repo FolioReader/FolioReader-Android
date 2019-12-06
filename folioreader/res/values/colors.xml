@@ -29,4 +29,18 @@
     <color name="highlight_blue">#ADD8FF</color>
     <color name="highlight_pink">#FFB0CA</color>
 
+    <color name="super_gray">#606060</color>
+    <color name="standard_gray">#363636</color>
+    <color name="standard_gray_blur">#30363636</color>
+    <color name="fake_gray">#606061</color>
+    <color name="note_red"> #f44336</color>
+    <color name="note_orange">#ffc107</color>
+    <color name="note_blue">#03a9f4</color>
+    <color name="note_green">#8bc34a</color>
+    <color name="transparent">#0000</color>
+    <color name="note_red_blur"> #30f44336</color>
+    <color name="note_orange_blur">#30ffc107</color>
+    <color name="note_blue_blur">#3003a9f4</color>
+    <color name="note_green_blur">#308bc34a</color>
+
 </resources>
