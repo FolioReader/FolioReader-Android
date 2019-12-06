@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.folioreader.Config;
@@ -99,9 +100,9 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
                     @Override
                     public void run() {
                         ViewGroup.LayoutParams params =
-                                holder.swipeLinearLayout.getLayoutParams();
+                                holder.constraintLayout.getLayoutParams();
                         params.height = height;
-                        holder.swipeLinearLayout.setLayoutParams(params);
+                        holder.constraintLayout.setLayoutParams(params);
                     }
                 });
             }
@@ -147,12 +148,12 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
         private TextView date;
         private RelativeLayout container;
         private TextView note;
-        private LinearLayout swipeLinearLayout;
+        private ConstraintLayout constraintLayout;
 
         HighlightHolder(View itemView) {
             super(itemView);
             container = (RelativeLayout) itemView.findViewById(R.id.container);
-            swipeLinearLayout = (LinearLayout) itemView.findViewById(R.id.swipe_linear_layout);
+            constraintLayout = (ConstraintLayout) itemView.findViewById(R.id.high_light_contraint_layout);
             content = (UnderlinedTextView) itemView.findViewById(R.id.utv_highlight_content);
             delete = (ImageView) itemView.findViewById(R.id.iv_delete);
             editNote = (ImageView) itemView.findViewById(R.id.iv_edit_note);
