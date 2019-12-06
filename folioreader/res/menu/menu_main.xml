@@ -23,7 +23,10 @@
         android:icon="@drawable/man_speech_icon"
         android:title="@string/menu_item_tts"
         android:visible="false"
+        android:iconTint="@color/note_blue"
         app:showAsAction="ifRoom"
-        tools:showAsAction="always" />
+        tools:showAsAction="always"
+
+        />
 
 </menu>
