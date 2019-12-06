@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimary">#03a9f4</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
 
-    <color name="default_theme_accent_color">#71C951</color>
+    <color name="default_theme_accent_color">#03a9f4</color>
     <color name="transparent_black">#80000000</color>
     <color name="borders">#F1EFF2</color>
     <color name="black">#000000</color>
@@ -25,7 +25,7 @@
     <color name="edit_text_hint_color">#AAAAAA</color>
 
     <color name="highlight_yellow">#FFEB6B</color>
-    <color name="highlight_green">#C0ED72</color>
+    <color name="highlight_green">#03a9f4</color>
     <color name="highlight_blue">#ADD8FF</color>
     <color name="highlight_pink">#FFB0CA</color>
 

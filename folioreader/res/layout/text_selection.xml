@@ -7,12 +7,12 @@
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="2dp"
+        app:cardCornerRadius="5dp"
         app:cardElevation="5dp"
         app:cardUseCompatPadding="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="288dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?popUpWindowBackground">
 
@@ -26,6 +26,18 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
+                    android:id="@+id/addNoteSelection"
+                    style="@style/ImageViewTextSelectorMarker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_action_library_add" />
+
+                <ImageView
+                    android:id="@+id/underlineHighlight"
+                    style="@style/ImageViewTextSelectorMarker"
+                    app:srcCompat="@drawable/ic_format_underlined" />
+
+                <ImageView
                     android:id="@+id/copySelection"
                     style="@style/ImageViewTextSelectorMarker"
                     android:layout_width="wrap_content"
@@ -33,19 +45,26 @@
                     android:src="@drawable/ic_action_file_copy" />
 
 
-                <TextView
-                    android:id="@+id/shareSelection"
-                    style="@style/TextViewTextSelector"
+                <ImageView
+                    android:id="@+id/translateSelection"
+                    style="@style/ImageViewTextSelectorMarker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/share" />
+                    android:src="@drawable/ic_action_g_translate" />
 
-                <TextView
+                <!--                <ImageView-->
+                <!--                    android:id="@+id/shareSelection"-->
+                <!--                    style="@style/ImageViewTextSelectorMarker"-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:src="@drawable/ic_action_share" />-->
+
+                <ImageView
                     android:id="@+id/defineSelection"
-                    style="@style/TextViewTextSelector"
+                    style="@style/ImageViewTextSelectorMarker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/define" />
+                    android:src="@drawable/ic_action_define" />
 
             </LinearLayout>
 
@@ -72,12 +91,12 @@
 
 
                     <ImageView
-                        android:id="@+id/pinkHighlight"
+                        android:id="@+id/redHighlight"
                         style="@style/ImageViewTextSelectorMarker"
                         android:src="@drawable/shape_highlight_pink" />
 
                     <ImageView
-                        android:id="@+id/yellowHighlight"
+                        android:id="@+id/orangeHighlight"
                         style="@style/ImageViewTextSelectorMarker"
                         android:src="@drawable/shape_highlight_orange" />
 
@@ -92,11 +111,6 @@
                         style="@style/ImageViewTextSelectorMarker"
                         android:src="@drawable/shape_highlight_green" />
 
-
-                    <ImageView
-                        android:id="@+id/underlineHighlight"
-                        style="@style/ImageViewTextSelectorMarker"
-                        app:srcCompat="@drawable/ic_format_underlined" />
 
                     <ImageView
                         android:id="@+id/deleteHighlight"

@@ -1,6 +1,6 @@
 def versions = [:]
 
-versions.folioreaderSdk = "0.5.4"
+versions.folioreaderSdk = "0.5.4-1"
 versions.r2SharedKotlin = "1.0.4-2"
 versions.r2StreamerKotlin = "1.0.4-2"
 
