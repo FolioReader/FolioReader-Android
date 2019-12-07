@@ -38,8 +38,7 @@
     <string name="zip">.zip</string>
     <string name="htmlBodyTableOpen">&lt;html&gt;&lt;body&gt;&lt;table&gt;</string>
     <string name="titlesMeta">&lt;tr&gt;&lt;td&gt;Titles:&lt;/td&gt;</string>
-    <string name="authorsMeta">&lt;tr&gt;&lt;td&gt;Authors:&lt;/td&gt;</string>
-    <string name="contributorsMeta">&lt;tr&gt;&lt;td&gt;Contributors:&lt;/td&gt;</string>
+    <string name="contributorsMeta">&lt;tr&gt;&lt;td&gt;Contributor:&lt;/td&gt;</string>
     <string name="languageMeta">&lt;tr&gt;&lt;td&gt;Language:&lt;/td&gt;&lt;td&gt;</string>
     <string name="publishersMeta">&lt;tr&gt;&lt;td&gt;Publishers:&lt;/td&gt;</string>
     <string name="typesMeta">&lt;tr&gt;&lt;td&gt;Types:&lt;/td&gt;</string>
@@ -91,7 +90,6 @@
     <string name="debug_start_unable_drag">Starting unable to drag!</string>
     <string name="dictionary">Dictionary</string>
     <string name="wikipedia">Wikipedia</string>
-    <string name="cannot_access_epub_message">Cannot open epub it needs storage access !</string>
     <string name="direction_horizontal">Horizontal</string>
     <string name="direction_vertical">Vertical</string>
 
@@ -116,5 +114,8 @@
     <string name="callScrollToCfi" translatable="false">javascript:scrollToCfi(\"%s\")</string>
     <string name="callHighlightSearchLocator" translatable="false">javascript:highlightSearchLocator(\"%s\")</string>
     <string name="callClearSelection" translatable="false">javascript:clearSelection()</string>
+    <string name="authorsMeta">&lt;tr&gt;&lt;td&gt;Authors:&lt;/td&gt;</string>
+
+    <string name="cannot_access_epub_message">Unable to open ebook, you need to enable access to external memory!</string>
 
 </resources>
