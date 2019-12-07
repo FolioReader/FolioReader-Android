@@ -120,9 +120,12 @@
 
     <SeekBar
         android:id="@+id/view_config_font_size_seek_bar"
+        android:backgroundTint="@color/note_blue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:max="4"
+        android:foregroundTint="@color/note_blue"
+        android:progressTint="@color/note_blue"
         app:layout_constraintBottom_toTopOf="@+id/view5"
         app:layout_constraintEnd_toStartOf="@+id/view_config_iv_label_font_big"
         app:layout_constraintStart_toEndOf="@+id/view_config_iv_label_font_small"
