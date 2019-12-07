@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.folioreader.Config;
@@ -50,7 +51,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
                 ((AppCompatActivity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        holder.container.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+                        holder.container.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
                     }
                 });
             }
@@ -141,17 +142,25 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
         notifyDataSetChanged();
     }
 
+    public void deleteNote(String note, int position)
+    {
+        callback.deleteHighlight(getItem(position).getId());
+        highlights.remove(position);
+        notifyDataSetChanged();
+    }
+
+
     static class HighlightHolder extends RecyclerView.ViewHolder {
         private UnderlinedTextView content;
         private ImageView delete, editNote;
         private TextView date;
-        private RelativeLayout container;
+        private ConstraintLayout container;
         private TextView note;
         private LinearLayout swipeLinearLayout;
 
         HighlightHolder(View itemView) {
             super(itemView);
-            container = (RelativeLayout) itemView.findViewById(R.id.container);
+            container = (ConstraintLayout) itemView.findViewById(R.id.container);
             swipeLinearLayout = (LinearLayout) itemView.findViewById(R.id.swipe_linear_layout);
             content = (UnderlinedTextView) itemView.findViewById(R.id.utv_highlight_content);
             delete = (ImageView) itemView.findViewById(R.id.iv_delete);

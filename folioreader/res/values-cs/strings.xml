@@ -43,7 +43,8 @@
     <string name="please_wait_till_audio_is_parsed">čekejte prosím na analyzování zvuku, o chvíli zkuste znovu</string>
     <string name="edit_notes">Uložte si poznámku</string>
     <string name="save_note">Uložit poznámku</string>
-    <string name="please_enter_note">zadejte poznámku</string>
+    <string name="please_enter_note">Zadejte poznámku</string>
+    <string name="you_have_deleted_note">Smazali jste svou poznámku</string>
     <string name="contents">Obsah</string>
 
     <string name="dictionary">Slovník</string>

@@ -7,12 +7,12 @@
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="2dp"
+        app:cardCornerRadius="5dp"
         app:cardElevation="5dp"
         app:cardUseCompatPadding="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="288dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?popUpWindowBackground">
 
@@ -25,26 +25,46 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
+                <ImageView
+                    android:id="@+id/addNoteSelection"
+                    style="@style/ImageViewTextSelectorMarker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_action_library_add" />
+
+                <ImageView
+                    android:id="@+id/underlineHighlight"
+                    style="@style/ImageViewTextSelectorMarker"
+                    app:srcCompat="@drawable/ic_format_underlined" />
+
+                <ImageView
                     android:id="@+id/copySelection"
-                    style="@style/TextViewTextSelector"
+                    style="@style/ImageViewTextSelectorMarker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/copy" />
+                    android:src="@drawable/ic_action_file_copy" />
 
-                <TextView
-                    android:id="@+id/shareSelection"
-                    style="@style/TextViewTextSelector"
+
+                <ImageView
+                    android:id="@+id/translateSelection"
+                    style="@style/ImageViewTextSelectorMarker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/share" />
+                    android:src="@drawable/ic_action_g_translate" />
 
-                <TextView
+                <!--                <ImageView-->
+                <!--                    android:id="@+id/shareSelection"-->
+                <!--                    style="@style/ImageViewTextSelectorMarker"-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:src="@drawable/ic_action_share" />-->
+
+                <ImageView
                     android:id="@+id/defineSelection"
-                    style="@style/TextViewTextSelector"
+                    style="@style/ImageViewTextSelectorMarker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/define" />
+                    android:src="@drawable/ic_action_define" />
 
             </LinearLayout>
 
@@ -69,36 +89,33 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:id="@+id/deleteHighlight"
-                        style="@style/ImageViewTextSelectorMarker"
-                        app:srcCompat="@drawable/ic_highlight_delete" />
 
                     <ImageView
-                        android:id="@+id/yellowHighlight"
+                        android:id="@+id/redHighlight"
                         style="@style/ImageViewTextSelectorMarker"
-                        android:src="@drawable/shape_highlight_yellow" />
+                        android:src="@drawable/shape_highlight_pink" />
 
                     <ImageView
-                        android:id="@+id/greenHighlight"
+                        android:id="@+id/orangeHighlight"
                         style="@style/ImageViewTextSelectorMarker"
-                        android:src="@drawable/shape_highlight_green" />
+                        android:src="@drawable/shape_highlight_orange" />
 
                     <ImageView
                         android:id="@+id/blueHighlight"
                         style="@style/ImageViewTextSelectorMarker"
                         android:src="@drawable/shape_highlight_blue" />
 
-                    <ImageView
-                        android:id="@+id/pinkHighlight"
-                        style="@style/ImageViewTextSelectorMarker"
-                        android:src="@drawable/shape_highlight_pink" />
 
                     <ImageView
-                        android:id="@+id/underlineHighlight"
+                        android:id="@+id/greenHighlight"
                         style="@style/ImageViewTextSelectorMarker"
-                        app:srcCompat="@drawable/ic_format_underlined" />
+                        android:src="@drawable/shape_highlight_green" />
 
+
+                    <ImageView
+                        android:id="@+id/deleteHighlight"
+                        style="@style/ImageViewTextSelectorMarker"
+                        app:srcCompat="@drawable/ic_highlight_delete" />
                 </LinearLayout>
 
             </HorizontalScrollView>

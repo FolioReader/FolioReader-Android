@@ -1,49 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="290dp"
     android:layout_height="250dp"
-    android:gravity="center"
     android:background="@android:color/transparent"
+    android:gravity="center"
     android:orientation="vertical">
 
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/shadow_replace" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/define_image" />
+
+
     <RelativeLayout
-        android:layout_width="290dp"
-        android:layout_height="250dp"
-        android:padding="10dp"
-        android:background="@color/white">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp">
 
-        <TextView
-            android:id="@+id/lbl_heading"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:text="@string/edit_notes"
-            android:textSize="23sp" />
-
-        <EditText
-            android:id="@+id/edit_note"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:lines="5"
-            android:gravity="start"
-            android:layout_below="@id/lbl_heading"
-            android:inputType="textMultiLine"
-            android:scrollbars="vertical"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/note_edittext_background"
-            android:padding="10dp"
-            android:textColor="@android:color/black" />
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btn_save_note"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/edit_note"
-            android:layout_marginTop="8dp"
-            android:text="@string/save_note"
-            android:textColor="@android:color/white"
-            android:background="@color/default_theme_accent_color"
-            android:textAllCaps="false"
-            android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                tools:ignore="InvalidId">
+
+                <ImageButton
+                    android:id="@+id/btn_edit_note_red"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_action_fiber_manual_red" />
+
+                <ImageButton
+                    android:id="@+id/btn_edit_note_orange"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_action_fiber_manual_yellow" />
+
+                <ImageButton
+                    android:id="@+id/btn_edit_note_blue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_action_fiber_manual_blue" />
+
+                <ImageButton
+                    android:id="@+id/btn_edit_note_green"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_action_fiber_manual_green" />
+
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/edit_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:background="@drawable/note_edittext_background"
+                android:gravity="start"
+                android:inputType="textMultiLine"
+                android:lines="5"
+                android:padding="10dp"
+                android:scrollbars="vertical"
+                android:textColor="@android:color/black" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_delete_note"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="#ffffff"
+                    android:text="Delete"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                    android:textColor="#888"
+                    android:theme="@style/DialogCustomTheme"
+                    app:rippleColor="@color/note_blue_blur"
+
+                    />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_save_note"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/note_blue"
+                    android:text="Save"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                    android:theme="@style/DialogCustomTheme" />
+            </LinearLayout>
+        </LinearLayout>
+
     </RelativeLayout>
 </RelativeLayout>
