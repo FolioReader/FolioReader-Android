@@ -81,7 +81,8 @@
     </string>
     <string name="edit_notes">Save your note</string>
     <string name="save_note">Save note</string>
-    <string name="please_enter_note">please enter a note</string>
+    <string name="please_enter_note">Please enter a note!</string>
+    <string name="you_have_deleted_note">You have deleted note</string>
     <string name="contents">Contents</string>
 
     <!-- TODO: Remove or change this placeholder text -->

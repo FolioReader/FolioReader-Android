@@ -51,7 +51,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
                 ((AppCompatActivity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        holder.container.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+                        holder.container.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
                     }
                 });
             }
@@ -100,9 +100,9 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
                     @Override
                     public void run() {
                         ViewGroup.LayoutParams params =
-                                holder.constraintLayout.getLayoutParams();
+                                holder.swipeLinearLayout.getLayoutParams();
                         params.height = height;
-                        holder.constraintLayout.setLayoutParams(params);
+                        holder.swipeLinearLayout.setLayoutParams(params);
                     }
                 });
             }
@@ -142,18 +142,26 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
         notifyDataSetChanged();
     }
 
+    public void deleteNote(String note, int position)
+    {
+        callback.deleteHighlight(getItem(position).getId());
+        highlights.remove(position);
+        notifyDataSetChanged();
+    }
+
+
     static class HighlightHolder extends RecyclerView.ViewHolder {
         private UnderlinedTextView content;
         private ImageView delete, editNote;
         private TextView date;
-        private RelativeLayout container;
+        private ConstraintLayout container;
         private TextView note;
-        private ConstraintLayout constraintLayout;
+        private LinearLayout swipeLinearLayout;
 
         HighlightHolder(View itemView) {
             super(itemView);
-            container = (RelativeLayout) itemView.findViewById(R.id.container);
-            constraintLayout = (ConstraintLayout) itemView.findViewById(R.id.high_light_contraint_layout);
+            container = (ConstraintLayout) itemView.findViewById(R.id.container);
+            swipeLinearLayout = (LinearLayout) itemView.findViewById(R.id.swipe_linear_layout);
             content = (UnderlinedTextView) itemView.findViewById(R.id.utv_highlight_content);
             delete = (ImageView) itemView.findViewById(R.id.iv_delete);
             editNote = (ImageView) itemView.findViewById(R.id.iv_edit_note);
