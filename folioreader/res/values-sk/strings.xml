@@ -44,6 +44,7 @@
     <string name="edit_notes">Uložte si poznámku</string>
     <string name="save_note">Uložiť poznámku</string>
     <string name="please_enter_note">zadajte poznámku</string>
+    <string name="you_have_deleted_note">odstránili ste svoju poznámku</string>
     <string name="contents">Obsah</string>
 
     <string name="dictionary">Slovník</string>

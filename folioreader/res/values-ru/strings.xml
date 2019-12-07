@@ -40,6 +40,7 @@
     <string name="edit_notes">Сохранить ваши заметки</string>
     <string name="save_note">Сохранить заметку</string>
     <string name="please_enter_note">пожалуйста введите заметку</string>
+    <string name="you_have_deleted_note">Вы удалили свою заметку</string>
     <string name="contents">Содержание</string>
 
 </resources>

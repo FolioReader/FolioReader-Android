@@ -9,7 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -102,10 +104,15 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
         String noteText = highlightImpl.getNote();
         ((EditText) dialog.findViewById(R.id.edit_note)).setText(noteText);
 
+        Button btn_DeleteNote = dialog.findViewById(R.id.btn_delete_note);
+        ImageButton btn_EditNote_Red = dialog.findViewById(R.id.btn_edit_note_red);
+        ImageButton btn_EditNote_Orange = dialog.findViewById(R.id.btn_edit_note_orange);
+        ImageButton btn_EditNote_Blue = dialog.findViewById(R.id.btn_edit_note_blue);
+        ImageButton btn_EditNote_Green = dialog.findViewById(R.id.btn_edit_note_green);
+
         dialog.findViewById(R.id.btn_save_note).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 String note =
                         ((EditText) dialog.findViewById(R.id.edit_note)).getText().toString();
                 if (!TextUtils.isEmpty(note)) {
@@ -125,6 +132,14 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                 }
             }
         });
+       btn_DeleteNote.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+                   Toast.makeText(getActivity(),
+                           getString(R.string.you_have_deleted_note),
+                           Toast.LENGTH_SHORT).show();
+           }
+       });
     }
 }
 
