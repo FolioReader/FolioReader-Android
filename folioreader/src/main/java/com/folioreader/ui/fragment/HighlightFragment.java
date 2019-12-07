@@ -13,12 +13,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.FolioReader;
@@ -30,6 +32,7 @@ import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.adapter.HighlightAdapter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.HighlightUtil;
+
 import org.greenrobot.eventbus.EventBus;
 
 public class HighlightFragment extends Fragment implements HighlightAdapter.HighLightAdapterCallback {
@@ -97,6 +100,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
 
     @Override
     public void editNote(final HighlightImpl highlightImpl, final int position) {
+        // Update here
         final Dialog dialog = new Dialog(getActivity(), R.style.DialogCustomTheme);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_edit_notes);
@@ -109,6 +113,34 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
         ImageButton btn_EditNote_Orange = dialog.findViewById(R.id.btn_edit_note_orange);
         ImageButton btn_EditNote_Blue = dialog.findViewById(R.id.btn_edit_note_blue);
         ImageButton btn_EditNote_Green = dialog.findViewById(R.id.btn_edit_note_green);
+
+        btn_EditNote_Red.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), highlightImpl.getTmpColorLabel(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btn_EditNote_Orange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), highlightImpl.getTmpColorLabel(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btn_EditNote_Blue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), highlightImpl.getTmpColorLabel(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btn_EditNote_Green.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), highlightImpl.getTmpColorLabel(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
         dialog.findViewById(R.id.btn_save_note).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,14 +164,14 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                 }
             }
         });
-       btn_DeleteNote.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-                   Toast.makeText(getActivity(),
-                           getString(R.string.you_have_deleted_note),
-                           Toast.LENGTH_SHORT).show();
-           }
-       });
+        btn_DeleteNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(),
+                        getString(R.string.you_have_deleted_note),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
 
