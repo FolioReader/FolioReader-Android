@@ -72,10 +72,10 @@ public class HighlightImpl implements Parcelable, HighLight {
     private String note;
 
     public enum HighlightStyle {
-        Yellow,
+        Orange,
         Green,
         Blue,
-        Pink,
+        Red,
         Underline,
         TextColor,
         DottetUnderline,
@@ -86,14 +86,14 @@ public class HighlightImpl implements Parcelable, HighLight {
          */
         public static String classForStyle(HighlightStyle style) {
             switch (style) {
-                case Yellow:
-                    return "highlight_yellow";
+                case Orange:
+                    return "highlight_orange";
                 case Green:
                     return "highlight_green";
                 case Blue:
                     return "highlight_blue";
-                case Pink:
-                    return "highlight_pink";
+                case Red:
+                    return "highlight_red";
                 case Underline:
                     return "highlight_underline";
                 case DottetUnderline:
@@ -183,6 +183,18 @@ public class HighlightImpl implements Parcelable, HighLight {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public int getTmpColorLabel() {
+        if (type.equalsIgnoreCase("highlight_red"))
+            return 1;
+        if (type.equalsIgnoreCase("highlight_orange"))
+            return 2;
+        if (type.equalsIgnoreCase("highlight_blue"))
+            return 3;
+        if (type.equalsIgnoreCase("highlight_green"))
+            return 4;
+        return 0;
     }
 
     public int getPageNumber() {

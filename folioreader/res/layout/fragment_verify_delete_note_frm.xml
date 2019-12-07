@@ -69,8 +69,8 @@
                 android:layout_gravity=""
                 android:layout_marginRight="30dp"
                 android:text="YES"
-                android:textColor="@color/note_blue"
-                app:rippleColor="@color/note_blue_blur"
+                android:textColor="@color/highlight_blue"
+                app:rippleColor="@color/highlight_blue_blur"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
 

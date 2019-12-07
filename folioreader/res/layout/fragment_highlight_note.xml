@@ -105,7 +105,7 @@
                 android:backgroundTint="#ffffff"
                 android:text="Delete"
                 android:textColor="#888"
-                app:rippleColor="@color/note_blue_blur"
+                app:rippleColor="@color/highlight_blue_blur"
 
                 />
 
@@ -115,7 +115,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:backgroundTint="@color/note_blue"
+                android:backgroundTint="@color/highlight_blue"
                 android:text="Save" />
         </LinearLayout>
 

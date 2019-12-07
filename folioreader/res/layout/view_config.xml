@@ -13,7 +13,9 @@
         android:layout_height="50dp"
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toStartOf="@+id/view_config_ib_night_mode"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/icon_sun_sel" />
 
     <ImageButton
@@ -22,7 +24,9 @@
         android:layout_height="50dp"
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toEndOf="@+id/view_config_ib_day_mode"
+        app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/icon_moon_sel" />
 
     <View
@@ -120,12 +124,12 @@
 
     <SeekBar
         android:id="@+id/view_config_font_size_seek_bar"
-        android:backgroundTint="@color/note_blue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/highlight_blue"
+        android:foregroundTint="@color/highlight_blue"
         android:max="4"
-        android:foregroundTint="@color/note_blue"
-        android:progressTint="@color/note_blue"
+        android:progressTint="@color/highlight_blue"
         app:layout_constraintBottom_toTopOf="@+id/view5"
         app:layout_constraintEnd_toStartOf="@+id/view_config_iv_label_font_big"
         app:layout_constraintStart_toEndOf="@+id/view_config_iv_label_font_small"

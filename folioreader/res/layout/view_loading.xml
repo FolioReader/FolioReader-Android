@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:progressTint="@color/note_blue"
-        tools:indeterminateTint="@color/note_blue" />
+        android:progressTint="@color/highlight_blue"
+        tools:indeterminateTint="@color/highlight_blue" />
 
 </merge>

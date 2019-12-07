@@ -109,7 +109,7 @@
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
                     android:textColor="#888"
                     android:theme="@style/DialogCustomTheme"
-                    app:rippleColor="@color/note_blue_blur"
+                    app:rippleColor="@color/highlight_blue_blur"
 
                     />
 
@@ -119,7 +119,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:backgroundTint="@color/note_blue"
+                    android:backgroundTint="@color/highlight_blue"
                     android:text="Save"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
                     android:theme="@style/DialogCustomTheme" />

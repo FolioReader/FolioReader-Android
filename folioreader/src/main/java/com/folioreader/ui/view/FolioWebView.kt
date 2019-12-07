@@ -266,7 +266,7 @@ class FolioWebView : WebView {
 
         viewTextSelection.orangeHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> yellowHighlight")
-            onHighlightColorItemsClicked(HighlightStyle.Yellow, false)
+            onHighlightColorItemsClicked(HighlightStyle.Orange, false)
         }
         viewTextSelection.greenHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> greenHighlight")
@@ -278,7 +278,7 @@ class FolioWebView : WebView {
         }
         viewTextSelection.redHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> redHighlight")
-            onHighlightColorItemsClicked(HighlightStyle.Pink, false)
+            onHighlightColorItemsClicked(HighlightStyle.Red, false)
         }
         viewTextSelection.underlineHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> underlineHighlight")
