@@ -185,16 +185,16 @@ public class HighlightImpl implements Parcelable, HighLight {
         this.type = type;
     }
 
-    public int getTmpColorLabel() {
+    public String getTmpColorLabel() {
         if (type.equalsIgnoreCase("highlight_red"))
-            return 1;
+            return "red";
         if (type.equalsIgnoreCase("highlight_orange"))
-            return 2;
+            return "orange";
         if (type.equalsIgnoreCase("highlight_blue"))
-            return 3;
+            return "blur";
         if (type.equalsIgnoreCase("highlight_green"))
-            return 4;
-        return 0;
+            return "green";
+        return "old";
     }
 
     public int getPageNumber() {

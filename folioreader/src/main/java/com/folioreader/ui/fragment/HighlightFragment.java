@@ -3,6 +3,7 @@ package com.folioreader.ui.fragment;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -101,9 +103,25 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     @Override
     public void editNote(final HighlightImpl highlightImpl, final int position) {
         // Update here
+
+
         final Dialog dialog = new Dialog(getActivity(), R.style.DialogCustomTheme);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_edit_notes);
+
+        if (highlightImpl.getTmpColorLabel().equals("red")) {
+            ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_red_blur);
+        }
+        if (highlightImpl.getTmpColorLabel().equals("orange")) {
+            ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_orange_blur);
+        }
+        if (highlightImpl.getTmpColorLabel().equals("blue")) {
+            ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_blue_blur);
+        }
+        if (highlightImpl.getTmpColorLabel().equals("green")) {
+            ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_green_blur);
+        }
+
         dialog.show();
         String noteText = highlightImpl.getNote();
         ((EditText) dialog.findViewById(R.id.edit_note)).setText(noteText);
@@ -113,34 +131,6 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
         ImageButton btn_EditNote_Orange = dialog.findViewById(R.id.btn_edit_note_orange);
         ImageButton btn_EditNote_Blue = dialog.findViewById(R.id.btn_edit_note_blue);
         ImageButton btn_EditNote_Green = dialog.findViewById(R.id.btn_edit_note_green);
-
-        btn_EditNote_Red.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), highlightImpl.getTmpColorLabel(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btn_EditNote_Orange.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), highlightImpl.getTmpColorLabel(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btn_EditNote_Blue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), highlightImpl.getTmpColorLabel(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btn_EditNote_Green.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), highlightImpl.getTmpColorLabel(), Toast.LENGTH_SHORT).show();
-            }
-        });
 
         dialog.findViewById(R.id.btn_save_note).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -167,11 +157,40 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
         btn_DeleteNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(),
-                        getString(R.string.you_have_deleted_note),
-                        Toast.LENGTH_SHORT).show();
+                adapter.deleteNote(position);
+                Toast.makeText(getActivity(), R.string.you_have_deleted_note, Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
             }
         });
+
+        btn_EditNote_Red.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_red_blur);
+            }
+        });
+
+        btn_EditNote_Orange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_orange_blur);
+            }
+        });
+
+        btn_EditNote_Blue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_blue_blur);
+            }
+        });
+
+        btn_EditNote_Green.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_green_blur);
+            }
+        });
+
     }
 }
 

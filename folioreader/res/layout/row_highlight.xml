@@ -20,6 +20,7 @@
         tools:ignore="InvalidId">
 
         <TextView
+            style="@style/Widget.AppCompat.AutoCompleteTextView"
             android:id="@+id/tv_highlight_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,7 +41,7 @@
             android:ellipsize="end"
             android:maxLines="3"
             android:minLines="1"
-            android:textColor="@color/black"
+            android:textColor="#363636"
             android:textSize="17sp"
             app:layout_constraintHorizontal_bias="0.05"
             app:layout_constraintLeft_toLeftOf="parent"
