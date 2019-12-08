@@ -148,7 +148,12 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
         notifyDataSetChanged();
     }
 
-    public void deleteNote( int position) {
+    public void changeColorNote(String type, int position) {
+        highlights.get(position).setType(type);
+        notifyDataSetChanged();
+    }
+
+    public void deleteNote(int position) {
         callback.deleteHighlight(getItem(position).getId());
         highlights.remove(position);
         notifyDataSetChanged();

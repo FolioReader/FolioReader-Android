@@ -110,16 +110,16 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
         dialog.setContentView(R.layout.dialog_edit_notes);
 
         if (highlightImpl.getTmpColorLabel().equals("red")) {
-            ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_red_blur);
+            ((ImageView) dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_red_blur);
         }
         if (highlightImpl.getTmpColorLabel().equals("orange")) {
-            ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_orange_blur);
+            ((ImageView) dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_orange_blur);
         }
         if (highlightImpl.getTmpColorLabel().equals("blue")) {
-            ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_blue_blur);
+            ((ImageView) dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_blue_blur);
         }
         if (highlightImpl.getTmpColorLabel().equals("green")) {
-            ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_green_blur);
+            ((ImageView) dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_green_blur);
         }
 
         dialog.show();
@@ -166,28 +166,76 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
         btn_EditNote_Red.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_red_blur);
+                ((ImageView) dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_red_blur);
+
+                highlightImpl.setType("highlight_red");
+                highlightImpl.setRangy(HighLightTable.updateRangy(highlightImpl.getRangy(), highlightImpl.getType()));
+
+                if (HighLightTable.updateHighlight(highlightImpl)) {
+                    HighlightUtil.sendHighlightBroadcastEvent(
+                            HighlightFragment.this.getActivity().getApplicationContext(),
+                            highlightImpl,
+                            HighLight.HighLightAction.MODIFY);
+                }
+                EventBus.getDefault().post(new UpdateHighlightEvent());
+                adapter.changeColorNote("highlight_red", position);
             }
         });
 
         btn_EditNote_Orange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_orange_blur);
+                ((ImageView) dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_orange_blur);
+
+                highlightImpl.setType("highlight_orange");
+                highlightImpl.setRangy(HighLightTable.updateRangy(highlightImpl.getRangy(), highlightImpl.getType()));
+
+                if (HighLightTable.updateHighlight(highlightImpl)) {
+                    HighlightUtil.sendHighlightBroadcastEvent(
+                            HighlightFragment.this.getActivity().getApplicationContext(),
+                            highlightImpl,
+                            HighLight.HighLightAction.MODIFY);
+                }
+                EventBus.getDefault().post(new UpdateHighlightEvent());
+                adapter.changeColorNote("highlight_orange", position);
             }
         });
 
         btn_EditNote_Blue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_blue_blur);
+                ((ImageView) dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_blue_blur);
+
+                highlightImpl.setType("highlight_blue");
+                highlightImpl.setRangy(HighLightTable.updateRangy(highlightImpl.getRangy(), highlightImpl.getType()));
+
+                if (HighLightTable.updateHighlight(highlightImpl)) {
+                    HighlightUtil.sendHighlightBroadcastEvent(
+                            HighlightFragment.this.getActivity().getApplicationContext(),
+                            highlightImpl,
+                            HighLight.HighLightAction.MODIFY);
+                }
+                EventBus.getDefault().post(new UpdateHighlightEvent());
+                adapter.changeColorNote("highlight_blue", position);
             }
         });
 
         btn_EditNote_Green.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((ImageView)dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_green_blur);
+                ((ImageView) dialog.findViewById(R.id.edit_note_background)).setImageResource(R.drawable.note_edittext_background_green_blur);
+
+                highlightImpl.setType("highlight_green");
+                highlightImpl.setRangy(HighLightTable.updateRangy(highlightImpl.getRangy(), highlightImpl.getType()));
+
+                if (HighLightTable.updateHighlight(highlightImpl)) {
+                    HighlightUtil.sendHighlightBroadcastEvent(
+                            HighlightFragment.this.getActivity().getApplicationContext(),
+                            highlightImpl,
+                            HighLight.HighLightAction.MODIFY);
+                }
+                EventBus.getDefault().post(new UpdateHighlightEvent());
+                adapter.changeColorNote("highlight_green", position);
             }
         });
 
