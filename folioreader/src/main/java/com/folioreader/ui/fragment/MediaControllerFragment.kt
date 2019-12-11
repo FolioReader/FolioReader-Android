@@ -83,7 +83,7 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
 
             if (event.action == MotionEvent.ACTION_DOWN) {
                 Log.v(LOG_TAG, "-> onTouch -> touch_outside -> ${getView()}")
-                dialog.hide()
+                dialog!!.hide()
                 visible = false
                 return@setOnTouchListener true
             }
@@ -115,10 +115,10 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
         super.onStart()
         Log.v(LOG_TAG, "-> onStart")
 
-        dialog.setOnKeyListener { _, keyCode, event ->
+        dialog!!.setOnKeyListener { _, keyCode, event ->
             if (event.action == MotionEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
                 Log.v(LOG_TAG, "-> Back button pressed")
-                dialog.hide()
+                dialog!!.hide()
                 visible = false
                 return@setOnKeyListener true
             }
@@ -129,7 +129,7 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
 
         if (!visible)
-            dialog.hide()
+            dialog!!.hide()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -155,7 +155,7 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
         visible = true
         if (isAdded) {
             //Log.v(LOG_TAG, "-> Is already added")
-            dialog.show()
+            dialog!!.show()
         } else {
             //Log.v(LOG_TAG, "-> Not added")
             show(fragmentManager, MediaControllerFragment.LOG_TAG)
