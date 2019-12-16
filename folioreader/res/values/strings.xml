@@ -23,7 +23,8 @@
     <string name="share">Share</string>
     <string name="define">Define</string>
     <string name="highlight">Highlight</string>
-
+    <string name = "translate">Translate</string>
+    <string name = "translate_to">Translate to</string>
     <string name="pages_left">%1$d pages left</string>
     <string name="page_left">%1$d page left</string>
     <string name="highlights">Highlights</string>

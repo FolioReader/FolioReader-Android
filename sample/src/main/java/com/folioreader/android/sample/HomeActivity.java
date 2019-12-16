@@ -86,7 +86,7 @@ public class HomeActivity extends AppCompatActivity
 
                 folioReader.setReadLocator(readLocator);
                 folioReader.setConfig(config, true)
-                        .openBook("file:///android_asset/WakeUp.epub");
+                        .openBook("file:///android_asset/TheSilverChair.epub");
             }
         });
     }

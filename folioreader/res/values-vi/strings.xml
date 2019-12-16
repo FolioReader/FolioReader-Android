@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="translate">Dịch</string>
     <string name="app_name">FolioReader</string>
     <string name="Cancel">Huỷ</string>
     <string name="LanguageChooserTitle">Chọn hai ngôn ngữ:</string>

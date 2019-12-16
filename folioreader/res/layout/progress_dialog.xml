@@ -14,7 +14,10 @@
             android:id="@+id/loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="?android:attr/progressBarStyle" />
+            style="?android:attr/progressBarStyle"
+            android:progressTint="@color/highlight_blue"
+            android:progressBackgroundTint="@color/highlight_blue"
+            />
 
         <TextView
             android:id="@+id/label_loading"
@@ -22,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textSize="18sp"
-            android:textColor="@android:color/white"
+            android:textColor="#363636"
             android:text="@string/loading" />
     </LinearLayout>
 </RelativeLayout>
