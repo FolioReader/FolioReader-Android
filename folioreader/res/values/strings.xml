@@ -23,8 +23,8 @@
     <string name="share">Share</string>
     <string name="define">Define</string>
     <string name="highlight">Highlight</string>
-    <string name = "translate">Translate</string>
-    <string name = "translate_to">Translate to</string>
+    <string name="translate">Translate</string>
+    <string name="translate_to">Translate to</string>
     <string name="pages_left">%1$d pages left</string>
     <string name="page_left">%1$d page left</string>
     <string name="highlights">Highlights</string>
@@ -118,5 +118,7 @@
     <string name="authorsMeta">&lt;tr&gt;&lt;td&gt;Authors:&lt;/td&gt;</string>
 
     <string name="cannot_access_epub_message">Unable to open ebook, you need to enable access to external memory!</string>
+    <string name="offline">No network connection</string>
+    <string name="word_not_found">Work not found</string>
 
 </resources>

@@ -65,7 +65,8 @@
     <string name="search_hint">Vyhledávání v knize</string>
     <string name="search_empty_text">Žádné výsledky.</string>
     <string name="search_failure_text">Něco se pokazilo.</string>
-
+    <string name="offline">Žádné síťové připojení</string>
+    <string name="word_not_found">Práce nebyla nalezena</string>
     <plurals name="numberOfSearchResults">
         <item quantity="one">%d výskyt</item>
         <item quantity="other">%d výskytů</item>

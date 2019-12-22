@@ -37,8 +37,8 @@
                 android:id="@+id/layout_header"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
                 android:layout_centerInParent="true"
+                android:layout_centerHorizontal="true"
                 android:background="@drawable/btn_contents_highlights"
                 android:orientation="horizontal"
                 android:padding="1.8dp">
@@ -70,11 +70,19 @@
         </RelativeLayout>
     </androidx.appcompat.widget.Toolbar>
 
+    <Spinner
+        android:id="@+id/spn_dictionary_language"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        tools:ignore="NotSibling" />
+
     <RelativeLayout
         android:id="@+id/contentView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar">
+        android:layout_below="@+id/spn_dictionary_language">
+
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_dict_results"
@@ -85,19 +93,19 @@
         <include layout="@layout/layout_wikipedia" />
 
         <ProgressBar
-            android:progressTint="@color/highlight_blue"
             android:id="@+id/progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"
+            android:progressTint="@color/highlight_blue" />
 
         <TextView
             android:id="@+id/no_network"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:drawablePadding="8dp"
             android:drawableTop="@drawable/ic_offline_gray_layer_list"
+            android:drawablePadding="8dp"
             android:text="offline"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -116,4 +124,5 @@
             tools:visibility="visible" />
 
     </RelativeLayout>
+
 </RelativeLayout>

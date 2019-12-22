@@ -31,4 +31,6 @@
     <string name="OK">Ok</string>
     <string name="SetSizeTitle">Painel superior</string>
     <string name="LanguageChooserTitle">Escolha 2 linguagens</string>
+    <string name="offline">Nenhuma conexão de rede</string>
+    <string name="word_not_found">Trabalho não encontrado</string>
 </resources>

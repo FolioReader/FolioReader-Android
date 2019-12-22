@@ -57,4 +57,6 @@
     <string name="typesMeta">Thể loại:</string>
     <string name="wikipedia">Wikipedia</string>
     <string name="you_have_deleted_note">Đã xoá ghi chú</string>
+    <string name="offline">Không có kết nối mạng</string>
+    <string name="word_not_found">Không tìm thấy từ cần tìm</string>
 </resources>
