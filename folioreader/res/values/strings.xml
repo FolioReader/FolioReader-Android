@@ -2,15 +2,15 @@
 
     <string name="app_name">FolioReader</string>
 
-    <string name="andada">Andada</string>
+    <string name="arvo">Arvo</string>
     <string name="lato">Lato</string>
     <string name="lora">Lora</string>
-    <string name="raleway">Raleway</string>
+    <string name="ubuntu">Ubuntu</string>
 
-    <string name="andada_font">fonts/andada/Andada-Regular.otf</string>
+    <string name="arvo_font">fonts/arvo/Arvo-Regular.ttf</string>
     <string name="lato_font">fonts/lato/Lato-Regular.ttf</string>
     <string name="lora_font">fonts/lora/Lora-Regular.ttf</string>
-    <string name="raleway_font">fonts/raleway/Raleway-Regular.ttf</string>
+    <string name="ubuntu_font">fonts/ubuntu/Ubuntu-Regular.ttf</string>
 
     <string name="minutes_left">%1$d minutes ·&#160;</string>
     <string name="minute_left">%1$d minute ·&#160;</string>

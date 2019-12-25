@@ -41,16 +41,22 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     private static final String HIGHLIGHT_ITEM = "highlight_item";
     private View mRootView;
     private HighlightAdapter adapter;
+    public static HighlightFragment instance;
     private String mBookId;
-
-
+    private final String LOG_TAG = "HIGHLIGHT_FRM";
     public static HighlightFragment newInstance(String bookId, String epubTitle) {
         HighlightFragment highlightFragment = new HighlightFragment();
         Bundle args = new Bundle();
         args.putString(FolioReader.EXTRA_BOOK_ID, bookId);
         args.putString(Constants.BOOK_TITLE, epubTitle);
         highlightFragment.setArguments(args);
+        instance = highlightFragment;
         return highlightFragment;
+    }
+
+    public static HighlightFragment getInstance()
+    {
+        return instance;
     }
 
     @Override
@@ -123,6 +129,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
         }
 
         dialog.show();
+
         String noteText = highlightImpl.getNote();
         ((EditText) dialog.findViewById(R.id.edit_note)).setText(noteText);
 

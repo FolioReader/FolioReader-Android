@@ -52,6 +52,8 @@ public class HomeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+
+
         folioReader = FolioReader.get()
                 .setOnHighlightListener(this)
                 .setReadLocatorListener(this)
@@ -69,7 +71,7 @@ public class HomeActivity extends AppCompatActivity
                 config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
 
                 folioReader.setConfig(config, true)
-                        .openBook(R.raw.accessible_epub_3);
+                        .openBook("/sdcard/Download/TTH.epub");
             }
         });
 
@@ -86,14 +88,14 @@ public class HomeActivity extends AppCompatActivity
 
                 folioReader.setReadLocator(readLocator);
                 folioReader.setConfig(config, true)
-                        .openBook("file:///android_asset/TheSilverChair.epub");
+                        .openBook("/sdcard/Download/sa ch.epub");
             }
         });
     }
 
     private ReadLocator getLastReadLocator() {
 
-        String jsonString = loadAssetTextAsString("Locators/LastReadLocators/last_read_locator_1.json");
+        String jsonString = loadAssetTextAsString("LastReadLocators/last_read_locator_1.json");
         return ReadLocator.fromJson(jsonString);
     }
 

@@ -73,7 +73,7 @@
             android:gravity="center"
             android:text="@string/half_speed"
             android:textSize="14sp"
-            app:folio_font="@string/andada_font" />
+            app:folio_font="@string/arvo_font" />
 
         <com.folioreader.ui.view.StyleableTextView
             android:id="@+id/btn_one_x_speed"
@@ -103,7 +103,7 @@
             android:gravity="center"
             android:text="@string/two_x"
             android:textSize="17sp"
-            app:folio_font="@string/raleway_font" />
+            app:folio_font="@string/ubuntu_font" />
     </LinearLayout>
 
     <View
@@ -161,7 +161,7 @@
             android:gravity="center"
             android:text="@string/style"
             android:textSize="17sp"
-            app:folio_font="@string/raleway_font" />
+            app:folio_font="@string/ubuntu_font" />
 
     </LinearLayout>
 

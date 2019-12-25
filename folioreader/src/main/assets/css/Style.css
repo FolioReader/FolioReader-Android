@@ -230,13 +230,13 @@ html.nightMode .highlight_underline {border-bottom: 2px solid rgba(240, 40, 20, 
  */
 
 @font-face {
-    font-family: 'andada';
-    src: url('file:///android_asset/fonts/andada/Andada-Regular.otf');
+    font-family: 'arvo';
+    src: url('file:///android_asset/fonts/arvo/Arvo-Regular.ttf');
 }
 
 @font-face {
     font-family: 'lato';
-    src: url('file:///android_asset/fonts/lato/Lato-Regular.ttf');
+    src: url('file:///android_asset/fonts/lato/lato-regular.ttf');
 }
 
 @font-face {
@@ -245,12 +245,12 @@ html.nightMode .highlight_underline {border-bottom: 2px solid rgba(240, 40, 20, 
 }
 
 @font-face {
-    font-family: 'raleway';
-    src: url('file:///android_asset/fonts/raleway/Raleway-Regular.ttf');
+    font-family: 'ubuntu';
+    src: url('file:///android_asset/fonts/ubuntu/Ubuntu-Regular.ttf');
 }
 
-.andada {
-     font-family: "andada", sans-serif;
+.arvo {
+     font-family: "arvo", sans-serif;
  }
 .lato {
      font-family: "lato", serif;
@@ -258,8 +258,8 @@ html.nightMode .highlight_underline {border-bottom: 2px solid rgba(240, 40, 20, 
 .lora {
      font-family: "lora", serif;
  }
-.raleway {
-     font-family: "raleway", sans-serif;
+.ubuntu {
+     font-family: "ubuntu", sans-serif;
  }
 
 html.textSizeOne { font-size: 13px !important; }

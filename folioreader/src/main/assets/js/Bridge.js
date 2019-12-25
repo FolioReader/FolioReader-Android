@@ -252,8 +252,8 @@ $(function () {
 
         },
 
-        setFontAndada: function () {
-            this.setFont("andada");
+        setFontArvo: function () {
+            this.setFont("comfort");
         },
 
         setFontLato: function () {

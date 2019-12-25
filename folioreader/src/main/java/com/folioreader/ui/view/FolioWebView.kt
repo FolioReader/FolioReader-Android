@@ -312,8 +312,8 @@ class FolioWebView : WebView {
         viewTextSelection.deleteHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> deleteHighlight")
             dismissPopupWindow()
-            loadUrl("javascript:clearSelection()")
-            loadUrl("javascript:deleteThisHighlight()")
+            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
+            //loadUrl("javascript:deleteThisHighlight(${it.id})")
         }
 
         viewTextSelection.copySelection.setOnClickListener {
@@ -351,6 +351,11 @@ class FolioWebView : WebView {
 //                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> shareSelection -> $selectedText")
 //                UiUtil.share(context, selectedText)
 //            }
+            R.id.deleteHighlight ->{
+                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> deleteSelection -> $selectedText")
+                uiHandler.post { deleteThisHighlight(selectedText) }
+            }
+
             R.id.defineSelection -> {
                 Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> defineSelection -> $selectedText")
                 uiHandler.post { showDictDialog(selectedText) }
@@ -383,12 +388,7 @@ class FolioWebView : WebView {
         val bundle = Bundle()
         bundle.putString(Constants.SELECTED_WORD, selectedText)
         translateFragment.arguments = bundle
-
         translateFragment.show(parentFragment.fragmentManager, TranslateFragment::class.java.name)
-//        val transaction = parentFragment.fragmentManager?.beginTransaction()
-//        transaction?.replace(R.id.content, translateFragment)
-//        transaction?.addToBackStack(null)
-//        transaction?.commit()
     }
 
     private fun onHighlightColorItemsClicked(style: HighlightStyle, isAlreadyCreated: Boolean) {

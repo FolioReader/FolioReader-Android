@@ -1,6 +1,7 @@
 package com.folioreader.ui.base;
 
 import android.content.Context;
+
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
@@ -22,6 +23,44 @@ public final class HtmlUtil {
 
         String cssPath =
                 String.format(context.getString(R.string.css_tag), "file:///android_asset/css/Style.css");
+
+        String fontFamily = null;
+        String fontStyle = null;
+
+        switch (config.getFont()) {
+            case Constants.FONT_ARVO:
+                fontFamily = "arvo";
+                fontStyle = "sans-serif";
+                break;
+            case Constants.FONT_LATO:
+                fontFamily = "lato";
+                fontStyle = "serif";
+                break;
+            case Constants.FONT_LORA:
+                fontFamily = "lora";
+                fontStyle = "serif";
+                break;
+            case Constants.FONT_UBUNTU:
+                fontFamily = "ubuntu";
+                fontStyle = "sans-serif";
+                break;
+            default:
+                // default or internal epub fonts will be used
+                break;
+        }
+
+        if (fontFamily != null) {
+            String[] textElements = {"p", "span", "h1", "h2", "h3", "h4", "h5", "h6"};
+            String fontFamilyStyle = "{font-family:\"{font family}\", {font style} !important;}"
+                    .replace("{font family}", fontFamily)
+                    .replace("{font style}", fontStyle);
+
+            cssPath = cssPath + "\n<style>\n";
+            for (String e : textElements) {
+                cssPath = cssPath + "    " + e + " " + fontFamilyStyle + "\n";
+            }
+            cssPath = cssPath + "</style>";
+        }
 
         String jsPath = String.format(context.getString(R.string.script_tag),
                 "file:///android_asset/js/jsface.min.js") + "\n";
@@ -61,8 +100,8 @@ public final class HtmlUtil {
 
         String classes = "";
         switch (config.getFont()) {
-            case Constants.FONT_ANDADA:
-                classes = "andada";
+            case Constants.FONT_ARVO:
+                classes = "arvo";
                 break;
             case Constants.FONT_LATO:
                 classes = "lato";
@@ -70,8 +109,8 @@ public final class HtmlUtil {
             case Constants.FONT_LORA:
                 classes = "lora";
                 break;
-            case Constants.FONT_RALEWAY:
-                classes = "raleway";
+            case Constants.FONT_UBUNTU:
+                classes = "ubuntu";
                 break;
             default:
                 break;
@@ -80,7 +119,6 @@ public final class HtmlUtil {
         if (config.isNightMode()) {
             classes += " nightMode";
         }
-
         switch (config.getFontSize()) {
             case 0:
                 classes += " textSizeOne";
@@ -101,7 +139,7 @@ public final class HtmlUtil {
                 break;
         }
 
-        htmlContent = htmlContent.replace("<html", "<html class=\"" + classes + "\"" +
+        htmlContent = htmlContent.replace("<html", "<html class=\""+ classes + "\"" +
                 " onclick=\"onClickHtml()\"");
         return htmlContent;
     }

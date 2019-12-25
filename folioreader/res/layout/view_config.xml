@@ -39,12 +39,13 @@
         app:layout_constraintTop_toBottomOf="@+id/view_config_ib_night_mode" />
 
     <com.folioreader.ui.view.StyleableTextView
-        android:id="@+id/view_config_font_andada"
+        android:id="@+id/view_config_font_arvo"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:gravity="center"
-        android:text="@string/andada"
+        android:text="@string/arvo"
         android:textSize="17sp"
+        app:folio_font="@string/arvo_font"
         app:layout_constraintEnd_toStartOf="@+id/view_config_font_lato"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
@@ -58,7 +59,7 @@
         android:textSize="17sp"
         app:folio_font="@string/lato_font"
         app:layout_constraintEnd_toStartOf="@+id/view_config_font_lora"
-        app:layout_constraintStart_toEndOf="@+id/view_config_font_andada"
+        app:layout_constraintStart_toEndOf="@+id/view_config_font_arvo"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
     <com.folioreader.ui.view.StyleableTextView
@@ -69,18 +70,18 @@
         android:text="@string/lora"
         android:textSize="17sp"
         app:folio_font="@string/lora_font"
-        app:layout_constraintEnd_toStartOf="@+id/view_config_font_raleway"
+        app:layout_constraintEnd_toStartOf="@+id/view_config_font_ubuntu"
         app:layout_constraintStart_toEndOf="@+id/view_config_font_lato"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
 
     <com.folioreader.ui.view.StyleableTextView
-        android:id="@+id/view_config_font_raleway"
+        android:id="@+id/view_config_font_ubuntu"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:gravity="center"
-        android:text="@string/raleway"
+        android:text="@string/ubuntu"
         android:textSize="17sp"
-        app:folio_font="@string/raleway_font"
+        app:folio_font="@string/ubuntu_font"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/view_config_font_lora"
         app:layout_constraintTop_toBottomOf="@+id/view3" />
