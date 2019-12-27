@@ -34,6 +34,10 @@
 
 ![alt text](https://raw.githubusercontent.com/dongnvsince1999/FolioReader-Android/master/folioreader/show.png)
 
+### Quản lý mục lục và ghi chú:
+
+![alt text](https://raw.githubusercontent.com/dongnvsince1999/FolioReader-Android/master/folioreader/contenthighlight.png)
+
 ## Hướng dẫn các dependence:
 
 Thêm dependency vào root project `build.gradle` file:
