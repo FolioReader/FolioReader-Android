@@ -24,7 +24,9 @@
 - Last ReadLocator
 - Horizomtal Reading
 
-## Demo
+## Demo:
+
+
 
 ## Hướng dẫn các dependence:
 
@@ -78,7 +80,7 @@ folioReader.openBook("file:///android_asset/TheSilverChair.epub");
 folioReader.openBook(R.raw.accessible_epub_3);
 ```
 
-## Đây là bản mở rộng của Folio Reader, mọi thông tin vể Folio Reader có thể tham khảo tại: [FOLIOREADER_PROJECT](https://github.com/FolioReader/FolioReader-Android)
+## Đây là bản mở rộng của Folio Reader, mọi thông tin về Folio Reader có thể tham khảo tại: [FOLIOREADER_PROJECT](https://github.com/FolioReader/FolioReader-Android)
 
 ### Tác giả của FolioReader-Android:
 [**Heberti Almeida**](https://github.com/hebertialmeida)
