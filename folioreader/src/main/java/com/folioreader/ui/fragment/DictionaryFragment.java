@@ -245,7 +245,7 @@ public class DictionaryFragment extends DialogFragment
             googleSearch.setVisibility(View.GONE);
         }
         wikiWebView.loadUrl("about:blank");
-        en_English_dictionaryAdapter.clear();
+        vi_dictionaryAdapter.clear();
         dictionary.setSelected(true);
         wikipedia.setSelected(false);
         wikiLayout.setVisibility(View.GONE);
