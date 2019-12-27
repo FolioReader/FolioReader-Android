@@ -82,14 +82,14 @@ public class HomeActivity extends AppCompatActivity
                 config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
 
                 folioReader.setConfig(config, true)
-                        .openBook("file:///android_asset/TheSilverChair.epub");
+                        .openBook("/sdcard/Download/TTH.epub");
             }
         });
 
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HighlightFragment highlightFragment = HighlightFragment.newInstance("urn:uuid:402eb356-5978-4c0e-9a23-1e63d8be1380", "");
+                HighlightFragment highlightFragment = HighlightFragment.newInstance("_simple_book", "");
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.test_layout, highlightFragment);
                 ft.commit();
