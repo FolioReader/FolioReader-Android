@@ -1,55 +1,32 @@
 # Vietnamese version FolioReader
 - Phiên bản nâng cấp tiếng Việt từ thư viện FolioReader-Android 0.5.4
-+ FolioReader-Android is an EPUB reader written in Java and Kotlin. See the [PROJECT](https://github.com/FolioReader/FolioReader-Android) .
++ FolioReader-Android is an EPUB reader written in Java and Kotlin. See the [FOLIOREADER_PROJECT](https://github.com/FolioReader/FolioReader-Android) .
 + FolioReaderKit is available under the BSD license. See the [LICENSE](https://github.com/FolioReader/FolioReader-Android/blob/master/License.md) file.
 
-### Các tính năng của FolioReader 0.5.4:
-
-- [x] Custom Fonts
-- [x] Custom Text Size
-- [x] Themes / Day mode / Night mode
-- [x] Text Highlighting
-- [x] List / Edit / Delete Highlights
-- [x] Handle Internal and External Links
-- [x] Portrait / Landscape
-- [ ] Reading Time Left / Pages left
-- [x] In-App Dictionary
-- [ ] Media Overlays (Sync text rendering with audio playback)
-- [ ] TTS - Text to Speech Support
-- [ ] Parse epub cover image
-- [ ] PDF support
-- [x] Book Search
-- [x] Add Notes to a Highlight
-- [ ] Better Documentation
-- [x] Last Read Locator
-- [x] Horizontal Reading
-- [x] Distraction Free Reading
+### Các tính năng của FolioReader 0.5.4 + Demo: [FOLIOREADER_PROJECT](https://github.com/FolioReader/FolioReader-Android) .
 
 ### Các tính năng của phiên bản nâng cấp Tiếng Việt:
-
-- [x] Có đầy đủ tính năng của Folio Reader 0.5.4
-- [x] Custom Fonts cho tài liệu Tiếng Việt
-- [x] Thay đổi màu trong List / Edit / Delete Highlights
-- [x] Handle Internal and External Links
-- [x] Portrait / Landscape
-- [ ] Reading Time Left / Pages left
-- [x] In-App Dictionary
-- [ ] Media Overlays (Sync text rendering with audio playback)
-- [ ] TTS - Text to Speech Support
-- [ ] Parse epub cover image
-- [ ] PDF support
-- [x] Book Search
-- [x] Add Notes to a Highlight
-- [ ] Better Documentation
-- [x] Last Read Locator
-- [x] Horizontal Reading
-- [x] Distraction Free Reading
+- Xử lý Internal / External links
+- Portrait / Landscape
+- Themes / Day mode / Night mode
+- Highlight
+- Tìm kiếm trong sách.
+- Cập nhật ngôn ngữ tiếng Việt.
+- Thay đổi toàn bộ giao diện.
+- Custom Fonts cho tài liệu Tiếng Việt.
+- Custom Textsize
+- Thay đổi màu trong List / Edit / Delete Highlights.
+- Hỗ trợ dịch từ trực tiếp trong ứng dụng.
+- Hỗ trợ từ điển tiếng Việt offline.
+- Bỏ tính năng share.
+- Last ReadLocator
+- Horizomtal Reading
 
 ## Demo
 
-### Gradle
+### Hướng dẫn các dependence:
 
-Add following dependency to your root project `build.gradle` file:
+Thêm dependency vào root project `build.gradle` file:
 
 ```groovy
 allprojects {
@@ -62,7 +39,7 @@ allprojects {
 }
 ```
 
-Add following dependency to your app module `build.gradle` file:
+Thêm dependency vào app module `build.gradle` file:
 
 ```groovy
 dependencies {
@@ -72,20 +49,22 @@ dependencies {
 }
 ```
 
-### Enable Multidex support
 
-Enable Multidex support as explained in this [Android Doc](https://developer.android.com/studio/build/multidex)
+### Hướng dẫn sử dụng:
 
-### Usage
-
-Get singleton object of `FolioReader`:
+Lấy singleton object `FolioReader`:
 
 ```java
 FolioReader folioReader = FolioReader.get();
 ```
 
-Call the function `openBook()`:
+Gọi hàm `openBook()`:
 
+##### opening from file path:
+
+```java
+folioReader.openBook("/sdcard/Download/Book.epub");
+```
 ##### opening book from assets -
 
 ```java
@@ -97,58 +76,10 @@ folioReader.openBook("file:///android_asset/TheSilverChair.epub");
 folioReader.openBook(R.raw.accessible_epub_3);
 ```
 
+## Đây là bản mở rộng của Folio Reader, mọi thông tin vể Folio Reader có thể tham khảo tại: [FOLIOREADER_PROJECT](https://github.com/FolioReader/FolioReader-Android)
 
-## WIKI
-
-* [Home](https://github.com/FolioReader/FolioReader-Android/wiki)
-* [Configuration](https://github.com/FolioReader/FolioReader-Android/wiki/Configuration)
-    * [Custom Configuration](https://github.com/FolioReader/FolioReader-Android/wiki/Custom-Configuration)
-* [Highlight](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight)
-    * [Highlight Action](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight-Action)
-    * [Highlight Event](https://github.com/FolioReader/FolioReader-Android/wiki/Highlight-Event)
-    * [Providing External Highlight](https://github.com/FolioReader/FolioReader-Android/wiki/Providing-External-Highlight)
-* [ReadLocator](https://github.com/FolioReader/FolioReader-Android/wiki/ReadLocator)
-* [Clean up code](https://github.com/FolioReader/FolioReader-Android/wiki/Clean-up-code)
-
-## Reporting Issue
-
-See [KNOWN_ISSUES](https://github.com/FolioReader/FolioReader-Android/blob/master/KNOWN_ISSUES.md) and [CHANGELOG](https://github.com/FolioReader/FolioReader-Android/blob/master/CHANGELOG.md) first before reporting any issue. <br />
-Please follow [Issue Template](https://github.com/FolioReader/FolioReader-Android/blob/master/.github/ISSUE_TEMPLATE.md) to report any issue.
-
-## Share your application
-If you are using FolioReader in your application, share your application link in [this issue](https://github.com/FolioReader/FolioReader-Android/issues/291)
-
-### Credits
-1. <a href="https://github.com/daimajia/AndroidSwipeLayout">SwipeLayout</a>
-2. <a href="https://github.com/readium/r2-streamer-kotlin">r2-streamer-kotlin</a>
-3. <a href="http://developer.pearson.com/apis/dictionaries">Pearson Dictionaries</a>
-4. <a href="https://github.com/timdown/rangy">rangy</a>
-
-### Author
+### Tác giả của FolioReader-Android:
 [**Heberti Almeida**](https://github.com/hebertialmeida)
 
 - Follow me on **Twitter**: [**@hebertialmeida**](https://twitter.com/hebertialmeida)
 - Contact me on **LinkedIn**: [**hebertialmeida**](http://linkedin.com/in/hebertialmeida)
-
-[**CodeToArt Technology**](https://github.com/codetoart)
-
-- Follow us on **Twitter**: [**@codetoart**](https://twitter.com/codetoart)
-- Contact us on **Website**: [**codetoart**](http://www.codetoart.com)
-
-## Donations
-
-**This project needs you!** If you would like to support this project's further development, the creator of this project or the continuous maintenance of this project, **feel free to donate**. Your donation is highly appreciated. Thank you!
-
-**PayPal**
-
- - [**Donate 5 $**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=hebertialmeida%40gmail%2ecom&lc=US&item_name=FolioReader%20Libraries&amount=5%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted): Thank's for creating this project, here's a tea (or some juice) for you!
- - [**Donate 10 $**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=hebertialmeida%40gmail%2ecom&lc=US&item_name=FolioReader%20Libraries&amount=10%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted): Wow, I am stunned. Let me take you to the movies!
- - [**Donate 15 $**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=hebertialmeida%40gmail%2ecom&lc=US&item_name=FolioReader%20Libraries&amount=15%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted): I really appreciate your work, let's grab some lunch! 
- - [**Donate 25 $**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=hebertialmeida%40gmail%2ecom&lc=US&item_name=FolioReader%20Libraries&amount=25%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted): That's some awesome stuff you did right there, dinner is on me!
- - [**Donate 50 $**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=hebertialmeida%40gmail%2ecom&lc=US&item_name=FolioReader%20Libraries&amount=50%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted): I really really want to support this project, great job!
- - [**Donate 100 $**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=hebertialmeida%40gmail%2ecom&lc=US&item_name=FolioReader%20Libraries&amount=100%2e00&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted): You are the man! This project saved me hours (if not days) of struggle and hard work, simply awesome!
- - Of course, you can also [**choose what you want to donate**](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=hebertialmeida%40gmail%2ecom&lc=US&item_name=FolioReader%20Libraries&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted), all donations are awesome!
-
-## License
-FolioReaderKit is available under the BSD license. See the [LICENSE](https://github.com/FolioReader/FolioReader-Android/blob/master/License.md) file.
-
