@@ -87,3 +87,8 @@ folioReader.openBook(R.raw.accessible_epub_3);
 
 - **Twitter**: [**@hebertialmeida**](https://twitter.com/hebertialmeida)
 - **LinkedIn**: [**hebertialmeida**](http://linkedin.com/in/hebertialmeida)
+
+## Các tham khảo khác:
+ - 
+ - API của Dịch từ của Google: translate.googleapis.com
+ - Data từ điển được lấy và convert từ [**UNDERTHESEAPROJECT**]https://github.com/undertheseanlp/underthesea (Github)
