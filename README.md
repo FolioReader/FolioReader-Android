@@ -28,7 +28,7 @@
 
 ###Đọc sách:
 
-
+![alt text](https://raw.githubusercontent.com/dongnvsince1999/FolioReader-Android/master/folioreader/readbook.png)
 
 ## Hướng dẫn các dependence:
 
