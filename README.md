@@ -24,7 +24,7 @@
 
 ## Demo
 
-### Hướng dẫn các dependence:
+## Hướng dẫn các dependence:
 
 Thêm dependency vào root project `build.gradle` file:
 
@@ -50,7 +50,7 @@ dependencies {
 ```
 
 
-### Hướng dẫn sử dụng:
+## Hướng dẫn sử dụng:
 
 Lấy singleton object `FolioReader`:
 
@@ -81,5 +81,5 @@ folioReader.openBook(R.raw.accessible_epub_3);
 ### Tác giả của FolioReader-Android:
 [**Heberti Almeida**](https://github.com/hebertialmeida)
 
-- Follow me on **Twitter**: [**@hebertialmeida**](https://twitter.com/hebertialmeida)
-- Contact me on **LinkedIn**: [**hebertialmeida**](http://linkedin.com/in/hebertialmeida)
+- **Twitter**: [**@hebertialmeida**](https://twitter.com/hebertialmeida)
+- **LinkedIn**: [**hebertialmeida**](http://linkedin.com/in/hebertialmeida)
