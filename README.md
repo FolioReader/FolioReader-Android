@@ -89,6 +89,8 @@ folioReader.openBook(R.raw.accessible_epub_3);
 - **LinkedIn**: [**hebertialmeida**](http://linkedin.com/in/hebertialmeida)
 
 ## Các tham khảo khác:
- - 
+ - FOLIOREADER WIKI
+ - [**EPUB CFI**]http://idpf.org/epub/linking/cfi/epub-cfi.html
+ - [**Rangy**]https://github.com/timdown/rangy
  - API của Dịch từ của Google: translate.googleapis.com
  - Data từ điển được lấy và convert từ [**UNDERTHESEAPROJECT**]https://github.com/undertheseanlp/underthesea (Github)
