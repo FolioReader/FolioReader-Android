@@ -30,6 +30,10 @@
 
 ![alt text](https://raw.githubusercontent.com/dongnvsince1999/FolioReader-Android/master/folioreader/readbook.png)
 
+### Thao tác với từ ngữ trong sách:
+
+![alt text](https://raw.githubusercontent.com/dongnvsince1999/FolioReader-Android/master/folioreader/show.png)
+
 ## Hướng dẫn các dependence:
 
 Thêm dependency vào root project `build.gradle` file:
