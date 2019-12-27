@@ -11,17 +11,9 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="250dp"
         android:scaleType="fitXY"
         android:src="@drawable/shadow_replace" />
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="10dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/define_image" />
-
 
     <RelativeLayout
         android:layout_width="match_parent"

@@ -92,11 +92,13 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
 
     @Override
     public void onItemClick(HighlightImpl highlightImpl) {
-        Intent intent = new Intent();
-        intent.putExtra(HIGHLIGHT_ITEM, highlightImpl);
-        intent.putExtra(Constants.TYPE, Constants.HIGHLIGHT_SELECTED);
-        getActivity().setResult(Activity.RESULT_OK, intent);
-        getActivity().finish();
+
+            Intent intent = new Intent();
+            intent.putExtra(HIGHLIGHT_ITEM, highlightImpl);
+            intent.putExtra(Constants.TYPE, Constants.HIGHLIGHT_SELECTED);
+            getActivity().setResult(Activity.RESULT_OK, intent);
+            getActivity().finish();
+
     }
 
     @Override

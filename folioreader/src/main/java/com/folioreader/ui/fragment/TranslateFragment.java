@@ -1,7 +1,9 @@
 package com.folioreader.ui.fragment;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,6 +28,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Locale;
 
 import okhttp3.Call;
@@ -107,9 +111,46 @@ public class TranslateFragment extends DialogFragment {
         return locale.getLanguage(); //return vi
     }
 
+    public boolean isInternetAvailble() {
+        return isConnectingToInternet() || isConnectingToWifi();
+    }
+
+    private boolean isConnectingToInternet() {
+        ConnectivityManager connectivity = (ConnectivityManager) getContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null) {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null)
+                for (int i = 0; i < info.length; i++)
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED) {
+                        return true;
+                    }
+
+        }
+        return false;
+    }
+
+    private boolean isConnectingToWifi() {
+        ConnectivityManager connManager = (ConnectivityManager) getContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager
+                .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (mWifi != null) {
+            if (mWifi.getState() == NetworkInfo.State.CONNECTED)
+                return true;
+        }
+        return false;
+    }
+
     private void getMean(String stand_trg) {
-        RequestMean requestMean = new RequestMean();
-        requestMean.execute("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=" + stand_trg + "&dt=t&q=" + this.source);
+        if (isInternetAvailble()) {
+            RequestMean requestMean = new RequestMean();
+            requestMean.execute("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=" + stand_trg + "&dt=t&q=" + this.source);
+        }
+        else
+        {
+            translated_word.setText("No network connection!");
+        }
     }
 
     public class RequestMean extends AsyncTask<String, Void, String> {

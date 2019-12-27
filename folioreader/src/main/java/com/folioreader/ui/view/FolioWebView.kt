@@ -31,6 +31,7 @@ import com.folioreader.model.HighlightImpl.HighlightStyle
 import com.folioreader.model.sqlite.HighLightTable
 import com.folioreader.ui.activity.FolioActivity
 import com.folioreader.ui.activity.FolioActivityCallback
+import com.folioreader.ui.fragment.AddHighlightNoteFragment
 import com.folioreader.ui.fragment.DictionaryFragment
 import com.folioreader.ui.fragment.FolioPageFragment
 import com.folioreader.ui.fragment.TranslateFragment
@@ -309,6 +310,12 @@ class FolioWebView : WebView {
             onHighlightColorItemsClicked(HighlightStyle.Underline, false)
         }
 
+        viewTextSelection.addNoteSelection.setOnClickListener{
+            Log.v(LOG_TAG, "-> onClick -> addHighlightNote")
+            dismissPopupWindow()
+            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
+        }
+
         viewTextSelection.deleteHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> deleteHighlight")
             dismissPopupWindow()
@@ -339,8 +346,15 @@ class FolioWebView : WebView {
     fun onTextSelectionItemClicked(id: Int, selectedText: String?) {
 
         uiHandler.post { loadUrl("javascript:clearSelection()") }
-
+        //id of View
         when (id) {
+
+            R.id.addNoteSelection ->
+            {
+                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> addHighlightNoteSelection -> $selectedText")
+                uiHandler.post { showAddHighlightNoteDialog(selectedText) }
+            }
+
             R.id.copySelection -> {
                 Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> copySelection -> $selectedText")
                 UiUtil.copyToClipboard(context, selectedText)
@@ -382,7 +396,13 @@ class FolioWebView : WebView {
         dictionaryFragment.arguments = bundle
         dictionaryFragment.show(parentFragment.fragmentManager, DictionaryFragment::class.java.name)
     }
-
+    private fun showAddHighlightNoteDialog(selectedText: String?) {
+        val addHighlightNoteFragment = AddHighlightNoteFragment(selectedText)
+        val bundle = Bundle()
+        bundle.putString(Constants.SELECTED_WORD, selectedText)
+        addHighlightNoteFragment.arguments = bundle
+        addHighlightNoteFragment.show(parentFragment.fragmentManager, AddHighlightNoteFragment::class.java.name)
+    }
     private fun showTranslateFragment(selectedText: String?) {
         val translateFragment = TranslateFragment(selectedText)
         val bundle = Bundle()
