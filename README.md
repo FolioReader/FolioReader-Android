@@ -38,6 +38,10 @@
 
 ![alt text](https://raw.githubusercontent.com/dongnvsince1999/FolioReader-Android/master/folioreader/contenthighlight.png)
 
+### Thay đổi font, cỡ chữ, chế độ ngày / đêm:
+
+![alt text](https://raw.githubusercontent.com/dongnvsince1999/FolioReader-Android/master/folioreader/nightmode.png)
+
 ## Hướng dẫn các dependence:
 
 Thêm dependency vào root project `build.gradle` file:
