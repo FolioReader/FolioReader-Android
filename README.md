@@ -42,6 +42,10 @@
 
 ![alt text](https://raw.githubusercontent.com/dongnvsince1999/FolioReader-Android/master/folioreader/nightmode.png)
 
+### Tìm kiếm trong sách:
+
+![alt text](https://raw.githubusercontent.com/dongnvsince1999/FolioReader-Android/master/folioreader/search.png)
+
 ## Hướng dẫn các dependence:
 
 Thêm dependency vào root project `build.gradle` file:
