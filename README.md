@@ -22,7 +22,7 @@
 - Hỗ trợ từ điển tiếng Việt offline.
 - Bỏ tính năng share.
 - Last ReadLocator
-- Horizomtal Reading
+- Horizontal Reading
 
 ## Demo:
 
