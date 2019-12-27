@@ -1,10 +1,9 @@
-![FolioReader logo](https://raw.githubusercontent.com/FolioReader/FolioReaderKit/assets/folioreader.png)
+# Vietnamese version FolioReader
+- Phiên bản nâng cấp tiếng Việt từ thư viện FolioReader-Android 0.5.4
++ FolioReader-Android is an EPUB reader written in Java and Kotlin. See the [PROJECT](https://github.com/FolioReader/FolioReader-Android) .
++ FolioReaderKit is available under the BSD license. See the [LICENSE](https://github.com/FolioReader/FolioReader-Android/blob/master/License.md) file.
 
-[![Build Status](https://api.travis-ci.org/FolioReader/FolioReader-Android.svg?branch=master)](https://travis-ci.org/FolioReader/FolioReader-Android)
-
-FolioReader-Android is an EPUB reader written in Java and Kotlin.
-
-### Features
+### Các tính năng của FolioReader 0.5.4:
 
 - [x] Custom Fonts
 - [x] Custom Text Size
@@ -26,15 +25,27 @@ FolioReader-Android is an EPUB reader written in Java and Kotlin.
 - [x] Horizontal Reading
 - [x] Distraction Free Reading
 
+### Các tính năng của phiên bản nâng cấp Tiếng Việt:
+
+- [x] Có đầy đủ tính năng của Folio Reader 0.5.4
+- [x] Custom Fonts cho tài liệu Tiếng Việt
+- [x] Thay đổi màu trong List / Edit / Delete Highlights
+- [x] Handle Internal and External Links
+- [x] Portrait / Landscape
+- [ ] Reading Time Left / Pages left
+- [x] In-App Dictionary
+- [ ] Media Overlays (Sync text rendering with audio playback)
+- [ ] TTS - Text to Speech Support
+- [ ] Parse epub cover image
+- [ ] PDF support
+- [x] Book Search
+- [x] Add Notes to a Highlight
+- [ ] Better Documentation
+- [x] Last Read Locator
+- [x] Horizontal Reading
+- [x] Distraction Free Reading
+
 ## Demo
-##### Custom Fonts
-![Custom fonts](https://cloud.githubusercontent.com/assets/1277242/19012915/0661c7b2-87e0-11e6-81d6-8c71051e1074.gif)
-##### Day and Night Mode
-![Day night mode](https://cloud.githubusercontent.com/assets/1277242/19012914/f42059c4-87df-11e6-97f8-29e61a79e8aa.gif)
-##### Text Highlighting
-![Highlight](https://cloud.githubusercontent.com/assets/1277242/19012904/c2700c3a-87df-11e6-97ed-507765b3ddf0.gif)
-##### Media Overlays
-![Media Overlay](https://cloud.githubusercontent.com/assets/1277242/19012908/d61f3ce2-87df-11e6-8652-d72b6a1ad9a3.gif)
 
 ### Gradle
 
