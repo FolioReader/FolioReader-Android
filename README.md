@@ -1,4 +1,4 @@
-# Vietnamese version FolioReader 0.5.4 - 9
+# Vietnamese version FolioReader 0.5.4 - 10
 - Phiên bản nâng cấp tiếng Việt từ thư viện FolioReader-Android 0.5.4
 + FolioReader-Android is an EPUB reader written in Java and Kotlin. See the [FOLIOREADER_PROJECT](https://github.com/FolioReader/FolioReader-Android) .
 + FolioReaderKit is available under the BSD license. See the [LICENSE](https://github.com/FolioReader/FolioReader-Android/blob/master/License.md) file.
@@ -66,7 +66,7 @@ Thêm dependency vào app module `build.gradle` file:
 ```groovy
 dependencies {
     ...
-	     implementation 'com.github.dongnvsince1999:FolioReader-Android:0.5.4-9'
+	     implementation 'com.github.dongnvsince1999:FolioReader-Android:0.5.4-10'
     ...
 }
 ```
