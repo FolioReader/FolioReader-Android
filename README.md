@@ -66,7 +66,7 @@ Thêm dependency vào app module `build.gradle` file:
 ```groovy
 dependencies {
     ...
-    implementation "com.folioreader:folioreader:0.5.4"
+	     implementation 'com.github.dongnvsince1999:FolioReader-Android:0.5.4-9'
     ...
 }
 ```
