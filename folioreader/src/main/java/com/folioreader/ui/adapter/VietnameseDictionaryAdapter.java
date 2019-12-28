@@ -70,7 +70,9 @@ public class VietnameseDictionaryAdapter extends RecyclerView.Adapter<Vietnamese
     }
 
     public void clear() {
-        resultList.clear();
-        notifyItemRangeRemoved(0, resultList.size());
+        if(resultList!=null) {
+            resultList.clear();
+            notifyItemRangeRemoved(0, resultList.size());
+        }
     }
 }

@@ -107,18 +107,11 @@ public class DictionaryFragment extends DialogFragment
     private void setUpView() {
         dictionarySpinner = (Spinner) view.findViewById(R.id.spn_dictionary_language);
         ArrayAdapter<String> spinnerArrayAdapter;
-        if (getDeviceLanguage().equals("vi")) {
-            spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, nationList_VietNamese);
-        } else if (getDeviceLanguage().equals("ru")) {
-            spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, nationList_Russian);
-        } else if (getDeviceLanguage().equals("pt")) {
-            spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, nationList_Portuguese);
-        } else if (getDeviceLanguage().equals("cs")) {
-            spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, nationList_Czech);
-        } else {
-            spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, nationList_English);
-        }
 
+        if (getDeviceLanguage().equals("vi"))
+            spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, nationList_VietNamese);
+        else
+            spinnerArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_dropdown_item, nationList_English);
         dictionarySpinner.setAdapter(spinnerArrayAdapter);
         if (getDeviceLanguage().equals("vi")) {
             dictionarySpinner.setSelection(1);
@@ -133,7 +126,6 @@ public class DictionaryFragment extends DialogFragment
         googleSearch = (Button) view.findViewById(R.id.btn_google_search);
         dictionary = (TextView) view.findViewById(R.id.btn_dictionary);
         wikipedia = (TextView) view.findViewById(R.id.btn_wikipedia);
-
 
         wikiLayout = (LinearLayout) view.findViewById(R.id.ll_wiki);
         wikiWord = (TextView) view.findViewById(R.id.tv_word);
@@ -245,7 +237,7 @@ public class DictionaryFragment extends DialogFragment
             googleSearch.setVisibility(View.GONE);
         }
         wikiWebView.loadUrl("about:blank");
-        vi_dictionaryAdapter.clear();
+        if(vi_dictionaryAdapter!=null) vi_dictionaryAdapter.clear();
         dictionary.setSelected(true);
         wikipedia.setSelected(false);
         wikiLayout.setVisibility(View.GONE);
@@ -323,7 +315,7 @@ public class DictionaryFragment extends DialogFragment
     }
 
     @Override
-    public void onEnglishDictionaryDataReceived(EnglishDictionary englishDictionary){
+    public void onEnglishDictionaryDataReceived(EnglishDictionary englishDictionary) {
         progressBar.setVisibility(View.GONE);
         if (englishDictionary.getResultsList().isEmpty()) {
             noNetwork.setVisibility(View.VISIBLE);
