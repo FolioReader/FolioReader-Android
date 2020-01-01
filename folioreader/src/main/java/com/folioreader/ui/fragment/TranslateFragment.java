@@ -40,12 +40,13 @@ import okhttp3.Response;
 
 public class TranslateFragment extends DialogFragment {
     private View view;
-    private String[] nationList_English = {"English", "Vietnamese", "Russian", "Portuguese", "Czech"};
-    private String[] nationList_VietNamese = {"Tiếng Anh", "Tiếng Việt", "Tiếng Nga", "Tiếng Bồ Đào Nha", "Tiếng Sec"};
-    private String[] nationList_Russian = {"Английский", "вьетнамский", "русский", "португальский", "чешский"};
-    private String[] nationList_Portuguese = {"Inglês", "vietnamita", "russo", "português", "tcheco"};
-    private String[] nationList_Czech = {"Angličtina", "vietnamština", "ruština", "portugalština", "čeština"};
-    private String[] stand_list = {"en", "vi", "ru", "pt", "cs"};
+    private String[] nationList_English = {"English", "Vietnamese", "Russian", "Portuguese", "Czech","Turkish"};
+     private String[] nationList_English = {"İngilizce", "Vietnamca", "Rusça", "Portekizce", "Çekce","Turkish"};
+    private String[] nationList_VietNamese = {"Tiếng Anh", "Tiếng Việt", "Tiếng Nga", "Tiếng Bồ Đào Nha", "Tiếng Sec","Turkish"};
+    private String[] nationList_Russian = {"Английский", "вьетнамский", "русский", "португальский", "чешский","Turkish"};
+    private String[] nationList_Portuguese = {"Inglês", "vietnamita", "russo", "português", "tcheco","Turkish"};
+    private String[] nationList_Czech = {"Angličtina", "vietnamština", "ruština", "portugalština", "čeština","Turkish"};
+    private String[] stand_list = {"en", "vi", "ru", "pt", "cs","tr"};
     private TextView translated_word;
     private Spinner trgLang_List;
     private String source = "";
@@ -87,6 +88,9 @@ public class TranslateFragment extends DialogFragment {
             trgLang_List.setSelection(3);
         } else if (getDeviceLanguage().equals("cs")) {
             trgLang_List.setSelection(4);
+        } 
+        } else if (getDeviceLanguage().equals("tr")) {
+            trgLang_List.setSelection(5);
         } else {
             trgLang_List.setSelection(0);
         }
