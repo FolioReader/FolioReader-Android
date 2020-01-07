@@ -2,15 +2,15 @@
 
     <string name="app_name">FolioReader</string>
 
-    <string name="andada">Andada</string>
+    <string name="arvo">Arvo</string>
     <string name="lato">Lato</string>
     <string name="lora">Lora</string>
-    <string name="raleway">Raleway</string>
+    <string name="ubuntu">Ubuntu</string>
 
-    <string name="andada_font">fonts/andada/Andada-Regular.otf</string>
+    <string name="arvo_font">fonts/arvo/Arvo-Regular.ttf</string>
     <string name="lato_font">fonts/lato/Lato-Regular.ttf</string>
     <string name="lora_font">fonts/lora/Lora-Regular.ttf</string>
-    <string name="raleway_font">fonts/raleway/Raleway-Regular.ttf</string>
+    <string name="ubuntu_font">fonts/ubuntu/Ubuntu-Regular.ttf</string>
 
     <string name="minutes_left">%1$d minutes ·&#160;</string>
     <string name="minute_left">%1$d minute ·&#160;</string>
@@ -23,7 +23,8 @@
     <string name="share">Share</string>
     <string name="define">Define</string>
     <string name="highlight">Highlight</string>
-
+    <string name="translate">Translate</string>
+    <string name="translate_to">Translate to</string>
     <string name="pages_left">%1$d pages left</string>
     <string name="page_left">%1$d page left</string>
     <string name="highlights">Highlights</string>
@@ -38,8 +39,7 @@
     <string name="zip">.zip</string>
     <string name="htmlBodyTableOpen">&lt;html&gt;&lt;body&gt;&lt;table&gt;</string>
     <string name="titlesMeta">&lt;tr&gt;&lt;td&gt;Titles:&lt;/td&gt;</string>
-    <string name="authorsMeta">&lt;tr&gt;&lt;td&gt;Authors:&lt;/td&gt;</string>
-    <string name="contributorsMeta">&lt;tr&gt;&lt;td&gt;Contributors:&lt;/td&gt;</string>
+    <string name="contributorsMeta">&lt;tr&gt;&lt;td&gt;Contributor:&lt;/td&gt;</string>
     <string name="languageMeta">&lt;tr&gt;&lt;td&gt;Language:&lt;/td&gt;&lt;td&gt;</string>
     <string name="publishersMeta">&lt;tr&gt;&lt;td&gt;Publishers:&lt;/td&gt;</string>
     <string name="typesMeta">&lt;tr&gt;&lt;td&gt;Types:&lt;/td&gt;</string>
@@ -81,7 +81,8 @@
     </string>
     <string name="edit_notes">Save your note</string>
     <string name="save_note">Save note</string>
-    <string name="please_enter_note">please enter a note</string>
+    <string name="please_enter_note">Please enter a note!</string>
+    <string name="you_have_deleted_note">You have deleted note</string>
     <string name="contents">Contents</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -90,7 +91,6 @@
     <string name="debug_start_unable_drag">Starting unable to drag!</string>
     <string name="dictionary">Dictionary</string>
     <string name="wikipedia">Wikipedia</string>
-    <string name="cannot_access_epub_message">Cannot open epub it needs storage access !</string>
     <string name="direction_horizontal">Horizontal</string>
     <string name="direction_vertical">Vertical</string>
 
@@ -115,5 +115,10 @@
     <string name="callScrollToCfi" translatable="false">javascript:scrollToCfi(\"%s\")</string>
     <string name="callHighlightSearchLocator" translatable="false">javascript:highlightSearchLocator(\"%s\")</string>
     <string name="callClearSelection" translatable="false">javascript:clearSelection()</string>
+    <string name="authorsMeta">&lt;tr&gt;&lt;td&gt;Authors:&lt;/td&gt;</string>
+
+    <string name="cannot_access_epub_message">Unable to open ebook, you need to enable access to external memory!</string>
+    <string name="offline">No network connection</string>
+    <string name="word_not_found">Work not found</string>
 
 </resources>

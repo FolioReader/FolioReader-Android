@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimary">#03a9f4</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
 
-    <color name="default_theme_accent_color">#71C951</color>
+    <color name="default_theme_accent_color">#03a9f4</color>
     <color name="transparent_black">#80000000</color>
     <color name="borders">#F1EFF2</color>
     <color name="black">#000000</color>
@@ -24,9 +24,23 @@
 
     <color name="edit_text_hint_color">#AAAAAA</color>
 
-    <color name="highlight_yellow">#FFEB6B</color>
-    <color name="highlight_green">#C0ED72</color>
-    <color name="highlight_blue">#ADD8FF</color>
-    <color name="highlight_pink">#FFB0CA</color>
+<!--    <color name="highlight_yellow">#FFEB6B</color>-->
+<!--    <color name="highlight_green">#03a9f4</color>-->
+<!--    <color name="highlight_blue">#ADD8FF</color>-->
+<!--    <color name="highlight_pink">#FFB0CA</color>-->
+
+    <color name="super_gray">#606060</color>
+    <color name="standard_gray">#363636</color>
+    <color name="standard_gray_blur">#30363636</color>
+    <color name="fake_gray">#606061</color>
+    <color name="highlight_red"> #f44336</color>
+    <color name="highlight_orange">#ffc107</color>
+    <color name="highlight_blue">#03a9f4</color>
+    <color name="highlight_green">#8bc34a</color>
+    <color name="transparent">#0000</color>
+    <color name="highlight_red_blur"> #30f44336</color>
+    <color name="highlight_orange_blur">#30ffc107</color>
+    <color name="highlight_blue_blur">#3003a9f4</color>
+    <color name="highlight_green_blur">#308bc34a</color>
 
 </resources>

@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
@@ -14,11 +16,16 @@ import com.folioreader.model.locators.ReadLocator;
 import com.folioreader.model.sqlite.DbAdapter;
 import com.folioreader.network.QualifiedTypeConverterFactory;
 import com.folioreader.network.R2StreamerApi;
+import com.folioreader.ui.activity.ContentHighlightActivity;
 import com.folioreader.ui.activity.FolioActivity;
 import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.ui.base.SaveReceivedHighlightTask;
+import com.folioreader.ui.fragment.HighlightFragment;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadLocatorListener;
+
+import org.greenrobot.eventbus.util.ErrorDialogManager;
+
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -56,6 +63,8 @@ public class FolioReader {
     public Retrofit retrofit;
     @Nullable
     public R2StreamerApi r2StreamerApi;
+
+
 
     public interface OnClosedListener {
         /**
@@ -294,5 +303,9 @@ public class FolioReader {
         localBroadcastManager.unregisterReceiver(highlightReceiver);
         localBroadcastManager.unregisterReceiver(readLocatorReceiver);
         localBroadcastManager.unregisterReceiver(closedReceiver);
+    }
+  //  FragmentManager fragmentManager, String assetOrSdcardPath
+    public void showContentHighlightFragment(FragmentManager fragmentManager) {
+
     }
 }

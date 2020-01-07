@@ -6,9 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.model.HighlightImpl;
@@ -27,6 +30,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
     private HighLightAdapterCallback callback;
     private Context context;
     private Config config;
+
 
     public HighlightAdapter(Context context, List<HighlightImpl> highlights, HighLightAdapterCallback callback, Config config) {
         this.context = context;
@@ -50,7 +54,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
                 ((AppCompatActivity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        holder.container.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+                        holder.container.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
                     }
                 });
             }
@@ -59,6 +63,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
         holder.content.setText(Html.fromHtml(getItem(position).getContent()));
         UiUtil.setBackColorToTextView(holder.content,
                 getItem(position).getType());
+
         holder.date.setText(AppUtil.formatDate(getItem(position).getDate()));
         holder.container.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,6 +76,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
             public void onClick(View v) {
                 callback.deleteHighlight(getItem(position).getId());
                 highlights.remove(position);
+                Toast.makeText(context, R.string.you_have_deleted_note, Toast.LENGTH_SHORT).show();
                 notifyDataSetChanged();
 
             }
@@ -79,6 +85,7 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
             @Override
             public void onClick(View v) {
                 callback.editNote(getItem(position), position);
+
             }
         });
         if (getItem(position).getNote() != null) {
@@ -141,17 +148,36 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
         notifyDataSetChanged();
     }
 
+    public void changeColorNote(String type, int position) {
+        highlights.get(position).setType(type);
+        notifyDataSetChanged();
+    }
+
+    public void deleteNote(int position) {
+        callback.deleteHighlight(getItem(position).getId());
+        highlights.remove(position);
+        notifyDataSetChanged();
+    }
+
+    public List<HighlightImpl> getHighlights() {
+        return this.highlights;
+    }
+
+//    public HighlightHolder getHolder() {
+//        return this.holder;
+//    }
+
     static class HighlightHolder extends RecyclerView.ViewHolder {
         private UnderlinedTextView content;
         private ImageView delete, editNote;
         private TextView date;
-        private RelativeLayout container;
+        private ConstraintLayout container;
         private TextView note;
         private LinearLayout swipeLinearLayout;
 
         HighlightHolder(View itemView) {
             super(itemView);
-            container = (RelativeLayout) itemView.findViewById(R.id.container);
+            container = (ConstraintLayout) itemView.findViewById(R.id.container);
             swipeLinearLayout = (LinearLayout) itemView.findViewById(R.id.swipe_linear_layout);
             content = (UnderlinedTextView) itemView.findViewById(R.id.utv_highlight_content);
             delete = (ImageView) itemView.findViewById(R.id.iv_delete);
@@ -166,6 +192,6 @@ public class HighlightAdapter extends RecyclerView.Adapter<HighlightAdapter.High
 
         void deleteHighlight(int id);
 
-        void editNote(HighlightImpl highlightImpl, int position);
+        void editNote(HighlightImpl highlightImpl, int position); //if delete note => return  true;
     }
 }

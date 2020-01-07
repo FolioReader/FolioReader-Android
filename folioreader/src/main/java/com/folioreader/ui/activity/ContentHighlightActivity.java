@@ -106,7 +106,7 @@ public class ContentHighlightActivity extends AppCompatActivity {
         ft.commit();
     }
 
-    private void loadHighlightsFragment() {
+    public void loadHighlightsFragment() {
         findViewById(R.id.btn_contents).setSelected(false);
         findViewById(R.id.btn_highlights).setSelected(true);
         String bookId = getIntent().getStringExtra(FolioReader.EXTRA_BOOK_ID);

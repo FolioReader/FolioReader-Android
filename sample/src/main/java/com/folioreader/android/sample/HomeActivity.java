@@ -15,19 +15,27 @@
  */
 package com.folioreader.android.sample;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.Config;
 import com.folioreader.FolioReader;
 import com.folioreader.model.HighLight;
+import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.locators.ReadLocator;
 import com.folioreader.ui.base.OnSaveHighlight;
+import com.folioreader.ui.fragment.HighlightFragment;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadLocatorListener;
@@ -44,11 +52,13 @@ public class HomeActivity extends AppCompatActivity
 
     private static final String LOG_TAG = HomeActivity.class.getSimpleName();
     private FolioReader folioReader;
+    private ImageView dummyImageView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
 
         folioReader = FolioReader.get()
                 .setOnHighlightListener(this)
@@ -56,7 +66,12 @@ public class HomeActivity extends AppCompatActivity
                 .setOnClosedListener(this);
 
         getHighlightsAndSave();
+        findViewById(R.id.dummyImage).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+            }
+        });
         findViewById(R.id.btn_raw).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,31 +82,35 @@ public class HomeActivity extends AppCompatActivity
                 config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
 
                 folioReader.setConfig(config, true)
-                        .openBook(R.raw.accessible_epub_3);
+                        .openBook("/sdcard/Download/TTH.epub");
             }
         });
 
         findViewById(R.id.btn_assest).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                HighlightFragment highlightFragment = HighlightFragment.newInstance("_simple_book", "");
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.test_layout, highlightFragment);
+                ft.commit();
 
-                ReadLocator readLocator = getLastReadLocator();
-
-                Config config = AppUtil.getSavedConfig(getApplicationContext());
-                if (config == null)
-                    config = new Config();
-                config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
-
-                folioReader.setReadLocator(readLocator);
-                folioReader.setConfig(config, true)
-                        .openBook("file:///android_asset/TheSilverChair.epub");
+//                ReadLocator readLocator = getLastReadLocator();
+//
+//                Config config = AppUtil.getSavedConfig(getApplicationContext());
+//                if (config == null)
+//                    config = new Config();
+//                config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
+//
+//                folioReader.setReadLocator(readLocator);
+//                folioReader.setConfig(config, true)
+//                        .openBook("/sdcard/Download/sa ch.epub");
             }
         });
     }
 
     private ReadLocator getLastReadLocator() {
 
-        String jsonString = loadAssetTextAsString("Locators/LastReadLocators/last_read_locator_1.json");
+        String jsonString = loadAssetTextAsString("LastReadLocators/last_read_locator_1.json");
         return ReadLocator.fromJson(jsonString);
     }
 
@@ -178,5 +197,9 @@ public class HomeActivity extends AppCompatActivity
     @Override
     public void onFolioReaderClosed() {
         Log.v(LOG_TAG, "-> onFolioReaderClosed");
+    }
+
+    public void dummyMethod() {
+        return;
     }
 }

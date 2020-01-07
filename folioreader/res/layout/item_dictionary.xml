@@ -37,4 +37,11 @@
         android:layout_below="@id/tv_definition"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp" />
+    <ImageView
+        android:layout_margin="2dp"
+        android:layout_below="@id/tv_examples"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+
+        android:src="@color/highlight_blue_blur"/>
 </RelativeLayout>

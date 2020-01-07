@@ -43,7 +43,8 @@
     <string name="please_wait_till_audio_is_parsed">čekejte prosím na analyzování zvuku, o chvíli zkuste znovu</string>
     <string name="edit_notes">Uložte si poznámku</string>
     <string name="save_note">Uložit poznámku</string>
-    <string name="please_enter_note">zadejte poznámku</string>
+    <string name="please_enter_note">Zadejte poznámku</string>
+    <string name="you_have_deleted_note">Smazali jste svou poznámku</string>
     <string name="contents">Obsah</string>
 
     <string name="dictionary">Slovník</string>
@@ -64,7 +65,8 @@
     <string name="search_hint">Vyhledávání v knize</string>
     <string name="search_empty_text">Žádné výsledky.</string>
     <string name="search_failure_text">Něco se pokazilo.</string>
-
+    <string name="offline">Žádné síťové připojení</string>
+    <string name="word_not_found">Práce nebyla nalezena</string>
     <plurals name="numberOfSearchResults">
         <item quantity="one">%d výskyt</item>
         <item quantity="other">%d výskytů</item>

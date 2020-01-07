@@ -225,7 +225,7 @@ $(function () {
 
             this.highlighter = rangy.createHighlighter();
 
-            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_yellow", {
+            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_orange", {
                 ignoreWhiteSpace: true,
                 tagNames: ["span", "a"]
             }));
@@ -240,7 +240,7 @@ $(function () {
                 tagNames: ["span", "a"]
             }));
 
-            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_pink", {
+            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_red", {
                 ignoreWhiteSpace: true,
                 tagNames: ["span", "a"]
             }));
@@ -252,8 +252,8 @@ $(function () {
 
         },
 
-        setFontAndada: function () {
-            this.setFont("andada");
+        setFontArvo: function () {
+            this.setFont("comfort");
         },
 
         setFontLato: function () {

@@ -31,8 +31,10 @@ import com.folioreader.model.HighlightImpl.HighlightStyle
 import com.folioreader.model.sqlite.HighLightTable
 import com.folioreader.ui.activity.FolioActivity
 import com.folioreader.ui.activity.FolioActivityCallback
+import com.folioreader.ui.fragment.AddHighlightNoteFragment
 import com.folioreader.ui.fragment.DictionaryFragment
 import com.folioreader.ui.fragment.FolioPageFragment
+import com.folioreader.ui.fragment.TranslateFragment
 import com.folioreader.util.AppUtil
 import com.folioreader.util.HighlightUtil
 import com.folioreader.util.UiUtil
@@ -105,7 +107,6 @@ class FolioWebView : WebView {
     private var lastTouchAction: Int = 0
     private var destroyed: Boolean = false
     private var handleHeight: Int = 0
-
     private var lastScrollType: LastScrollType? = null
 
     val contentHeightVal: Int
@@ -156,13 +157,23 @@ class FolioWebView : WebView {
 
     private inner class HorizontalGestureListener : GestureDetector.SimpleOnGestureListener() {
 
-        override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+        override fun onScroll(
+            e1: MotionEvent?,
+            e2: MotionEvent?,
+            distanceX: Float,
+            distanceY: Float
+        ): Boolean {
             //Log.d(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
             lastScrollType = LastScrollType.USER
             return false
         }
 
-        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(
+            e1: MotionEvent?,
+            e2: MotionEvent?,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
             //Log.d(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
 
             if (!webViewPager.isScrolling) {
@@ -212,13 +223,23 @@ class FolioWebView : WebView {
 
     private inner class VerticalGestureListener : GestureDetector.SimpleOnGestureListener() {
 
-        override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+        override fun onScroll(
+            e1: MotionEvent?,
+            e2: MotionEvent?,
+            distanceX: Float,
+            distanceY: Float
+        ): Boolean {
             //Log.v(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
             lastScrollType = LastScrollType.USER
             return false
         }
 
-        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(
+            e1: MotionEvent?,
+            e2: MotionEvent?,
+            velocityX: Float,
+            velocityY: Float
+        ): Boolean {
             //Log.v(LOG_TAG, "-> onFling -> e1 = " + e1 + ", e2 = " + e2 + ", velocityX = " + velocityX + ", velocityY = " + velocityY);
             lastScrollType = LastScrollType.USER
             return false
@@ -227,7 +248,11 @@ class FolioWebView : WebView {
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    )
 
     private fun init() {
         Log.v(LOG_TAG, "-> init")
@@ -262,11 +287,11 @@ class FolioWebView : WebView {
         }
 
         viewTextSelection = LayoutInflater.from(ctw).inflate(R.layout.text_selection, null)
-        viewTextSelection.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+        viewTextSelection.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
 
-        viewTextSelection.yellowHighlight.setOnClickListener {
-            Log.v(LOG_TAG, "-> onClick -> yellowHighlight")
-            onHighlightColorItemsClicked(HighlightStyle.Yellow, false)
+        viewTextSelection.orangeHighlight.setOnClickListener {
+            Log.v(LOG_TAG, "-> onClick -> orangeHighlight")
+            onHighlightColorItemsClicked(HighlightStyle.Orange, false)
         }
         viewTextSelection.greenHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> greenHighlight")
@@ -276,31 +301,42 @@ class FolioWebView : WebView {
             Log.v(LOG_TAG, "-> onClick -> blueHighlight")
             onHighlightColorItemsClicked(HighlightStyle.Blue, false)
         }
-        viewTextSelection.pinkHighlight.setOnClickListener {
-            Log.v(LOG_TAG, "-> onClick -> pinkHighlight")
-            onHighlightColorItemsClicked(HighlightStyle.Pink, false)
+        viewTextSelection.redHighlight.setOnClickListener {
+            Log.v(LOG_TAG, "-> onClick -> redHighlight")
+            onHighlightColorItemsClicked(HighlightStyle.Red, false)
         }
         viewTextSelection.underlineHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> underlineHighlight")
             onHighlightColorItemsClicked(HighlightStyle.Underline, false)
         }
 
+        viewTextSelection.addNoteSelection.setOnClickListener{
+            Log.v(LOG_TAG, "-> onClick -> addHighlightNote")
+            dismissPopupWindow()
+            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
+        }
+
         viewTextSelection.deleteHighlight.setOnClickListener {
             Log.v(LOG_TAG, "-> onClick -> deleteHighlight")
             dismissPopupWindow()
-            loadUrl("javascript:clearSelection()")
-            loadUrl("javascript:deleteThisHighlight()")
+            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
+            //loadUrl("javascript:deleteThisHighlight(${it.id})")
         }
 
         viewTextSelection.copySelection.setOnClickListener {
             dismissPopupWindow()
             loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
         }
-        viewTextSelection.shareSelection.setOnClickListener {
+//        viewTextSelection.shareSelection.setOnClickListener {
+//            dismissPopupWindow()
+//            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
+//        }
+        viewTextSelection.defineSelection.setOnClickListener {
             dismissPopupWindow()
             loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
         }
-        viewTextSelection.defineSelection.setOnClickListener {
+
+        viewTextSelection.translateSelection.setOnClickListener {
             dismissPopupWindow()
             loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
         }
@@ -310,21 +346,43 @@ class FolioWebView : WebView {
     fun onTextSelectionItemClicked(id: Int, selectedText: String?) {
 
         uiHandler.post { loadUrl("javascript:clearSelection()") }
-
+        //id of View
         when (id) {
+
+            R.id.addNoteSelection ->
+            {
+                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> addHighlightNoteSelection -> $selectedText")
+                uiHandler.post { showAddHighlightNoteDialog(selectedText) }
+            }
+
             R.id.copySelection -> {
                 Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> copySelection -> $selectedText")
                 UiUtil.copyToClipboard(context, selectedText)
-                Toast.makeText(context, context.getString(R.string.copied), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.copied), Toast.LENGTH_SHORT)
+                    .show()
             }
-            R.id.shareSelection -> {
-                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> shareSelection -> $selectedText")
-                UiUtil.share(context, selectedText)
+//            R.id.shareSelection -> {
+//                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> shareSelection -> $selectedText")
+//                UiUtil.share(context, selectedText)
+//            }
+            R.id.deleteHighlight ->{
+                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> deleteSelection -> $selectedText")
+                uiHandler.post { deleteThisHighlight(selectedText) }
             }
+
             R.id.defineSelection -> {
                 Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> defineSelection -> $selectedText")
                 uiHandler.post { showDictDialog(selectedText) }
             }
+
+            R.id.translateSelection -> {
+                Log.v(
+                    LOG_TAG,
+                    "-> onTextSelectionItemClicked -> translatedSelection -> $selectedText"
+                )
+                uiHandler.post { showTranslateFragment(selectedText) }
+            }
+
             else -> {
                 Log.w(LOG_TAG, "-> onTextSelectionItemClicked -> unknown id = $id")
             }
@@ -337,6 +395,20 @@ class FolioWebView : WebView {
         bundle.putString(Constants.SELECTED_WORD, selectedText?.trim())
         dictionaryFragment.arguments = bundle
         dictionaryFragment.show(parentFragment.fragmentManager, DictionaryFragment::class.java.name)
+    }
+    private fun showAddHighlightNoteDialog(selectedText: String?) {
+        val addHighlightNoteFragment = AddHighlightNoteFragment(selectedText)
+        val bundle = Bundle()
+        bundle.putString(Constants.SELECTED_WORD, selectedText)
+        addHighlightNoteFragment.arguments = bundle
+        addHighlightNoteFragment.show(parentFragment.fragmentManager, AddHighlightNoteFragment::class.java.name)
+    }
+    private fun showTranslateFragment(selectedText: String?) {
+        val translateFragment = TranslateFragment(selectedText)
+        val bundle = Bundle()
+        bundle.putString(Constants.SELECTED_WORD, selectedText)
+        translateFragment.arguments = bundle
+        translateFragment.show(parentFragment.fragmentManager, TranslateFragment::class.java.name)
     }
 
     private fun onHighlightColorItemsClicked(style: HighlightStyle, isAlreadyCreated: Boolean) {
@@ -466,7 +538,7 @@ class FolioWebView : WebView {
         fun fadeInSeekBarIfInvisible()
     }
 
-    private inner class TextSelectionCb : ActionMode.Callback {
+    private inner class TextSelectionCb : Callback {
 
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
             Log.d(LOG_TAG, "-> onCreateActionMode")
@@ -503,6 +575,7 @@ class FolioWebView : WebView {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
             Log.d(LOG_TAG, "-> onCreateActionMode")
             menu.clear()
+
             return true
         }
 
@@ -580,7 +653,8 @@ class FolioWebView : WebView {
 
         if (Build.VERSION.SDK_INT < 23) {
             val folioActivityRef: WeakReference<FolioActivity> = folioActivityCallback.activity
-            val mWindowManagerField = ReflectionUtils.findField(FolioActivity::class.java, "mWindowManager")
+            val mWindowManagerField =
+                ReflectionUtils.findField(FolioActivity::class.java, "mWindowManager")
             mWindowManagerField.isAccessible = true
             val mWindowManager = mWindowManagerField.get(folioActivityRef.get())
 
@@ -596,7 +670,8 @@ class FolioWebView : WebView {
             val config = AppUtil.getSavedConfig(context)!!
 
             for (view in mViews) {
-                val handleViewClass = Class.forName("com.android.org.chromium.content.browser.input.HandleView")
+                val handleViewClass =
+                    Class.forName("com.android.org.chromium.content.browser.input.HandleView")
 
                 if (handleViewClass.isInstance(view)) {
                     val mDrawableField = ReflectionUtils.findField(handleViewClass, "mDrawable")
@@ -608,7 +683,8 @@ class FolioWebView : WebView {
 
         } else {
             val folioActivityRef: WeakReference<FolioActivity> = folioActivityCallback.activity
-            val mWindowManagerField = ReflectionUtils.findField(FolioActivity::class.java, "mWindowManager")
+            val mWindowManagerField =
+                ReflectionUtils.findField(FolioActivity::class.java, "mWindowManager")
             mWindowManagerField.isAccessible = true
             val mWindowManager = mWindowManagerField.get(folioActivityRef.get())
 
@@ -624,19 +700,23 @@ class FolioWebView : WebView {
             val config = AppUtil.getSavedConfig(context)!!
 
             for (view in mViews) {
-                val popupDecorViewClass = Class.forName("android.widget.PopupWindow\$PopupDecorView")
+                val popupDecorViewClass =
+                    Class.forName("android.widget.PopupWindow\$PopupDecorView")
 
                 if (!popupDecorViewClass.isInstance(view))
                     continue
 
                 val mChildrenField = ReflectionUtils.findField(popupDecorViewClass, "mChildren")
                 mChildrenField.isAccessible = true
-                val mChildren = mChildrenField.get(view) as kotlin.Array<View>
+                val mChildren = mChildrenField.get(view) as Array<View>
 
                 //val pathClassLoader = PathClassLoader("/system/app/Chrome/Chrome.apk", ClassLoader.getSystemClassLoader())
 
                 val pathClassLoader =
-                    PathClassLoader("/system/app/Chrome/Chrome.apk", folioActivityRef.get()?.classLoader)
+                    PathClassLoader(
+                        "/system/app/Chrome/Chrome.apk",
+                        folioActivityRef.get()?.classLoader
+                    )
 
                 val popupTouchHandleDrawableClass = Class.forName(
                     "org.chromium.android_webview.PopupTouchHandleDrawable",
@@ -646,7 +726,8 @@ class FolioWebView : WebView {
                 //if (!popupTouchHandleDrawableClass.isInstance(mChildren[0]))
                 //    continue
 
-                val mDrawableField = ReflectionUtils.findField(popupTouchHandleDrawableClass, "mDrawable")
+                val mDrawableField =
+                    ReflectionUtils.findField(popupTouchHandleDrawableClass, "mDrawable")
                 mDrawableField.isAccessible = true
                 val mDrawable = mDrawableField.get(mChildren[0]) as Drawable
                 UiUtil.setColorIntToDrawable(config.themeColor, mDrawable)

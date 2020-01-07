@@ -18,6 +18,7 @@
     <string name="edit_notes">Salvar nota</string>
     <string name="save_note">Salvar</string>
     <string name="please_enter_note">Digite a nota</string>
+    <string name="you_have_deleted_note">Você excluiu sua nota</string>
     <string name="contents">Conteúdo</string>
     <string name="dictionary">Dicionário</string>
     <string name="cannot_access_epub_message">Sem permissão para acessar o epub</string>
@@ -30,4 +31,6 @@
     <string name="OK">Ok</string>
     <string name="SetSizeTitle">Painel superior</string>
     <string name="LanguageChooserTitle">Escolha 2 linguagens</string>
+    <string name="offline">Nenhuma conexão de rede</string>
+    <string name="word_not_found">Trabalho não encontrado</string>
 </resources>

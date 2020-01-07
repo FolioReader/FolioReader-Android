@@ -143,7 +143,7 @@ public class HighLightTable {
         return date1;
     }
 
-    public static HighlightImpl updateHighlightStyle(String rangy, String style) {
+    public static HighlightImpl updateHighlightStyle(String      rangy, String style) {
         String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_RANGY + " = \"" + rangy + "\"";
         int id = DbAdapter.getIdForQuery(query);
         if (id != -1 && update(id, updateRangy(rangy, style), style.replace("highlight_", ""))) {
@@ -157,7 +157,7 @@ public class HighLightTable {
         return getHighlightId(DbAdapter.getIdForQuery(query));
     }
 
-    private static String updateRangy(String rangy, String style) {
+    public static String updateRangy(String rangy, String style) {
         /*Pattern p = Pattern.compile("\\highlight_\\w+");
         Matcher m = p.matcher(rangy);
         return m.replaceAll(style);*/

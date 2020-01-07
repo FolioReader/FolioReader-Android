@@ -44,6 +44,7 @@
     <string name="edit_notes">Uložte si poznámku</string>
     <string name="save_note">Uložiť poznámku</string>
     <string name="please_enter_note">zadajte poznámku</string>
+    <string name="you_have_deleted_note">odstránili ste svoju poznámku</string>
     <string name="contents">Obsah</string>
 
     <string name="dictionary">Slovník</string>
@@ -64,7 +65,8 @@
     <string name="search_hint">Vyhľadávanie v knihe</string>
     <string name="search_empty_text">Žiadne výsledky.</string>
     <string name="search_failure_text">Niečo sa pokazilo.</string>
-
+    <string name="offline">Žiadne sieťové pripojenie</string>
+    <string name="word_not_found">Slovo sa nenašlo</string>
     <plurals name="numberOfSearchResults">
         <item quantity="one">%d výskyt</item>
         <item quantity="other">%d výskytov</item>
