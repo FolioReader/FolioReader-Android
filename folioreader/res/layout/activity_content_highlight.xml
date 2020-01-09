@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.folioreader.ui.folio.activity.ContentHighlightActivity">
+    tools:context="com.folioreader.ui.activity.ContentHighlightActivity">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -32,9 +32,10 @@
                 android:layout_centerInParent="true"
                 android:layout_margin="16dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_close_green_24dp" />
+                app:srcCompat="@drawable/ic_close_green_24dp" />
 
-            <LinearLayout android:id="@+id/layout_content_highlights"
+            <LinearLayout
+                android:id="@+id/layout_content_highlights"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
@@ -70,11 +71,11 @@
                 android:layout_alignParentBottom="true"
                 android:background="@android:color/black" />
         </RelativeLayout>
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <FrameLayout
         android:id="@+id/parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"/>
+        android:layout_below="@id/toolbar" />
 </RelativeLayout>

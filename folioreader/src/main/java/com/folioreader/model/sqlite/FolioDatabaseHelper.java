@@ -60,7 +60,7 @@ public class FolioDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public final void onUpgrade(final SQLiteDatabase db, final int oldVersion,
                                 final int newVersion) {
-		/* PROTECTED REGION ID(DatabaseUpdate) ENABLED START */
+        /* PROTECTED REGION ID(DatabaseUpdate) ENABLED START */
 
         // TODO Implement your database update functionality here and remove the
         // following method call!
@@ -68,7 +68,7 @@ public class FolioDatabaseHelper extends SQLiteOpenHelper {
         //onCreate(db);
         resetAllPreferences(mContext);
 
-		/* PROTECTED REGION END */
+        /* PROTECTED REGION END */
     }
 
     /**

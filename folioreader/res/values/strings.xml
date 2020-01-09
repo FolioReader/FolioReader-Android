@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">folioreader</string>
+
+    <string name="app_name">FolioReader</string>
+
     <string name="andada">Andada</string>
     <string name="lato">Lato</string>
     <string name="lora">Lora</string>
@@ -66,19 +68,17 @@
     <string name="please_wait_till_audio_is_parsed">please wait till audio is been parsed, Retry after some time</string>
     <string name="audio_mark_id">javascript:alert(audioMarkID(\'epub-media-overlay-playing\',\'%s\'))</string>
     <string name="setmediaoverlaystyle">javascript:setMediaOverlayStyle(\'%s\')</string>
-    <string name="goto_highlight">javascript:gotoHighlight(\'%s\')</string>
-    <string name="getHighlightString">javascript:getHighlightString(\'%s\')</string>
+    <string name="go_to_anchor" translatable="false">javascript:goToAnchor(\'%s\')</string>
+    <string name="go_to_highlight" translatable="false">javascript:goToHighlight(\'%s\')</string>
     <string name="sethighlightstyle">javascript:setHighlightStyle(\'%s\');</string>
-    <string name="css_tag"><![CDATA[<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">]]></string>
+    <string name="css_tag"><![CDATA[<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\" />]]></string>
     <string name="script_tag"><![CDATA[<script type=\"text/javascript\" src=\"%s\"></script>]]></string>
     <string name="td_tag"><![CDATA[<td>%s</td></tr>]]></string>
     <string name="tr_tag"><![CDATA[<tr><td></td><td>%s</td></tr>]]></string>
-    <string name="pattern">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>
-    <!--<string name="pattern2">\\{\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\,\\s\\{(-?\\d+\\.?\\d*)\\,(-?\\d+\\.?\\d*)\\}\\}</string>-->
     <string name="script_tag_method_call"><![CDATA[<script type=\"text/javascript\">%s</script>]]></string>
-  <string name="underline_highlights">
-      <span style="border-bottom: 1px solid #ff0000;">%s</span>
-  </string>
+    <string name="underline_highlights">
+        <span style="border-bottom: 1px solid #ff0000;">%s</span>
+    </string>
     <string name="edit_notes">Save your note</string>
     <string name="save_note">Save note</string>
     <string name="please_enter_note">please enter a note</string>
@@ -91,6 +91,29 @@
     <string name="dictionary">Dictionary</string>
     <string name="wikipedia">Wikipedia</string>
     <string name="cannot_access_epub_message">Cannot open epub it needs storage access !</string>
-    <string name="orientation_horizontal">horizontal</string>
-    <string name="orientation_vertical">vertical</string>
+    <string name="direction_horizontal">Horizontal</string>
+    <string name="direction_vertical">Vertical</string>
+
+    <string name="xhtml_mime_type" translatable="false">application/xhtml+xml</string>
+    <string name="html_mime_type" translatable="false">text/html</string>
+
+    <string name="menu_item_search">Search</string>
+    <string name="menu_item_config">Configuration</string>
+    <string name="menu_item_tts">Text To Speech</string>
+
+    <string name="search_hint">Search In Book</string>
+    <string name="search_empty_text">No results.</string>
+    <string name="search_failure_text">Something wen\'t wrong.</string>
+
+    <plurals name="numberOfSearchResults">
+        <item quantity="one">%d result</item>
+        <item quantity="other">%d results</item>
+    </plurals>
+
+    <!-- JS Calls -->
+    <string name="callComputeLastReadCfi" translatable="false">javascript:computeLastReadCfi()</string>
+    <string name="callScrollToCfi" translatable="false">javascript:scrollToCfi(\"%s\")</string>
+    <string name="callHighlightSearchLocator" translatable="false">javascript:highlightSearchLocator(\"%s\")</string>
+    <string name="callClearSelection" translatable="false">javascript:clearSelection()</string>
+
 </resources>

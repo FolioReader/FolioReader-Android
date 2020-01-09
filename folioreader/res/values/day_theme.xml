@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="FolioActivityDayTheme" parent="Theme.AppCompat.Light">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorAccent">@color/default_theme_accent_color</item>
+        <item name="actionBarStyle">@style/FolioActivityDayTheme.ActionBarStyle</item>
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/black</item>
+    </style>
+
+    <style name="FolioActivityDayTheme.ActionBarStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="titleTextStyle">@style/FolioActivityDayTheme.ActionBarStyle.TitleTextStyle
+        </item>
+    </style>
+
+    <style name="FolioActivityDayTheme.ActionBarStyle.TitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <!-- FolioDayTheme -->
+
+    <color name="day_background_color">#FFFAFAFA</color>
+    <color name="day_popup_window_background">@color/white</color>
+    <color name="day_default_font_color">#000000</color>
+    <color name="day_highlight_delete_fill_color">#333333</color>
+    <color name="day_underline_icon_fill_color_top">#333333</color>
+    <color name="day_scroll_bar_color">#44000000</color>
+
+    <style name="FolioDayTheme" parent="Theme.AppCompat.Light">
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="android:colorBackground">@color/day_background_color</item>
+        <item name="colorAccent">@color/default_theme_accent_color</item>
+        <item name="actionBarStyle">@style/ActionBarDayStyle</item>
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/black</item>
+
+        <item name="defaultFontColor">@color/day_default_font_color</item>
+        <item name="android:textViewStyle">@style/TextViewStyle</item>
+        <item name="searchItemHeaderBackgroundColor">#DDDDDD</item>
+        <item name="dividerColor">#000000</item>
+
+        <item name="popUpWindowBackground">@color/day_popup_window_background</item>
+        <item name="highlightDeleteFillColor">@color/day_highlight_delete_fill_color</item>
+        <item name="underlineIconFillColorTop">@color/day_underline_icon_fill_color_top</item>
+
+        <item name="scrollBarColor">@color/day_scroll_bar_color</item>
+
+    </style>
+
+</resources>

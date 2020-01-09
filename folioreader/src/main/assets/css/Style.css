@@ -33,10 +33,12 @@ footer, header, hgroup, menu, nav, section {
 /* ePUB */
 html {
     -webkit-text-size-adjust: none; /* Never autoresize text */
+    margin: 0 !important;
     padding: 0 0 !important;
 }
 
 body {
+    margin: 0 !important;
     padding: 20px 20px !important;
     overflow: !important;
 }
@@ -85,7 +87,7 @@ b, strong, th {font-weight: bolder !important;}
 /* Forced font overrides */
 code, kbd, pre, samp, tt {
     font-family: monospace, monospace !important;
-    font-size: 1em;
+    font-size: 1rem;
 }
 button, input, select, textarea { display: inline-block !important; }
 /*h1, h2, h3, h4, h5, h6 { font-weight: 400!important; }*/
@@ -98,8 +100,8 @@ hr {
 
 
 /* Sub and Super */
-big { font-size: 1.15em !important; }
-small, sub, sup { font-size: .65em !important; }
+big { font-size: 1.15rem !important; }
+small, sub, sup { font-size: .65rem !important; }
 sub { vertical-align: sub !important; }
 sup {
     font-family: monospace !important;
@@ -194,7 +196,6 @@ html .highlight_yellow, html .highlight_green, html .highlight_blue, html .highl
  */
 
 html {
-    -webkit-transition: all 0.6s ease;
     background-color: #FFFFFF !important;
 }
 
@@ -268,27 +269,27 @@ html.textSizeFour { font-size: 19px !important; }
 html.textSizeFive { font-size: 21px !important; }
 
 h1 {
-    font-size: 2em;
+    font-size: 2rem;
     line-height: 1.2;
 }
 h2 {
-    font-size: 1.5em;
+    font-size: 1.5rem;
     line-height: 1.2;
 }
 h3 {
-    font-size: 1.17em;
+    font-size: 1.17rem;
     line-height: 1.2;
 }
 h4 {
-    font-size: 1em;
+    font-size: 1rem;
     line-height: 1.2;
 }
 h5 {
-    font-size: 0.83em;
+    font-size: 0.83rem;
     line-height: 1.2;
 }
 h6 {
-    font-size: 0.67em;
+    font-size: 0.67rem;
     line-height: 1.2;
 }
 body {
@@ -297,12 +298,11 @@ body {
     hyphens: auto !important;
 }
 p, span, div {
-    font-size: 1em;
     line-height: 1.5 !important;
 }
 @media only screen and (min-device-width: 600px) {
     div {
-        font-size: 1em;
+        font-size: 1rem;
         line-height: 1.438em !important;
     }
     body {

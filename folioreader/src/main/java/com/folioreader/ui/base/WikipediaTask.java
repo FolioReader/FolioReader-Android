@@ -2,10 +2,8 @@ package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
 import android.util.Log;
-
 import com.folioreader.model.dictionary.Wikipedia;
 import com.folioreader.util.AppUtil;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -34,10 +32,12 @@ public class WikipediaTask extends AsyncTask<String, Void, Wikipedia> {
     protected Wikipedia doInBackground(String... strings) {
         String strUrl = strings[0];
         try {
+            Log.v(TAG, "-> doInBackground -> url -> " + strUrl);
             URL url = new URL(strUrl);
             URLConnection urlConnection = url.openConnection();
             InputStream inputStream = urlConnection.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, AppUtil.charsetNameForURLConnection(urlConnection)));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,
+                    AppUtil.charsetNameForURLConnection(urlConnection)));
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {

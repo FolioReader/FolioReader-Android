@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -20,7 +21,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp">
+            android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/btn_close"
@@ -30,10 +31,11 @@
                 android:layout_centerInParent="true"
                 android:layout_margin="16dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_close_green_24dp" />
+                app:srcCompat="@drawable/ic_close_green_24dp" />
 
             <LinearLayout
-                android:layout_width="170dp"
+                android:id="@+id/layout_header"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerInParent="true"
@@ -47,7 +49,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@drawable/style_back_color_selector"
-                    android:gravity="center|end"
+                    android:gravity="center"
                     android:padding="5dp"
                     android:text="@string/dictionary"
                     android:textColor="@drawable/content_highlight_text_selector"
@@ -59,21 +61,22 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@drawable/style_back_color_selector"
-                    android:gravity="center|start"
+                    android:gravity="center"
                     android:padding="5dp"
                     android:text="@string/wikipedia"
                     android:textColor="@drawable/content_highlight_text_selector"
                     android:textSize="16sp" />
             </LinearLayout>
         </RelativeLayout>
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <RelativeLayout
+        android:id="@+id/contentView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar">
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_dict_results"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -93,9 +96,10 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:drawablePadding="8dp"
-            android:drawableTop="@drawable/ic_offline_gray_48dp"
+            android:drawableTop="@drawable/ic_offline_gray_layer_list"
             android:text="offline"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <Button
             android:id="@+id/btn_google_search"
@@ -107,7 +111,8 @@
             android:background="@drawable/round_button"
             android:padding="8dp"
             android:text="Google search"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:visibility="visible" />
 
     </RelativeLayout>
 </RelativeLayout>

@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
+
+    <!--
+        Store only common styles in this file.
+        For theme specific styles -
+        day_theme.xml - Day theme styles
+        night_theme.xml - Night theme styles
+    -->
 
     <style name="Animations" />
 
@@ -54,11 +64,6 @@
         <item name="android:windowExitAnimation">@anim/disappear</item>
     </style>
 
-    <declare-styleable name="UnderlinedTextView">
-        <attr name="underlineWidth" format="dimension" />
-        <attr name="underlineColor" format="color" />
-    </declare-styleable>
-
     <style name="full_screen_dialog" parent="@style/Theme.AppCompat">
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowNoTitle">true</item>
@@ -80,4 +85,49 @@
         <item name="android:windowEnterAnimation">@anim/slide_up</item>
         <item name="android:windowExitAnimation">@anim/slide_down</item>
     </style>
+
+    <style name="TextViewTextSelector" parent="@android:style/Widget.TextView">
+        <item name="android:padding">16dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?defaultFontColor</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:background">?selectableItemBackground</item>
+    </style>
+
+    <style name="ImageViewTextSelectorMarker">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:background">?selectableItemBackground</item>
+    </style>
+
+    <style name="TextViewStyle" parent="@android:style/Widget.TextView">
+        <item name="android:textColor">?defaultFontColor</item>
+    </style>
+
+    <style name="ActionBarDayStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="titleTextStyle">@style/ActionBarDayTitleTextStyle</item>
+    </style>
+
+    <style name="ActionBarDayTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="ActionBarNightStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="background">@color/black</item>
+    </style>
+
+    <style name="ToolbarStyle" parent="@style/Widget.AppCompat.Toolbar">
+        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingEnd" tools:targetApi="jelly_bean_mr1">4dp</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor" tools:targetApi="lollipop">@color/black</item>
+    </style>
+
 </resources>

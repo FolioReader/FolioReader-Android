@@ -1,0 +1,73 @@
+<resources>
+
+    <string name="minutes_left">%1$d minút ·&#160;</string>
+    <string name="minute_left">%1$d minúta ·&#160;</string>
+    <string name="less_than_minute">Menej ako minúta ·&#160;</string>
+
+    <string name="copied">Skopírované</string>
+    <string name="send_to">Poslať</string>
+
+    <string name="copy">Kopírovať</string>
+    <string name="share">Zdieľať</string>
+    <string name="define">Definícia</string>
+    <string name="highlight">Zvýrazniť</string>
+
+    <string name="pages_left">%1$d strán zostáva</string>
+    <string name="page_left">%1$d strana zostáva</string>
+    <string name="highlights">Zvýraznené</string>
+    <string name="half_speed">1/2x</string>
+    <string name="onex">1x</string>
+    <string name="one_and_half">1&#160;1/2x</string>
+    <string name="two_x">2x</string>
+    <string name="style">Štýl</string>
+    <string name="style_underline"><![CDATA[<u style=\" border-bottom: 1px dashed #bcbcbc;   text-decoration: none;\">Štýl</u>]]></string>
+    <string name="titlesMeta">&lt;tr&gt;&lt;td&gt;Názvy:&lt;/td&gt;</string>
+    <string name="authorsMeta">&lt;tr&gt;&lt;td&gt;Autori:&lt;/td&gt;</string>
+    <string name="contributorsMeta">&lt;tr&gt;&lt;td&gt;Prispievatelia:&lt;/td&gt;</string>
+    <string name="languageMeta">&lt;tr&gt;&lt;td&gt;Jazyky:&lt;/td&gt;&lt;td&gt;</string>
+    <string name="publishersMeta">&lt;tr&gt;&lt;td&gt;Vydavatelia:&lt;/td&gt;</string>
+    <string name="typesMeta">&lt;tr&gt;&lt;td&gt;Druhy:&lt;/td&gt;</string>
+    <string name="descriptionsMeta">&lt;tr&gt;&lt;td&gt;Popisy:&lt;/td&gt;</string>
+    <string name="rightsMeta">&lt;tr&gt;&lt;td&gt;Práva:&lt;/td&gt;</string>
+    <string name="tocReference">&lt;tr&gt;&lt;td&gt;Obsah:&lt;/td&gt;</string>
+    <string name="change_Font">Zmeniť písmo</string>
+    <string name="change_Font_Color">Farba písma:</string>
+    <string name="changeStyle">Zmena štýlu</string>
+    <string name="error_CannotChangeStyle">Nie je možné zmeniť štýl!</string>
+    <string name="OK">OK</string>
+    <string name="Cancel">Zrušiť</string>
+    <string name="SetSizeTitle">Veľkosť horného panelu:</string>
+    <string name="LanguageChooserTitle">Vyberte dva jazyky:</string>
+    <string name="loading">Načítava</string>
+    <string name="please_wait">prosím čakajte...</string>
+    <string name="please_wait_till_audio_is_parsed">čakajte prosím na analyzovanie zvuku, o chvíľu skúste znovu</string>
+    <string name="edit_notes">Uložte si poznámku</string>
+    <string name="save_note">Uložiť poznámku</string>
+    <string name="please_enter_note">zadajte poznámku</string>
+    <string name="contents">Obsah</string>
+
+    <string name="dictionary">Slovník</string>
+    <string name="wikipedia">Wikipédia</string>
+    <string name="cannot_access_epub_message">Nie je možné otvoriť elektronickú knihu, je potrebné povoliť práva na zápis do externej pamäte!</string>
+    <string name="direction_horizontal">Horizontálne</string>
+    <string name="direction_vertical">Vertikálne</string>
+
+    <string name="menu_item_copy">Kopírovať</string>
+    <string name="menu_item_highlight">Zvýrazniť</string>
+    <string name="menu_item_define">Definícia</string>
+    <string name="menu_item_share">Zdieľať</string>
+
+    <string name="menu_item_search">Vyhľadávanie</string>
+    <string name="menu_item_config">Nastavenia</string>
+    <string name="menu_item_tts">Prevod textu na reč</string>
+
+    <string name="search_hint">Vyhľadávanie v knihe</string>
+    <string name="search_empty_text">Žiadne výsledky.</string>
+    <string name="search_failure_text">Niečo sa pokazilo.</string>
+
+    <plurals name="numberOfSearchResults">
+        <item quantity="one">%d výskyt</item>
+        <item quantity="other">%d výskytov</item>
+    </plurals>
+
+</resources>

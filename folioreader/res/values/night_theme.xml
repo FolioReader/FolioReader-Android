@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="FolioActivityNightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorAccent">@color/default_theme_accent_color</item>
+        <!-- For ripple color -->
+        <item name="colorControlHighlight">#666666</item>
+        <item name="actionBarStyle">@style/FolioActivityNightTheme.ActionBarStyle</item>
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
+        <item name="android:windowBackground">@color/webview_night</item>
+    </style>
+
+    <style name="FolioActivityNightTheme.ActionBarStyle" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="titleTextStyle">@style/FolioActivityNightTheme.ActionBarStyle.TitleTextStyle
+        </item>
+        <item name="background">@color/black</item>
+    </style>
+
+    <style name="FolioActivityNightTheme.ActionBarStyle.TitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/night_title_text_color</item>
+    </style>
+
+    <!-- FolioNightTheme -->
+
+    <color name="night_background_color">@color/webview_night</color>
+    <color name="night_popup_window_background">#070707</color>
+    <color name="night_default_font_color">#767676</color>
+    <color name="night_highlight_delete_fill_color">#888888</color>
+    <color name="night_underline_icon_fill_color_top">#888888</color>
+    <color name="night_scroll_bar_color">#44FFFFFF</color>
+
+    <style name="FolioNightTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorAccent">@color/default_theme_accent_color</item>
+        <!-- For ripple color -->
+        <item name="colorControlHighlight">#666666</item>
+        <item name="actionBarStyle">@style/ActionBarNightStyle</item>
+        <item name="android:colorBackground">@color/night_background_color</item>
+        <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/black</item>
+
+        <item name="defaultFontColor">@color/night_default_font_color</item>
+        <item name="android:textViewStyle">@style/TextViewStyle</item>
+        <item name="searchItemHeaderBackgroundColor">#222222</item>
+        <item name="dividerColor">#666666</item>
+
+        <item name="popUpWindowBackground">@color/night_popup_window_background</item>
+        <item name="highlightDeleteFillColor">@color/night_highlight_delete_fill_color</item>
+        <item name="underlineIconFillColorTop">@color/night_underline_icon_fill_color_top</item>
+
+        <item name="scrollBarColor">@color/night_scroll_bar_color</item>
+
+    </style>
+
+</resources>

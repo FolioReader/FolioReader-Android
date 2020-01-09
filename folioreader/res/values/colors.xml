@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+
+    <color name="default_theme_accent_color">#71C951</color>
     <color name="transparent_black">#80000000</color>
     <color name="borders">#F1EFF2</color>
     <color name="black">#000000</color>
     <color name="night">#322D32</color>
     <color name="dark_night">#090609</color>
-    <color name="app_green">#71C951</color>
     <color name="app_gray">#bcbcbc</color>
-    <color name="yellow">#FFEB6B</color>
-    <color name="green">#C0ED72</color>
-    <color name="blue">#ADD8FF</color>
-    <color name="pink">#FFB0CA</color>
+
     <color name="gray_text">#B6B6B6</color>
     <color name="red">#ff0000</color>
-    <color name="text_color">#767676</color>
+    <color name="night_text_color">#767676</color>
+    <color name="night_title_text_color">#848484</color>
     <color name="white">#FFFFFF</color>
     <color name="underline">#F02814</color>
     <color name="grey_color">#a8a8a8</color>
+    <color name="webview_night">#131313</color>
+
+    <color name="edit_text_hint_color">#AAAAAA</color>
+
+    <color name="highlight_yellow">#FFEB6B</color>
+    <color name="highlight_green">#C0ED72</color>
+    <color name="highlight_blue">#ADD8FF</color>
+    <color name="highlight_pink">#FFB0CA</color>
+
 </resources>

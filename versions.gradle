@@ -1,0 +1,28 @@
+def versions = [:]
+
+versions.folioreaderSdk = "0.5.4"
+versions.r2SharedKotlin = "1.0.4-2"
+versions.r2StreamerKotlin = "1.0.4-2"
+
+versions.projectVersionCode = 1
+versions.projectVersionName = "1.0"
+
+versions.androidMinSdk = 21
+versions.androidCompileSdk = 28
+versions.androidTargetSdk = 28
+
+versions.androidGradlePlugin = "3.5.3"
+versions.kotlin = "1.3.11"
+
+versions.appcompat = "1.1.0"
+versions.constraintLayout = "1.1.3"
+versions.recyclerview = "1.1.0"
+versions.material = "1.0.0"
+
+versions.retrofit = "2.5.0"
+versions.jackson = "2.9.7"
+versions.gson = "2.8.5"
+
+versions.lifecycle = "2.1.0"
+
+ext.versions = versions

@@ -1,7 +1,6 @@
 package com.folioreader.ui.base;
 
 import android.content.Context;
-
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
@@ -20,44 +19,42 @@ public final class HtmlUtil {
      * @return modified raw html string
      */
     public static String getHtmlContent(Context context, String htmlContent, Config config) {
+
         String cssPath =
                 String.format(context.getString(R.string.css_tag), "file:///android_asset/css/Style.css");
 
-
         String jsPath = String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/js/jsface.min.js");
-        jsPath =
-                jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/js/jquery-3.1.1.min.js");
+                "file:///android_asset/js/jsface.min.js") + "\n";
 
-        jsPath =
-                jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/js/rangy-core.js");
-        jsPath =
-                jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/js/rangy-highlighter.js");
-        jsPath =
-                jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/js/rangy-classapplier.js");
-        jsPath =
-                jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/js/rangy-serializer.js");
-        jsPath =
-                jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/js/rangy-serializer.js");
-        jsPath =
-                jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/js/Bridge.js");
+        jsPath = jsPath + String.format(context.getString(R.string.script_tag),
+                "file:///android_asset/js/jquery-3.4.1.min.js") + "\n";
 
-        jsPath =
-                jsPath + String.format(context.getString(R.string.script_tag),
-                        "file:///android_asset/android.selection.js");
-        jsPath =
-                jsPath + String.format(context.getString(R.string.script_tag_method_call),
-                        "setMediaOverlayStyleColors('#C0ED72','#C0ED72')");
+        jsPath = jsPath + String.format(context.getString(R.string.script_tag),
+                "file:///android_asset/js/rangy-core.js") + "\n";
 
-        jsPath =
-                jsPath + "<meta name=\"viewport\" content=\"height=device-height, user-scalable=no\" />";
+        jsPath = jsPath + String.format(context.getString(R.string.script_tag),
+                "file:///android_asset/js/rangy-highlighter.js") + "\n";
+
+        jsPath = jsPath + String.format(context.getString(R.string.script_tag),
+                "file:///android_asset/js/rangy-classapplier.js") + "\n";
+
+        jsPath = jsPath + String.format(context.getString(R.string.script_tag),
+                "file:///android_asset/js/rangy-serializer.js") + "\n";
+
+        jsPath = jsPath + String.format(context.getString(R.string.script_tag),
+                "file:///android_asset/js/Bridge.js") + "\n";
+
+        jsPath = jsPath + String.format(context.getString(R.string.script_tag),
+                "file:///android_asset/js/rangefix.js") + "\n";
+
+        jsPath = jsPath + String.format(context.getString(R.string.script_tag),
+                "file:///android_asset/js/readium-cfi.umd.js") + "\n";
+
+        jsPath = jsPath + String.format(context.getString(R.string.script_tag_method_call),
+                "setMediaOverlayStyleColors('#C0ED72','#C0ED72')") + "\n";
+
+        jsPath = jsPath
+                + "<meta name=\"viewport\" content=\"height=device-height, user-scalable=no\" />";
 
         String toInject = "\n" + cssPath + "\n" + jsPath + "\n</head>";
         htmlContent = htmlContent.replace("</head>", toInject);
@@ -104,7 +101,8 @@ public final class HtmlUtil {
                 break;
         }
 
-        htmlContent = htmlContent.replace("<html ", "<html class=\"" + classes + "\" ");
+        htmlContent = htmlContent.replace("<html", "<html class=\"" + classes + "\"" +
+                " onclick=\"onClickHtml()\"");
         return htmlContent;
     }
 }

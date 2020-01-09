@@ -1,6 +1,6 @@
 //
 //  Bridge.js
-//  FolioReaderKit
+//  FolioReader-Android
 //
 //  Created by Heberti Almeida on 06/05/15.
 //  Copyright (c) 2015 Folio Reader. All rights reserved.
@@ -10,75 +10,40 @@ var thisHighlight;
 var audioMarkClass;
 var wordsPerMinute = 180;
 
-document.addEventListener("DOMContentLoaded", function(event) {
-//    var lnk = document.getElementsByClassName("lnk");
-//    for (var i=0; i<lnk.length; i++) {
-//        lnk[i].setAttribute("onclick","return callVerseURL(this);");
-//    }
+var Direction = Object.freeze({
+    VERTICAL: "VERTICAL",
+    HORIZONTAL: "HORIZONTAL"
 });
 
-// Generate a GUID
-function guid() {
-    function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-    }
-    var guid = s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-    return guid.toUpperCase();
-}
+var DisplayUnit = Object.freeze({
+    PX: "PX",
+    DP: "DP",
+    CSS_PX: "CSS_PX"
+});
 
-// Get All HTML
-function getHTML() {
-    Highlight.getHtmlAndSaveHighlight(document.documentElement.outerHTML);
-    //return document.documentElement.outerHTML;
-}
+var scrollWidth;
+var horizontalInterval;
+var horizontalIntervalPeriod = 1000;
+var horizontalIntervalCounter = 0;
+var horizontalIntervalLimit = 3000;
+
+var viewportRect;
 
 // Class manipulation
-function hasClass(ele,cls) {
-  return !!ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
+function hasClass(ele, cls) {
+    return !!ele.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
 }
 
-function addClass(ele,cls) {
-  if (!hasClass(ele,cls)) ele.className += " "+cls;
+function addClass(ele, cls) {
+    if (!hasClass(ele, cls)) ele.className += " " + cls;
 }
 
-function removeClass(ele,cls) {
-  if (hasClass(ele,cls)) {
-    var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
-    ele.className=ele.className.replace(reg,' ');
-  }
-}
-
-// Font name class
-function setFontName(cls) {
-    var elm = document.documentElement;
-    removeClass(elm, "andada");
-    removeClass(elm, "lato");
-    removeClass(elm, "lora");
-    removeClass(elm, "raleway");
-    addClass(elm, cls);
-}
-
-// Toggle night mode
-function nightMode(enable) {
-    var elm = document.documentElement;
-    if(enable) {
-        addClass(elm, "nightMode");
-    } else {
-        removeClass(elm, "nightMode");
+function removeClass(ele, cls) {
+    if (hasClass(ele, cls)) {
+        var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
+        ele.className = ele.className.replace(reg, ' ');
     }
 }
-
-// Set font size
-function setFontSize(cls) {
-    var elm = document.documentElement;
-    removeClass(elm, "textSizeOne");
-    removeClass(elm, "textSizeTwo");
-    removeClass(elm, "textSizeThree");
-    removeClass(elm, "textSizeFour");
-    removeClass(elm, "textSizeFive");
-    addClass(elm, cls);
-}
-
 
 // Menu colors
 function setHighlightStyle(style) {
@@ -103,30 +68,14 @@ function getBodyText() {
     return document.body.innerText;
 }
 
-// Method that returns only selected text plain
-var getSelectedText = function() {
-    return window.getSelection().toString();
-}
-
 // Method that gets the Rect of current selected text
 // and returns in a JSON format
-var getRectForSelectedText = function(elm) {
+var getRectForSelectedText = function (elm) {
     if (typeof elm === "undefined") elm = window.getSelection().getRangeAt(0);
 
     var rect = elm.getBoundingClientRect();
     return "{{" + rect.left + "," + rect.top + "}, {" + rect.width + "," + rect.height + "}}";
-}
-
-// Method that call that a hightlight was clicked
-// with URL scheme and rect informations
-var callHighlightURL = function(elm) {
-	event.stopPropagation();
-	var URLBase = "highlight://";
-    var currentHighlightRect = getRectForSelectedText(elm);
-    thisHighlight = elm;
-
-    window.location = URLBase + encodeURIComponent(currentHighlightRect);
-}
+};
 
 // Reading time
 function getReadingTime() {
@@ -139,51 +88,53 @@ function getReadingTime() {
     return readingTimeMinutes;
 }
 
-/**
- Get Vertical or Horizontal paged #anchor offset
- */
-var getAnchorOffset = function(target, horizontal) {
-    var elem = document.getElementById(target);
-
-    if (!elem) {
-        elem = document.getElementsByName(target)[0];
-    }
-
-    if (horizontal) {
-        return document.body.clientWidth * Math.floor(elem.offsetTop / window.innerHeight);
-    }
-
-    return elem.offsetTop;
-}
-
 function scrollAnchor(id) {
     window.location.hash = id;
 }
 
-function findElementWithID(node) {
-    if( !node || node.tagName == "BODY")
-        return null
-    else if( node.id )
-        return node
-    else
-        return findElementWithID(node)
+/**
+ Remove All Classes - removes the given class from all elements in the DOM
+ */
+function removeAllClasses(className) {
+    var els = document.body.getElementsByClassName(className)
+    if (els.length > 0)
+        for (i = 0; i <= els.length; i++) {
+            els[i].classList.remove(className);
+        }
 }
 
-function findElementWithIDInView() {
+/**
+ Audio Mark ID - marks an element with an ID with the given class and scrolls to it
+ */
+function audioMarkID(className, id) {
+    if (audioMarkClass)
+        removeAllClasses(audioMarkClass);
 
-    if(audioMarkClass) {
-        // attempt to find an existing "audio mark"
-        var el = document.querySelector("."+audioMarkClass)
+    audioMarkClass = className
+    var el = document.getElementById(id);
 
-        // if that existing audio mark exists and is in view, use it
-        if( el && el.offsetTop > document.body.scrollTop && el.offsetTop < (window.innerHeight + document.body.scrollTop))
-            return el
-    }
+    scrollToNodeOrRange(el);
+    el.classList.add(className)
+}
 
+function setMediaOverlayStyle(style) {
+    document.documentElement.classList.remove("mediaOverlayStyle0", "mediaOverlayStyle1", "mediaOverlayStyle2")
+    document.documentElement.classList.add(style)
+}
+
+function setMediaOverlayStyleColors(color, colorHighlight) {
+    var stylesheet = document.styleSheets[document.styleSheets.length - 1];
+//    stylesheet.insertRule(".mediaOverlayStyle0 span.epub-media-overlay-playing { background: "+colorHighlight+" !important }")
+//    stylesheet.insertRule(".mediaOverlayStyle1 span.epub-media-overlay-playing { border-color: "+color+" !important }")
+//    stylesheet.insertRule(".mediaOverlayStyle2 span.epub-media-overlay-playing { color: "+color+" !important }")
+}
+
+var currentIndex = -1;
+
+
+function findSentenceWithIDInView(els) {
     // @NOTE: is `span` too limiting?
-    var els = document.querySelectorAll("span[id]")
-
-    for(indx in els) {
+    for (indx in els) {
         var element = els[indx];
 
         // Horizontal scroll
@@ -192,11 +143,13 @@ function findElementWithIDInView() {
             // document.body.scrollLeft = elLeft;
 
             if (elLeft == document.body.scrollLeft) {
+                currentIndex = indx;
                 return element;
             }
 
-        // Vertical
-        } else if(element.offsetTop > document.body.scrollTop) {
+            // Vertical
+        } else if (element.offsetTop > document.body.scrollTop) {
+            currentIndex = indx;
             return element;
         }
     }
@@ -204,105 +157,426 @@ function findElementWithIDInView() {
     return null
 }
 
+function findNextSentenceInArray(els) {
+    if (currentIndex >= 0) {
+        currentIndex++;
+        return els[currentIndex];
+    }
 
-/**
- Play Audio - called by native UIMenuController when a user selects a bit of text and presses "play"
- */
-function playAudio() {
+    return null
+}
+
+function resetCurrentSentenceIndex() {
+    currentIndex = -1;
+}
+
+function rewindCurrentIndex() {
+    currentIndex = currentIndex - 1;
+}
+
+function getSentenceWithIndex(className) {
+    var sentence;
     var sel = getSelection();
     var node = null;
+    var elements = document.querySelectorAll("span.sentence");
 
-    // user selected text? start playing from the selected node
+    // Check for a selected text, if found start reading from it
     if (sel.toString() != "") {
-        node = sel.anchorNode ? findElementWithID(sel.anchorNode.parentNode) : null;
+        console.log(sel.anchorNode.parentNode);
+        node = sel.anchorNode.parentNode;
 
-    // find the first ID'd element that is within view (it will
+        if (node.className == "sentence") {
+            sentence = node;
+
+            for (var i = 0, len = elements.length; i < len; i++) {
+                if (elements[i] === sentence) {
+                    currentIndex = i;
+                    break;
+                }
+            }
+        } else {
+            sentence = findSentenceWithIDInView(elements);
+        }
+    } else if (currentIndex < 0) {
+        sentence = findSentenceWithIDInView(elements);
     } else {
-        node = findElementWithIDInView()
+        sentence = findNextSentenceInArray(elements);
     }
 
-    playAudioFragmentID(node ? node.id : null)
+    var text = sentence.innerText || sentence.textContent;
+
+    scrollToNodeOrRange(sentence);
+
+    if (audioMarkClass) {
+        removeAllClasses(audioMarkClass);
+    }
+
+    audioMarkClass = className;
+    sentence.classList.add(className);
+    return text;
 }
 
+$(function () {
+    window.ssReader = Class({
+        $singleton: true,
 
-/**
- Play Audio Fragment ID - tells page controller to begin playing audio from the following ID
- */
-function playAudioFragmentID(fragmentID) {
-    var URLBase = "play-audio://";
-    window.location = URLBase + (fragmentID?encodeURIComponent(fragmentID):"")
-}
+        init: function () {
+            rangy.init();
 
-function bodyOrHtml() {
-    if ('scrollingElement' in document) {
-        return document.scrollingElement;
+            this.highlighter = rangy.createHighlighter();
+
+            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_yellow", {
+                ignoreWhiteSpace: true,
+                tagNames: ["span", "a"]
+            }));
+
+            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_green", {
+                ignoreWhiteSpace: true,
+                tagNames: ["span", "a"]
+            }));
+
+            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_blue", {
+                ignoreWhiteSpace: true,
+                tagNames: ["span", "a"]
+            }));
+
+            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_pink", {
+                ignoreWhiteSpace: true,
+                tagNames: ["span", "a"]
+            }));
+
+            this.highlighter.addClassApplier(rangy.createClassApplier("highlight_underline", {
+                ignoreWhiteSpace: true,
+                tagNames: ["span", "a"]
+            }));
+
+        },
+
+        setFontAndada: function () {
+            this.setFont("andada");
+        },
+
+        setFontLato: function () {
+            this.setFont("lato");
+        },
+
+        setFontPtSerif: function () {
+            this.setFont("pt-serif");
+        },
+
+        setFontPtSans: function () {
+            this.setFont("pt-sans");
+        },
+
+        base64encode: function (str) {
+            return btoa(unescape(encodeURIComponent(str)));
+        },
+
+        base64decode: function (str) {
+            return decodeURIComponent(escape(atob(str)));
+        },
+
+        clearSelection: function () {
+            if (window.getSelection) {
+                if (window.getSelection().empty) {  // Chrome
+                    window.getSelection().empty();
+                } else if (window.getSelection().removeAllRanges) {  // Firefox
+                    window.getSelection().removeAllRanges();
+                }
+            } else if (document.selection) {  // IE?
+                document.selection.empty();
+            }
+        },
+
+        // Public methods
+
+        setFont: function (fontName) {
+            $("#ss-wrapper-font").removeClass().addClass("ss-wrapper-" + fontName);
+        },
+
+        setSize: function (size) {
+            $("#ss-wrapper-size").removeClass().addClass("ss-wrapper-" + size);
+        },
+
+        setTheme: function (theme) {
+            $("body, #ss-wrapper-theme").removeClass().addClass("ss-wrapper-" + theme);
+        },
+
+        setComment: function (comment, inputId) {
+            $("#" + inputId).val(ssReader.base64decode(comment));
+            $("#" + inputId).trigger("input", ["true"]);
+        },
+
+        highlightSelection: function (color) {
+            try {
+
+                this.highlighter.highlightSelection(color, null);
+                var range = window.getSelection().toString();
+                var params = {content: range, rangy: this.getHighlights(), color: color};
+                this.clearSelection();
+                Highlight.onReceiveHighlights(JSON.stringify(params));
+            } catch (err) {
+                console.log("highlightSelection : " + err);
+            }
+        },
+
+        unHighlightSelection: function () {
+            try {
+                this.highlighter.unhighlightSelection();
+                Highlight.onReceiveHighlights(this.getHighlights());
+            } catch (err) {
+            }
+        },
+
+        getHighlights: function () {
+            try {
+                return this.highlighter.serialize();
+            } catch (err) {
+            }
+        },
+
+        setHighlights: function (serializedHighlight) {
+            try {
+                this.highlighter.removeAllHighlights();
+                this.highlighter.deserialize(serializedHighlight);
+            } catch (err) {
+            }
+        },
+
+        removeAll: function () {
+            try {
+                this.highlighter.removeAllHighlights();
+            } catch (err) {
+            }
+        },
+
+        copy: function () {
+            SSBridge.onCopy(window.getSelection().toString());
+            this.clearSelection();
+        },
+
+        share: function () {
+            SSBridge.onShare(window.getSelection().toString());
+            this.clearSelection();
+        },
+
+        search: function () {
+            SSBridge.onSearch(window.getSelection().toString());
+            this.clearSelection();
+        }
+    });
+
+    if (typeof ssReader !== "undefined") {
+        ssReader.init();
     }
-    // Fallback for legacy browsers
-    if (navigator.userAgent.indexOf('WebKit') != -1) {
-        return document.body;
-    }
-    return document.documentElement;
-}
 
-/**
- Go To Element - scrolls the webview to the requested element
- */
-function goToElement(element) {
+    $(".verse").click(function () {
+        SSBridge.onVerseClick(ssReader.base64encode($(this).attr("verse")));
+    });
 
-    var scrollingElement = bodyOrHtml();
-    var top = scrollingElement.scrollTop;
-    var elementTop = element.offsetTop - 20;
-    var bottom = window.innerHeight + top;
-    var elementBottom = element.offsetHeight + element.offsetTop + 60;
+    $("code").each(function (i) {
+        var textarea = $("<textarea class='textarea'/>").attr("id", "input-" + i).on("input propertychange", function (event, isInit) {
+            $(this).css({'height': 'auto', 'overflow-y': 'hidden'}).height(this.scrollHeight);
+            $(this).next().css({'height': 'auto', 'overflow-y': 'hidden'}).height(this.scrollHeight);
 
-    //console.log(window);
-    //console.log("-> top = " + top);
-    //console.log("-> elementTop = " + elementTop);
-    //console.log("-> bottom = " + bottom);
-    //console.log("-> elementBottom = " + elementBottom);
+            if (!isInit) {
+                var that = this;
+                if (timeout !== null) {
+                    clearTimeout(timeout);
+                }
+                timeout = setTimeout(function () {
+                    SSBridge.onCommentsClick(
+                        ssReader.base64encode($(that).val()),
+                        $(that).attr("id")
+                    );
+                }, 1000);
+            }
+        });
+        var border = $("<div class='textarea-border' />");
+        var container = $("<div class='textarea-container' />");
 
-    if (FolioPageFragment.getDirection() == "VERTICAL" &&
-            (elementBottom > bottom || elementTop < top)) {
+        $(textarea).appendTo(container);
+        $(border).appendTo(container);
 
-        var newScrollTop = elementTop;
-        //console.log("-> newScrollTop = " + newScrollTop);
-        scrollingElement.scrollTop = newScrollTop;
+        $(this).after(container);
+    });
+});
 
-    } else if (FolioPageFragment.getDirection() == "HORIZONTAL" && top == 0) {
-
-        var windowVisibleWidth = document.documentElement.clientWidth;
-        var pageIndex = Math.floor(element.offsetLeft / windowVisibleWidth);
-        var newScrollLeft = windowVisibleWidth * pageIndex;
-        //console.log("-> newScrollLeft = " + newScrollLeft);
-        scrollingElement.scrollLeft = newScrollLeft;
-        WebViewPager.setCurrentPage(pageIndex);
-    }
-
-    return element;
-}
-
-/**
- Remove All Classes - removes the given class from all elements in the DOM
- */
-function removeAllClasses(className) {
-    var els = document.body.getElementsByClassName(className)
-    if( els.length > 0 )
-    for( i = 0; i <= els.length; i++) {
-        els[i].classList.remove(className);
-    }
+function array_diff(array1, array2) {
+    var difference = $.grep(array1, function (el) {
+        return $.inArray(el, array2) < 0
+    });
+    return difference.concat($.grep(array2, function (el) {
+        return $.inArray(el, array1) < 0
+    }));
+    ;
 }
 
 //For testing purpose only
-function sleep(seconds)
-{
-  var e = new Date().getTime() + (seconds * 1000);
-  while (new Date().getTime() <= e) {}
+function sleep(seconds) {
+    var e = new Date().getTime() + (seconds * 1000);
+    while (new Date().getTime() <= e) {
+    }
+}
+
+// Mock objects for testing purpose
+/*var FolioPageFragment = {
+
+    setHorizontalPageCount : function(pageCount) {
+        console.warn("-> Mock call to FolioPageFragment.setHorizontalPageCount(" + pageCount + ")");
+    },
+
+    storeFirstVisibleSpan : function(usingId, value) {
+        console.warn("-> Mock call to FolioPageFragment.storeFirstVisibleSpan(" + usingId + ", " + value + ")");
+    },
+
+    getDirection : function() {
+        //var direction = Direction.VERTICAL;
+        var direction = Direction.HORIZONTAL;
+        console.warn("-> Mock call to FolioPageFragment.getDirection(), return " + direction);
+        return direction;
+    },
+
+    getTopDistraction : function() {
+        console.warn("-> Mock call to FolioPageFragment.getTopDistraction(), return " + 0);
+        return 0;
+    },
+
+    getBottomDistraction : function() {
+        console.warn("-> Mock call to FolioPageFragment.getBottomDistraction(), return " + 0);
+        return 0;
+    }
+};
+
+var FolioWebView = {
+
+    setCompatMode : function(compatMode) {
+        console.warn("-> Mock call to FolioWebView.setCompatMode(" + compatMode + ")");
+    }
+};
+
+var WebViewPager = {
+
+    setCurrentPage : function(pageIndex) {
+        console.warn("-> Mock call to WebViewPager.setCurrentPage(" + pageIndex + ")");
+    },
+
+    setPageToLast : function() {
+        console.warn("-> Mock call to WebViewPager.setPageToLast()");
+    },
+
+    setPageToFirst : function() {
+        console.warn("-> Mock call to WebViewPager.setPageToFirst()");
+    }
+};
+
+var LoadingView = {
+
+    show : function() {
+        console.warn("-> Mock call to LoadingView.show()");
+    },
+
+    hide : function() {
+        console.warn("-> Mock call to LoadingView.hide()");
+    },
+
+    visible : function() {
+        console.warn("-> Mock call to LoadingView.visible()");
+    },
+
+    invisible : function() {
+        console.warn("-> Mock call to LoadingView.invisible()");
+    }
+};*/
+
+function goToHighlight(highlightId) {
+    var element = document.getElementById(highlightId.toString());
+    if (element)
+        scrollToNodeOrRange(element);
+
+    LoadingView.hide();
+}
+
+function goToAnchor(anchorId) {
+    var element = document.getElementById(anchorId);
+    if (element)
+        scrollToNodeOrRange(element);
+
+    LoadingView.hide();
+}
+
+function scrollToLast() {
+    console.log("-> scrollToLast");
+
+    var direction = FolioWebView.getDirection();
+    var scrollingElement = bodyOrHtml();
+
+    switch (direction) {
+        case Direction.VERTICAL:
+            scrollingElement.scrollTop =
+                scrollingElement.scrollHeight - document.documentElement.clientHeight;
+            break;
+        case Direction.HORIZONTAL:
+            scrollingElement.scrollLeft =
+                scrollingElement.scrollWidth - document.documentElement.clientWidth;
+            WebViewPager.setPageToLast();
+            break;
+    }
+
+    LoadingView.hide();
+}
+
+function scrollToFirst() {
+    console.log("-> scrollToFirst");
+
+    var direction = FolioWebView.getDirection();
+    var scrollingElement = bodyOrHtml();
+
+    switch (direction) {
+        case Direction.VERTICAL:
+            scrollingElement.scrollTop = 0;
+            break;
+        case Direction.HORIZONTAL:
+            scrollingElement.scrollLeft = 0;
+            WebViewPager.setPageToFirst();
+            break;
+    }
+
+    LoadingView.hide();
+}
+
+function checkCompatMode() {
+    if (document.compatMode === "BackCompat") {
+        console.error("-> Web page loaded in Quirks mode. Please report to developer " +
+            "for debugging with current EPUB file, as many features might stop working " +
+            "(ex. Horizontal scroll feature).")
+    }
+}
+
+function horizontalRecheck() {
+
+    horizontalIntervalCounter += horizontalIntervalPeriod;
+
+    if (window.scrollWidth != document.documentElement.scrollWidth) {
+        // Rare condition
+        // This might happen when document.documentElement.scrollWidth gives incorrect value
+        // when the webview is busy re-drawing contents.
+        //console.log("-> horizontalIntervalCounter = " + horizontalIntervalCounter);
+        console.warn("-> scrollWidth changed from " + window.scrollWidth + " to " +
+            document.documentElement.scrollWidth);
+        postInitHorizontalDirection();
+    }
+
+    if (horizontalIntervalCounter >= horizontalIntervalLimit)
+        clearInterval(horizontalInterval);
 }
 
 function initHorizontalDirection() {
+
     preInitHorizontalDirection();
-    var pageCount = postInitHorizontalDirection();
-    FolioPageFragment.setHorizontalPageCount(pageCount);
+    postInitHorizontalDirection();
+
+    horizontalInterval = setInterval(horizontalRecheck, horizontalIntervalPeriod);
 }
 
 function preInitHorizontalDirection() {
@@ -312,7 +586,9 @@ function preInitHorizontalDirection() {
     var htmlElement = document.getElementsByTagName('html')[0];
     var bodyElement = document.getElementsByTagName('body')[0];
 
-	htmlElement.style.width = null;
+    // Required when initHorizontalDirection() is called multiple times.
+    // Currently it is called only once per page.
+    htmlElement.style.width = null;
     bodyElement.style.width = null;
     htmlElement.style.height = null;
     bodyElement.style.height = null;
@@ -331,9 +607,12 @@ function preInitHorizontalDirection() {
 
     bodyElement.style.webkitColumnGap = (paddingLeft + paddingRight) + 'px';
     bodyElement.style.webkitColumnWidth = pageWidth + 'px';
+    bodyElement.style.columnFill = 'auto';
 
     //console.log("-> window.innerWidth = " + window.innerWidth);
     //console.log("-> window.innerHeight = " + window.innerHeight);
+    //console.log("-> clientWidth = " + document.documentElement.clientWidth);
+    //console.log("-> clientHeight = " + document.documentElement.clientHeight);
     //console.log("-> bodyElement.offsetWidth = " + bodyElement.offsetWidth);
     //console.log("-> bodyElement.offsetHeight = " + bodyElement.offsetHeight);
     //console.log("-> pageWidth = " + pageWidth);
@@ -352,622 +631,310 @@ function postInitHorizontalDirection() {
     var paddingRight = parseInt(bodyStyle.paddingRight, 10);
     var paddingBottom = parseInt(bodyStyle.paddingBottom, 10);
     var paddingLeft = parseInt(bodyStyle.paddingLeft, 10);
-    var windowVisibleWidth = document.documentElement.clientWidth;
+    var clientWidth = document.documentElement.clientWidth;
 
-    var scrollWidth = document.documentElement.scrollWidth + paddingRight;
+    var scrollWidth = document.documentElement.scrollWidth;
+    //console.log("-> document.documentElement.offsetWidth = " + document.documentElement.offsetWidth);
+    if (scrollWidth > clientWidth
+        && scrollWidth > document.documentElement.offsetWidth) {
+        scrollWidth += paddingRight;
+    }
     var newBodyWidth = scrollWidth - (paddingLeft + paddingRight);
+    window.scrollWidth = scrollWidth;
 
     htmlElement.style.width = scrollWidth + 'px';
     bodyElement.style.width = newBodyWidth + 'px';
 
-    var pageCount = Math.round(scrollWidth / windowVisibleWidth);
+    // pageCount deliberately rounded instead of ceiling to avoid any unexpected error
+    var pageCount = Math.round(scrollWidth / clientWidth);
+    var pageCountFloat = scrollWidth / clientWidth;
+
+    if (pageCount != pageCountFloat) {
+        console.warn("-> pageCount = " + pageCount + ", pageCountFloat = " + pageCountFloat
+            + ", Something wrong in pageCount calculation");
+    }
+
     //console.log("-> scrollWidth = " + scrollWidth);
-    //console.log("-> windowVisibleWidth = " + windowVisibleWidth);
     //console.log("-> newBodyWidth = " + newBodyWidth);
     //console.log("-> pageCount = " + pageCount);
 
-    return pageCount;
+    FolioPageFragment.setHorizontalPageCount(pageCount);
+}
+
+// TODO -> Check if this is required?
+function bodyOrHtml() {
+    if ('scrollingElement' in document) {
+        return document.scrollingElement;
+    }
+    // Fallback for legacy browsers
+    if (navigator.userAgent.indexOf('WebKit') != -1) {
+        return document.body;
+    }
+    return document.documentElement;
 }
 
 /**
- Audio Mark ID - marks an element with an ID with the given class and scrolls to it
+ * @param {(Element|Text|Range)} nodeOrRange
+ * @returns {(Element|Text|Range)} nodeOrRange
  */
-function audioMarkID(className, id) {
-    if (audioMarkClass)
-        removeAllClasses(audioMarkClass);
+function scrollToNodeOrRange(nodeOrRange) {
 
-    audioMarkClass = className
-    var el = document.getElementById(id);
+    var scrollingElement = bodyOrHtml();
+    var direction = FolioWebView.getDirection();
 
-    goToElement(el);
-    el.classList.add(className)
-}
+    // For Direction.VERTICAL
+    var nodeOffsetTop, nodeOffsetHeight;
 
-function setMediaOverlayStyle(style){
-    document.documentElement.classList.remove("mediaOverlayStyle0", "mediaOverlayStyle1", "mediaOverlayStyle2")
-    document.documentElement.classList.add(style)
-}
+    // For Direction.HORIZONTAL
+    var nodeOffsetLeft;
 
-function setMediaOverlayStyleColors(color, colorHighlight) {
-    var stylesheet = document.styleSheets[document.styleSheets.length-1];
-//    stylesheet.insertRule(".mediaOverlayStyle0 span.epub-media-overlay-playing { background: "+colorHighlight+" !important }")
-//    stylesheet.insertRule(".mediaOverlayStyle1 span.epub-media-overlay-playing { border-color: "+color+" !important }")
-//    stylesheet.insertRule(".mediaOverlayStyle2 span.epub-media-overlay-playing { color: "+color+" !important }")
-}
+    if (nodeOrRange instanceof Range || nodeOrRange.nodeType === Node.TEXT_NODE) {
 
-var currentIndex = -1;
-
-
-function findSentenceWithIDInView(els) {
-    // @NOTE: is `span` too limiting?
-    for(indx in els) {
-        var element = els[indx];
-
-        // Horizontal scroll
-        if (document.body.scrollTop == 0) {
-            var elLeft = document.body.clientWidth * Math.floor(element.offsetTop / window.innerHeight);
-            // document.body.scrollLeft = elLeft;
-
-            if (elLeft == document.body.scrollLeft) {
-                currentIndex = indx;
-                return element;
-            }
-
-        // Vertical
-        } else if(element.offsetTop > document.body.scrollTop) {
-            currentIndex = indx;
-            return element;
-        }
-    }
-
-    return null
-}
-
-function findNextSentenceInArray(els) {
-    if(currentIndex >= 0) {
-        currentIndex ++;
-        return els[currentIndex];
-    }
-
-    return null
-}
-
-function resetCurrentSentenceIndex() {
-    currentIndex = -1;
-}
-
-function rewindCurrentIndex() {
-    currentIndex = currentIndex-1;
-}
-
-function getSentenceWithIndex(className) {
-    var sentence;
-    var sel = getSelection();
-    var node = null;
-    var elements = document.querySelectorAll("span.sentence");
-
-    // Check for a selected text, if found start reading from it
-    if (sel.toString() != "") {
-        console.log(sel.anchorNode.parentNode);
-        node = sel.anchorNode.parentNode;
-
-        if (node.className == "sentence") {
-            sentence = node
-
-            for(var i = 0, len = elements.length; i < len; i++) {
-                if (elements[i] === sentence) {
-                    currentIndex = i;
-                    break;
-                }
-            }
+        var rect;
+        if (nodeOrRange.nodeType && nodeOrRange.nodeType === Node.TEXT_NODE) {
+            var range = document.createRange();
+            range.selectNode(nodeOrRange);
+            rect = RangeFix.getBoundingClientRect(range);
         } else {
-            sentence = findSentenceWithIDInView(elements);
+            rect = RangeFix.getBoundingClientRect(nodeOrRange);
         }
-    } else if (currentIndex < 0) {
-        sentence = findSentenceWithIDInView(elements);
+        nodeOffsetTop = scrollingElement.scrollTop + rect.top;
+        nodeOffsetHeight = rect.height;
+        nodeOffsetLeft = scrollingElement.scrollLeft + rect.left;
+
+    } else if (nodeOrRange.nodeType === Node.ELEMENT_NODE) {
+
+        nodeOffsetTop = nodeOrRange.offsetTop;
+        nodeOffsetHeight = nodeOrRange.offsetHeight;
+        nodeOffsetLeft = nodeOrRange.offsetLeft;
+
     } else {
-        sentence = findNextSentenceInArray(elements);
+        throw("-> Illegal Argument Exception, nodeOrRange -> " + nodeOrRange);
     }
 
-    var text = sentence.innerText || sentence.textContent;
+    switch (direction) {
 
-    goToElement(sentence);
+        case Direction.VERTICAL:
+            var topDistraction = FolioWebView.getTopDistraction(DisplayUnit.DP);
+            var pageTop = scrollingElement.scrollTop + topDistraction;
+            var pageBottom = scrollingElement.scrollTop + document.documentElement.clientHeight
+                - FolioWebView.getBottomDistraction(DisplayUnit.DP);
 
-    if (audioMarkClass){
-        removeAllClasses(audioMarkClass);
-    }
+            var elementTop = nodeOffsetTop - 20;
+            elementTop = elementTop < 0 ? 0 : elementTop;
+            var elementBottom = nodeOffsetTop + nodeOffsetHeight + 20;
+            var needToScroll = (elementTop < pageTop || elementBottom > pageBottom);
 
-    audioMarkClass = className;
-    sentence.classList.add(className)
-    return text;
-}
+            //console.log("-> topDistraction = " + topDistraction);
+            //console.log("-> pageTop = " + pageTop);
+            //console.log("-> elementTop = " + elementTop);
+            //console.log("-> pageBottom = " + pageBottom);
+            //console.log("-> elementBottom = " + elementBottom);
 
-function wrappingSentencesWithinPTags(){
-    currentIndex = -1;
-    "use strict";
-
-    var rxOpen = new RegExp("<[^\\/].+?>"),
-    rxClose = new RegExp("<\\/.+?>"),
-    rxSupStart = new RegExp("^<sup\\b[^>]*>"),
-    rxSupEnd = new RegExp("<\/sup>"),
-    sentenceEnd = [],
-    rxIndex;
-
-    sentenceEnd.push(new RegExp("[^\\d][\\.!\\?]+"));
-    sentenceEnd.push(new RegExp("(?=([^\\\"]*\\\"[^\\\"]*\\\")*[^\\\"]*?$)"));
-    sentenceEnd.push(new RegExp("(?![^\\(]*?\\))"));
-    sentenceEnd.push(new RegExp("(?![^\\[]*?\\])"));
-    sentenceEnd.push(new RegExp("(?![^\\{]*?\\})"));
-    sentenceEnd.push(new RegExp("(?![^\\|]*?\\|)"));
-    sentenceEnd.push(new RegExp("(?![^\\\\]*?\\\\)"));
-    //sentenceEnd.push(new RegExp("(?![^\\/.]*\\/)")); // all could be a problem, but this one is problematic
-
-    rxIndex = new RegExp(sentenceEnd.reduce(function (previousValue, currentValue) {
-                                            return previousValue + currentValue.source;
-                                            }, ""));
-
-    function indexSentenceEnd(html) {
-        var index = html.search(rxIndex);
-
-        if (index !== -1) {
-            index += html.match(rxIndex)[0].length - 1;
-        }
-
-        return index;
-    }
-
-    function pushSpan(array, className, string, classNameOpt) {
-        if (!string.match('[a-zA-Z0-9]+')) {
-            array.push(string);
-        } else {
-            array.push('<span class="' + className + '">' + string + '</span>');
-        }
-    }
-
-    function addSupToPrevious(html, array) {
-        var sup = html.search(rxSupStart),
-        end = 0,
-        last;
-
-        if (sup !== -1) {
-            end = html.search(rxSupEnd);
-            if (end !== -1) {
-                last = array.pop();
-                end = end + 6;
-                array.push(last.slice(0, -7) + html.slice(0, end) + last.slice(-7));
+            if (needToScroll) {
+                var newScrollTop = elementTop - topDistraction;
+                newScrollTop = newScrollTop < 0 ? 0 : newScrollTop;
+                //console.log("-> Scrolled to = " + newScrollTop);
+                scrollingElement.scrollTop = newScrollTop;
             }
-        }
-
-        return html.slice(end);
-    }
-
-    function paragraphIsSentence(html, array) {
-        var index = indexSentenceEnd(html);
-
-        if (index === -1 || index === html.length) {
-            pushSpan(array, "sentence", html, "paragraphIsSentence");
-            html = "";
-        }
-
-        return html;
-    }
-
-    function paragraphNoMarkup(html, array) {
-        var open = html.search(rxOpen),
-        index = 0;
-
-        if (open === -1) {
-            index = indexSentenceEnd(html);
-            if (index === -1) {
-                index = html.length;
-            }
-
-            pushSpan(array, "sentence", html.slice(0, index += 1), "paragraphNoMarkup");
-        }
-
-        return html.slice(index);
-    }
-
-    function sentenceUncontained(html, array) {
-        var open = html.search(rxOpen),
-        index = 0,
-        close;
-
-        if (open !== -1) {
-            index = indexSentenceEnd(html);
-            if (index === -1) {
-                index = html.length;
-            }
-
-            close = html.search(rxClose);
-            if (index < open || index > close) {
-                pushSpan(array, "sentence", html.slice(0, index += 1), "sentenceUncontained");
-            } else {
-                index = 0;
-            }
-        }
-
-        return html.slice(index);
-    }
-
-    function sentenceContained(html, array) {
-        var open = html.search(rxOpen),
-        index = 0,
-        close,
-        count;
-
-        if (open !== -1) {
-            index = indexSentenceEnd(html);
-            if (index === -1) {
-                index = html.length;
-            }
-
-            close = html.search(rxClose);
-            if (index > open && index < close) {
-                count = html.match(rxClose)[0].length;
-                pushSpan(array, "sentence", html.slice(0, close + count), "sentenceContained");
-                index = close + count;
-            } else {
-                index = 0;
-            }
-        }
-
-        return html.slice(index);
-    }
-
-    function anythingElse(html, array) {
-        pushSpan(array, "sentence", html, "anythingElse");
-
-        return "";
-    }
-
-    function guessSenetences() {
-        var paragraphs = document.getElementsByTagName("p");
-
-        Array.prototype.forEach.call(paragraphs, function (paragraph) {
-            var html = paragraph.innerHTML,
-                length = html.length,
-                array = [],
-                safety = 100;
-
-            while (length && safety) {
-                html = addSupToPrevious(html, array);
-                if (html.length === length) {
-                    if (html.length === length) {
-                        html = paragraphIsSentence(html, array);
-                        if (html.length === length) {
-                            html = paragraphNoMarkup(html, array);
-                            if (html.length === length) {
-                                html = sentenceUncontained(html, array);
-                                if (html.length === length) {
-                                    html = sentenceContained(html, array);
-                                    if (html.length === length) {
-                                        html = anythingElse(html, array);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                length = html.length;
-                safety -= 1;
-            }
-
-            paragraph.innerHTML = array.join("");
-        });
-    }
-
-    guessSenetences();
-}
-
-function isElementVisible(element, isHorizontal) {
-
-    var rect = element.getBoundingClientRect();
-
-    if(isHorizontal)
-        return rect.left > 0;
-    else
-        return rect.top > 0;
-}
-
-/**
-Gets the first visible span from the displayed chapter and if it has id then usingId is true with
-value as span id else usingId is false with value as span index. usingId and value is forwarded to
-FolioPageFragment#storeFirstVisibleSpan(boolean, String) JavascriptInterface.
-
-@param {boolean} isHorizontal - scrolling type of DirectionalViewpager#mDirection
-*/
-function getFirstVisibleSpan(isHorizontal) {
-
-    var spanCollection = document.getElementsByTagName("span");
-
-    if (spanCollection.length == 0) {
-        FolioPageFragment.storeFirstVisibleSpan(false, 0);
-        return;
-    }
-
-    var spanIndex = 0;
-    var spanElement;
-
-    for (var i = 0 ; i < spanCollection.length ; i++) {
-        if (isElementVisible(spanCollection[i], isHorizontal)) {
-            spanIndex = i;
-            spanElement = spanCollection[i];
             break;
-        }
+
+        case Direction.HORIZONTAL:
+            var clientWidth = document.documentElement.clientWidth;
+            var pageIndex = Math.floor(nodeOffsetLeft / clientWidth);
+            var newScrollLeft = clientWidth * pageIndex;
+            //console.log("-> newScrollLeft = " + newScrollLeft);
+            scrollingElement.scrollLeft = newScrollLeft;
+            WebViewPager.setCurrentPage(pageIndex);
+            break;
     }
 
-    var usingId = spanElement.id ? true : false;
-    var value = usingId ? spanElement.id : spanIndex;
-    FolioPageFragment.storeFirstVisibleSpan(usingId, value);
+    return nodeOrRange;
+}
+
+function highlightSearchLocator(rangeCfi) {
+
+    try {
+        var $obj = EPUBcfi.Interpreter.getRangeTargetElements(rangeCfi, document);
+
+        var range = document.createRange();
+        range.setStart($obj.startElement, $obj.startOffset);
+        range.setEnd($obj.endElement, $obj.endOffset);
+
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        scrollToNodeOrRange(range);
+    } catch (e) {
+        console.error("-> " + e);
+    }
+
+    LoadingView.hide();
 }
 
 /**
-Scrolls the web page to particular span using id or index
+ * Returns JSON of selection rect
+ * @param {Element} [element]
+ * @returns {object} JSON of {@link DOMRect}
+ */
+function getSelectionRect(element) {
+    console.log("-> getSelectionRect");
 
-@param {boolean} usingId - if span tag has id then true or else false
-@param {number} value - if usingId true then span id else span index
-*/
-function scrollToSpan(usingId, value) {
-
-    if (usingId) {
-        var spanElement = document.getElementById(value);
-        if (spanElement)
-            goToElement(spanElement);
+    var range;
+    if (element !== undefined) {
+        range = document.createRange();
+        range.selectNodeContents(element);
     } else {
-        var spanCollection = document.getElementsByTagName("span");
-        if (spanCollection.length == 0 || value < 0 || value >= spanCollection.length
-            || value == null)
-            return;
-        goToElement(spanCollection[value]);
+        range = window.getSelection().getRangeAt(0);
+    }
+
+    //var rect = range.getBoundingClientRect();
+    var rect = RangeFix.getBoundingClientRect(range);
+    return {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom
+    };
+}
+
+function clearSelection() {
+    console.log("-> clearSelection");
+    window.getSelection().removeAllRanges();
+}
+
+// onClick method set for highlights
+function onClickHighlight(element) {
+    console.log("-> onClickHighlight");
+    event.stopPropagation();
+    thisHighlight = element;
+    var rectJson = getSelectionRect(element);
+    FolioWebView.setSelectionRect(rectJson.left, rectJson.top, rectJson.right, rectJson.bottom);
+}
+
+function deleteThisHighlight() {
+    if (thisHighlight !== undefined)
+        FolioWebView.deleteThisHighlight(thisHighlight.id);
+}
+
+function onTextSelectionItemClicked(id) {
+    var selectionType = window.getSelection().type;
+    var selectedText = "";
+    if (selectionType == "Range") {
+        selectedText = window.getSelection().toString();
+    } else {
+        selectedText = thisHighlight.textContent;
+    }
+    FolioWebView.onTextSelectionItemClicked(id, selectedText);
+}
+
+function onClickHtml() {
+    console.debug("-> onClickHtml");
+    if (FolioWebView.isPopupShowing()) {
+        FolioWebView.dismissPopupWindow();
+    } else {
+        FolioWebView.toggleSystemUI();
     }
 }
 
-// Class based onClick listener
+function computeLastReadCfi() {
 
-function addClassBasedOnClickListener(schemeName, querySelector, attributeName, selectAll) {
-	if (selectAll) {
-		// Get all elements with the given query selector
-		var elements = document.querySelectorAll(querySelector);
-		for (elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-			var element = elements[elementIndex];
-			addClassBasedOnClickListenerToElement(element, schemeName, attributeName);
-		}
-	} else {
-		// Get the first element with the given query selector
-		var element = document.querySelector(querySelector);
-		addClassBasedOnClickListenerToElement(element, schemeName, attributeName);
-	}
+    viewportRect = constructDOMRect(FolioWebView.getViewportRect(DisplayUnit.CSS_PX));
+    var node = getFirstVisibleNode(document.body) || document.body;
+
+    var cfi;
+    if (node.nodeType === Node.TEXT_NODE) {
+        cfi = EPUBcfi.Generator.generateCharacterOffsetCFIComponent(node, 0);
+    } else {
+        cfi = EPUBcfi.Generator.generateElementCFIComponent(node);
+    }
+
+    cfi = EPUBcfi.Generator.generateCompleteCFI("/0!", cfi);
+    viewportRect = null;
+    FolioPageFragment.storeLastReadCfi(cfi);
 }
 
-function addClassBasedOnClickListenerToElement(element, schemeName, attributeName) {
-	// Get the content from the given attribute name
-	var attributeContent = element.getAttribute(attributeName);
-	// Add the on click logic
-	element.setAttribute("onclick", "onClassBasedListenerClick(\"" + schemeName + "\", \"" + encodeURIComponent(attributeContent) + "\");");
+function constructDOMRect(rectJsonString) {
+    var rectJson = JSON.parse(rectJsonString);
+    return new DOMRect(rectJson.x, rectJson.y, rectJson.width, rectJson.height);
 }
 
-var onClassBasedListenerClick = function(schemeName, attributeContent) {
-	// Prevent the browser from performing the default on click behavior
-	event.preventDefault();
-	// Don't pass the click event to other elemtents
-	event.stopPropagation();
-	// Create parameters containing the click position inside the web view.
-	var positionParameterString = "/clientX=" + event.clientX + "&clientY=" + event.clientY;
-	// Set the custom link URL to the event
-	window.location = schemeName + "://" + attributeContent + positionParameterString;
-}
+/**
+ * Gets the first partially or completely visible node in viewportRect
+ * @param {Node} node Accepts {@link Element} or {@link Text}
+ * @returns {(Node|null)} Returns {@link Element} or {@link Text} or null
+ */
+function getFirstVisibleNode(node) {
 
-function getHighlightString(style) {
-    var range = window.getSelection().getRangeAt(0);
-    var selectionContents = range.extractContents();
-    var elm = document.createElement("highlight");
-    var id = guid();
+    var range = document.createRange();
+    range.selectNode(node);
+    var rect = RangeFix.getBoundingClientRect(range);
+    if (rect == null)
+        return null;
 
-    elm.appendChild(selectionContents);
-    elm.setAttribute("id", id);
-    elm.setAttribute("onclick","callHighlightURL(this);");
-    elm.setAttribute("class", style);
+    var intersects = rectIntersects(viewportRect, rect);
+    var contains = rectContains(viewportRect, rect);
 
-    range.insertNode(elm);
-    thisHighlight = elm;
+    if (contains) {
+        // node's rect is completely inside viewportRect.
+        return node;
 
-    var params = [];
-    params.push({id: id, rect: getRectForSelectedText(elm)});
-    Highlight.getHighlightJson(JSON.stringify(params));
-}
+    } else if (intersects) {
 
-function gotoHighlight(highlightId){
-  var element = document.getElementById(highlightId.toString());
-  if(element != null) {
-    goToElement(element);
-  }
-}
+        var childNodes = node.childNodes;
+        for (var i = 0; i < childNodes.length; i++) {
 
-$(function(){
-  window.ssReader = Class({
-    $singleton: true,
+            // EPUB CFI ignores nodes other than ELEMENT_NODE and TEXT_NODE
+            // http://www.idpf.org/epub/linking/cfi/epub-cfi.html#sec-path-child-ref
 
-    init: function() {
-      rangy.init();
-
-      this.highlighter = rangy.createHighlighter();
-
-      this.highlighter.addClassApplier(rangy.createClassApplier("highlight_yellow", {
-        ignoreWhiteSpace: true,
-        tagNames: ["span", "a"]
-      }));
-
-      this.highlighter.addClassApplier(rangy.createClassApplier("highlight_green", {
-        ignoreWhiteSpace: true,
-        tagNames: ["span", "a"]
-      }));
-
-      this.highlighter.addClassApplier(rangy.createClassApplier("highlight_blue", {
-        ignoreWhiteSpace: true,
-        tagNames: ["span", "a"]
-      }));
-
-      this.highlighter.addClassApplier(rangy.createClassApplier("highlight_pink", {
-        ignoreWhiteSpace: true,
-        tagNames: ["span", "a"]
-      }));
-
-      this.highlighter.addClassApplier(rangy.createClassApplier("highlight_underline", {
-        ignoreWhiteSpace: true,
-        tagNames: ["span", "a"]
-      }));
-
-    },
-
-    setFontAndada: function(){
-      this.setFont("andada");
-    },
-
-    setFontLato: function(){
-      this.setFont("lato");
-    },
-
-    setFontPtSerif: function(){
-      this.setFont("pt-serif");
-    },
-
-    setFontPtSans: function(){
-      this.setFont("pt-sans");
-    },
-
-    base64encode: function(str){
-      return btoa(unescape(encodeURIComponent(str)));
-    },
-
-    base64decode: function(str){
-      return decodeURIComponent(escape(atob(str)));
-    },
-
-    clearSelection: function(){
-      if (window.getSelection) {
-        if (window.getSelection().empty) {  // Chrome
-          window.getSelection().empty();
-        } else if (window.getSelection().removeAllRanges) {  // Firefox
-          window.getSelection().removeAllRanges();
+            if (childNodes[i].nodeType === Node.ELEMENT_NODE || childNodes[i].nodeType === Node.TEXT_NODE) {
+                var childNode = getFirstVisibleNode(childNodes[i]);
+                if (childNode) {
+                    return childNode;
+                }
+            }
         }
-      } else if (document.selection) {  // IE?
-        document.selection.empty();
-      }
-    },
 
-    // Public methods
-
-    setFont: function(fontName){
-      $("#ss-wrapper-font").removeClass().addClass("ss-wrapper-"+fontName);
-    },
-
-    setSize: function(size){
-      $("#ss-wrapper-size").removeClass().addClass("ss-wrapper-"+size);
-    },
-
-    setTheme: function(theme){
-      $("body, #ss-wrapper-theme").removeClass().addClass("ss-wrapper-"+theme);
-    },
-
-    setComment: function(comment, inputId){
-      $("#"+inputId).val(ssReader.base64decode(comment));
-      $("#"+inputId).trigger("input", ["true"]);
-    },
-
-    highlightSelection: function(color){
-      try {
-
-        this.highlighter.highlightSelection("highlight_" + color, null);
-        var range = window.getSelection().toString();
-        var params = {content: range,rangy: this.getHighlights(),color: color};
-        this.clearSelection();
-        Highlight.onReceiveHighlights(JSON.stringify(params));
-      } catch(err){
-        console.log("highlightSelection : " + err);
-      }
-    },
-
-    unHighlightSelection: function(){
-      try {
-        this.highlighter.unhighlightSelection();
-        Highlight.onReceiveHighlights(this.getHighlights());
-      } catch(err){}
-    },
-
-    getHighlights: function(){
-      try {
-        return this.highlighter.serialize();
-      } catch(err){}
-    },
-
-    setHighlights: function(serializedHighlight){
-      try {
-        this.highlighter.removeAllHighlights();
-        this.highlighter.deserialize(serializedHighlight);
-      } catch(err){}
-    },
-
-    removeAll: function(){
-      try {
-        this.highlighter.removeAllHighlights();
-      } catch(err){}
-    },
-
-    copy: function(){
-      SSBridge.onCopy(window.getSelection().toString());
-      this.clearSelection();
-    },
-
-    share: function(){
-      SSBridge.onShare(window.getSelection().toString());
-      this.clearSelection();
-    },
-
-    search: function(){
-      SSBridge.onSearch(window.getSelection().toString());
-      this.clearSelection();
+        // No children found or no child's rect completely inside viewportRect,
+        // so returning this node as it's rect intersected with viewportRect.
+        return node;
     }
-  });
+    return null;
+}
 
-   if(typeof ssReader !== "undefined"){
-      ssReader.init();
+function scrollToCfi(cfi) {
+
+    try {
+        var $node = EPUBcfi.Interpreter.getTargetElement(cfi, document);
+        scrollToNodeOrRange($node[0]);
+    } catch (e) {
+        console.error("-> " + e);
     }
+    LoadingView.hide();
+}
 
-    $(".verse").click(function(){
-      SSBridge.onVerseClick(ssReader.base64encode($(this).attr("verse")));
-    });
+/**
+ * Returns true iff the two specified rectangles intersect. In no event are
+ * either of the rectangles modified.
+ *
+ * @param {DOMRect} a The first rectangle being tested for intersection
+ * @param {DOMRect} b The second rectangle being tested for intersection
+ * @returns {boolean} returns true iff the two specified rectangles intersect.
+ */
+function rectIntersects(a, b) {
+    return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+}
 
-    $("code").each(function(i){
-      var textarea = $("<textarea class='textarea'/>").attr("id", "input-"+i).on("input propertychange", function(event, isInit) {
-        $(this).css({'height': 'auto', 'overflow-y': 'hidden'}).height(this.scrollHeight);
-        $(this).next().css({'height': 'auto', 'overflow-y': 'hidden'}).height(this.scrollHeight);
-
-        if (!isInit) {
-          var that = this;
-          if (timeout !== null) {
-            clearTimeout(timeout);
-          }
-          timeout = setTimeout(function () {
-            SSBridge.onCommentsClick(
-                ssReader.base64encode($(that).val()),
-                $(that).attr("id")
-            );
-          }, 1000);
-        }
-      });
-      var border = $("<div class='textarea-border' />");
-      var container = $("<div class='textarea-container' />");
-
-      $(textarea).appendTo(container);
-      $(border).appendTo(container);
-
-      $(this).after(container);
-    });
-  });
-
-function array_diff(array1, array2){
-    var difference = $.grep(array1, function(el) { return $.inArray(el,array2) < 0});
-    return difference.concat($.grep(array2, function(el) { return $.inArray(el,array1) < 0}));;
+/**
+ * Returns true iff the specified rectangle b is inside or equal to
+ * rectangle b. An empty rectangle never contains another rectangle.
+ *
+ * @param {DOMRect} a The rectangle being tested whether rectangle b is inside this or not.
+ * @param {DOMRect} b The rectangle being tested for containment.
+ * @returns {boolean} returns true iff the specified rectangle r is inside or equal to this rectangle
+ */
+function rectContains(a, b) {
+    // check for empty first
+    return a.left < a.right && a.top < a.bottom
+        // now check for containment
+        && a.left <= b.left && a.top <= b.top && a.right >= b.right && a.bottom >= b.bottom;
 }

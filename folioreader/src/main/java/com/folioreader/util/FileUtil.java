@@ -4,16 +4,12 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
-
 import com.folioreader.Constants;
-import com.folioreader.ui.folio.activity.FolioActivity;
+import com.folioreader.ui.activity.FolioActivity;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 /**
  * Created by Mahavir on 12/15/16.
@@ -23,7 +19,10 @@ public class FileUtil {
     private static final String TAG = FileUtil.class.getSimpleName();
     private static final String FOLIO_READER_ROOT = "folioreader";
 
-    public static String saveEpubFileAndLoadLazyBook(final Context context, FolioActivity.EpubSourceType epubSourceType, String epubFilePath, int epubRawId, String epubFileName) {
+    public static String saveEpubFileAndLoadLazyBook(final Context context,
+                                                     FolioActivity.EpubSourceType epubSourceType,
+                                                     String epubFilePath,
+                                                     int epubRawId, String epubFileName) {
         String filePath;
         InputStream epubInputStream;
         boolean isFolderAvailable;
@@ -46,7 +45,7 @@ public class FileUtil {
             }
             return filePath;
         } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
 
         return null;
@@ -107,8 +106,17 @@ public class FileUtil {
             inputStream.close();
             outputStream.close();
         } catch (IOException e) {
-            Log.d(TAG, e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
         return false;
+    }
+
+    public static String getExtensionUppercase(String path) {
+        if (TextUtils.isEmpty(path))
+            return null;
+        int lastIndexOfDot = path.lastIndexOf('.');
+        if (lastIndexOfDot == -1)
+            return null;
+        return path.substring(lastIndexOfDot + 1).toUpperCase();
     }
 }
