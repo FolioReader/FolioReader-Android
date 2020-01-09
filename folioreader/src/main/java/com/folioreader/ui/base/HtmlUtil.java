@@ -27,7 +27,7 @@ public final class HtmlUtil {
                 "file:///android_asset/js/jsface.min.js") + "\n";
 
         jsPath = jsPath + String.format(context.getString(R.string.script_tag),
-                "file:///android_asset/js/jquery-3.1.1.min.js") + "\n";
+                "file:///android_asset/js/jquery-3.4.1.min.js") + "\n";
 
         jsPath = jsPath + String.format(context.getString(R.string.script_tag),
                 "file:///android_asset/js/rangy-core.js") + "\n";
