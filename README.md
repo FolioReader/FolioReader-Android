@@ -23,7 +23,7 @@
 - Bỏ tính năng share.
 - Last ReadLocator
 - Horizontal Reading
-
+- Cập nhật ngôn ngữ Turkey
 ## Demo:
 
 ### Đọc sách:
