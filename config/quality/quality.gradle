@@ -3,7 +3,7 @@
  *
  * Gradle tasks added:
  * - checkstyle
- * - findbugs
+ * - spotbugs
  * - pmd
  *
  * The three tasks above are added as dependencies of the check task so running check will
@@ -11,7 +11,7 @@
  */
 
 apply plugin: 'checkstyle'
-apply plugin: 'findbugs'
+apply plugin: 'com.github.spotbugs'
 apply plugin: 'pmd'
 
 dependencies {
@@ -21,7 +21,7 @@ dependencies {
 def qualityConfigDir = "$project.rootDir/config/quality"
 def reportsDir = "$project.buildDir/reports"
 
-check.dependsOn 'checkstyle', 'findbugs', 'pmd'
+check.dependsOn 'checkstyle', 'spotbugs', 'pmd'
 
 task checkstyle(type: Checkstyle, group: 'Verification', description: 'Runs code style checks') {
     configFile file("$qualityConfigDir/checkstyle/checkstyle-config.xml")
@@ -38,35 +38,36 @@ task checkstyle(type: Checkstyle, group: 'Verification', description: 'Runs code
     classpath = files()
 }
 
-task findbugs(type: FindBugs,
-        group: 'Verification',
-        description: 'Inspect java bytecode for bugs',
-        dependsOn: ['compileDebugSources', 'compileReleaseSources']) {
-
+spotbugs {
     ignoreFailures = false
     effort = "max"
     reportLevel = "high"
-    excludeFilter = new File("$qualityConfigDir/findbugs/android-exclude-filter.xml")
+
+    includeFilter = file("**/*.java")
+    excludeFilter = file("**/gen/**")
+}
+
+tasks.withType(SpotBugsTask) {
+    dependsOn 'assemble'
+    group = "verification"
+    excludeFilter = new File("$qualityConfigDir/spotbugs/android-exclude-filter.xml")
     classes = files("$project.rootDir/folioreader/build/intermediates/javac")
 
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
+    source = fileTree('src')
 
     reports {
         xml.enabled = false
         html.enabled = true
         xml {
-            destination = file("$reportsDir/findbugs/findbugs.xml")
+            destination = file("$reportsDir/spotbugs/spotbugs.xml")
         }
         html {
-            destination = file("$reportsDir/findbugs/findbugs.html")
+            destination = file("$reportsDir/spotbugs/spotbugs.html")
         }
     }
 
     classpath = files()
 }
-
 
 task pmd(type: Pmd, group: 'Verification', description: 'Inspect sourcecode for bugs') {
     ruleSetFiles = files("$qualityConfigDir/pmd/pmd-ruleset.xml")
