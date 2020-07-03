@@ -696,13 +696,14 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         distractionFreeMode = visibility != View.SYSTEM_UI_FLAG_VISIBLE
         Log.v(LOG_TAG, "-> distractionFreeMode = $distractionFreeMode")
 
-        if (actionBar != null) {
-            if (distractionFreeMode) {
-                actionBar!!.hide()
-            } else {
-                actionBar!!.show()
-            }
+        if (distractionFreeMode) {
+            appBarLayout?.visibility = View.GONE
+            actionBar?.hide()
+        } else {
+            appBarLayout?.visibility = View.VISIBLE
+            actionBar?.show()
         }
+
     }
 
     override fun toggleSystemUI() {
@@ -717,41 +718,20 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private fun showSystemUI() {
         Log.v(LOG_TAG, "-> showSystemUI")
 
-        if (Build.VERSION.SDK_INT >= 16) {
-            val decorView = window.decorView
-            decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
-        } else {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            if (appBarLayout != null)
-                appBarLayout!!.setTopMargin(statusBarHeight)
-            onSystemUiVisibilityChange(View.SYSTEM_UI_FLAG_VISIBLE)
-        }
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
     }
 
     private fun hideSystemUI() {
         Log.v(LOG_TAG, "-> hideSystemUI")
 
-        if (Build.VERSION.SDK_INT >= 16) {
-            val decorView = window.decorView
-            decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
-                    // Set the content to appear under the system bars so that the
-                    // content doesn't resize when the system bars hide and show.
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    // Hide the nav bar and status bar
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
-        } else {
-            window.setFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-            )
-            // Specified 1 just to mock anything other than View.SYSTEM_UI_FLAG_VISIBLE
-            onSystemUiVisibilityChange(1)
-        }
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                or View.SYSTEM_UI_FLAG_IMMERSIVE)
     }
 
     override fun getEntryReadLocator(): ReadLocator? {
