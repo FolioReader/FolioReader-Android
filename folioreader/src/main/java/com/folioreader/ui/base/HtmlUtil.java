@@ -101,8 +101,41 @@ public final class HtmlUtil {
                 break;
         }
 
-        htmlContent = htmlContent.replace("<html", "<html class=\"" + classes + "\"" +
-                " onclick=\"onClickHtml()\"");
+        htmlContent = checkClassAttr(htmlContent, classes);
         return htmlContent;
+    }
+
+    //This will fix the "Attribute Class Redefined" error
+    private static String checkClassAttr(String html, String classes) {
+        //get the entry of <html>
+        String s1 = html.substring(html.indexOf("<html"));
+        String s2= s1.substring(0, s1.indexOf(">"));
+        String classValue = "";
+
+        //check if class attribute exists
+        if(s2.contains("class=")) {
+            String classVal = s2.substring(s2.indexOf("class="));
+            String[] kvPairs = classVal.split(" ");
+
+            //get the value
+            for(String kvPair: kvPairs) {
+                String[] kv = kvPair.split("=");
+                String key = kv[0];
+
+                if(key.equals("class")) {
+                    classValue = kv[1]; //get the value of class attribute
+                    break;
+                }
+            }
+
+            //remove the class attribute since it will be readded later to avoid "attribute redefined error"
+            html = html.replaceFirst("class=" + classValue, "");
+            classValue = classValue.substring(1); //remove the first quotation
+
+
+        }
+        classValue =  classValue.equals("") ? "\"" : classValue;
+        html = html.replace("<html", "<html class=\"" + classes + " " + classValue + " onclick=\"onClickHtml()\"");
+        return html;
     }
 }
