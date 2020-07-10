@@ -11,12 +11,14 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.FolioReader;
@@ -28,6 +30,7 @@ import com.folioreader.model.sqlite.HighLightTable;
 import com.folioreader.ui.adapter.HighlightAdapter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.HighlightUtil;
+
 import org.greenrobot.eventbus.EventBus;
 
 public class HighlightFragment extends Fragment implements HighlightAdapter.HighLightAdapterCallback {

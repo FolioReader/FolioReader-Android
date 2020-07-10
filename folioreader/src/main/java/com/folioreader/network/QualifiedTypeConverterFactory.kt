@@ -43,7 +43,9 @@ class QualifiedTypeConverterFactory : Converter.Factory {
 
     override fun requestBodyConverter(
         type: Type,
-        parameterAnnotations: Array<Annotation>, methodAnnotations: Array<Annotation>, retrofit: Retrofit
+        parameterAnnotations: Array<Annotation>,
+        methodAnnotations: Array<Annotation>,
+        retrofit: Retrofit
     ): Converter<*, RequestBody>? {
 
         for (annotation in parameterAnnotations) {

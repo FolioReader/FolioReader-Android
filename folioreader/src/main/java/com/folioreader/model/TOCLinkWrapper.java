@@ -1,6 +1,7 @@
 package com.folioreader.model;
 
 import com.folioreader.util.MultiLevelExpIndListAdapter;
+
 import org.readium.r2.shared.Link;
 
 import java.util.ArrayList;

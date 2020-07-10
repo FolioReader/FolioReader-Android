@@ -7,24 +7,31 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.model.TOCLinkWrapper;
 import com.folioreader.ui.adapter.TOCAdapter;
 import com.folioreader.util.AppUtil;
+
 import org.readium.r2.shared.Link;
 import org.readium.r2.shared.Publication;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.folioreader.Constants.*;
+import static com.folioreader.Constants.BOOK_TITLE;
+import static com.folioreader.Constants.CHAPTER_SELECTED;
+import static com.folioreader.Constants.PUBLICATION;
+import static com.folioreader.Constants.SELECTED_CHAPTER_POSITION;
+import static com.folioreader.Constants.TYPE;
 
 public class TableOfContentFragment extends Fragment implements TOCAdapter.TOCCallback {
     private TOCAdapter mTOCAdapter;

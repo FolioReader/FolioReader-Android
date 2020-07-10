@@ -7,8 +7,10 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.webkit.JavascriptInterface;
 import android.widget.ProgressBar;
+
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
+
 import com.folioreader.Config;
 import com.folioreader.R;
 import com.folioreader.util.AppUtil;

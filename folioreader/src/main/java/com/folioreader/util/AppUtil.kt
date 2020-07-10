@@ -62,7 +62,8 @@ class AppUtil {
         fun charsetNameForURLConnection(connection: URLConnection): String {
             // see https://stackoverflow.com/a/3934280/1027646
             val contentType = connection.contentType
-            val values = contentType.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val values =
+                contentType.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             var charset: String? = null
 
             for (_value in values) {
@@ -144,7 +145,8 @@ class AppUtil {
                 }
             }
 
-            val index = action and MotionEvent.ACTION_POINTER_INDEX_MASK shr MotionEvent.ACTION_POINTER_INDEX_SHIFT
+            val index =
+                action and MotionEvent.ACTION_POINTER_INDEX_MASK shr MotionEvent.ACTION_POINTER_INDEX_SHIFT
             when (action and MotionEvent.ACTION_MASK) {
                 MotionEvent.ACTION_POINTER_DOWN -> return "ACTION_POINTER_DOWN($index)"
                 MotionEvent.ACTION_POINTER_UP -> return "ACTION_POINTER_UP($index)"

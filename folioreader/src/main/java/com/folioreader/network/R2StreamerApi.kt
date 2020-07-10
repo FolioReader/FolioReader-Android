@@ -7,6 +7,10 @@ import retrofit2.http.Query
 
 interface R2StreamerApi {
 
-    @GET("search") @Gson
-    fun search(@Query("spineIndex") spineIndex: Int, @Query("query") query: String): Call<List<Locator>>
+    @GET("search")
+    @Gson
+    fun search(
+        @Query("spineIndex") spineIndex: Int,
+        @Query("query") query: String
+    ): Call<List<Locator>>
 }

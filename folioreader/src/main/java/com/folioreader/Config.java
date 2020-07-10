@@ -4,9 +4,11 @@ import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.core.content.ContextCompat;
+
 import org.json.JSONObject;
 
 /**
@@ -31,7 +33,7 @@ public class Config implements Parcelable {
     private static final int DEFAULT_THEME_COLOR_INT =
             ContextCompat.getColor(AppContext.get(), R.color.default_theme_accent_color);
 
-    private int font = 3;
+    private String font = "Roboto";
     private int fontSize = 2;
     private boolean nightMode;
     @ColorInt
@@ -74,7 +76,7 @@ public class Config implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(font);
+        dest.writeString(font);
         dest.writeInt(fontSize);
         dest.writeByte((byte) (nightMode ? 1 : 0));
         dest.writeInt(themeColor);
@@ -85,7 +87,7 @@ public class Config implements Parcelable {
     }
 
     protected Config(Parcel in) {
-        font = in.readInt();
+        font = in.readString();
         fontSize = in.readInt();
         nightMode = in.readByte() != 0;
         themeColor = in.readInt();
@@ -99,7 +101,7 @@ public class Config implements Parcelable {
     }
 
     public Config(JSONObject jsonObject) {
-        font = jsonObject.optInt(CONFIG_FONT);
+        font = jsonObject.optString(CONFIG_FONT);
         fontSize = jsonObject.optInt(CONFIG_FONT_SIZE);
         nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHT_MODE);
         themeColor = getValidColorInt(jsonObject.optInt(CONFIG_THEME_COLOR_INT));
@@ -142,11 +144,11 @@ public class Config implements Parcelable {
         }
     }
 
-    public int getFont() {
+    public String getFont() {
         return font;
     }
 
-    public Config setFont(int font) {
+    public Config setFont(String font) {
         this.font = font;
         return this;
     }

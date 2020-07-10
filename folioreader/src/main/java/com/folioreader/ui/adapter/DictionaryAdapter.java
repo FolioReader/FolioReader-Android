@@ -9,11 +9,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.folioreader.Config;
 import com.folioreader.R;
-import com.folioreader.model.dictionary.*;
+import com.folioreader.model.dictionary.Audio;
+import com.folioreader.model.dictionary.DictionaryResults;
+import com.folioreader.model.dictionary.Example;
+import com.folioreader.model.dictionary.Pronunciations;
+import com.folioreader.model.dictionary.Senses;
 import com.folioreader.ui.base.DictionaryCallBack;
 import com.folioreader.util.AppUtil;
 

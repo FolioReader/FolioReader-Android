@@ -93,11 +93,15 @@ class SearchViewModel : ViewModel() {
 
             ++successSearchCallCount
             val responseList: MutableList<SearchLocator> = bundle.getParcelableArrayList("DATA")!!
-            var liveList: MutableList<SearchLocator> = liveAdapterDataBundle.value!!.getParcelableArrayList("DATA")!!
+            var liveList: MutableList<SearchLocator> =
+                liveAdapterDataBundle.value!!.getParcelableArrayList("DATA")!!
             liveList = liveList.toMutableList()
 
             if (liveList.isEmpty()) {
-                bundle.putString(ListViewType.KEY, ListViewType.PAGINATION_IN_PROGRESS_VIEW.toString())
+                bundle.putString(
+                    ListViewType.KEY,
+                    ListViewType.PAGINATION_IN_PROGRESS_VIEW.toString()
+                )
                 liveAdapterDataBundle.value = bundle
 
             } else {
@@ -110,7 +114,10 @@ class SearchViewModel : ViewModel() {
                 liveList.addAll(responseList)
 
                 val dataBundle = Bundle()
-                dataBundle.putString(ListViewType.KEY, ListViewType.PAGINATION_IN_PROGRESS_VIEW.toString())
+                dataBundle.putString(
+                    ListViewType.KEY,
+                    ListViewType.PAGINATION_IN_PROGRESS_VIEW.toString()
+                )
                 dataBundle.putParcelableArrayList("DATA", ArrayList(liveList))
                 liveAdapterDataBundle.value = dataBundle
             }
@@ -122,19 +129,21 @@ class SearchViewModel : ViewModel() {
         }
 
         if (--searchCallCount == 0) {
-            val liveList: MutableList<SearchLocator> = liveAdapterDataBundle.value!!.getParcelableArrayList("DATA")!!
+            val liveList: MutableList<SearchLocator> =
+                liveAdapterDataBundle.value!!.getParcelableArrayList("DATA")!!
             val dataBundle = Bundle()
             dataBundle.putParcelableArrayList("DATA", ArrayList(liveList))
 
-            val liveListViewType: ListViewType = if (liveList.isEmpty() && errorSearchCallCount > 0) {
-                ListViewType.FAILURE_VIEW
+            val liveListViewType: ListViewType =
+                if (liveList.isEmpty() && errorSearchCallCount > 0) {
+                    ListViewType.FAILURE_VIEW
 
-            } else if (liveList.isEmpty()) {
-                ListViewType.EMPTY_VIEW
+                } else if (liveList.isEmpty()) {
+                    ListViewType.EMPTY_VIEW
 
-            } else {
-                ListViewType.NORMAL_VIEW
-            }
+                } else {
+                    ListViewType.NORMAL_VIEW
+                }
 
             dataBundle.putString(ListViewType.KEY, liveListViewType.toString())
             liveAdapterDataBundle.value = dataBundle

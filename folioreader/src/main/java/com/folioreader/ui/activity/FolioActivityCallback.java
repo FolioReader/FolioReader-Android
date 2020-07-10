@@ -1,6 +1,7 @@
 package com.folioreader.ui.activity;
 
 import android.graphics.Rect;
+
 import com.folioreader.Config;
 import com.folioreader.model.DisplayUnit;
 import com.folioreader.model.locators.ReadLocator;

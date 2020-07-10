@@ -2,6 +2,7 @@ package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
 import com.folioreader.util.AppUtil;
 
 import java.io.BufferedReader;
