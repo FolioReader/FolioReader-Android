@@ -94,6 +94,7 @@ class AppUtil {
                 obj.put(Config.CONFIG_FONT_SIZE, config.fontSize)
                 obj.put(Config.CONFIG_IS_NIGHT_MODE, config.isNightMode)
                 obj.put(Config.CONFIG_THEME_COLOR_INT, config.themeColor)
+                obj.put(Config.CONFIG_NIGHT_THEME_COLOR_INT, config.nightThemeColor)
                 obj.put(Config.CONFIG_IS_TTS, config.isShowTts)
                 obj.put(Config.CONFIG_ALLOWED_DIRECTION, config.allowedDirection.toString())
                 obj.put(Config.CONFIG_DIRECTION, config.direction.toString())

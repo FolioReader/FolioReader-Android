@@ -113,7 +113,7 @@ public class TOCAdapter extends MultiLevelExpIndListAdapter {
                     R.color.black));
         }
         if (tocLinkWrapper.getTocLink().getHref().equals(selectedHref)) {
-            viewHolder.sectionTitle.setTextColor(mConfig.getThemeColor());
+            viewHolder.sectionTitle.setTextColor(mConfig.getCurrentThemeColor());
         }
     }
 

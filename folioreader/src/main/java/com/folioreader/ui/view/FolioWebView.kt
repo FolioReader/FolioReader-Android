@@ -602,7 +602,7 @@ class FolioWebView : WebView {
                     val mDrawableField = ReflectionUtils.findField(handleViewClass, "mDrawable")
                     mDrawableField.isAccessible = true
                     val mDrawable = mDrawableField.get(view) as BitmapDrawable
-                    UiUtil.setColorIntToDrawable(config.themeColor, mDrawable)
+                    UiUtil.setColorIntToDrawable(config.currentThemeColor, mDrawable)
                 }
             }
 
@@ -649,7 +649,7 @@ class FolioWebView : WebView {
                 val mDrawableField = ReflectionUtils.findField(popupTouchHandleDrawableClass, "mDrawable")
                 mDrawableField.isAccessible = true
                 val mDrawable = mDrawableField.get(mChildren[0]) as Drawable
-                UiUtil.setColorIntToDrawable(config.themeColor, mDrawable)
+                UiUtil.setColorIntToDrawable(config.currentThemeColor, mDrawable)
             }
         }
     }

@@ -636,9 +636,9 @@ class FolioPageFragment : Fragment(),
     }
 
     private fun setupScrollBar() {
-        UiUtil.setColorIntToDrawable(mConfig!!.themeColor, mScrollSeekbar!!.progressDrawable)
+        UiUtil.setColorIntToDrawable(mConfig!!.currentThemeColor, mScrollSeekbar!!.progressDrawable)
         val thumbDrawable = ContextCompat.getDrawable(activity!!, R.drawable.icons_sroll)
-        UiUtil.setColorIntToDrawable(mConfig!!.themeColor, thumbDrawable!!)
+        UiUtil.setColorIntToDrawable(mConfig!!.currentThemeColor, thumbDrawable!!)
         mScrollSeekbar!!.thumb = thumbDrawable
     }
 

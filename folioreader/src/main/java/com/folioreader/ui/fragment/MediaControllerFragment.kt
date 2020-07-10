@@ -193,31 +193,31 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
 
         btnHalfSpeed?.setTextColor(
             UiUtil.getColorList(
-                config.themeColor,
+                config.currentThemeColor,
                 ContextCompat.getColor(context!!, R.color.grey_color)
             )
         )
         btnOneAndHalfSpeed?.setTextColor(
             UiUtil.getColorList(
-                config.themeColor,
+                config.currentThemeColor,
                 ContextCompat.getColor(context!!, R.color.grey_color)
             )
         )
         btnTwoXSpeed?.setTextColor(
             UiUtil.getColorList(
-                config.themeColor,
+                config.currentThemeColor,
                 ContextCompat.getColor(context!!, R.color.grey_color)
             )
         )
         btnOneXSpeed?.setTextColor(
             UiUtil.getColorList(
-                config.themeColor,
+                config.currentThemeColor,
                 ContextCompat.getColor(context!!, R.color.grey_color)
             )
         )
         btnTextUnderlineStyle?.setTextColor(
             UiUtil.getColorList(
-                config.themeColor,
+                config.currentThemeColor,
                 ContextCompat.getColor(context!!, R.color.grey_color)
             )
         )
@@ -229,19 +229,19 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
         )
         btnBackColorStyle?.setBackgroundDrawable(
             UiUtil.createStateDrawable(
-                config.themeColor,
+                config.currentThemeColor,
                 ContextCompat.getColor(context!!, android.R.color.transparent)
             )
         )
         btnTextColorStyle?.setTextColor(
             UiUtil.getColorList(
-                config.themeColor,
+                config.currentThemeColor,
                 ContextCompat.getColor(context!!, R.color.grey_color)
             )
         )
-        UiUtil.setColorIntToDrawable(config.themeColor, playPauseButton?.drawable)
-        UiUtil.setColorIntToDrawable(config.themeColor, nextButton?.drawable)
-        UiUtil.setColorIntToDrawable(config.themeColor, prevButton?.drawable)
+        UiUtil.setColorIntToDrawable(config.currentThemeColor, playPauseButton?.drawable)
+        UiUtil.setColorIntToDrawable(config.currentThemeColor, nextButton?.drawable)
+        UiUtil.setColorIntToDrawable(config.currentThemeColor, prevButton?.drawable)
     }
 
     private fun initListeners() {
@@ -249,11 +249,11 @@ class MediaControllerFragment : BottomSheetDialogFragment() {
         playPauseButton?.setOnClickListener {
             if (isPlaying) {
                 playPauseButton?.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.ic_play))
-                UiUtil.setColorIntToDrawable(config.themeColor, playPauseButton?.drawable)
+                UiUtil.setColorIntToDrawable(config.currentThemeColor, playPauseButton?.drawable)
                 callback.pause()
             } else {
                 playPauseButton?.setImageDrawable(ContextCompat.getDrawable(context!!, R.drawable.ic_pause))
-                UiUtil.setColorIntToDrawable(config.themeColor, playPauseButton?.drawable)
+                UiUtil.setColorIntToDrawable(config.currentThemeColor, playPauseButton?.drawable)
                 callback.play()
             }
             isPlaying = !isPlaying

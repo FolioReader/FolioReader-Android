@@ -22,6 +22,7 @@ public class Config implements Parcelable {
     public static final String CONFIG_FONT_SIZE = "font_size";
     public static final String CONFIG_IS_NIGHT_MODE = "is_night_mode";
     public static final String CONFIG_THEME_COLOR_INT = "theme_color_int";
+    public static final String CONFIG_NIGHT_THEME_COLOR_INT = "night_theme_color_int";
     public static final String CONFIG_IS_TTS = "is_tts";
     public static final String CONFIG_ALLOWED_DIRECTION = "allowed_direction";
     public static final String CONFIG_DIRECTION = "direction";
@@ -35,6 +36,7 @@ public class Config implements Parcelable {
     private boolean nightMode;
     @ColorInt
     private int themeColor = DEFAULT_THEME_COLOR_INT;
+    private int nightThemeColor = themeColor;
     private boolean showTts = true;
     private AllowedDirection allowedDirection = DEFAULT_ALLOWED_DIRECTION;
     private Direction direction = DEFAULT_DIRECTION;
@@ -76,6 +78,7 @@ public class Config implements Parcelable {
         dest.writeInt(fontSize);
         dest.writeByte((byte) (nightMode ? 1 : 0));
         dest.writeInt(themeColor);
+        dest.writeInt(nightThemeColor);
         dest.writeByte((byte) (showTts ? 1 : 0));
         dest.writeString(allowedDirection.toString());
         dest.writeString(direction.toString());
@@ -86,6 +89,7 @@ public class Config implements Parcelable {
         fontSize = in.readInt();
         nightMode = in.readByte() != 0;
         themeColor = in.readInt();
+        nightThemeColor = in.readInt();
         showTts = in.readByte() != 0;
         allowedDirection = getAllowedDirectionFromString(LOG_TAG, in.readString());
         direction = getDirectionFromString(LOG_TAG, in.readString());
@@ -99,6 +103,7 @@ public class Config implements Parcelable {
         fontSize = jsonObject.optInt(CONFIG_FONT_SIZE);
         nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHT_MODE);
         themeColor = getValidColorInt(jsonObject.optInt(CONFIG_THEME_COLOR_INT));
+        nightThemeColor = getValidColorInt(jsonObject.optInt(CONFIG_NIGHT_THEME_COLOR_INT));
         showTts = jsonObject.optBoolean(CONFIG_IS_TTS);
         allowedDirection = getAllowedDirectionFromString(LOG_TAG,
                 jsonObject.optString(CONFIG_ALLOWED_DIRECTION));
@@ -165,6 +170,11 @@ public class Config implements Parcelable {
     }
 
     @ColorInt
+    public int getCurrentThemeColor() {
+        return isNightMode() ? getNightThemeColor() : getThemeColor();
+    }
+
+    @ColorInt
     private int getValidColorInt(@ColorInt int colorInt) {
         if (colorInt >= 0) {
             Log.w(LOG_TAG, "-> getValidColorInt -> Invalid argument colorInt = " + colorInt +
@@ -177,6 +187,11 @@ public class Config implements Parcelable {
     @ColorInt
     public int getThemeColor() {
         return themeColor;
+    }
+
+    @ColorInt
+    public int getNightThemeColor() {
+        return nightThemeColor;
     }
 
     public Config setThemeColorRes(@ColorRes int colorResId) {
@@ -193,6 +208,23 @@ public class Config implements Parcelable {
 
     public Config setThemeColorInt(@ColorInt int colorInt) {
         this.themeColor = getValidColorInt(colorInt);
+        return this;
+    }
+
+    public Config setNightThemeColorRes(@ColorRes int colorResId) {
+        try {
+            this.nightThemeColor = ContextCompat.getColor(AppContext.get(), colorResId);
+        } catch (Resources.NotFoundException e) {
+            Log.w(LOG_TAG, "-> setNightThemeColorRes -> " + e);
+            Log.w(LOG_TAG, "-> setNightThemeColorRes -> Defaulting themeColor to " +
+                    DEFAULT_THEME_COLOR_INT);
+            this.nightThemeColor = DEFAULT_THEME_COLOR_INT;
+        }
+        return this;
+    }
+
+    public Config setNightThemeColorInt(@ColorInt int colorInt) {
+        this.nightThemeColor = getValidColorInt(colorInt);
         return this;
     }
 
@@ -287,6 +319,7 @@ public class Config implements Parcelable {
                 ", fontSize=" + fontSize +
                 ", nightMode=" + nightMode +
                 ", themeColor=" + themeColor +
+                ", nightThemeColor=" + nightThemeColor +
                 ", showTts=" + showTts +
                 ", allowedDirection=" + allowedDirection +
                 ", direction=" + direction +

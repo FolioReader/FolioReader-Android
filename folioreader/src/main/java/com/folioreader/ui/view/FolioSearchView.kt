@@ -56,12 +56,12 @@ class FolioSearchView : SearchView {
         Log.v(LOG_TAG, "-> applyTheme")
 
         val searchCloseButton: ImageView = findViewById(R.id.search_close_btn)
-        UiUtil.setColorIntToDrawable(config.themeColor, searchCloseButton.drawable)
+        UiUtil.setColorIntToDrawable(config.currentThemeColor, searchCloseButton.drawable)
 
         searchAutoComplete = findViewById(R.id.search_src_text)
-        UiUtil.setEditTextCursorColor(searchAutoComplete, config.themeColor)
-        UiUtil.setEditTextHandleColor(searchAutoComplete, config.themeColor)
-        searchAutoComplete.highlightColor = ColorUtils.setAlphaComponent(config.themeColor, 85)
+        UiUtil.setEditTextCursorColor(searchAutoComplete, config.currentThemeColor)
+        UiUtil.setEditTextHandleColor(searchAutoComplete, config.currentThemeColor)
+        searchAutoComplete.highlightColor = ColorUtils.setAlphaComponent(config.currentThemeColor, 85)
         if (config.isNightMode) {
             searchAutoComplete.setTextColor(ContextCompat.getColor(context, R.color.night_title_text_color))
             searchAutoComplete.setHintTextColor(ContextCompat.getColor(context, R.color.night_text_color))

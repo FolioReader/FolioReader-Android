@@ -121,7 +121,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
             val fieldCollapseIcon: Field = Toolbar::class.java.getDeclaredField("mCollapseIcon")
             fieldCollapseIcon.isAccessible = true
             val collapseIcon: Drawable = fieldCollapseIcon.get(toolbar) as Drawable
-            UiUtil.setColorIntToDrawable(config.themeColor, collapseIcon)
+            UiUtil.setColorIntToDrawable(config.currentThemeColor, collapseIcon)
         } catch (e: Exception) {
             Log.e(LOG_TAG, "-> ", e)
         }
@@ -221,7 +221,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
 
         val config: Config = AppUtil.getSavedConfig(applicationContext)!!
         val itemSearch: MenuItem = menu.findItem(R.id.itemSearch)
-        UiUtil.setColorIntToDrawable(config.themeColor, itemSearch.icon)
+        UiUtil.setColorIntToDrawable(config.currentThemeColor, itemSearch.icon)
 
         searchView = itemSearch.actionView as FolioSearchView
         searchView.init(componentName, config)

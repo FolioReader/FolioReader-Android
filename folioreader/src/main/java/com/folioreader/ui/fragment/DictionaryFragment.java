@@ -140,7 +140,7 @@ public class DictionaryFragment extends DialogFragment
         Config config = AppUtil.getSavedConfig(getContext());
         assert config != null;
         assert getContext() != null;
-        final int themeColor = config.getThemeColor();
+        final int themeColor = config.getCurrentThemeColor();
 
         UiUtil.setColorIntToDrawable(themeColor, imageViewClose.getDrawable());
         LinearLayout layoutHeader = view.findViewById(R.id.layout_header);

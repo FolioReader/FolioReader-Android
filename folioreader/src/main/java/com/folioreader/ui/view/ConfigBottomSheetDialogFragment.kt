@@ -86,12 +86,12 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
         if (isNightMode) {
             view_config_ib_day_mode.isSelected = false
             view_config_ib_night_mode.isSelected = true
-            UiUtil.setColorIntToDrawable(config.themeColor, view_config_ib_night_mode.drawable)
+            UiUtil.setColorIntToDrawable(config.currentThemeColor, view_config_ib_night_mode.drawable)
             UiUtil.setColorResToDrawable(R.color.app_gray, view_config_ib_day_mode.drawable)
         } else {
             view_config_ib_day_mode.isSelected = true
             view_config_ib_night_mode.isSelected = false
-            UiUtil.setColorIntToDrawable(config.themeColor, view_config_ib_day_mode!!.drawable)
+            UiUtil.setColorIntToDrawable(config.currentThemeColor, view_config_ib_day_mode!!.drawable)
             UiUtil.setColorResToDrawable(R.color.app_gray, view_config_ib_night_mode.drawable)
         }
     }
@@ -112,7 +112,7 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
             setToolBarColor()
             setAudioPlayerBackground()
             UiUtil.setColorResToDrawable(R.color.app_gray, view_config_ib_night_mode.drawable)
-            UiUtil.setColorIntToDrawable(config.themeColor, view_config_ib_day_mode.drawable)
+            UiUtil.setColorIntToDrawable(config.currentThemeColor, view_config_ib_day_mode.drawable)
         }
 
         view_config_ib_night_mode.setOnClickListener {
@@ -121,7 +121,7 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
             view_config_ib_day_mode.isSelected = false
             view_config_ib_night_mode.isSelected = true
             UiUtil.setColorResToDrawable(R.color.app_gray, view_config_ib_day_mode.drawable)
-            UiUtil.setColorIntToDrawable(config.themeColor, view_config_ib_night_mode.drawable)
+            UiUtil.setColorIntToDrawable(config.currentThemeColor, view_config_ib_night_mode.drawable)
             setToolBarColor()
             setAudioPlayerBackground()
         }
@@ -154,7 +154,7 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private fun configFonts() {
 
         val colorStateList = UiUtil.getColorList(
-            config.themeColor,
+            config.currentThemeColor,
             ContextCompat.getColor(context!!, R.color.grey_color)
         )
         buttonVertical.setTextColor(colorStateList)
@@ -254,7 +254,7 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private fun configSeekBar() {
         val thumbDrawable = ContextCompat.getDrawable(activity!!, R.drawable.seekbar_thumb)
-        UiUtil.setColorIntToDrawable(config.themeColor, thumbDrawable)
+        UiUtil.setColorIntToDrawable(config.currentThemeColor, thumbDrawable)
         UiUtil.setColorResToDrawable(R.color.grey_color, view_config_font_size_seek_bar.progressDrawable)
         view_config_font_size_seek_bar.thumb = thumbDrawable
 
