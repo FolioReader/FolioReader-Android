@@ -15,6 +15,7 @@
  */
 package com.folioreader.android.sample;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -81,6 +82,9 @@ public class HomeActivity extends AppCompatActivity
                 if (config == null)
                     config = new Config();
                 config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
+
+                config.setNightThemeColorInt(Color.parseColor("#FFFFFF"));
+                config.setShowRemainingIndicator(true);
 
                 folioReader.setReadLocator(readLocator);
                 folioReader.setConfig(config, true)

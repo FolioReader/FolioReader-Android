@@ -3,10 +3,13 @@ package com.folioreader.ui.adapter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+
 import com.folioreader.ui.fragment.FolioPageFragment;
+
 import org.readium.r2.shared.Link;
 
 import java.lang.reflect.Field;

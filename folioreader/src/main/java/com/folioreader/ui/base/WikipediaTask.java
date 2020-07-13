@@ -2,8 +2,10 @@ package com.folioreader.ui.base;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
 import com.folioreader.model.dictionary.Wikipedia;
 import com.folioreader.util.AppUtil;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 

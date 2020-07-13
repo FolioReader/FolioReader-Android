@@ -2,7 +2,9 @@ package com.folioreader.ui.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+
 import androidx.appcompat.widget.AppCompatTextView;
+
 import com.folioreader.R;
 import com.folioreader.util.UiUtil;
 

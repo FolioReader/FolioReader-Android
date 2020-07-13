@@ -64,34 +64,35 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
     private lateinit var searchViewModel: SearchViewModel
 
     // To get collapseButtonView from toolbar for any click events
-    private val toolbarOnLayoutChangeListener: View.OnLayoutChangeListener = object : View.OnLayoutChangeListener {
-        override fun onLayoutChange(
-            v: View?, left: Int, top: Int, right: Int, bottom: Int,
-            oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int
-        ) {
+    private val toolbarOnLayoutChangeListener: View.OnLayoutChangeListener =
+        object : View.OnLayoutChangeListener {
+            override fun onLayoutChange(
+                v: View?, left: Int, top: Int, right: Int, bottom: Int,
+                oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int
+            ) {
 
-            for (i in 0 until toolbar.childCount) {
+                for (i in 0 until toolbar.childCount) {
 
-                val view: View = toolbar.getChildAt(i)
-                val contentDescription: String? = view.contentDescription as String?
-                if (TextUtils.isEmpty(contentDescription))
-                    continue
+                    val view: View = toolbar.getChildAt(i)
+                    val contentDescription: String? = view.contentDescription as String?
+                    if (TextUtils.isEmpty(contentDescription))
+                        continue
 
-                if (contentDescription == "Collapse") {
-                    Log.v(LOG_TAG, "-> initActionBar -> mCollapseButtonView found")
-                    collapseButtonView = view as ImageButton
+                    if (contentDescription == "Collapse") {
+                        Log.v(LOG_TAG, "-> initActionBar -> mCollapseButtonView found")
+                        collapseButtonView = view as ImageButton
 
-                    collapseButtonView?.setOnClickListener {
-                        Log.v(LOG_TAG, "-> onClick -> collapseButtonView")
-                        navigateBack()
+                        collapseButtonView?.setOnClickListener {
+                            Log.v(LOG_TAG, "-> onClick -> collapseButtonView")
+                            navigateBack()
+                        }
+
+                        toolbar.removeOnLayoutChangeListener(this)
+                        return
                     }
-
-                    toolbar.removeOnLayoutChangeListener(this)
-                    return
                 }
             }
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,7 +122,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
             val fieldCollapseIcon: Field = Toolbar::class.java.getDeclaredField("mCollapseIcon")
             fieldCollapseIcon.isAccessible = true
             val collapseIcon: Drawable = fieldCollapseIcon.get(toolbar) as Drawable
-            UiUtil.setColorIntToDrawable(config.themeColor, collapseIcon)
+            UiUtil.setColorIntToDrawable(config.currentThemeColor, collapseIcon)
         } catch (e: Exception) {
             Log.e(LOG_TAG, "-> ", e)
         }
@@ -175,7 +176,10 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
 
         val query: String = intent.getStringExtra(SearchManager.QUERY)
         val newDataBundle = Bundle()
-        newDataBundle.putString(ListViewType.KEY, ListViewType.PAGINATION_IN_PROGRESS_VIEW.toString())
+        newDataBundle.putString(
+            ListViewType.KEY,
+            ListViewType.PAGINATION_IN_PROGRESS_VIEW.toString()
+        )
         newDataBundle.putParcelableArrayList("DATA", ArrayList<SearchLocator>())
         searchViewModel.liveAdapterDataBundle.value = newDataBundle
 
@@ -221,7 +225,7 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
 
         val config: Config = AppUtil.getSavedConfig(applicationContext)!!
         val itemSearch: MenuItem = menu.findItem(R.id.itemSearch)
-        UiUtil.setColorIntToDrawable(config.themeColor, itemSearch.icon)
+        UiUtil.setColorIntToDrawable(config.currentThemeColor, itemSearch.icon)
 
         searchView = itemSearch.actionView as FolioSearchView
         searchView.init(componentName, config)
@@ -316,7 +320,10 @@ class SearchActivity : AppCompatActivity(), OnItemClickListener {
                     linearLayoutManager.findFirstVisibleItemPosition()
                 )
                 intent.putExtra(SearchAdapter.DATA_BUNDLE, searchAdapterDataBundle)
-                intent.putExtra(FolioActivity.EXTRA_SEARCH_ITEM, viewHolder.searchLocator as Parcelable)
+                intent.putExtra(
+                    FolioActivity.EXTRA_SEARCH_ITEM,
+                    viewHolder.searchLocator as Parcelable
+                )
                 intent.putExtra(BUNDLE_SAVE_SEARCH_QUERY, searchView.query)
                 setResult(ResultCode.ITEM_SELECTED.value, intent)
                 finish()

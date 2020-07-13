@@ -222,46 +222,6 @@ html.nightMode .highlight_blue {background:rgba(173, 216, 255, 0.9)}
 html.nightMode .highlight_pink {background:rgba(255, 176, 202, 0.9)}
 html.nightMode .highlight_underline {border-bottom: 2px solid rgba(240, 40, 20, 0.6)}
 
-
-/*
- *
- * Font classes
- *
- */
-
-@font-face {
-    font-family: 'andada';
-    src: url('file:///android_asset/fonts/andada/Andada-Regular.otf');
-}
-
-@font-face {
-    font-family: 'lato';
-    src: url('file:///android_asset/fonts/lato/Lato-Regular.ttf');
-}
-
-@font-face {
-    font-family: 'lora';
-    src: url('file:///android_asset/fonts/lora/Lora-Regular.ttf');
-}
-
-@font-face {
-    font-family: 'raleway';
-    src: url('file:///android_asset/fonts/raleway/Raleway-Regular.ttf');
-}
-
-.andada {
-     font-family: "andada", sans-serif;
- }
-.lato {
-     font-family: "lato", serif;
- }
-.lora {
-     font-family: "lora", serif;
- }
-.raleway {
-     font-family: "raleway", sans-serif;
- }
-
 html.textSizeOne { font-size: 13px !important; }
 html.textSizeTwo { font-size: 15px !important; }
 html.textSizeThree { font-size: 17px !important; }

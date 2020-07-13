@@ -1,9 +1,12 @@
 package com.folioreader.ui.base;
 
 import android.content.Context;
+
 import com.folioreader.Config;
-import com.folioreader.Constants;
 import com.folioreader.R;
+import com.folioreader.util.FontFinder;
+
+import java.io.File;
 
 /**
  * @author gautam chibde on 14/6/17.
@@ -56,26 +59,34 @@ public final class HtmlUtil {
         jsPath = jsPath
                 + "<meta name=\"viewport\" content=\"height=device-height, user-scalable=no\" />";
 
-        String toInject = "\n" + cssPath + "\n" + jsPath + "\n</head>";
+        String fontName = config.getFont();
+
+        System.out.println("Font family: " + fontName);
+
+        // Inject CSS & user font style
+        String toInject = "\n" + cssPath + "\n" + jsPath + "\n";
+
+        File userFontFile = FontFinder.getFontFile(fontName);
+        if (userFontFile != null) {
+            System.out.println("Injected user font into CSS");
+            System.out.println("  - path: " + userFontFile.getAbsolutePath());
+            System.out.println("  - family: '" + fontName + "'");
+            toInject += "<style>\n";
+            toInject += "@font-face {\n";
+            toInject += "  font-family: '" + fontName + "';\n";
+            toInject += "  src: url('file://" + userFontFile.getAbsolutePath() + "');\n";
+            toInject += "}\n";
+            toInject += ".custom-font {\n";
+            toInject += "  font-family: '" + fontName + "', sans-serif;\n";
+            toInject += "}\n";
+            toInject += "\n</style>";
+        }
+
+        toInject += "</head>";
+
         htmlContent = htmlContent.replace("</head>", toInject);
 
-        String classes = "";
-        switch (config.getFont()) {
-            case Constants.FONT_ANDADA:
-                classes = "andada";
-                break;
-            case Constants.FONT_LATO:
-                classes = "lato";
-                break;
-            case Constants.FONT_LORA:
-                classes = "lora";
-                break;
-            case Constants.FONT_RALEWAY:
-                classes = "raleway";
-                break;
-            default:
-                break;
-        }
+        String classes = "custom-font";
 
         if (config.isNightMode()) {
             classes += " nightMode";
@@ -101,8 +112,12 @@ public final class HtmlUtil {
                 break;
         }
 
-        htmlContent = htmlContent.replace("<html", "<html class=\"" + classes + "\"" +
-                " onclick=\"onClickHtml()\"");
+        String styles = "font-family: '" + fontName + "';";
+
+        htmlContent = htmlContent.replace("<html",
+                "<html class=\"" + classes + "\"" +
+                        " style=\"" + styles + "\"" +
+                        " onclick=\"onClickHtml()\"");
         return htmlContent;
     }
 }

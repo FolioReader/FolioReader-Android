@@ -26,12 +26,15 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.core.content.ContextCompat;
+
 import com.folioreader.AppContext;
 import com.folioreader.R;
 import com.folioreader.ui.view.UnderlinedTextView;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -66,14 +69,14 @@ public class UiUtil {
                 ((Button) view).setTypeface(tf);
             }
         } catch (Exception e) {
-            Log.e("AppUtil", "Could not get typface  " + asset);
+            Log.e("AppUtil", "Could not get typeface  " + asset);
             return false;
         }
 
         return true;
     }
 
-    private static final Hashtable<String, SoftReference<Typeface>> fontCache = new Hashtable<String, SoftReference<Typeface>>();
+    private static final Hashtable<String, SoftReference<Typeface>> fontCache = new Hashtable<>();
 
     public static Typeface getFont(Context c, String name) {
         synchronized (fontCache) {

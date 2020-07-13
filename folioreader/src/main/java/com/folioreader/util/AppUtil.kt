@@ -62,7 +62,8 @@ class AppUtil {
         fun charsetNameForURLConnection(connection: URLConnection): String {
             // see https://stackoverflow.com/a/3934280/1027646
             val contentType = connection.contentType
-            val values = contentType.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            val values =
+                contentType.split(";".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             var charset: String? = null
 
             for (_value in values) {
@@ -94,9 +95,11 @@ class AppUtil {
                 obj.put(Config.CONFIG_FONT_SIZE, config.fontSize)
                 obj.put(Config.CONFIG_IS_NIGHT_MODE, config.isNightMode)
                 obj.put(Config.CONFIG_THEME_COLOR_INT, config.themeColor)
+                obj.put(Config.CONFIG_NIGHT_THEME_COLOR_INT, config.nightThemeColor)
                 obj.put(Config.CONFIG_IS_TTS, config.isShowTts)
                 obj.put(Config.CONFIG_ALLOWED_DIRECTION, config.allowedDirection.toString())
                 obj.put(Config.CONFIG_DIRECTION, config.direction.toString())
+                obj.put(Config.CONFIG_REMAINING_INDICATOR, config.isShowRemainingIndicator)
                 SharedPreferenceUtil.putSharedPreferencesString(
                     context, Config.INTENT_CONFIG,
                     obj.toString()
@@ -111,12 +114,12 @@ class AppUtil {
         fun getSavedConfig(context: Context?): Config? {
             val json = getSharedPreferencesString(context, Config.INTENT_CONFIG, null)
             if (json != null) {
-                try {
+                return try {
                     val jsonObject = JSONObject(json)
-                    return Config(jsonObject)
+                    Config(jsonObject)
                 } catch (e: JSONException) {
                     Log.e(LOG_TAG, e.message)
-                    return null
+                    null
                 }
 
             }
@@ -143,7 +146,8 @@ class AppUtil {
                 }
             }
 
-            val index = action and MotionEvent.ACTION_POINTER_INDEX_MASK shr MotionEvent.ACTION_POINTER_INDEX_SHIFT
+            val index =
+                action and MotionEvent.ACTION_POINTER_INDEX_MASK shr MotionEvent.ACTION_POINTER_INDEX_SHIFT
             when (action and MotionEvent.ACTION_MASK) {
                 MotionEvent.ACTION_POINTER_DOWN -> return "ACTION_POINTER_DOWN($index)"
                 MotionEvent.ACTION_POINTER_UP -> return "ACTION_POINTER_UP($index)"

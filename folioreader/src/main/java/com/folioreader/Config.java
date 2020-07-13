@@ -1,12 +1,15 @@
 package com.folioreader;
 
 import android.content.res.Resources;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.core.content.ContextCompat;
+
 import org.json.JSONObject;
 
 /**
@@ -22,22 +25,26 @@ public class Config implements Parcelable {
     public static final String CONFIG_FONT_SIZE = "font_size";
     public static final String CONFIG_IS_NIGHT_MODE = "is_night_mode";
     public static final String CONFIG_THEME_COLOR_INT = "theme_color_int";
+    public static final String CONFIG_NIGHT_THEME_COLOR_INT = "night_theme_color_int";
     public static final String CONFIG_IS_TTS = "is_tts";
     public static final String CONFIG_ALLOWED_DIRECTION = "allowed_direction";
     public static final String CONFIG_DIRECTION = "direction";
+    public static final String CONFIG_REMAINING_INDICATOR = "show_remaining_indicator";
     private static final AllowedDirection DEFAULT_ALLOWED_DIRECTION = AllowedDirection.ONLY_VERTICAL;
     private static final Direction DEFAULT_DIRECTION = Direction.VERTICAL;
     private static final int DEFAULT_THEME_COLOR_INT =
             ContextCompat.getColor(AppContext.get(), R.color.default_theme_accent_color);
 
-    private int font = 3;
+    private String font = "Roboto";
     private int fontSize = 2;
     private boolean nightMode;
     @ColorInt
     private int themeColor = DEFAULT_THEME_COLOR_INT;
+    private int nightThemeColor = themeColor;
     private boolean showTts = true;
     private AllowedDirection allowedDirection = DEFAULT_ALLOWED_DIRECTION;
     private Direction direction = DEFAULT_DIRECTION;
+    private boolean showRemainingIndicator = false;
 
     /**
      * Reading modes available
@@ -72,37 +79,96 @@ public class Config implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(font);
-        dest.writeInt(fontSize);
-        dest.writeByte((byte) (nightMode ? 1 : 0));
-        dest.writeInt(themeColor);
-        dest.writeByte((byte) (showTts ? 1 : 0));
-        dest.writeString(allowedDirection.toString());
-        dest.writeString(direction.toString());
+        Bundle bundle = new Bundle();
+        bundle.putString(CONFIG_FONT, font);
+        bundle.putInt(CONFIG_FONT_SIZE, fontSize);
+        bundle.putBoolean(CONFIG_IS_NIGHT_MODE, nightMode);
+        bundle.putInt(CONFIG_THEME_COLOR_INT, themeColor);
+        bundle.putInt(CONFIG_NIGHT_THEME_COLOR_INT, nightThemeColor);
+        bundle.putBoolean(CONFIG_IS_TTS, showTts);
+        bundle.putString(CONFIG_ALLOWED_DIRECTION, allowedDirection.toString());
+        bundle.putString(CONFIG_DIRECTION, direction.toString());
+        bundle.putBoolean(CONFIG_REMAINING_INDICATOR, showRemainingIndicator);
+        dest.writeBundle(bundle);
     }
 
     protected Config(Parcel in) {
-        font = in.readInt();
-        fontSize = in.readInt();
-        nightMode = in.readByte() != 0;
-        themeColor = in.readInt();
-        showTts = in.readByte() != 0;
-        allowedDirection = getAllowedDirectionFromString(LOG_TAG, in.readString());
-        direction = getDirectionFromString(LOG_TAG, in.readString());
+        try {
+            Bundle bundle = in.readBundle(getClass().getClassLoader());
+            if (bundle == null) {
+                // set defaults because of an old configuration
+                System.out.println("Bundle does not exist, using default configuration.");
+                setDefaults();
+            } else {
+                font = getBundleItem(bundle, CONFIG_FONT, "Roboto");
+                fontSize = getBundleItem(bundle, CONFIG_FONT_SIZE, 2);
+                nightMode = getBundleItem(bundle, CONFIG_IS_NIGHT_MODE, false);
+                themeColor = getBundleItem(bundle, CONFIG_THEME_COLOR_INT, DEFAULT_THEME_COLOR_INT);
+                nightThemeColor = getBundleItem(bundle, CONFIG_NIGHT_THEME_COLOR_INT, DEFAULT_THEME_COLOR_INT);
+                showTts = getBundleItem(bundle, CONFIG_IS_TTS, true);
+                allowedDirection = getAllowedDirectionFromString(
+                        LOG_TAG,
+                        getBundleItem(bundle, CONFIG_ALLOWED_DIRECTION, DEFAULT_ALLOWED_DIRECTION.toString())
+                );
+                direction = getDirectionFromString(
+                        LOG_TAG,
+                        getBundleItem(bundle, CONFIG_DIRECTION, DEFAULT_DIRECTION.toString())
+                );
+                showRemainingIndicator = getBundleItem(bundle, CONFIG_REMAINING_INDICATOR, showRemainingIndicator);
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to parse configuration, likely an old version.");
+            setDefaults();
+        }
+    }
+
+    private void setDefaults() {
+        font = "Roboto";
+        fontSize = 2;
+        nightMode = false;
+        themeColor = DEFAULT_THEME_COLOR_INT;
+        nightThemeColor = themeColor;
+        showTts = true;
+        allowedDirection = DEFAULT_ALLOWED_DIRECTION;
+        direction = DEFAULT_DIRECTION;
+        showRemainingIndicator = false;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T getBundleItem(Bundle bundle, String key, T defaultValue) {
+        if (bundle.containsKey(key)) {
+            return (T) bundle.get(key);
+        }
+        return defaultValue;
     }
 
     public Config() {
     }
 
-    public Config(JSONObject jsonObject) {
-        font = jsonObject.optInt(CONFIG_FONT);
-        fontSize = jsonObject.optInt(CONFIG_FONT_SIZE);
-        nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHT_MODE);
-        themeColor = getValidColorInt(jsonObject.optInt(CONFIG_THEME_COLOR_INT));
-        showTts = jsonObject.optBoolean(CONFIG_IS_TTS);
-        allowedDirection = getAllowedDirectionFromString(LOG_TAG,
-                jsonObject.optString(CONFIG_ALLOWED_DIRECTION));
-        direction = getDirectionFromString(LOG_TAG, jsonObject.optString(CONFIG_DIRECTION));
+    public Config(JSONObject obj) {
+        font = getJsonItem(obj, CONFIG_FONT, "Roboto");
+        fontSize = getJsonItem(obj, CONFIG_FONT_SIZE, 2);
+        nightMode = getJsonItem(obj, CONFIG_IS_NIGHT_MODE, false);
+        themeColor = getValidColorInt(getJsonItem(obj, CONFIG_THEME_COLOR_INT, DEFAULT_THEME_COLOR_INT));
+        nightThemeColor = getValidColorInt(getJsonItem(obj, CONFIG_NIGHT_THEME_COLOR_INT, DEFAULT_THEME_COLOR_INT));
+        showTts = getJsonItem(obj, CONFIG_IS_TTS, true);
+        allowedDirection = getAllowedDirectionFromString(
+                LOG_TAG,
+                getJsonItem(obj, CONFIG_ALLOWED_DIRECTION, DEFAULT_ALLOWED_DIRECTION.toString())
+        );
+        direction = getDirectionFromString(
+                LOG_TAG,
+                getJsonItem(obj, CONFIG_DIRECTION, DEFAULT_DIRECTION.toString())
+        );
+        showRemainingIndicator = getJsonItem(obj, CONFIG_REMAINING_INDICATOR, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T getJsonItem(JSONObject object, String key, T defaultValue) {
+        if (object.has(key)) {
+            return (T) object.opt(key);
+        }
+        return defaultValue;
     }
 
     public static Direction getDirectionFromString(final String LOG_TAG, String directionString) {
@@ -137,11 +203,11 @@ public class Config implements Parcelable {
         }
     }
 
-    public int getFont() {
+    public String getFont() {
         return font;
     }
 
-    public Config setFont(int font) {
+    public Config setFont(String font) {
         this.font = font;
         return this;
     }
@@ -165,6 +231,11 @@ public class Config implements Parcelable {
     }
 
     @ColorInt
+    public int getCurrentThemeColor() {
+        return isNightMode() ? getNightThemeColor() : getThemeColor();
+    }
+
+    @ColorInt
     private int getValidColorInt(@ColorInt int colorInt) {
         if (colorInt >= 0) {
             Log.w(LOG_TAG, "-> getValidColorInt -> Invalid argument colorInt = " + colorInt +
@@ -177,6 +248,11 @@ public class Config implements Parcelable {
     @ColorInt
     public int getThemeColor() {
         return themeColor;
+    }
+
+    @ColorInt
+    public int getNightThemeColor() {
+        return nightThemeColor;
     }
 
     public Config setThemeColorRes(@ColorRes int colorResId) {
@@ -193,6 +269,23 @@ public class Config implements Parcelable {
 
     public Config setThemeColorInt(@ColorInt int colorInt) {
         this.themeColor = getValidColorInt(colorInt);
+        return this;
+    }
+
+    public Config setNightThemeColorRes(@ColorRes int colorResId) {
+        try {
+            this.nightThemeColor = ContextCompat.getColor(AppContext.get(), colorResId);
+        } catch (Resources.NotFoundException e) {
+            Log.w(LOG_TAG, "-> setNightThemeColorRes -> " + e);
+            Log.w(LOG_TAG, "-> setNightThemeColorRes -> Defaulting themeColor to " +
+                    DEFAULT_THEME_COLOR_INT);
+            this.nightThemeColor = DEFAULT_THEME_COLOR_INT;
+        }
+        return this;
+    }
+
+    public Config setNightThemeColorInt(@ColorInt int colorInt) {
+        this.nightThemeColor = getValidColorInt(colorInt);
         return this;
     }
 
@@ -280,6 +373,19 @@ public class Config implements Parcelable {
         return this;
     }
 
+    public boolean isShowRemainingIndicator() {
+        return showRemainingIndicator;
+    }
+
+    /**
+     * Sets the remaining indicator to be visible while reading
+     *
+     * @param showRemainingIndicator <t>true</t> to show the indicator while reading, otherwise <t>false</t>.
+     */
+    public void setShowRemainingIndicator(boolean showRemainingIndicator) {
+        this.showRemainingIndicator = showRemainingIndicator;
+    }
+
     @Override
     public String toString() {
         return "Config{" +
@@ -287,9 +393,11 @@ public class Config implements Parcelable {
                 ", fontSize=" + fontSize +
                 ", nightMode=" + nightMode +
                 ", themeColor=" + themeColor +
+                ", nightThemeColor=" + nightThemeColor +
                 ", showTts=" + showTts +
                 ", allowedDirection=" + allowedDirection +
                 ", direction=" + direction +
+                ", remainingIndicator=" + showRemainingIndicator +
                 '}';
     }
 }
