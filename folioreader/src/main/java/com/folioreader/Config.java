@@ -29,6 +29,7 @@ public class Config implements Parcelable {
     public static final String CONFIG_IS_TTS = "is_tts";
     public static final String CONFIG_ALLOWED_DIRECTION = "allowed_direction";
     public static final String CONFIG_DIRECTION = "direction";
+    public static final String CONFIG_REMAINING_INDICATOR = "show_remaining_indicator";
     private static final AllowedDirection DEFAULT_ALLOWED_DIRECTION = AllowedDirection.ONLY_VERTICAL;
     private static final Direction DEFAULT_DIRECTION = Direction.VERTICAL;
     private static final int DEFAULT_THEME_COLOR_INT =
@@ -43,6 +44,7 @@ public class Config implements Parcelable {
     private boolean showTts = true;
     private AllowedDirection allowedDirection = DEFAULT_ALLOWED_DIRECTION;
     private Direction direction = DEFAULT_DIRECTION;
+    private boolean showRemainingIndicator = false;
 
     /**
      * Reading modes available
@@ -86,6 +88,7 @@ public class Config implements Parcelable {
         bundle.putBoolean(CONFIG_IS_TTS, showTts);
         bundle.putString(CONFIG_ALLOWED_DIRECTION, allowedDirection.toString());
         bundle.putString(CONFIG_DIRECTION, direction.toString());
+        bundle.putBoolean(CONFIG_REMAINING_INDICATOR, showRemainingIndicator);
         dest.writeBundle(bundle);
     }
 
@@ -111,6 +114,7 @@ public class Config implements Parcelable {
                         LOG_TAG,
                         getBundleItem(bundle, CONFIG_DIRECTION, DEFAULT_DIRECTION.toString())
                 );
+                showRemainingIndicator = getBundleItem(bundle, CONFIG_REMAINING_INDICATOR, showRemainingIndicator);
             }
         } catch (Exception e) {
             System.out.println("Failed to parse configuration, likely an old version.");
@@ -127,6 +131,7 @@ public class Config implements Parcelable {
         showTts = true;
         allowedDirection = DEFAULT_ALLOWED_DIRECTION;
         direction = DEFAULT_DIRECTION;
+        showRemainingIndicator = false;
     }
 
     @SuppressWarnings("unchecked")
@@ -155,6 +160,7 @@ public class Config implements Parcelable {
                 LOG_TAG,
                 getJsonItem(obj, CONFIG_DIRECTION, DEFAULT_DIRECTION.toString())
         );
+        showRemainingIndicator = getJsonItem(obj, CONFIG_REMAINING_INDICATOR, false);
     }
 
     @SuppressWarnings("unchecked")
@@ -367,6 +373,19 @@ public class Config implements Parcelable {
         return this;
     }
 
+    public boolean isShowRemainingIndicator() {
+        return showRemainingIndicator;
+    }
+
+    /**
+     * Sets the remaining indicator to be visible while reading
+     *
+     * @param showRemainingIndicator <t>true</t> to show the indicator while reading, otherwise <t>false</t>.
+     */
+    public void setShowRemainingIndicator(boolean showRemainingIndicator) {
+        this.showRemainingIndicator = showRemainingIndicator;
+    }
+
     @Override
     public String toString() {
         return "Config{" +
@@ -378,6 +397,7 @@ public class Config implements Parcelable {
                 ", showTts=" + showTts +
                 ", allowedDirection=" + allowedDirection +
                 ", direction=" + direction +
+                ", remainingIndicator=" + showRemainingIndicator +
                 '}';
     }
 }

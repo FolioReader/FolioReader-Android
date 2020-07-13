@@ -84,6 +84,7 @@ public class HomeActivity extends AppCompatActivity
                 config.setAllowedDirection(Config.AllowedDirection.VERTICAL_AND_HORIZONTAL);
 
                 config.setNightThemeColorInt(Color.parseColor("#FFFFFF"));
+                config.setShowRemainingIndicator(true);
 
                 folioReader.setReadLocator(readLocator);
                 folioReader.setConfig(config, true)

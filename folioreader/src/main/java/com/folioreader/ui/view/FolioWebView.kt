@@ -41,6 +41,7 @@ import kotlinx.android.synthetic.main.text_selection.view.*
 import org.json.JSONObject
 import org.springframework.util.ReflectionUtils
 import java.lang.ref.WeakReference
+import kotlin.math.floor
 
 /**
  * @author by mahavir on 3/31/16.
@@ -105,14 +106,18 @@ class FolioWebView : WebView {
     private var lastTouchAction: Int = 0
     private var destroyed: Boolean = false
     private var handleHeight: Int = 0
+    private var calculatedProgress = 0.0
 
     private var lastScrollType: LastScrollType? = null
 
     val contentHeightVal: Int
-        get() = Math.floor((this.contentHeight * this.scale).toDouble()).toInt()
+        get() = floor((this.contentHeight * this.scale).toDouble()).toInt()
 
     val webViewHeight: Int
         get() = this.measuredHeight
+
+    val currentProgress: Double
+        get() = calculatedProgress
 
     private enum class LastScrollType {
         USER, PROGRAMMATIC
@@ -181,7 +186,7 @@ class FolioWebView : WebView {
                 //Log.d(LOG_TAG, "-> onFling -> completing scroll");
                 uiHandler.postDelayed({
                     // Delayed to avoid inconsistency of scrolling in WebView
-                    scrollTo(getScrollXPixelsForPage(webViewPager!!.currentItem), 0)
+                    scrollTo(getScrollXPixelsForPage(webViewPager.currentItem), 0)
                 }, 100)
             }
 
@@ -228,7 +233,12 @@ class FolioWebView : WebView {
             distanceX: Float,
             distanceY: Float
         ): Boolean {
-            //Log.v(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
+//            Log.v(LOG_TAG, "-> onScroll -> e1 = " + e1 + ", e2 = " + e2 + ", distanceX = " + distanceX + ", distanceY = " + distanceY);
+            parentFragment.mWebview?.let { wv ->
+                calculatedProgress = (wv.scrollY.toDouble() / wv.contentHeightVal.toDouble()) * 100.0
+//                val fmtProgress = "%.2f".format(calculatedProgress)
+//                println("VProgress: $fmtProgress%")
+            }
             lastScrollType = LastScrollType.USER
             return false
         }
@@ -471,6 +481,14 @@ class FolioWebView : WebView {
     override fun scrollTo(x: Int, y: Int) {
         super.scrollTo(x, y)
         //Log.d(LOG_TAG, "-> scrollTo -> x = " + x);
+
+        if (getDirection() == "HORIZONTAL") { // should always be true
+            calculatedProgress =
+                (webViewPager.currentItem.toDouble() / webViewPager.horizontalPageCount.toDouble()) * 100.0
+//            val fmtProgress = "%.2f".format(calculatedProgress)
+//            println("HProgress: $fmtProgress%")
+        }
+
         lastScrollType = LastScrollType.PROGRAMMATIC
     }
 

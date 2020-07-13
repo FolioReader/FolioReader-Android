@@ -99,6 +99,7 @@ class AppUtil {
                 obj.put(Config.CONFIG_IS_TTS, config.isShowTts)
                 obj.put(Config.CONFIG_ALLOWED_DIRECTION, config.allowedDirection.toString())
                 obj.put(Config.CONFIG_DIRECTION, config.direction.toString())
+                obj.put(Config.CONFIG_REMAINING_INDICATOR, config.isShowRemainingIndicator)
                 SharedPreferenceUtil.putSharedPreferencesString(
                     context, Config.INTENT_CONFIG,
                     obj.toString()
@@ -113,12 +114,12 @@ class AppUtil {
         fun getSavedConfig(context: Context?): Config? {
             val json = getSharedPreferencesString(context, Config.INTENT_CONFIG, null)
             if (json != null) {
-                try {
+                return try {
                     val jsonObject = JSONObject(json)
-                    return Config(jsonObject)
+                    Config(jsonObject)
                 } catch (e: JSONException) {
                     Log.e(LOG_TAG, e.message)
-                    return null
+                    null
                 }
 
             }

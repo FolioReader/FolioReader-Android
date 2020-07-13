@@ -18,6 +18,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.webkit.*
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -51,6 +52,7 @@ import org.readium.r2.shared.Link
 import org.readium.r2.shared.Locations
 import java.util.*
 import java.util.regex.Pattern
+import kotlin.math.ceil
 
 /**
  * Created by mahavir on 4/2/16.
@@ -175,6 +177,7 @@ class FolioPageFragment : Fragment(),
         mConfig = AppUtil.getSavedConfig(context)
 
         loadingView = mRootView!!.findViewById(R.id.loadingView)
+        setIndicatorVisibility()
         initSeekbar()
         initAnimations()
         initWebView()
@@ -393,7 +396,7 @@ class FolioPageFragment : Fragment(),
 
         mWebview!!.setScrollListener(object : FolioWebView.ScrollListener {
             override fun onScrollChange(percent: Int) {
-
+                setIndicatorVisibility()
                 mScrollSeekbar!!.setProgressAndThumb(percent)
                 updatePagesLeftText(percent)
             }
@@ -674,6 +677,18 @@ class FolioPageFragment : Fragment(),
             )
     }
 
+    private fun setIndicatorVisibility() {
+        if (mConfig != null) {
+            mRootView?.findViewById<LinearLayout>(R.id.indicatorLayout)?.let { layout ->
+                layout.visibility = if (mConfig!!.isShowRemainingIndicator) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+            }
+        }
+    }
+
     private fun updatePagesLeftTextBg() {
 
         if (mConfig!!.isNightMode) {
@@ -687,9 +702,9 @@ class FolioPageFragment : Fragment(),
 
     private fun updatePagesLeftText(scrollY: Int) {
         try {
-            val currentPage = (Math.ceil(scrollY.toDouble() / mWebview!!.webViewHeight) + 1).toInt()
+            val currentPage = (ceil(scrollY.toDouble() / mWebview!!.webViewHeight) + 1).toInt()
             val totalPages =
-                Math.ceil(mWebview!!.contentHeightVal.toDouble() / mWebview!!.webViewHeight).toInt()
+                ceil(mWebview!!.contentHeightVal.toDouble() / mWebview!!.webViewHeight).toInt()
             val pagesRemaining = totalPages - currentPage
             val pagesRemainingStrFormat = if (pagesRemaining > 1)
                 getString(R.string.pages_left)
@@ -701,20 +716,20 @@ class FolioPageFragment : Fragment(),
             )
 
             val minutesRemaining =
-                Math.ceil((pagesRemaining * mTotalMinutes).toDouble() / totalPages).toInt()
+                ceil((pagesRemaining * mTotalMinutes).toDouble() / totalPages).toInt()
             val minutesRemainingStr: String
-            if (minutesRemaining > 1) {
-                minutesRemainingStr = String.format(
+            minutesRemainingStr = if (minutesRemaining > 1) {
+                String.format(
                     Locale.US, getString(R.string.minutes_left),
                     minutesRemaining
                 )
             } else if (minutesRemaining == 1) {
-                minutesRemainingStr = String.format(
+                String.format(
                     Locale.US, getString(R.string.minute_left),
                     minutesRemaining
                 )
             } else {
-                minutesRemainingStr = getString(R.string.less_than_minute)
+                getString(R.string.less_than_minute)
             }
 
             mMinutesLeftTextView!!.text = minutesRemainingStr

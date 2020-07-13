@@ -18,7 +18,7 @@ class WebViewPager : ViewPager {
         val LOG_TAG: String = WebViewPager::class.java.simpleName
     }
 
-    private var horizontalPageCount: Int = 0
+    internal var horizontalPageCount: Int = 0
     private var folioWebView: FolioWebView? = null
     private var takeOverScrolling: Boolean = false
     var isScrolling: Boolean = false
@@ -42,7 +42,7 @@ class WebViewPager : ViewPager {
         uiHandler = Handler()
         gestureDetector = GestureDetectorCompat(context, GestureListener())
 
-        addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        addOnPageChangeListener(object : OnPageChangeListener {
             override fun onPageScrolled(
                 position: Int,
                 positionOffset: Float,
