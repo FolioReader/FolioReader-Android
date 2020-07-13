@@ -1,6 +1,7 @@
 package com.folioreader;
 
 import android.content.res.Resources;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -76,40 +77,92 @@ public class Config implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(font);
-        dest.writeInt(fontSize);
-        dest.writeByte((byte) (nightMode ? 1 : 0));
-        dest.writeInt(themeColor);
-        dest.writeInt(nightThemeColor);
-        dest.writeByte((byte) (showTts ? 1 : 0));
-        dest.writeString(allowedDirection.toString());
-        dest.writeString(direction.toString());
+        Bundle bundle = new Bundle();
+        bundle.putString(CONFIG_FONT, font);
+        bundle.putInt(CONFIG_FONT_SIZE, fontSize);
+        bundle.putBoolean(CONFIG_IS_NIGHT_MODE, nightMode);
+        bundle.putInt(CONFIG_THEME_COLOR_INT, themeColor);
+        bundle.putInt(CONFIG_NIGHT_THEME_COLOR_INT, nightThemeColor);
+        bundle.putBoolean(CONFIG_IS_TTS, showTts);
+        bundle.putString(CONFIG_ALLOWED_DIRECTION, allowedDirection.toString());
+        bundle.putString(CONFIG_DIRECTION, direction.toString());
+        dest.writeBundle(bundle);
     }
 
     protected Config(Parcel in) {
-        font = in.readString();
-        fontSize = in.readInt();
-        nightMode = in.readByte() != 0;
-        themeColor = in.readInt();
-        nightThemeColor = in.readInt();
-        showTts = in.readByte() != 0;
-        allowedDirection = getAllowedDirectionFromString(LOG_TAG, in.readString());
-        direction = getDirectionFromString(LOG_TAG, in.readString());
+        try {
+            Bundle bundle = in.readBundle(getClass().getClassLoader());
+            if (bundle == null) {
+                // set defaults because of an old configuration
+                System.out.println("Bundle does not exist, using default configuration.");
+                setDefaults();
+            } else {
+                font = getBundleItem(bundle, CONFIG_FONT, "Roboto");
+                fontSize = getBundleItem(bundle, CONFIG_FONT_SIZE, 2);
+                nightMode = getBundleItem(bundle, CONFIG_IS_NIGHT_MODE, false);
+                themeColor = getBundleItem(bundle, CONFIG_THEME_COLOR_INT, DEFAULT_THEME_COLOR_INT);
+                nightThemeColor = getBundleItem(bundle, CONFIG_NIGHT_THEME_COLOR_INT, DEFAULT_THEME_COLOR_INT);
+                showTts = getBundleItem(bundle, CONFIG_IS_TTS, true);
+                allowedDirection = getAllowedDirectionFromString(
+                        LOG_TAG,
+                        getBundleItem(bundle, CONFIG_ALLOWED_DIRECTION, DEFAULT_ALLOWED_DIRECTION.toString())
+                );
+                direction = getDirectionFromString(
+                        LOG_TAG,
+                        getBundleItem(bundle, CONFIG_DIRECTION, DEFAULT_DIRECTION.toString())
+                );
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to parse configuration, likely an old version.");
+            setDefaults();
+        }
+    }
+
+    private void setDefaults() {
+        font = "Roboto";
+        fontSize = 2;
+        nightMode = false;
+        themeColor = DEFAULT_THEME_COLOR_INT;
+        nightThemeColor = themeColor;
+        showTts = true;
+        allowedDirection = DEFAULT_ALLOWED_DIRECTION;
+        direction = DEFAULT_DIRECTION;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T getBundleItem(Bundle bundle, String key, T defaultValue) {
+        if (bundle.containsKey(key)) {
+            return (T) bundle.get(key);
+        }
+        return defaultValue;
     }
 
     public Config() {
     }
 
-    public Config(JSONObject jsonObject) {
-        font = jsonObject.optString(CONFIG_FONT);
-        fontSize = jsonObject.optInt(CONFIG_FONT_SIZE);
-        nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHT_MODE);
-        themeColor = getValidColorInt(jsonObject.optInt(CONFIG_THEME_COLOR_INT));
-        nightThemeColor = getValidColorInt(jsonObject.optInt(CONFIG_NIGHT_THEME_COLOR_INT));
-        showTts = jsonObject.optBoolean(CONFIG_IS_TTS);
-        allowedDirection = getAllowedDirectionFromString(LOG_TAG,
-                jsonObject.optString(CONFIG_ALLOWED_DIRECTION));
-        direction = getDirectionFromString(LOG_TAG, jsonObject.optString(CONFIG_DIRECTION));
+    public Config(JSONObject obj) {
+        font = getJsonItem(obj, CONFIG_FONT, "Roboto");
+        fontSize = getJsonItem(obj, CONFIG_FONT_SIZE, 2);
+        nightMode = getJsonItem(obj, CONFIG_IS_NIGHT_MODE, false);
+        themeColor = getValidColorInt(getJsonItem(obj, CONFIG_THEME_COLOR_INT, DEFAULT_THEME_COLOR_INT));
+        nightThemeColor = getValidColorInt(getJsonItem(obj, CONFIG_NIGHT_THEME_COLOR_INT, DEFAULT_THEME_COLOR_INT));
+        showTts = getJsonItem(obj, CONFIG_IS_TTS, true);
+        allowedDirection = getAllowedDirectionFromString(
+                LOG_TAG,
+                getJsonItem(obj, CONFIG_ALLOWED_DIRECTION, DEFAULT_ALLOWED_DIRECTION.toString())
+        );
+        direction = getDirectionFromString(
+                LOG_TAG,
+                getJsonItem(obj, CONFIG_DIRECTION, DEFAULT_DIRECTION.toString())
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T getJsonItem(JSONObject object, String key, T defaultValue) {
+        if (object.has(key)) {
+            return (T) object.opt(key);
+        }
+        return defaultValue;
     }
 
     public static Direction getDirectionFromString(final String LOG_TAG, String directionString) {
