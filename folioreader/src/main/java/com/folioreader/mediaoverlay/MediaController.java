@@ -7,12 +7,15 @@ import android.os.Build;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.folioreader.Constants;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.media_overlay.OverlayItems;
 import com.folioreader.util.UiUtil;
+
 import org.readium.r2.shared.Clip;
 import org.readium.r2.shared.MediaOverlays;
 
@@ -108,21 +111,22 @@ public class MediaController {
                     mTextToSpeech.setLanguage(Locale.UK);
                     mTextToSpeech.setSpeechRate(0.70f);
                 }
-
-                mTextToSpeech.setOnUtteranceCompletedListener(
-                        new TextToSpeech.OnUtteranceCompletedListener() {
-                            @Override
-                            public void onUtteranceCompleted(String utteranceId) {
-                                ((AppCompatActivity) context).runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (mIsSpeaking) {
-                                            callbacks.highLightTTS();
+                if (mTextToSpeech != null) {
+                    mTextToSpeech.setOnUtteranceCompletedListener(
+                            new TextToSpeech.OnUtteranceCompletedListener() {
+                                @Override
+                                public void onUtteranceCompleted(String utteranceId) {
+                                    ((AppCompatActivity) context).runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (mIsSpeaking) {
+                                                callbacks.highLightTTS();
+                                            }
                                         }
-                                    }
-                                });
-                            }
-                        });
+                                    });
+                                }
+                            });
+                }
             }
         });
     }
