@@ -391,6 +391,10 @@ class FolioPageFragment : Fragment(),
         mWebview!!.webChromeClient = webChromeClient
 
         mWebview!!.settings.defaultTextEncodingName = "utf-8"
+        mWebview!!.settings.builtInZoomControls = true;
+        mWebview!!.settings.displayZoomControls = false;
+
+
         HtmlTask(this).execute(chapterUrl.toString())
     }
 
