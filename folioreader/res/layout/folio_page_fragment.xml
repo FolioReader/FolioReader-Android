@@ -8,6 +8,7 @@
     android:orientation="vertical">
 
     <FrameLayout
+        android:paddingTop="?android:actionBarSize"
         android:id="@+id/webViewLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

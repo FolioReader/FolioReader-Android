@@ -661,8 +661,12 @@ class FolioPageFragment : Fragment(),
         if (mConfig!!.isNightMode) {
             mRootView!!.findViewById<View>(R.id.indicatorLayout)
                 .setBackgroundColor(Color.parseColor("#131313"))
+            mRootView!!.findViewById<FrameLayout>(R.id.webViewLayout)
+                .setBackgroundColor(Color.parseColor("#131313"))
         } else {
             mRootView!!.findViewById<View>(R.id.indicatorLayout)
+                .setBackgroundColor(Color.WHITE)
+            mRootView!!.findViewById<FrameLayout>(R.id.webViewLayout)
                 .setBackgroundColor(Color.WHITE)
         }
     }

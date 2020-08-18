@@ -144,9 +144,9 @@ class FolioWebView : WebView {
 
     @JavascriptInterface
     fun toggleSystemUI() {
-        uiHandler.post {
-            folioActivityCallback.toggleSystemUI()
-        }
+//        uiHandler.post {
+//            folioActivityCallback.toggleSystemUI()
+//        }
     }
 
     @JavascriptInterface
