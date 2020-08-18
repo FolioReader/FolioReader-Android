@@ -5,6 +5,11 @@ import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
+
 /**
  * @author gautam chibde on 14/6/17.
  */
@@ -54,7 +59,15 @@ public final class HtmlUtil {
                 "setMediaOverlayStyleColors('#C0ED72','#C0ED72')") + "\n";
 
         jsPath = jsPath
-                + "<meta name=\"viewport\" content=\"height=device-height, user-scalable=yes\" />";
+                + "<meta name=\"viewport\" content=\"height=device-height, user-scalable=yes\" />" + "\n";
+
+        jsPath = jsPath + String.format(context.getString(R.string.script_tag_method_call), "function playAudio(src) {\n" +
+                "    var audioElement = $('#player')[0];\n" +
+                "    audioElement.setAttribute('src',src);\n" +
+                "    audioElement.load();\n" +
+                "    audioElement.play();\n" +
+                "    $(audioElement).show();\n" +
+                "}") + "\n";
 
         String toInject = "\n" + cssPath + "\n" + jsPath + "\n</head>";
         htmlContent = htmlContent.replace("</head>", toInject);
@@ -102,6 +115,25 @@ public final class HtmlUtil {
         }
 
         htmlContent = checkClassAttr(htmlContent, classes);
+
+
+        Document doc = Jsoup.parse(htmlContent, "", Parser.xmlParser());
+
+        Elements audios = doc.getElementsByTag("audio");
+        if(audios.size() > 0) {
+            Elements rect = doc.getElementsByTag("rect");
+            for (int i = 0; i < rect.size(); i++) {
+                String src = audios.get(i).attr("src");
+                rect.get(i).attr("onclick", "playAudio('" + src + "')");
+            }
+
+            if(rect.size() > 0) {
+                doc.getElementsByTag("body").append("<audio id=\"player\" controls=\"controls\" style=\"width:100%; " +
+                        "margin: 0 auto;display: table;\"" + "\n</body>");
+            }
+
+            return doc.html();
+        }
         return htmlContent;
     }
 

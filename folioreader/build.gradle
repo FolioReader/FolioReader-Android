@@ -118,5 +118,7 @@ dependencies {
 
     // Lifecycle
     implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
+
+    implementation 'org.jsoup:jsoup:1.13.1'
 }
 apply from: '../folioreader/bintray/bintrayv1.gradle'
