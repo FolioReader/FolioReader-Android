@@ -123,8 +123,19 @@ public final class HtmlUtil {
         if(audios.size() > 0) {
             Elements rect = doc.getElementsByTag("rect");
             for (int i = 0; i < rect.size(); i++) {
-                String src = audios.get(i).attr("src");
-                rect.get(i).attr("onclick", "playAudio('" + src + "')");
+                for(int y = 0; y < audios.size(); y++) {
+                    String src = null;
+                    String id = audios.get(y).attr("id");
+                    String onclick = rect.get(i).attr("onclick"); //$("#TRAC_126")[0].play()
+                    if(onclick.split("\"").length > 1) {//split by quotation
+                        String rectAudioId = onclick.split("\"")[1].substring(1); //to extract TRAC_126
+                        if (id.equals(rectAudioId)) {
+                            src = audios.get(y).attr("src");
+                            rect.get(i).attr("onclick", "playAudio('" + src + "')");
+                            break;
+                        }
+                    }
+                }
             }
 
             if(rect.size() > 0) {
