@@ -413,14 +413,16 @@ class FolioPageFragment : Fragment(),
                     "mediaCheck();" +
                     "function mediaCheck(){" +
                     "        var media = document.getElementById('player');" +
-                    "        media.onplay = function(){" +
-                    "            mediaElement = media;" +
-                    "            JSOUT.mediaAction('true');" +
-                    "        };" +
-                    "        media.onpause = function(){" +
-                    "            mediaElement = media;" +
-                    "            JSOUT.mediaAction('false');" +
-                    "        };" +
+                    "        if(media != null) {" +
+                        "        media.onplay = function(){" +
+                        "            mediaElement = media;" +
+                        "            JSOUT.mediaAction('true');" +
+                        "        };" +
+                        "        media.onpause = function(){" +
+                        "            mediaElement = media;" +
+                        "            JSOUT.mediaAction('false');" +
+                        "        };" +
+                            "}" +
                     "}"
 
             mWebview!!.evaluateJavascript(code, null)
