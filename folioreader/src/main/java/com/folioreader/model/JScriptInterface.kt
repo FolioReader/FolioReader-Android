@@ -41,7 +41,7 @@ class JScriptInterface(val mContext: Context, val title: String?) {
             )
             expandedView.setOnClickPendingIntent(R.id.pausePlay, pendingSwitchIntent)
 
-            val builder = NotificationCompat.Builder(mContext, "0")
+            val builder = NotificationCompat.Builder(mContext, NotificationListener.channel_id)
                 .setSmallIcon(R.drawable.ic_sharp_contactless_24)
                 .setContentTitle("Heading")
                 .setContentText("Content")
@@ -53,7 +53,7 @@ class JScriptInterface(val mContext: Context, val title: String?) {
 
             val notificationManager =
                 mContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(0, builder.build())
+            notificationManager.notify(99, builder.build())
 
 
         } else {
@@ -74,7 +74,7 @@ class JScriptInterface(val mContext: Context, val title: String?) {
             )
             expandedView.setOnClickPendingIntent(R.id.pausePlay, pendingSwitchIntent)
 
-            val builder = NotificationCompat.Builder(mContext, "0")
+            val builder = NotificationCompat.Builder(mContext, NotificationListener.channel_id)
                 .setSmallIcon(R.drawable.ic_sharp_contactless_24)
                 .setContentTitle("Heading")
                 .setContentText("Content")
@@ -86,7 +86,7 @@ class JScriptInterface(val mContext: Context, val title: String?) {
 
             val notificationManager =
                 mContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(0, builder.build())
+            notificationManager.notify(99, builder.build())
 
         }
     }
@@ -98,7 +98,7 @@ class JScriptInterface(val mContext: Context, val title: String?) {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
-                "0",
+                NotificationListener.channel_id,
                 "Testco Channel",
                 NotificationManager.IMPORTANCE_LOW
             )

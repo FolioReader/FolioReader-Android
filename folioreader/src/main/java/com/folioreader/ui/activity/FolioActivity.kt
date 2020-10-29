@@ -51,6 +51,7 @@ import com.folioreader.FolioReader
 import com.folioreader.R
 import com.folioreader.model.DisplayUnit
 import com.folioreader.model.HighlightImpl
+import com.folioreader.model.NotificationListener
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent
 import com.folioreader.model.locators.ReadLocator
 import com.folioreader.model.locators.SearchLocator
@@ -828,6 +829,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     }
 
     override fun onDestroy() {
+        NotificationListener.clearNotification(this)
         super.onDestroy()
 
         if (outState != null)

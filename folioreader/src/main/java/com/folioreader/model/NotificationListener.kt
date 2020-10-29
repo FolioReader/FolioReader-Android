@@ -18,7 +18,6 @@ var webView: WebView? = null
 var audioFocusRequest : AudioFocusRequest? = null
 var Booktitle: String? = null
 class NotificationListener : BroadcastReceiver() {
-
     override fun onReceive(context: Context, intent: Intent) {
         if (JScriptInterface.playing) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -52,7 +51,7 @@ class NotificationListener : BroadcastReceiver() {
             expandedView.setOnClickPendingIntent(R.id.pausePlay, pendingSwitchIntent)
 
 
-            val builder = NotificationCompat.Builder(context, "0")
+            val builder = NotificationCompat.Builder(context, channel_id)
                 .setSmallIcon(R.drawable.ic_sharp_contactless_24)
                 .setContentTitle("Heading")
                 .setContentText("Content")
@@ -64,7 +63,7 @@ class NotificationListener : BroadcastReceiver() {
 
             val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(0, builder.build())
+            notificationManager.notify(99, builder.build())
 
             JScriptInterface.playing = false
 
@@ -92,7 +91,7 @@ class NotificationListener : BroadcastReceiver() {
                 ), 0
             )
             expandedView.setOnClickPendingIntent(R.id.pausePlay, pendingSwitchIntent)
-            val builder = NotificationCompat.Builder(context, "0")
+            val builder = NotificationCompat.Builder(context, channel_id)
                 .setSmallIcon(R.drawable.ic_sharp_contactless_24)
                 .setContentTitle("Heading")
                 .setContentText("Content")
@@ -104,7 +103,7 @@ class NotificationListener : BroadcastReceiver() {
 
             val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(0, builder.build())
+            notificationManager.notify(99, builder.build())
             JScriptInterface.playing = true
 
         }
@@ -114,7 +113,7 @@ class NotificationListener : BroadcastReceiver() {
     private fun createNotificationChannel(mcontext: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
-                "0",
+                channel_id,
                 "Testco Channel",
                 NotificationManager.IMPORTANCE_LOW
             )
@@ -127,5 +126,15 @@ class NotificationListener : BroadcastReceiver() {
 
     private fun getAudioManager(context: Context): AudioManager? {
         return context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    }
+
+    companion object {
+        const val channel_id = "999"
+
+        fun clearNotification(context: Context) {
+            val notificationManager: NotificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancel(99)
+        }
     }
 }
