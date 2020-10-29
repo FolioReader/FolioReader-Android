@@ -29,10 +29,12 @@ import com.folioreader.mediaoverlay.MediaController
 import com.folioreader.mediaoverlay.MediaControllerCallbacks
 import com.folioreader.model.HighLight
 import com.folioreader.model.HighlightImpl
+import com.folioreader.model.JScriptInterface
 import com.folioreader.model.event.*
 import com.folioreader.model.locators.ReadLocator
 import com.folioreader.model.locators.SearchLocator
 import com.folioreader.model.sqlite.HighLightTable
+import com.folioreader.model.webView
 import com.folioreader.ui.activity.FolioActivityCallback
 import com.folioreader.ui.base.HtmlTask
 import com.folioreader.ui.base.HtmlTaskCallback
@@ -378,6 +380,9 @@ class FolioPageFragment : Fragment(),
         mWebview!!.addJavascriptInterface(webViewPager, "WebViewPager")
         mWebview!!.addJavascriptInterface(loadingView, "LoadingView")
         mWebview!!.addJavascriptInterface(mWebview, "FolioWebView")
+        mWebview!!.addJavascriptInterface(JScriptInterface(activity!!), "JSOUT")
+
+        webView = mWebview
 
         mWebview!!.setScrollListener(object : FolioWebView.ScrollListener {
             override fun onScrollChange(percent: Int) {
@@ -401,6 +406,22 @@ class FolioPageFragment : Fragment(),
     private val webViewClient = object : WebViewClient() {
 
         override fun onPageFinished(view: WebView, url: String) {
+
+            val code = "var mediaElement;" +
+                    "mediaCheck();" +
+                    "function mediaCheck(){" +
+                    "        var media = document.getElementById('player');" +
+                    "        media.onplay = function(){" +
+                    "            mediaElement = media;" +
+                    "            JSOUT.mediaAction('true');" +
+                    "        };" +
+                    "        media.onpause = function(){" +
+                    "            mediaElement = media;" +
+                    "            JSOUT.mediaAction('false');" +
+                    "        };" +
+                    "}"
+
+            mWebview!!.evaluateJavascript(code, null)
 
             mWebview!!.loadUrl("javascript:checkCompatMode()")
             mWebview!!.loadUrl("javascript:alert(getReadingTime())")

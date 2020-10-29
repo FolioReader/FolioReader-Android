@@ -37,7 +37,7 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-
+        <receiver android:name=".model.NotificationListener" android:enabled="true"/>
     </application>
 
 </manifest>
