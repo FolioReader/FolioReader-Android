@@ -16,6 +16,7 @@ import com.folioreader.R
 
 var webView: WebView? = null
 var audioFocusRequest : AudioFocusRequest? = null
+var Booktitle: String? = null
 class NotificationListener : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -36,10 +37,10 @@ class NotificationListener : BroadcastReceiver() {
             createNotificationChannel(context)
             val expandedView = RemoteViews(context.packageName, R.layout.notification_ui)
 
-            expandedView.setImageViewResource(R.id.icon, R.drawable.ic_drawer)
-            expandedView.setTextViewText(R.id.title, "Test")
-            expandedView.setTextViewText(R.id.desc, "This is a description. - PAUSED")
-            expandedView.setImageViewResource(R.id.pausePlay, android.R.drawable.ic_media_play)
+            expandedView.setImageViewResource(R.id.icon, R.drawable.ic_sharp_contactless_24)
+            expandedView.setTextViewText(R.id.title, "Testco")
+            expandedView.setTextViewText(R.id.desc, "$Booktitle")
+            expandedView.setImageViewResource(R.id.pausePlay, R.drawable.ic_sharp_play_arrow_24)
 
 
             val pendingSwitchIntent = PendingIntent.getBroadcast(
@@ -52,7 +53,7 @@ class NotificationListener : BroadcastReceiver() {
 
 
             val builder = NotificationCompat.Builder(context, "0")
-                .setSmallIcon(R.drawable.ic_drawer)
+                .setSmallIcon(R.drawable.ic_sharp_contactless_24)
                 .setContentTitle("Heading")
                 .setContentText("Content")
                 .setCustomBigContentView(expandedView)
@@ -80,10 +81,10 @@ class NotificationListener : BroadcastReceiver() {
             createNotificationChannel(context)
             val expandedView = RemoteViews(context.packageName, R.layout.notification_ui)
 
-            expandedView.setImageViewResource(R.id.icon, R.drawable.ic_drawer)
-            expandedView.setTextViewText(R.id.title, "Test")
-            expandedView.setTextViewText(R.id.desc, "This is a description. - PLAYING")
-            expandedView.setImageViewResource(R.id.pausePlay, android.R.drawable.ic_media_pause)
+            expandedView.setImageViewResource(R.id.icon, R.drawable.ic_sharp_contactless_24)
+            expandedView.setTextViewText(R.id.title, "Testco")
+            expandedView.setTextViewText(R.id.desc, "$Booktitle")
+            expandedView.setImageViewResource(R.id.pausePlay, R.drawable.ic_baseline_pause_24)
             val pendingSwitchIntent = PendingIntent.getBroadcast(
                 context, 0, Intent(
                     context,
@@ -92,7 +93,7 @@ class NotificationListener : BroadcastReceiver() {
             )
             expandedView.setOnClickPendingIntent(R.id.pausePlay, pendingSwitchIntent)
             val builder = NotificationCompat.Builder(context, "0")
-                .setSmallIcon(R.drawable.ic_drawer)
+                .setSmallIcon(R.drawable.ic_sharp_contactless_24)
                 .setContentTitle("Heading")
                 .setContentText("Content")
                 .setCustomBigContentView(expandedView)

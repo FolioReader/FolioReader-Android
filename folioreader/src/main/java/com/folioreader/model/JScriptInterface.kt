@@ -18,7 +18,7 @@ import androidx.core.app.NotificationCompat
 import java.lang.Boolean
 
 
-class JScriptInterface(val mContext: Context) {
+class JScriptInterface(val mContext: Context, val title: String?) {
     @JavascriptInterface
     fun mediaAction(type: String?) {
         Log.e("Info", type!!)
@@ -28,10 +28,10 @@ class JScriptInterface(val mContext: Context) {
 
             val expandedView = RemoteViews(mContext.packageName, R.layout.notification_ui)
 
-            expandedView.setImageViewResource(R.id.icon, R.drawable.ic_drawer)
-            expandedView.setTextViewText(R.id.title, "Test")
-            expandedView.setTextViewText(R.id.desc, "TEST - PLAYING123")
-            expandedView.setImageViewResource(R.id.pausePlay,android.R.drawable.ic_media_pause)
+            expandedView.setImageViewResource(R.id.icon, R.drawable.ic_sharp_contactless_24)
+            expandedView.setTextViewText(R.id.title, "Testco")
+            expandedView.setTextViewText(R.id.desc, "$title")
+            expandedView.setImageViewResource(R.id.pausePlay,R.drawable.ic_baseline_pause_24)
 
             val pendingSwitchIntent = PendingIntent.getBroadcast(
                 mContext, 0, Intent(
@@ -42,7 +42,7 @@ class JScriptInterface(val mContext: Context) {
             expandedView.setOnClickPendingIntent(R.id.pausePlay, pendingSwitchIntent)
 
             val builder = NotificationCompat.Builder(mContext, "0")
-                .setSmallIcon(R.drawable.ic_drawer)
+                .setSmallIcon(R.drawable.ic_sharp_contactless_24)
                 .setContentTitle("Heading")
                 .setContentText("Content")
                 .setCustomBigContentView(expandedView)
@@ -61,10 +61,10 @@ class JScriptInterface(val mContext: Context) {
 
             val expandedView = RemoteViews(mContext.packageName, R.layout.notification_ui)
 
-            expandedView.setImageViewResource(R.id.icon, R.drawable.ic_drawer)
-            expandedView.setTextViewText(R.id.title, "Test")
-            expandedView.setTextViewText(R.id.desc, "TEST - PAUSED123")
-            expandedView.setImageViewResource(R.id.pausePlay, android.R.drawable.ic_media_play)
+            expandedView.setImageViewResource(R.id.icon, R.drawable.ic_sharp_contactless_24)
+            expandedView.setTextViewText(R.id.title, "Testco")
+            expandedView.setTextViewText(R.id.desc, "$title")
+            expandedView.setImageViewResource(R.id.pausePlay, R.drawable.ic_sharp_play_arrow_24)
 
             val pendingSwitchIntent = PendingIntent.getBroadcast(
                 mContext, 0, Intent(
@@ -75,7 +75,7 @@ class JScriptInterface(val mContext: Context) {
             expandedView.setOnClickPendingIntent(R.id.pausePlay, pendingSwitchIntent)
 
             val builder = NotificationCompat.Builder(mContext, "0")
-                .setSmallIcon(R.drawable.ic_drawer)
+                .setSmallIcon(R.drawable.ic_sharp_contactless_24)
                 .setContentTitle("Heading")
                 .setContentText("Content")
                 .setCustomBigContentView(expandedView)

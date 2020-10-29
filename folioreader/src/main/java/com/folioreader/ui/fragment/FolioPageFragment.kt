@@ -27,14 +27,11 @@ import com.folioreader.FolioReader
 import com.folioreader.R
 import com.folioreader.mediaoverlay.MediaController
 import com.folioreader.mediaoverlay.MediaControllerCallbacks
-import com.folioreader.model.HighLight
-import com.folioreader.model.HighlightImpl
-import com.folioreader.model.JScriptInterface
+import com.folioreader.model.*
 import com.folioreader.model.event.*
 import com.folioreader.model.locators.ReadLocator
 import com.folioreader.model.locators.SearchLocator
 import com.folioreader.model.sqlite.HighLightTable
-import com.folioreader.model.webView
 import com.folioreader.ui.activity.FolioActivityCallback
 import com.folioreader.ui.base.HtmlTask
 import com.folioreader.ui.base.HtmlTaskCallback
@@ -67,18 +64,20 @@ class FolioPageFragment : Fragment(),
 
         private const val BUNDLE_SPINE_INDEX = "BUNDLE_SPINE_INDEX"
         private const val BUNDLE_BOOK_TITLE = "BUNDLE_BOOK_TITLE"
+        private const val BUNDLE_BOOK_NAME = "BUNDLE_BOOK_NAME"
         private const val BUNDLE_SPINE_ITEM = "BUNDLE_SPINE_ITEM"
         private const val BUNDLE_READ_LOCATOR_CONFIG_CHANGE = "BUNDLE_READ_LOCATOR_CONFIG_CHANGE"
         const val BUNDLE_SEARCH_LOCATOR = "BUNDLE_SEARCH_LOCATOR"
 
         @JvmStatic
-        fun newInstance(spineIndex: Int, bookTitle: String, spineRef: Link, bookId: String): FolioPageFragment {
+        fun newInstance(spineIndex: Int, bookTitle: String, spineRef: Link, bookId: String, title: String): FolioPageFragment {
             val fragment = FolioPageFragment()
             val args = Bundle()
             args.putInt(BUNDLE_SPINE_INDEX, spineIndex)
             args.putString(BUNDLE_BOOK_TITLE, bookTitle)
             args.putString(FolioReader.EXTRA_BOOK_ID, bookId)
             args.putSerializable(BUNDLE_SPINE_ITEM, spineRef)
+            args.putString(BUNDLE_BOOK_NAME, title)
             fragment.arguments = args
             return fragment
         }
@@ -112,6 +111,7 @@ class FolioPageFragment : Fragment(),
     lateinit var spineItem: Link
     private var spineIndex = -1
     private var mBookTitle: String? = null
+    private var title: String? = null
     private var mIsPageReloaded: Boolean = false
 
     private var highlightStyle: String? = null
@@ -148,6 +148,7 @@ class FolioPageFragment : Fragment(),
         mBookTitle = arguments!!.getString(BUNDLE_BOOK_TITLE)
         spineItem = arguments!!.getSerializable(BUNDLE_SPINE_ITEM) as Link
         mBookId = arguments!!.getString(FolioReader.EXTRA_BOOK_ID)
+        title =  arguments!!.getString(BUNDLE_BOOK_NAME)
 
         chapterUrl = Uri.parse(mActivityCallback?.streamerUrl + spineItem.href!!.substring(1))
 
@@ -380,9 +381,10 @@ class FolioPageFragment : Fragment(),
         mWebview!!.addJavascriptInterface(webViewPager, "WebViewPager")
         mWebview!!.addJavascriptInterface(loadingView, "LoadingView")
         mWebview!!.addJavascriptInterface(mWebview, "FolioWebView")
-        mWebview!!.addJavascriptInterface(JScriptInterface(activity!!), "JSOUT")
+        mWebview!!.addJavascriptInterface(JScriptInterface(activity!!, title), "JSOUT")
 
         webView = mWebview
+        Booktitle = title
 
         mWebview!!.setScrollListener(object : FolioWebView.ScrollListener {
             override fun onScrollChange(percent: Int) {
