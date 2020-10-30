@@ -43,14 +43,13 @@
         android:textColor="#5f5f5f"
         android:textSize="16sp" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/pausePlay"
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:background="@color/white"
-        android:scaleType="fitXY"/>
+        android:src="@drawable/ic_baseline_pause_24" />
 
 </RelativeLayout>

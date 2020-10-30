@@ -409,24 +409,24 @@ class FolioPageFragment : Fragment(),
 
         override fun onPageFinished(view: WebView, url: String) {
 
-            val code = "var mediaElement;" +
-                    "mediaCheck();" +
-                    "function mediaCheck(){" +
-                    "        var media = document.getElementById('player');" +
-                    "        if(media != null) {" +
-                        "        media.onplay = function(){" +
-                        "            mediaElement = media;" +
-                        "            JSOUT.mediaAction('true');" +
-                        "            JSOUT.setIndexPlaying(${mActivityCallback!!.currentChapterIndex});" +
-                        "        };" +
-                        "        media.onpause = function(){" +
-                        "            mediaElement = media;" +
-                        "            JSOUT.mediaAction('false');" +
-                        "        };" +
-                            "}" +
-                    "}"
-
-            mWebview!!.evaluateJavascript(code, null)
+//            val code = "var mediaElement;" +
+//                    "mediaCheck();" +
+//                    "function mediaCheck(){" +
+//                    "        var media = document.getElementById('player');" +
+//                    "        if(media != null) {" +
+//                        "        media.onplay = function(){" +
+//                        "            mediaElement = media;" +
+//                        "            JSOUT.mediaAction('true');" +
+//                        "            JSOUT.setIndexPlaying(${mActivityCallback!!.currentChapterIndex});" +
+//                        "        };" +
+//                        "        media.onpause = function(){" +
+//                        "            mediaElement = media;" +
+//                        "            JSOUT.mediaAction('false');" +
+//                        "        };" +
+//                            "}" +
+//                    "}"
+//
+//            mWebview!!.evaluateJavascript(code, null)
 
             mWebview!!.loadUrl("javascript:checkCompatMode()")
             mWebview!!.loadUrl("javascript:alert(getReadingTime())")
@@ -574,7 +574,28 @@ class FolioPageFragment : Fragment(),
             return FolioWebView.onWebViewConsoleMessage(cm, "WebViewConsole", msg)
         }
 
-        override fun onProgressChanged(view: WebView, progress: Int) {}
+        override fun onProgressChanged(view: WebView, progress: Int) {
+            if(progress == 100) {
+                val code = "var mediaElement;" +
+                        "mediaCheck();" +
+                        "function mediaCheck(){" +
+                        "        var media = document.getElementById('player');" +
+                        "        if(media != null) {" +
+                        "        media.onplay = function(){" +
+                        "            mediaElement = media;" +
+                        "            JSOUT.mediaAction('true');" +
+                        "            JSOUT.setIndexPlaying(${mActivityCallback!!.currentChapterIndex});" +
+                        "        };" +
+                        "        media.onpause = function(){" +
+                        "            mediaElement = media;" +
+                        "            JSOUT.mediaAction('false');" +
+                        "        };" +
+                        "}" +
+                        "}"
+
+                mWebview!!.evaluateJavascript(code, null)
+            }
+        }
 
         override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
 
