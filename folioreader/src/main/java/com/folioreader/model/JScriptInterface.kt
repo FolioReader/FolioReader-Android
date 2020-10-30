@@ -19,6 +19,12 @@ import java.lang.Boolean
 
 
 class JScriptInterface(val mContext: Context, val title: String?) {
+
+    @JavascriptInterface
+    fun setIndexPlaying(index: Int) {
+        currentIndexPlaying = index
+    }
+
     @JavascriptInterface
     fun mediaAction(type: String?) {
         Log.e("Info", type!!)
@@ -93,6 +99,7 @@ class JScriptInterface(val mContext: Context, val title: String?) {
 
     companion object {
         var playing = false
+        var currentIndexPlaying = -1;
     }
 
     private fun createNotificationChannel() {

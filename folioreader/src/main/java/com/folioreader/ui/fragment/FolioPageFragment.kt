@@ -417,6 +417,7 @@ class FolioPageFragment : Fragment(),
                         "        media.onplay = function(){" +
                         "            mediaElement = media;" +
                         "            JSOUT.mediaAction('true');" +
+                        "            JSOUT.setIndexPlaying(${mActivityCallback!!.currentChapterIndex});" +
                         "        };" +
                         "        media.onpause = function(){" +
                         "            mediaElement = media;" +

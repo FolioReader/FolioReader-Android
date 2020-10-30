@@ -32,6 +32,7 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import com.folioreader.Config;
 import com.folioreader.R;
+import com.folioreader.model.JScriptInterface;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -1169,7 +1170,8 @@ public class DirectionalViewpager extends ViewGroup {
                         if (ii == null) {
                             break;
                         }
-                        if (pos == ii.position && !ii.scrolling) {
+                        int currentIndexPlaying = JScriptInterface.Companion.getCurrentIndexPlaying();
+                        if (pos == ii.position && !ii.scrolling && (currentIndexPlaying == -1  || (ii.position != currentIndexPlaying))) {
                             mItems.remove(itemIndex);
                             mAdapter.destroyItem(this, pos, ii.object);
                             if (DEBUG) {
@@ -1202,7 +1204,8 @@ public class DirectionalViewpager extends ViewGroup {
                             if (ii == null) {
                                 break;
                             }
-                            if (pos == ii.position && !ii.scrolling) {
+                            int currentIndexPlaying = JScriptInterface.Companion.getCurrentIndexPlaying();
+                            if (pos == ii.position && !ii.scrolling && (currentIndexPlaying == -1  || (ii.position != currentIndexPlaying))) {
                                 mItems.remove(itemIndex);
                                 mAdapter.destroyItem(this, pos, ii.object);
                                 if (DEBUG) {
@@ -1237,7 +1240,8 @@ public class DirectionalViewpager extends ViewGroup {
                         if (ii == null) {
                             break;
                         }
-                        if (pos == ii.position && !ii.scrolling) {
+                        int currentIndexPlaying = JScriptInterface.Companion.getCurrentIndexPlaying();
+                        if (pos == ii.position && !ii.scrolling && (currentIndexPlaying == -1  || (ii.position != currentIndexPlaying))) {
                             mItems.remove(itemIndex);
                             mAdapter.destroyItem(this, pos, ii.object);
                             if (DEBUG) {
@@ -1270,7 +1274,9 @@ public class DirectionalViewpager extends ViewGroup {
                             if (ii == null) {
                                 break;
                             }
-                            if (pos == ii.position && !ii.scrolling) {
+
+                            int currentIndexPlaying = JScriptInterface.Companion.getCurrentIndexPlaying();
+                            if (pos == ii.position && !ii.scrolling && (currentIndexPlaying == -1  || (ii.position != currentIndexPlaying))) {
                                 mItems.remove(itemIndex);
                                 mAdapter.destroyItem(this, pos, ii.object);
                                 if (DEBUG) {
