@@ -97,17 +97,17 @@
     <string name="xhtml_mime_type" translatable="false">application/xhtml+xml</string>
     <string name="html_mime_type" translatable="false">text/html</string>
 
-    <string name="menu_item_search">Search</string>
-    <string name="menu_item_config">Configuration</string>
+    <string name="menu_item_search">Arama</string>
+    <string name="menu_item_config">Ayarlar</string>
     <string name="menu_item_tts">Text To Speech</string>
 
-    <string name="search_hint">Search In Book</string>
-    <string name="search_empty_text">No results.</string>
-    <string name="search_failure_text">Something wen\'t wrong.</string>
+    <string name="search_hint">Kitap içinde ara</string>
+    <string name="search_empty_text">Sonuç bulunamadı.</string>
+    <string name="search_failure_text">Bir sorun oluştu.</string>
 
     <plurals name="numberOfSearchResults">
-        <item quantity="one">%d result</item>
-        <item quantity="other">%d results</item>
+        <item quantity="one">%d sonuç</item>
+        <item quantity="other">%d sonuç</item>
     </plurals>
 
     <!-- JS Calls -->
