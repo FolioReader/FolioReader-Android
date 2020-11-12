@@ -12,57 +12,57 @@
     <string name="lora_font">fonts/lora/Lora-Regular.ttf</string>
     <string name="raleway_font">fonts/raleway/Raleway-Regular.ttf</string>
 
-    <string name="minutes_left">%1$d minutes ·&#160;</string>
-    <string name="minute_left">%1$d minute ·&#160;</string>
-    <string name="less_than_minute">Less than a minute ·&#160;</string>
+    <string name="minutes_left">%1$d dakika ·&#160;</string>
+    <string name="minute_left">%1$d dakika ·&#160;</string>
+    <string name="less_than_minute">Bir dakikadan az ·&#160;</string>
 
-    <string name="copied">Copied</string>
-    <string name="send_to">Send to</string>
+    <string name="copied">Kopyalandı</string>
+    <string name="send_to">Gönder</string>
 
-    <string name="copy">Copy</string>
-    <string name="share">Share</string>
-    <string name="define">Define</string>
-    <string name="highlight">Highlight</string>
+    <string name="copy">Kopyala</string>
+    <string name="share">Paylaş</string>
+    <string name="define">Tanımla</string>
+    <string name="highlight">Vurgula</string>
 
-    <string name="pages_left">%1$d pages left</string>
-    <string name="page_left">%1$d page left</string>
-    <string name="highlights">Highlights</string>
+    <string name="pages_left">%1$d sayfa kaldı</string>
+    <string name="page_left">%1$d sayfa kaldı</string>
+    <string name="highlights">Vurgulananlar</string>
     <string name="half_speed">1/2x</string>
     <string name="onex">1x</string>
     <string name="one_and_half">1&#160;1/2x</string>
     <string name="two_x">2x</string>
-    <string name="style">Style</string>
-    <string name="style_underline"><![CDATA[<u style=\" border-bottom: 1px dashed #bcbcbc;   text-decoration: none;\">Style</u>]]></string>
+    <string name="style">Stil</string>
+    <string name="style_underline"><![CDATA[<u style=\" border-bottom: 1px dashed #bcbcbc;   text-decoration: none;\">Stil</u>]]></string>
     <string name="full_path">full-path</string>
-    <string name="error_goToPage">goToPage error:</string>
+    <string name="error_goToPage">sayfaya gitme hatası:</string>
     <string name="zip">.zip</string>
     <string name="htmlBodyTableOpen">&lt;html&gt;&lt;body&gt;&lt;table&gt;</string>
-    <string name="titlesMeta">&lt;tr&gt;&lt;td&gt;Titles:&lt;/td&gt;</string>
-    <string name="authorsMeta">&lt;tr&gt;&lt;td&gt;Authors:&lt;/td&gt;</string>
-    <string name="contributorsMeta">&lt;tr&gt;&lt;td&gt;Contributors:&lt;/td&gt;</string>
-    <string name="languageMeta">&lt;tr&gt;&lt;td&gt;Language:&lt;/td&gt;&lt;td&gt;</string>
-    <string name="publishersMeta">&lt;tr&gt;&lt;td&gt;Publishers:&lt;/td&gt;</string>
-    <string name="typesMeta">&lt;tr&gt;&lt;td&gt;Types:&lt;/td&gt;</string>
-    <string name="descriptionsMeta">&lt;tr&gt;&lt;td&gt;Descriptions:&lt;/td&gt;</string>
-    <string name="rightsMeta">&lt;tr&gt;&lt;td&gt;Rights:&lt;/td&gt;</string>
+    <string name="titlesMeta">&lt;tr&gt;&lt;td&gt;Basliklar:&lt;/td&gt;</string>
+    <string name="authorsMeta">&lt;tr&gt;&lt;td&gt;Yazarlar:&lt;/td&gt;</string>
+    <string name="contributorsMeta">&lt;tr&gt;&lt;td&gt;Yazarlar:&lt;/td&gt;</string>
+    <string name="languageMeta">&lt;tr&gt;&lt;td&gt;Dil:&lt;/td&gt;&lt;td&gt;</string>
+    <string name="publishersMeta">&lt;tr&gt;&lt;td&gt;Yayinlayici:&lt;/td&gt;</string>
+    <string name="typesMeta">&lt;tr&gt;&lt;td&gt;Tip:&lt;/td&gt;</string>
+    <string name="descriptionsMeta">&lt;tr&gt;&lt;td&gt;Tanim:&lt;/td&gt;</string>
+    <string name="rightsMeta">&lt;tr&gt;&lt;td&gt;Haklar:&lt;/td&gt;</string>
     <string name="tablebodyhtmlClose">&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    <string name="tocReference">&lt;tr&gt;&lt;td&gt;Table of Contents:&lt;/td&gt;</string>
-    <string name="change_Font">Change Font</string>
-    <string name="change_Font_Color">Font Color:</string>
-    <string name="changeStyle">Change Style</string>
+    <string name="tocReference">&lt;tr&gt;&lt;td&gt;İçindekiler:&lt;/td&gt;</string>
+    <string name="change_Font">Font Değiştir</string>
+    <string name="change_Font_Color">Renk Değiştir:</string>
+    <string name="changeStyle">Stil Değiştir</string>
     <string name="blue_rgb">#0000ff</string>
     <string name="red_rgb">#ff0000</string>
     <string name="green_rgb">#00ff00</string>
     <string name="black_rgb">#000000</string>
     <string name="white_rgb">#ffffff</string>
-    <string name="error_CannotChangeStyle">Cannot Change Style!</string>
-    <string name="OK">OK</string>
-    <string name="Cancel">Cancel</string>
+    <string name="error_CannotChangeStyle">Stil değiştirilemedi!</string>
+    <string name="OK">Tamam</string>
+    <string name="Cancel">Vazgeç</string>
     <string name="SetSizeTitle">Upper Panel Size:</string>
     <string name="LanguageChooserTitle">Choose two languages:</string>
     <string name="parallelTextBool">parallelTextBool</string>
-    <string name="loading">Loading</string>
-    <string name="please_wait">please wait...</string>
+    <string name="loading">Yükleniyor</string>
+    <string name="please_wait">lütfen bekleyiniz...</string>
     <string name="one_and_half_speed"><![CDATA[1<sup>1</sup>/<sub>2</sub>x]]></string>
     <string name="half_speed_text"><![CDATA[<sup>1</sup>/<sub>2</sub>x]]></string>
     <string name="please_wait_till_audio_is_parsed">please wait till audio is been parsed, Retry after some time</string>
@@ -79,20 +79,20 @@
     <string name="underline_highlights">
         <span style="border-bottom: 1px solid #ff0000;">%s</span>
     </string>
-    <string name="edit_notes">Save your note</string>
-    <string name="save_note">Save note</string>
-    <string name="please_enter_note">please enter a note</string>
-    <string name="contents">Contents</string>
+    <string name="edit_notes">Notunuzu kaydedin</string>
+    <string name="save_note">Notunuzu kaydedin</string>
+    <string name="please_enter_note">lütfen not girin</string>
+    <string name="contents">İçerik</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="debug_start_drag">Starting drag!</string>
     <string name="debug_start_unable_drag">Starting unable to drag!</string>
-    <string name="dictionary">Dictionary</string>
+    <string name="dictionary">Sözlük</string>
     <string name="wikipedia">Wikipedia</string>
-    <string name="cannot_access_epub_message">Cannot open epub it needs storage access !</string>
-    <string name="direction_horizontal">Horizontal</string>
-    <string name="direction_vertical">Vertical</string>
+    <string name="cannot_access_epub_message">Dosyalara erişim yetkisi vermediğiniz için epub açılamıyor. </string>
+    <string name="direction_horizontal">Yatay</string>
+    <string name="direction_vertical">Dikey</string>
 
     <string name="xhtml_mime_type" translatable="false">application/xhtml+xml</string>
     <string name="html_mime_type" translatable="false">text/html</string>
