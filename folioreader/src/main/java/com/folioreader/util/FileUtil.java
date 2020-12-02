@@ -82,7 +82,7 @@ public class FileUtil {
             epubFileName = epubFileName.substring(0, fileMaxIndex - 5);
         }
 
-        return epubFileName;
+        return epubFileName.replaceAll("[^a-zA-Z0-9]", "");
     }
 
     public static Boolean saveTempEpubFile(String filePath, String fileName, InputStream inputStream) {
