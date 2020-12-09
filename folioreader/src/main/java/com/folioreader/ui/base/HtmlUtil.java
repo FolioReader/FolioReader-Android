@@ -139,8 +139,8 @@ public final class HtmlUtil {
             }
 
             if(rect.size() > 0) {
-                doc.getElementsByTag("body").append("<audio id=\"player\" controls=\"controls\" style=\"width:100%; " +
-                        "margin: 0 auto;display: table;\"" + "\n</body>");
+                doc.getElementsByTag("body").append("<audio id=\"player\" controls=\"controls\" style=\"position:fixed;" +
+                        "bottom:30px; width:80%; left:50%;margin-left:-40%;\"" + "\n</body>");
             }
 
             return doc.html();
