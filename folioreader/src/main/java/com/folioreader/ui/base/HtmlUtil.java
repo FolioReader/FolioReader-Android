@@ -73,6 +73,7 @@ public final class HtmlUtil {
         htmlContent = htmlContent.replace("</head>", toInject);
 
         String classes = "";
+        String html = "";
         switch (config.getFont()) {
             case Constants.FONT_ANDADA:
                 classes = "andada";
@@ -142,10 +143,13 @@ public final class HtmlUtil {
                 doc.getElementsByTag("body").append("<audio id=\"player\" controls=\"controls\" style=\"position:fixed;" +
                         "bottom:30px; width:80%; left:50%;margin-left:-40%;\"" + "\n</body>");
             }
-
-            return doc.html();
+            html = doc.html();
+        } else {
+            html = htmlContent;
         }
-        return htmlContent;
+        return html.replace("DOCTYPE html>", "DOCTYPE html [\n" +
+                "    <!ENTITY nbsp \"&#160;\"> \n" +
+                "]>");
     }
 
     //This will fix the "Attribute Class Redefined" error
