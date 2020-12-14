@@ -147,6 +147,7 @@ public final class HtmlUtil {
         } else {
             html = htmlContent;
         }
+        html = html.replace("controls=\"controls\"", "controls=\"controls\" controlslist=\"nodownload\"");
         return html.replace("DOCTYPE html>", "DOCTYPE html [\n" +
                 "    <!ENTITY nbsp \"&#160;\"> \n" +
                 "]>");
