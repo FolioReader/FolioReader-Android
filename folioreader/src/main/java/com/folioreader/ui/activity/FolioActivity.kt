@@ -36,6 +36,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -82,6 +83,10 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private var bookFileName: String? = null
 
     private var mFolioPageViewPager: DirectionalViewpager? = null
+
+    private var mNextButton: Button? = null
+    private var mPrevButton: Button? = null
+
     private var actionBar: ActionBar? = null
     private var appBarLayout: FolioAppBarLayout? = null
     private var toolbar: Toolbar? = null
@@ -856,7 +861,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     }
 
     private fun configFolio() {
-
+        mNextButton = findViewById(R.id.next_button)
+        mPrevButton = findViewById(R.id.prev_button)
         mFolioPageViewPager = findViewById(R.id.folioPageViewPager)
         // Replacing with addOnPageChangeListener(), onPageSelected() is not invoked
         mFolioPageViewPager!!.setOnPageChangeListener(object : DirectionalViewpager.OnPageChangeListener {
@@ -935,6 +941,20 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             searchReceiver,
             IntentFilter(ACTION_SEARCH_CLEAR)
         )
+
+        mNextButton?.setOnClickListener {
+            val position = mFolioPageViewPager!!.currentItem
+            mFolioPageViewPager!!.currentItem = position + 1
+            val folioPageFragment = currentFragment
+            folioPageFragment!!.scrollToFirst()
+        }
+
+        mPrevButton?.setOnClickListener {
+            val position = mFolioPageViewPager!!.currentItem
+            mFolioPageViewPager!!.currentItem = position - 1
+            val folioPageFragment = currentFragment
+            folioPageFragment!!.scrollToFirst()
+        }
     }
 
     private fun getChapterIndex(readLocator: ReadLocator?): Int {
