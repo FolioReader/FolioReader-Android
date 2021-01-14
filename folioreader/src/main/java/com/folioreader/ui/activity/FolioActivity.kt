@@ -37,6 +37,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -68,6 +69,7 @@ import com.folioreader.ui.view.MediaControllerCallback
 import com.folioreader.util.AppUtil
 import com.folioreader.util.FileUtil
 import com.folioreader.util.UiUtil
+import kotlinx.android.synthetic.main.view_config.*
 import org.greenrobot.eventbus.EventBus
 import org.readium.r2.shared.Link
 import org.readium.r2.shared.Publication
@@ -86,6 +88,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
     private var mNextButton: Button? = null
     private var mPrevButton: Button? = null
+    private var seekBar: SeekBar? = null
 
     private var actionBar: ActionBar? = null
     private var appBarLayout: FolioAppBarLayout? = null
@@ -721,6 +724,14 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         }
     }
 
+    override fun toggleSeekBar() {
+        if(seekBar?.visibility == View.VISIBLE) {
+            seekBar?.visibility = View.GONE
+        } else {
+            seekBar?.visibility = View.VISIBLE
+        }
+    }
+
     private fun showSystemUI() {
         Log.v(LOG_TAG, "-> showSystemUI")
 
@@ -861,12 +872,15 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     }
 
     private fun configFolio() {
+        seekBar = findViewById(R.id.seekBar);
         mNextButton = findViewById(R.id.next_button)
         mPrevButton = findViewById(R.id.prev_button)
         mFolioPageViewPager = findViewById(R.id.folioPageViewPager)
         // Replacing with addOnPageChangeListener(), onPageSelected() is not invoked
         mFolioPageViewPager!!.setOnPageChangeListener(object : DirectionalViewpager.OnPageChangeListener {
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+
+            }
 
             override fun onPageSelected(position: Int) {
                 Log.v(LOG_TAG, "-> onPageSelected -> DirectionalViewpager -> position = $position")
@@ -878,6 +892,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 )
                 mediaControllerFragment!!.setPlayButtonDrawable()
                 currentChapterIndex = position
+                seekBar?.progress = currentChapterIndex
             }
 
             override fun onPageScrollStateChanged(state: Int) {
@@ -955,6 +970,32 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             val folioPageFragment = currentFragment
             folioPageFragment!!.scrollToFirst()
         }
+
+        val config = AppUtil.getSavedConfig(applicationContext)!!
+        val thumbDrawable = ContextCompat.getDrawable(this, R.drawable.seekbar_thumb)
+        UiUtil.setColorIntToDrawable(config.themeColor, thumbDrawable)
+        UiUtil.setColorResToDrawable(R.color.night_text_color, seekBar?.progressDrawable)
+        seekBar?.thumb = thumbDrawable
+
+        seekBar?.max = spine!!.indices.last
+        seekBar?.progress = mFolioPageViewPager!!.currentItem
+
+        seekBar?.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                mFolioPageViewPager!!.currentItem = p1
+                val folioPageFragment = currentFragment
+                folioPageFragment!!.scrollToFirst()
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+
+            }
+
+        })
     }
 
     private fun getChapterIndex(readLocator: ReadLocator?): Int {
