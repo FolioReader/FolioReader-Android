@@ -974,7 +974,6 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         val config = AppUtil.getSavedConfig(applicationContext)!!
         val thumbDrawable = ContextCompat.getDrawable(this, R.drawable.seekbar_thumb)
         UiUtil.setColorIntToDrawable(config.themeColor, thumbDrawable)
-        UiUtil.setColorResToDrawable(R.color.night_text_color, seekBar?.progressDrawable)
         seekBar?.thumb = thumbDrawable
 
         seekBar?.max = spine!!.indices.last

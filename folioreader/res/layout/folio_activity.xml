@@ -66,6 +66,7 @@
 
         <SeekBar
             android:id="@+id/seekBar"
+            android:progressBackgroundTint="@color/night"
             android:layout_width="500dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
