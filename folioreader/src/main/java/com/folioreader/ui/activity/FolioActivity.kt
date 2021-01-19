@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -975,6 +976,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         val thumbDrawable = ContextCompat.getDrawable(this, R.drawable.seekbar_thumb)
         UiUtil.setColorIntToDrawable(config.themeColor, thumbDrawable)
         seekBar?.thumb = thumbDrawable
+        seekBar?.progressTintList = ColorStateList.valueOf(config.themeColor)
 
         seekBar?.max = spine!!.indices.last
         seekBar?.progress = mFolioPageViewPager!!.currentItem
