@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.folioreader.Constants;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
@@ -112,12 +113,17 @@ public class HighLightTable {
 
     public static List<String> getHighlightsForPageId(String pageId) {
         String query = "SELECT " + COL_RANGY + " FROM " + TABLE_NAME + " WHERE " + COL_PAGE_ID + " = \"" + pageId + "\"";
-        Cursor c = DbAdapter.getHighlightsForPageId(query, pageId);
         List<String> rangyList = new ArrayList<>();
-        while (c.moveToNext()) {
-            rangyList.add(c.getString(c.getColumnIndex(COL_RANGY)));
+
+        //Crash: java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.String java.lang.String.trim()' on a null object reference...at com.folioreader.model.sqlite.DbAdapter.getHighlightsForPageId(DbAdapter.java:84)
+        //To avoid this crash, check if query is null.
+        if (query != null) {
+            Cursor c = DbAdapter.getHighlightsForPageId(query, pageId);
+            while (c.moveToNext()) {
+                rangyList.add(c.getString(c.getColumnIndex(COL_RANGY)));
+            }
+            c.close();
         }
-        c.close();
         return rangyList;
     }
 
