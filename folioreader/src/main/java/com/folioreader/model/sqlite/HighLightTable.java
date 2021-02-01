@@ -62,17 +62,22 @@ public class HighLightTable {
     public static ArrayList<HighlightImpl> getAllHighlights(String bookId) {
         ArrayList<HighlightImpl> highlights = new ArrayList<>();
         Cursor highlightCursor = DbAdapter.getHighLightsForBookId(bookId);
-        while (highlightCursor.moveToNext()) {
-            highlights.add(new HighlightImpl(highlightCursor.getInt(highlightCursor.getColumnIndex(ID)),
-                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_BOOK_ID)),
-                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_CONTENT)),
-                    getDateTime(highlightCursor.getString(highlightCursor.getColumnIndex(COL_DATE))),
-                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_TYPE)),
-                    highlightCursor.getInt(highlightCursor.getColumnIndex(COL_PAGE_NUMBER)),
-                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_PAGE_ID)),
-                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_RANGY)),
-                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_NOTE)),
-                    highlightCursor.getString(highlightCursor.getColumnIndex(COL_UUID))));
+
+        //Crash: java.lang.NullPointerException: Attempt to invoke virtual method 'android.database.Cursor android.database.sqlite.SQLiteDatabase.rawQuery(java.lang.String, java.lang.String[])' on a null object reference
+        //To avoid this crash, check if highlightCursor is null.
+        if (highlightCursor != null) {
+             while (highlightCursor.moveToNext()) {
+                highlights.add(new HighlightImpl(highlightCursor.getInt(highlightCursor.getColumnIndex(ID)),
+                        highlightCursor.getString(highlightCursor.getColumnIndex(COL_BOOK_ID)),
+                        highlightCursor.getString(highlightCursor.getColumnIndex(COL_CONTENT)),
+                        getDateTime(highlightCursor.getString(highlightCursor.getColumnIndex(COL_DATE))),
+                        highlightCursor.getString(highlightCursor.getColumnIndex(COL_TYPE)),
+                        highlightCursor.getInt(highlightCursor.getColumnIndex(COL_PAGE_NUMBER)),
+                        highlightCursor.getString(highlightCursor.getColumnIndex(COL_PAGE_ID)),
+                        highlightCursor.getString(highlightCursor.getColumnIndex(COL_RANGY)),
+                        highlightCursor.getString(highlightCursor.getColumnIndex(COL_NOTE)),
+                        highlightCursor.getString(highlightCursor.getColumnIndex(COL_UUID))));
+            }
         }
         return highlights;
     }
@@ -119,10 +124,13 @@ public class HighLightTable {
         //To avoid this crash, check if query is null.
         if (query != null) {
             Cursor c = DbAdapter.getHighlightsForPageId(query, pageId);
-            while (c.moveToNext()) {
-                rangyList.add(c.getString(c.getColumnIndex(COL_RANGY)));
+            if (c != null) {
+                //To avoid this crash, check if Cursor is null.
+                while (c.moveToNext()) {
+                    rangyList.add(c.getString(c.getColumnIndex(COL_RANGY)));
+                }
+                c.close();
             }
-            c.close();
         }
         return rangyList;
     }

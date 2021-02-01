@@ -70,7 +70,12 @@ class FolioPageFragment : Fragment(),
         const val BUNDLE_SEARCH_LOCATOR = "BUNDLE_SEARCH_LOCATOR"
 
         @JvmStatic
-        fun newInstance(spineIndex: Int, bookTitle: String, spineRef: Link, bookId: String): FolioPageFragment {
+        fun newInstance(
+            spineIndex: Int,
+            bookTitle: String,
+            spineRef: Link,
+            bookId: String
+        ): FolioPageFragment {
             val fragment = FolioPageFragment()
             val args = Bundle()
             args.putInt(BUNDLE_SPINE_INDEX, spineIndex)
@@ -161,7 +166,8 @@ class FolioPageFragment : Fragment(),
             mediaController!!.setTextToSpeech(activity)
             //}
         }
-        highlightStyle = HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal)
+        highlightStyle =
+            HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal)
         mRootView = inflater.inflate(R.layout.folio_page_fragment, container, false)
         mPagesLeftTextView = mRootView!!.findViewById<View>(R.id.pagesLeft) as TextView
         mMinutesLeftTextView = mRootView!!.findViewById<View>(R.id.minutesLeft) as TextView
@@ -218,13 +224,18 @@ class FolioPageFragment : Fragment(),
         if (isAdded) {
             when (event.style) {
                 MediaOverlayHighlightStyleEvent.Style.DEFAULT -> highlightStyle =
-                        HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal)
+                    HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal)
                 MediaOverlayHighlightStyleEvent.Style.UNDERLINE -> highlightStyle =
-                        HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.DottetUnderline)
+                    HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.DottetUnderline)
                 MediaOverlayHighlightStyleEvent.Style.BACKGROUND -> highlightStyle =
-                        HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.TextColor)
+                    HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.TextColor)
             }
-            mWebview!!.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), highlightStyle))
+            mWebview!!.loadUrl(
+                String.format(
+                    getString(R.string.setmediaoverlaystyle),
+                    highlightStyle
+                )
+            )
         }
     }
 
@@ -362,7 +373,8 @@ class FolioPageFragment : Fragment(),
 
         setupScrollBar()
         mWebview!!.addOnLayoutChangeListener { view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
-            val height = Math.floor((mWebview!!.contentHeight * mWebview!!.scale).toDouble()).toInt()
+            val height =
+                Math.floor((mWebview!!.contentHeight * mWebview!!.scale).toDouble()).toInt()
             val webViewHeight = mWebview!!.measuredHeight
             mScrollSeekbar!!.maximum = height - webViewHeight
         }
@@ -466,7 +478,8 @@ class FolioPageFragment : Fragment(),
                     readLocator = mActivityCallback!!.entryReadLocator
                 } else {
                     Log.v(LOG_TAG, "-> onPageFinished -> took from bundle")
-                    readLocator = savedInstanceState!!.getParcelable(BUNDLE_READ_LOCATOR_CONFIG_CHANGE)
+                    readLocator =
+                        savedInstanceState!!.getParcelable(BUNDLE_READ_LOCATOR_CONFIG_CHANGE)
                     savedInstanceState!!.remove(BUNDLE_READ_LOCATOR_CONFIG_CHANGE)
                 }
 
@@ -520,7 +533,10 @@ class FolioPageFragment : Fragment(),
 
         // prevent favicon.ico to be loaded automatically
         @SuppressLint("NewApi")
-        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
+        override fun shouldInterceptRequest(
+            view: WebView,
+            request: WebResourceRequest
+        ): WebResourceResponse? {
             if (!request.isForMainFrame
                 && request.url.path != null
                 && request.url.path!!.endsWith("/favicon.ico")
@@ -546,7 +562,12 @@ class FolioPageFragment : Fragment(),
 
         override fun onProgressChanged(view: WebView, progress: Int) {}
 
-        override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
+        override fun onJsAlert(
+            view: WebView,
+            url: String,
+            message: String,
+            result: JsResult
+        ): Boolean {
 
             // Check if this `if` block can be dropped?
             if (!this@FolioPageFragment.isVisible)
@@ -561,7 +582,8 @@ class FolioPageFragment : Fragment(),
 
             } else {
                 // to handle TTS playback when highlight is deleted.
-                val p = Pattern.compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}")
+                val p =
+                    Pattern.compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}")
                 if (!p.matcher(message).matches() && message != "undefined" && isCurrentFragment) {
                     mediaController!!.speakAudio(message)
                 }
@@ -666,7 +688,8 @@ class FolioPageFragment : Fragment(),
     private fun updatePagesLeftText(scrollY: Int) {
         try {
             val currentPage = (Math.ceil(scrollY.toDouble() / mWebview!!.webViewHeight) + 1).toInt()
-            val totalPages = Math.ceil(mWebview!!.contentHeightVal.toDouble() / mWebview!!.webViewHeight).toInt()
+            val totalPages =
+                Math.ceil(mWebview!!.contentHeightVal.toDouble() / mWebview!!.webViewHeight).toInt()
             val pagesRemaining = totalPages - currentPage
             val pagesRemainingStrFormat = if (pagesRemaining > 1)
                 getString(R.string.pages_left)
@@ -677,7 +700,8 @@ class FolioPageFragment : Fragment(),
                 pagesRemainingStrFormat, pagesRemaining
             )
 
-            val minutesRemaining = Math.ceil((pagesRemaining * mTotalMinutes).toDouble() / totalPages).toInt()
+            val minutesRemaining =
+                Math.ceil((pagesRemaining * mTotalMinutes).toDouble() / totalPages).toInt()
             val minutesRemainingStr: String
             if (minutesRemaining > 1) {
                 minutesRemainingStr = String.format(

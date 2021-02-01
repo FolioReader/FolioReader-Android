@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class DbAdapter {
     private static final String TAG = "DBAdapter";
@@ -30,7 +31,14 @@ public class DbAdapter {
     }
 
     public static Cursor getHighLightsForBookId(String bookId) {
-        return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.COL_BOOK_ID + " = \"" + bookId + "\"", null);
+        //Crash: java.lang.NullPointerException: Attempt to invoke virtual method 'android.database.Cursor android.database.sqlite.SQLiteDatabase.rawQuery(java.lang.String, java.lang.String[])' on a null object reference at com.folioreader.model.sqlite.DbAdapter.getHighlightsForPageId(DbAdapter.java:84)
+        //if mDatabase is null, this crash is occurred.
+        try {
+            return mDatabase.rawQuery("SELECT * FROM " + HighLightTable.TABLE_NAME + " WHERE " + HighLightTable.COL_BOOK_ID + " = \"" + bookId + "\"", null);
+        } catch (Exception e) {
+            Log.e("TAG_DbAdapter", "getHighLightsForBookId: " + e.getLocalizedMessage());
+            return null;
+        }
     }
 
     public boolean deleteAll(String table) {
@@ -81,7 +89,14 @@ public class DbAdapter {
     }
 
     public static Cursor getHighlightsForPageId(String query, String pageId) {
-        return mDatabase.rawQuery(query, null);
+        //Crash: java.lang.NullPointerException: Attempt to invoke virtual method 'android.database.Cursor android.database.sqlite.SQLiteDatabase.rawQuery(java.lang.String, java.lang.String[])' on a null object reference at com.folioreader.model.sqlite.DbAdapter.getHighlightsForPageId(DbAdapter.java:84)
+        //if mDatabase is null, this crash is occurred.
+        try {
+            return mDatabase.rawQuery(query, null);
+        } catch (Exception e) {
+            Log.e("TAG_DbAdapter", "getHighlightsForPageId: " + e.getLocalizedMessage());
+            return null;
+        }
     }
 
     public static int getIdForQuery(String query) {
