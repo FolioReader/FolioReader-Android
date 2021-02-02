@@ -833,6 +833,7 @@ function onClickHtml() {
         FolioWebView.dismissPopupWindow();
     } else {
         FolioWebView.toggleSystemUI();
+        FolioWebView.toggleSeekBar();
     }
 }
 

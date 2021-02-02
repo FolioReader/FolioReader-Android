@@ -23,6 +23,8 @@ public interface FolioActivityCallback {
 
     void toggleSystemUI();
 
+    void toggleSeekBar();
+
     void setDayMode();
 
     void setNightMode();

@@ -150,6 +150,13 @@ class FolioWebView : WebView {
     }
 
     @JavascriptInterface
+    fun toggleSeekBar() {
+        uiHandler.post {
+            folioActivityCallback.toggleSeekBar()
+        }
+    }
+
+    @JavascriptInterface
     fun isPopupShowing(): Boolean {
         return popupWindow.isShowing
     }
