@@ -88,7 +88,6 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private var mFolioPageViewPager: DirectionalViewpager? = null
 
     private var mNextButton: Button? = null
-    private var mPrevButton: Button? = null
     private var seekBar: SeekBar? = null
 
     private var actionBar: ActionBar? = null
@@ -875,7 +874,6 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private fun configFolio() {
         seekBar = findViewById(R.id.seekBar);
         mNextButton = findViewById(R.id.next_button)
-        mPrevButton = findViewById(R.id.prev_button)
         mFolioPageViewPager = findViewById(R.id.folioPageViewPager)
         // Replacing with addOnPageChangeListener(), onPageSelected() is not invoked
         mFolioPageViewPager!!.setOnPageChangeListener(object : DirectionalViewpager.OnPageChangeListener {
@@ -961,13 +959,6 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         mNextButton?.setOnClickListener {
             val position = mFolioPageViewPager!!.currentItem
             mFolioPageViewPager!!.currentItem = position + 1
-            val folioPageFragment = currentFragment
-            folioPageFragment!!.scrollToFirst()
-        }
-
-        mPrevButton?.setOnClickListener {
-            val position = mFolioPageViewPager!!.currentItem
-            mFolioPageViewPager!!.currentItem = position - 1
             val folioPageFragment = currentFragment
             folioPageFragment!!.scrollToFirst()
         }
