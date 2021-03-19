@@ -141,7 +141,7 @@ public final class HtmlUtil {
 
             if(rect.size() > 0) {
                 doc.getElementsByTag("body").append("<audio id=\"player\" disableRemotePlayback controls controlslist=\"nodownload\" style=\"position:fixed;" +
-                        "bottom:100px; width:80%; left:50%;margin-left:-40%;\"" + "\n</body>");
+                        "bottom:30px; width:80%; left:50%;margin-left:-40%;\"" + "\n</body>");
             }
             html = doc.html();
         } else {
