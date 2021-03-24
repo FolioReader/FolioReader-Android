@@ -35,7 +35,7 @@ public class Config implements Parcelable {
     private boolean nightMode;
     @ColorInt
     private int themeColor = DEFAULT_THEME_COLOR_INT;
-    private boolean showTts = true;
+    private boolean showTts = false;
     private AllowedDirection allowedDirection = DEFAULT_ALLOWED_DIRECTION;
     private Direction direction = DEFAULT_DIRECTION;
 

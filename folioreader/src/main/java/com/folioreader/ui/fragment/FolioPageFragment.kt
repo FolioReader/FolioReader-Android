@@ -160,8 +160,8 @@ class FolioPageFragment : Fragment(),
             //    mediaController = new MediaController(getActivity(), MediaController.MediaType.SMIL, this);
             //    hasMediaOverlay = true;
             //} else {
-            mediaController = MediaController(activity, MediaController.MediaType.TTS, this)
-            mediaController!!.setTextToSpeech(activity)
+//            mediaController = MediaController(activity, MediaController.MediaType.TTS, this)
+//            mediaController!!.setTextToSpeech(activity)
             //}
         }
         highlightStyle = HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal)
@@ -190,7 +190,7 @@ class FolioPageFragment : Fragment(),
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun pauseButtonClicked(event: MediaOverlayPlayPauseEvent) {
         if (isAdded && spineItem!!.href == event.href) {
-            mediaController!!.stateChanged(event)
+            mediaController?.stateChanged(event)
         }
     }
 
@@ -205,7 +205,7 @@ class FolioPageFragment : Fragment(),
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun speedChanged(event: MediaOverlaySpeedEvent) {
         if (mediaController != null)
-            mediaController!!.setSpeed(event.speed)
+            mediaController?.setSpeed(event.speed)
     }
 
     /**
@@ -614,7 +614,7 @@ class FolioPageFragment : Fragment(),
                 // to handle TTS playback when highlight is deleted.
                 val p = Pattern.compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}")
                 if (!p.matcher(message).matches() && message != "undefined" && isCurrentFragment) {
-                    mediaController!!.speakAudio(message)
+                    mediaController?.speakAudio(message)
                 }
             }
 
@@ -627,7 +627,7 @@ class FolioPageFragment : Fragment(),
         super.onStop()
         Log.v(LOG_TAG, "-> onStop -> " + spineItem.href + " -> " + isCurrentFragment)
 
-        mediaController!!.stop()
+        mediaController?.stop()
         //TODO save last media overlay item
 
         if (isCurrentFragment)
