@@ -1,6 +1,7 @@
 package com.folioreader.ui.base;
 
 import android.content.Context;
+
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
@@ -121,28 +122,33 @@ public final class HtmlUtil {
         Document doc = Jsoup.parse(htmlContent, "", Parser.xmlParser());
 
         Elements audios = doc.getElementsByTag("audio");
-        if(audios.size() > 0) {
-            Elements rect = doc.getElementsByTag("rect");
-            for (int i = 0; i < rect.size(); i++) {
-                for(int y = 0; y < audios.size(); y++) {
-                    String src = null;
-                    String id = audios.get(y).attr("id");
-                    String onclick = rect.get(i).attr("onclick"); //$("#TRAC_126")[0].play()
-                    if(onclick.split("\"").length > 1) {//split by quotation
-                        String rectAudioId = onclick.split("\"")[1].substring(1); //to extract TRAC_126
-                        if (id.equals(rectAudioId)) {
-                            src = audios.get(y).attr("src");
-                            rect.get(i).attr("onclick", "playAudio('" + src + "')");
-                            break;
+        if (audios.size() > 0) {
+            Elements elements = doc.select("[onclick]"); //find all elements with onclick.play
+            boolean showPlayer = false;
+            for (int i = 0; i < elements.size(); i++) {
+                String onclick = elements.get(i).attr("onclick"); //$("#TRAC_126")[0].play()
+                if (onclick.contains("play()")) {
+                    showPlayer = true;
+                    for (int y = 0; y < audios.size(); y++) {
+                        String src = null;
+                        String id = audios.get(y).attr("id");
+                        if (onclick.split("\"").length > 1) {//split by quotation
+                            String rectAudioId = onclick.split("\"")[1].substring(1); //to extract TRAC_126
+                            if (id.equals(rectAudioId)) {
+                                src = audios.get(y).attr("src");
+                                elements.get(i).attr("onclick", "playAudio('" + src + "')");
+                                break;
+                            }
                         }
                     }
                 }
             }
 
-            if(rect.size() > 0) {
+            if(showPlayer) {
                 doc.getElementsByTag("body").append("<audio id=\"player\" disableRemotePlayback controls controlslist=\"nodownload\" style=\"position:fixed;" +
                         "bottom:30px; width:80%; left:50%;margin-left:-40%;\"" + "\n</body>");
             }
+
             html = doc.html();
         } else {
             html = htmlContent;
@@ -157,20 +163,20 @@ public final class HtmlUtil {
     private static String checkClassAttr(String html, String classes) {
         //get the entry of <html>
         String s1 = html.substring(html.indexOf("<html"));
-        String s2= s1.substring(0, s1.indexOf(">"));
+        String s2 = s1.substring(0, s1.indexOf(">"));
         String classValue = "";
 
         //check if class attribute exists
-        if(s2.contains("class=")) {
+        if (s2.contains("class=")) {
             String classVal = s2.substring(s2.indexOf("class="));
             String[] kvPairs = classVal.split(" ");
 
             //get the value
-            for(String kvPair: kvPairs) {
+            for (String kvPair : kvPairs) {
                 String[] kv = kvPair.split("=");
                 String key = kv[0];
 
-                if(key.equals("class")) {
+                if (key.equals("class")) {
                     classValue = kv[1]; //get the value of class attribute
                     break;
                 }
@@ -182,7 +188,7 @@ public final class HtmlUtil {
 
 
         }
-        classValue =  classValue.equals("") ? "\"" : classValue;
+        classValue = classValue.equals("") ? "\"" : classValue;
         html = html.replace("<html", "<html class=\"" + classes + " " + classValue + " onclick=\"onClickHtml()\"");
         return html;
     }
