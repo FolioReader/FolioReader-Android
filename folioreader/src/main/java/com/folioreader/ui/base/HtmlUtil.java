@@ -1,9 +1,15 @@
 package com.folioreader.ui.base;
 
 import android.content.Context;
+
 import com.folioreader.Config;
 import com.folioreader.Constants;
 import com.folioreader.R;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
 
 /**
  * @author gautam chibde on 14/6/17.
@@ -54,12 +60,21 @@ public final class HtmlUtil {
                 "setMediaOverlayStyleColors('#C0ED72','#C0ED72')") + "\n";
 
         jsPath = jsPath
-                + "<meta name=\"viewport\" content=\"height=device-height, user-scalable=no\" />";
+                + "<meta name=\"viewport\" content=\"height=device-height, user-scalable=yes\" />" + "\n";
+
+        jsPath = jsPath + String.format(context.getString(R.string.script_tag_method_call), "function playAudio(src) {\n" +
+                "    var audioElement = $('#player')[0];\n" +
+                "    audioElement.setAttribute('src',src);\n" +
+                "    audioElement.load();\n" +
+                "    audioElement.play();\n" +
+                "    $(audioElement).show();\n" +
+                "}") + "\n";
 
         String toInject = "\n" + cssPath + "\n" + jsPath + "\n</head>";
         htmlContent = htmlContent.replace("</head>", toInject);
 
         String classes = "";
+        String html = "";
         switch (config.getFont()) {
             case Constants.FONT_ANDADA:
                 classes = "andada";
@@ -101,8 +116,80 @@ public final class HtmlUtil {
                 break;
         }
 
-        htmlContent = htmlContent.replace("<html", "<html class=\"" + classes + "\"" +
-                " onclick=\"onClickHtml()\"");
-        return htmlContent;
+        htmlContent = checkClassAttr(htmlContent, classes);
+
+
+        Document doc = Jsoup.parse(htmlContent, "", Parser.xmlParser());
+
+        Elements audios = doc.getElementsByTag("audio");
+        if (audios.size() > 0) {
+            Elements elements = doc.select("[onclick]"); //find all elements with onclick.play
+            boolean showPlayer = false;
+            for (int i = 0; i < elements.size(); i++) {
+                String onclick = elements.get(i).attr("onclick"); //$("#TRAC_126")[0].play()
+                if (onclick.contains("play()")) {
+                    showPlayer = true;
+                    for (int y = 0; y < audios.size(); y++) {
+                        String src = null;
+                        String id = audios.get(y).attr("id");
+                        if (onclick.split("\"").length > 1) {//split by quotation
+                            String rectAudioId = onclick.split("\"")[1].substring(1); //to extract TRAC_126
+                            if (id.equals(rectAudioId)) {
+                                src = audios.get(y).attr("src");
+                                elements.get(i).attr("onclick", "playAudio('" + src + "')");
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(showPlayer) {
+                doc.getElementsByTag("body").append("<audio id=\"player\" disableRemotePlayback controls controlslist=\"nodownload\" style=\"position:fixed;" +
+                        "bottom:30px; width:80%; left:50%;margin-left:-40%;\"" + "\n</body>");
+            }
+
+            html = doc.html();
+        } else {
+            html = htmlContent;
+        }
+        html = html.replace("controls=\"controls\"", "controls=\"controls\" controlslist=\"nodownload\"");
+        return html.replace("DOCTYPE html>", "DOCTYPE html [\n" +
+                "    <!ENTITY nbsp \"&#160;\"> \n" +
+                "]>");
+    }
+
+    //This will fix the "Attribute Class Redefined" error
+    private static String checkClassAttr(String html, String classes) {
+        //get the entry of <html>
+        String s1 = html.substring(html.indexOf("<html"));
+        String s2 = s1.substring(0, s1.indexOf(">"));
+        String classValue = "";
+
+        //check if class attribute exists
+        if (s2.contains("class=")) {
+            String classVal = s2.substring(s2.indexOf("class="));
+            String[] kvPairs = classVal.split(" ");
+
+            //get the value
+            for (String kvPair : kvPairs) {
+                String[] kv = kvPair.split("=");
+                String key = kv[0];
+
+                if (key.equals("class")) {
+                    classValue = kv[1]; //get the value of class attribute
+                    break;
+                }
+            }
+
+            //remove the class attribute since it will be readded later to avoid "attribute redefined error"
+            html = html.replaceFirst("class=" + classValue, "");
+            classValue = classValue.substring(1); //remove the first quotation
+
+
+        }
+        classValue = classValue.equals("") ? "\"" : classValue;
+        html = html.replace("<html", "<html class=\"" + classes + " " + classValue + " onclick=\"onClickHtml()\"");
+        return html;
     }
 }

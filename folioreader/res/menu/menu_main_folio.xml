@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.folioreader.ui.activity.FolioActivity">
+
+    <item
+        android:id="@+id/itemSearch"
+        android:icon="@drawable/ic_search"
+        android:title="@string/menu_item_search"
+        app:showAsAction="ifRoom"
+        tools:showAsAction="always" />
+
+    <item
+        android:id="@+id/itemConfig"
+        android:icon="@drawable/icon_font"
+        android:title="@string/menu_item_config"
+        app:showAsAction="ifRoom"
+        tools:showAsAction="always" />
+
+    <item
+        android:id="@+id/itemTts"
+        android:icon="@drawable/man_speech_icon"
+        android:title="@string/menu_item_tts"
+        android:visible="false"
+        app:showAsAction="ifRoom"
+        tools:showAsAction="always" />
+
+</menu>

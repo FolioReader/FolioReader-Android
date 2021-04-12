@@ -27,8 +27,7 @@ import com.folioreader.FolioReader
 import com.folioreader.R
 import com.folioreader.mediaoverlay.MediaController
 import com.folioreader.mediaoverlay.MediaControllerCallbacks
-import com.folioreader.model.HighLight
-import com.folioreader.model.HighlightImpl
+import com.folioreader.model.*
 import com.folioreader.model.event.*
 import com.folioreader.model.locators.ReadLocator
 import com.folioreader.model.locators.SearchLocator
@@ -65,18 +64,20 @@ class FolioPageFragment : Fragment(),
 
         private const val BUNDLE_SPINE_INDEX = "BUNDLE_SPINE_INDEX"
         private const val BUNDLE_BOOK_TITLE = "BUNDLE_BOOK_TITLE"
+        private const val BUNDLE_BOOK_NAME = "BUNDLE_BOOK_NAME"
         private const val BUNDLE_SPINE_ITEM = "BUNDLE_SPINE_ITEM"
         private const val BUNDLE_READ_LOCATOR_CONFIG_CHANGE = "BUNDLE_READ_LOCATOR_CONFIG_CHANGE"
         const val BUNDLE_SEARCH_LOCATOR = "BUNDLE_SEARCH_LOCATOR"
 
         @JvmStatic
-        fun newInstance(spineIndex: Int, bookTitle: String, spineRef: Link, bookId: String): FolioPageFragment {
+        fun newInstance(spineIndex: Int, bookTitle: String, spineRef: Link, bookId: String, title: String): FolioPageFragment {
             val fragment = FolioPageFragment()
             val args = Bundle()
             args.putInt(BUNDLE_SPINE_INDEX, spineIndex)
             args.putString(BUNDLE_BOOK_TITLE, bookTitle)
             args.putString(FolioReader.EXTRA_BOOK_ID, bookId)
             args.putSerializable(BUNDLE_SPINE_ITEM, spineRef)
+            args.putString(BUNDLE_BOOK_NAME, title)
             fragment.arguments = args
             return fragment
         }
@@ -110,6 +111,7 @@ class FolioPageFragment : Fragment(),
     lateinit var spineItem: Link
     private var spineIndex = -1
     private var mBookTitle: String? = null
+    private var title: String? = null
     private var mIsPageReloaded: Boolean = false
 
     private var highlightStyle: String? = null
@@ -146,6 +148,7 @@ class FolioPageFragment : Fragment(),
         mBookTitle = arguments!!.getString(BUNDLE_BOOK_TITLE)
         spineItem = arguments!!.getSerializable(BUNDLE_SPINE_ITEM) as Link
         mBookId = arguments!!.getString(FolioReader.EXTRA_BOOK_ID)
+        title =  arguments!!.getString(BUNDLE_BOOK_NAME)
 
         chapterUrl = Uri.parse(mActivityCallback?.streamerUrl + spineItem.href!!.substring(1))
 
@@ -157,8 +160,8 @@ class FolioPageFragment : Fragment(),
             //    mediaController = new MediaController(getActivity(), MediaController.MediaType.SMIL, this);
             //    hasMediaOverlay = true;
             //} else {
-            mediaController = MediaController(activity, MediaController.MediaType.TTS, this)
-            mediaController!!.setTextToSpeech(activity)
+//            mediaController = MediaController(activity, MediaController.MediaType.TTS, this)
+//            mediaController!!.setTextToSpeech(activity)
             //}
         }
         highlightStyle = HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal)
@@ -187,7 +190,7 @@ class FolioPageFragment : Fragment(),
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun pauseButtonClicked(event: MediaOverlayPlayPauseEvent) {
         if (isAdded && spineItem!!.href == event.href) {
-            mediaController!!.stateChanged(event)
+            mediaController?.stateChanged(event)
         }
     }
 
@@ -202,7 +205,7 @@ class FolioPageFragment : Fragment(),
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun speedChanged(event: MediaOverlaySpeedEvent) {
         if (mediaController != null)
-            mediaController!!.setSpeed(event.speed)
+            mediaController?.setSpeed(event.speed)
     }
 
     /**
@@ -378,6 +381,10 @@ class FolioPageFragment : Fragment(),
         mWebview!!.addJavascriptInterface(webViewPager, "WebViewPager")
         mWebview!!.addJavascriptInterface(loadingView, "LoadingView")
         mWebview!!.addJavascriptInterface(mWebview, "FolioWebView")
+        mWebview!!.addJavascriptInterface(JScriptInterface(activity!!, title), "JSOUT")
+
+        webView = mWebview
+        Booktitle = title
 
         mWebview!!.setScrollListener(object : FolioWebView.ScrollListener {
             override fun onScrollChange(percent: Int) {
@@ -391,12 +398,35 @@ class FolioPageFragment : Fragment(),
         mWebview!!.webChromeClient = webChromeClient
 
         mWebview!!.settings.defaultTextEncodingName = "utf-8"
+        mWebview!!.settings.builtInZoomControls = true;
+        mWebview!!.settings.displayZoomControls = false;
+
+
         HtmlTask(this).execute(chapterUrl.toString())
     }
 
     private val webViewClient = object : WebViewClient() {
 
         override fun onPageFinished(view: WebView, url: String) {
+
+//            val code = "var mediaElement;" +
+//                    "mediaCheck();" +
+//                    "function mediaCheck(){" +
+//                    "        var media = document.getElementById('player');" +
+//                    "        if(media != null) {" +
+//                        "        media.onplay = function(){" +
+//                        "            mediaElement = media;" +
+//                        "            JSOUT.mediaAction('true');" +
+//                        "            JSOUT.setIndexPlaying(${mActivityCallback!!.currentChapterIndex});" +
+//                        "        };" +
+//                        "        media.onpause = function(){" +
+//                        "            mediaElement = media;" +
+//                        "            JSOUT.mediaAction('false');" +
+//                        "        };" +
+//                            "}" +
+//                    "}"
+//
+//            mWebview!!.evaluateJavascript(code, null)
 
             mWebview!!.loadUrl("javascript:checkCompatMode()")
             mWebview!!.loadUrl("javascript:alert(getReadingTime())")
@@ -544,7 +574,28 @@ class FolioPageFragment : Fragment(),
             return FolioWebView.onWebViewConsoleMessage(cm, "WebViewConsole", msg)
         }
 
-        override fun onProgressChanged(view: WebView, progress: Int) {}
+        override fun onProgressChanged(view: WebView, progress: Int) {
+            if(progress == 100) {
+                val code = "var mediaElement;" +
+                        "mediaCheck();" +
+                        "function mediaCheck(){" +
+                        "        var media = document.getElementById('player');" +
+                        "        if(media != null) {" +
+                        "        media.onplay = function(){" +
+                        "            mediaElement = media;" +
+                        "            JSOUT.mediaAction('true');" +
+                        "            JSOUT.setIndexPlaying(${mActivityCallback!!.currentChapterIndex});" +
+                        "        };" +
+                        "        media.onpause = function(){" +
+                        "            mediaElement = media;" +
+                        "            JSOUT.mediaAction('false');" +
+                        "        };" +
+                        "}" +
+                        "}"
+
+                mWebview!!.evaluateJavascript(code, null)
+            }
+        }
 
         override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
 
@@ -563,7 +614,7 @@ class FolioPageFragment : Fragment(),
                 // to handle TTS playback when highlight is deleted.
                 val p = Pattern.compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}")
                 if (!p.matcher(message).matches() && message != "undefined" && isCurrentFragment) {
-                    mediaController!!.speakAudio(message)
+                    mediaController?.speakAudio(message)
                 }
             }
 
@@ -576,7 +627,7 @@ class FolioPageFragment : Fragment(),
         super.onStop()
         Log.v(LOG_TAG, "-> onStop -> " + spineItem.href + " -> " + isCurrentFragment)
 
-        mediaController!!.stop()
+        mediaController?.stop()
         //TODO save last media overlay item
 
         if (isCurrentFragment)
@@ -657,8 +708,12 @@ class FolioPageFragment : Fragment(),
         if (mConfig!!.isNightMode) {
             mRootView!!.findViewById<View>(R.id.indicatorLayout)
                 .setBackgroundColor(Color.parseColor("#131313"))
+            mRootView!!.findViewById<FrameLayout>(R.id.webViewLayout)
+                .setBackgroundColor(Color.parseColor("#131313"))
         } else {
             mRootView!!.findViewById<View>(R.id.indicatorLayout)
+                .setBackgroundColor(Color.WHITE)
+            mRootView!!.findViewById<FrameLayout>(R.id.webViewLayout)
                 .setBackgroundColor(Color.WHITE)
         }
     }

@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -36,6 +37,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.widget.Button
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -51,6 +54,8 @@ import com.folioreader.FolioReader
 import com.folioreader.R
 import com.folioreader.model.DisplayUnit
 import com.folioreader.model.HighlightImpl
+import com.folioreader.model.JScriptInterface
+import com.folioreader.model.NotificationListener
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent
 import com.folioreader.model.locators.ReadLocator
 import com.folioreader.model.locators.SearchLocator
@@ -65,6 +70,7 @@ import com.folioreader.ui.view.MediaControllerCallback
 import com.folioreader.util.AppUtil
 import com.folioreader.util.FileUtil
 import com.folioreader.util.UiUtil
+import kotlinx.android.synthetic.main.view_config.*
 import org.greenrobot.eventbus.EventBus
 import org.readium.r2.shared.Link
 import org.readium.r2.shared.Publication
@@ -80,6 +86,9 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private var bookFileName: String? = null
 
     private var mFolioPageViewPager: DirectionalViewpager? = null
+
+    private var seekBar: SeekBar? = null
+
     private var actionBar: ActionBar? = null
     private var appBarLayout: FolioAppBarLayout? = null
     private var toolbar: Toolbar? = null
@@ -260,7 +269,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         // getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setConfig(savedInstanceState)
-        initDistractionFreeMode(savedInstanceState)
+        //initDistractionFreeMode(savedInstanceState)
 
         setContentView(R.layout.folio_activity)
         this.savedInstanceState = savedInstanceState
@@ -359,7 +368,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+        menuInflater.inflate(R.menu.menu_main_folio, menu)
 
         val config = AppUtil.getSavedConfig(applicationContext)!!
         UiUtil.setColorIntToDrawable(config.themeColor, menu.findItem(R.id.itemSearch).icon)
@@ -555,7 +564,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         mFolioPageViewPager!!.setDirection(newDirection)
         mFolioPageFragmentAdapter = FolioPageFragmentAdapter(
             supportFragmentManager,
-            spine, bookFileName, mBookId
+            spine, bookFileName, mBookId, title.toString()
         )
         mFolioPageViewPager!!.adapter = mFolioPageFragmentAdapter
         mFolioPageViewPager!!.currentItem = currentChapterIndex
@@ -714,6 +723,14 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         }
     }
 
+    override fun toggleSeekBar() {
+        if(seekBar?.visibility == View.VISIBLE) {
+            seekBar?.visibility = View.GONE
+        } else {
+            seekBar?.visibility = View.VISIBLE
+        }
+    }
+
     private fun showSystemUI() {
         Log.v(LOG_TAG, "-> showSystemUI")
 
@@ -828,6 +845,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     }
 
     override fun onDestroy() {
+        NotificationListener.clearNotification(this)
+        JScriptInterface.currentIndexPlaying = -1
         super.onDestroy()
 
         if (outState != null)
@@ -852,11 +871,13 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     }
 
     private fun configFolio() {
-
+        seekBar = findViewById(R.id.seekBar);
         mFolioPageViewPager = findViewById(R.id.folioPageViewPager)
         // Replacing with addOnPageChangeListener(), onPageSelected() is not invoked
         mFolioPageViewPager!!.setOnPageChangeListener(object : DirectionalViewpager.OnPageChangeListener {
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+
+            }
 
             override fun onPageSelected(position: Int) {
                 Log.v(LOG_TAG, "-> onPageSelected -> DirectionalViewpager -> position = $position")
@@ -868,6 +889,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 )
                 mediaControllerFragment!!.setPlayButtonDrawable()
                 currentChapterIndex = position
+                seekBar?.progress = currentChapterIndex
             }
 
             override fun onPageScrollStateChanged(state: Int) {
@@ -899,7 +921,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         mFolioPageViewPager!!.setDirection(direction)
         mFolioPageFragmentAdapter = FolioPageFragmentAdapter(
             supportFragmentManager,
-            spine, bookFileName, mBookId
+            spine, bookFileName, mBookId, title.toString()
         )
         mFolioPageViewPager!!.adapter = mFolioPageFragmentAdapter
 
@@ -931,6 +953,32 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             searchReceiver,
             IntentFilter(ACTION_SEARCH_CLEAR)
         )
+
+        val config = AppUtil.getSavedConfig(applicationContext)!!
+        val thumbDrawable = ContextCompat.getDrawable(this, R.drawable.seekbar_thumb)
+        UiUtil.setColorIntToDrawable(config.themeColor, thumbDrawable)
+        seekBar?.thumb = thumbDrawable
+        seekBar?.progressTintList = ColorStateList.valueOf(config.themeColor)
+
+        seekBar?.max = spine!!.indices.last
+        seekBar?.progress = mFolioPageViewPager!!.currentItem
+
+        seekBar?.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                mFolioPageViewPager!!.currentItem = p1
+                val folioPageFragment = currentFragment
+                folioPageFragment!!.scrollToFirst()
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+
+            }
+
+        })
     }
 
     private fun getChapterIndex(readLocator: ReadLocator?): Int {

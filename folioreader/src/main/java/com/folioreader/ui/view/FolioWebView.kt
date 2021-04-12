@@ -144,8 +144,15 @@ class FolioWebView : WebView {
 
     @JavascriptInterface
     fun toggleSystemUI() {
+//        uiHandler.post {
+//            folioActivityCallback.toggleSystemUI()
+//        }
+    }
+
+    @JavascriptInterface
+    fun toggleSeekBar() {
         uiHandler.post {
-            folioActivityCallback.toggleSystemUI()
+            folioActivityCallback.toggleSeekBar()
         }
     }
 
