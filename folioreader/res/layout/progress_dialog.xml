@@ -14,7 +14,7 @@
             android:id="@+id/loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="?android:attr/android:progressBarStyle" />
+            style="?android:attr/progressBarStyle" />
 
         <TextView
             android:id="@+id/label_loading"
