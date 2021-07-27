@@ -28,5 +28,8 @@
     <color name="highlight_green">#C0ED72</color>
     <color name="highlight_blue">#ADD8FF</color>
     <color name="highlight_pink">#FFB0CA</color>
+    <color name="drawer_icon_color">#7373E3</color>
+    <color name="purple_200">#C5CAE9</color>
+
 
 </resources>
