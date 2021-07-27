@@ -118,5 +118,13 @@ dependencies {
 
     // Lifecycle
     implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
+
+////    //onboarding and design dependencies
+//    implementation 'com.airbnb.android:lottie:3.4.1'
+//    implementation 'com.cuberto:liquid-swipe:1.0.0'
+////    implementation 'androidx.core:core-ktx:1.5.0'
+////    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.31"
+////    implementation "androidx.core:core-ktx:1.5.0"
+
 }
 apply from: '../folioreader/bintray/bintrayv1.gradle'
