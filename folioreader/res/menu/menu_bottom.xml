@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.folioreader.ui.activity.FolioActivity">
+
+    <item
+        android:id="@+id/itemConfig"
+        android:icon="@drawable/ic_settings"
+        app:iconTint="@color/highlight_green"
+        android:title="@string/menu_item_config"
+        app:showAsAction="ifRoom"
+        tools:showAsAction="always" />
+
+</menu>

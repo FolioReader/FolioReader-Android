@@ -65,6 +65,7 @@ import com.folioreader.ui.view.MediaControllerCallback
 import com.folioreader.util.AppUtil
 import com.folioreader.util.FileUtil
 import com.folioreader.util.UiUtil
+import com.google.android.material.bottomappbar.BottomAppBar
 import org.greenrobot.eventbus.EventBus
 import org.readium.r2.shared.Link
 import org.readium.r2.shared.Publication
@@ -139,7 +140,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             if (action != null && action == FolioReader.ACTION_CLOSE_FOLIOREADER) {
 
                 try {
-                    val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                    val activityManager =
+                        context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
                     val tasks = activityManager.runningAppProcesses
                     taskImportance = tasks[0].importance
                 } catch (e: Exception) {
@@ -147,7 +149,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 }
 
                 val closeIntent = Intent(applicationContext, FolioActivity::class.java)
-                closeIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                closeIntent.flags =
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 closeIntent.action = FolioReader.ACTION_CLOSE_FOLIOREADER
                 this@FolioActivity.startActivity(closeIntent)
             }
@@ -267,11 +270,13 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
         if (savedInstanceState != null) {
             searchAdapterDataBundle = savedInstanceState.getBundle(SearchAdapter.DATA_BUNDLE)
-            searchQuery = savedInstanceState.getCharSequence(SearchActivity.BUNDLE_SAVE_SEARCH_QUERY)
+            searchQuery =
+                savedInstanceState.getCharSequence(SearchActivity.BUNDLE_SAVE_SEARCH_QUERY)
         }
 
         mBookId = intent.getStringExtra(FolioReader.EXTRA_BOOK_ID)
-        mEpubSourceType = intent.extras!!.getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE) as EpubSourceType
+        mEpubSourceType =
+            intent.extras!!.getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE) as EpubSourceType
         if (mEpubSourceType == EpubSourceType.RAW) {
             mEpubRawId = intent.extras!!.getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH)
         } else {
@@ -306,9 +311,27 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
         val config = AppUtil.getSavedConfig(applicationContext)!!
 
-        val drawable = ContextCompat.getDrawable(this, R.drawable.ic_drawer)
+        val drawable = ContextCompat.getDrawable(this, R.drawable.ic_arrow_left)
         UiUtil.setColorIntToDrawable(config.themeColor, drawable!!)
         toolbar!!.navigationIcon = drawable
+
+        val bottomAppBar = findViewById<BottomAppBar>(R.id.bottomAppBar)
+
+        bottomAppBar.setNavigationOnClickListener {
+            Log.v(LOG_TAG, "-> onOptionsItemSelected(BottomBar) -> drawer")
+            startContentHighlightActivity()
+        }
+
+        bottomAppBar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.itemConfig -> {
+                    Log.v(LOG_TAG, "-> onOptionsItemSelected(BottomBar) -> " + item.title)
+                    showConfigBottomSheetDialogFragment()
+                    true
+                }
+                else -> false
+            }
+        }
 
         if (config.isNightMode) {
             setNightMode()
@@ -341,6 +364,12 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             ColorDrawable(ContextCompat.getColor(this, R.color.white))
         )
         toolbar!!.setTitleTextColor(ContextCompat.getColor(this, R.color.black))
+
+        val bottomAppBar = findViewById<BottomAppBar>(R.id.bottomAppBar)
+        bottomAppBar.setBackgroundDrawable(
+            ColorDrawable(ContextCompat.getColor(this, R.color.white))
+        )
+        bottomAppBar.setTitleTextColor(ContextCompat.getColor(this, R.color.black))
     }
 
     override fun setNightMode() {
@@ -350,6 +379,13 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             ColorDrawable(ContextCompat.getColor(this, R.color.black))
         )
         toolbar!!.setTitleTextColor(ContextCompat.getColor(this, R.color.night_title_text_color))
+
+        val bottomAppBar = findViewById<BottomAppBar>(R.id.bottomAppBar)
+
+        bottomAppBar.setBackgroundDrawable(
+            ColorDrawable(ContextCompat.getColor(this, R.color.black))
+        )
+        bottomAppBar.setTitleTextColor(ContextCompat.getColor(this, R.color.night_title_text_color))
     }
 
     private fun initMediaController() {
@@ -359,11 +395,10 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+        menuInflater.inflate(R.menu.menu_top, menu)
 
         val config = AppUtil.getSavedConfig(applicationContext)!!
         UiUtil.setColorIntToDrawable(config.themeColor, menu.findItem(R.id.itemSearch).icon)
-        UiUtil.setColorIntToDrawable(config.themeColor, menu.findItem(R.id.itemConfig).icon)
         UiUtil.setColorIntToDrawable(config.themeColor, menu.findItem(R.id.itemTts).icon)
 
         if (!config.isShowTts)
@@ -375,37 +410,32 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         //Log.d(LOG_TAG, "-> onOptionsItemSelected -> " + item.getItemId());
 
-        val itemId = item.itemId
-
-        if (itemId == android.R.id.home) {
-            Log.v(LOG_TAG, "-> onOptionsItemSelected -> drawer")
-            startContentHighlightActivity()
-            return true
-
-        } else if (itemId == R.id.itemSearch) {
-            Log.v(LOG_TAG, "-> onOptionsItemSelected -> " + item.title)
-            if (searchUri == null)
+        when (item.itemId) {
+            android.R.id.home -> {
+                Log.v(LOG_TAG, "-> onOptionsItemSelected -> drawer")
+                finishAfterTransition()
                 return true
-            val intent = Intent(this, SearchActivity::class.java)
-            intent.putExtra(SearchActivity.BUNDLE_SPINE_SIZE, spine?.size ?: 0)
-            intent.putExtra(SearchActivity.BUNDLE_SEARCH_URI, searchUri)
-            intent.putExtra(SearchAdapter.DATA_BUNDLE, searchAdapterDataBundle)
-            intent.putExtra(SearchActivity.BUNDLE_SAVE_SEARCH_QUERY, searchQuery)
-            startActivityForResult(intent, RequestCode.SEARCH.value)
-            return true
+            }
+            R.id.itemSearch -> {
+                Log.v(LOG_TAG, "-> onOptionsItemSelected -> " + item.title)
+                if (searchUri == null)
+                    return true
+                val intent = Intent(this, SearchActivity::class.java)
+                intent.putExtra(SearchActivity.BUNDLE_SPINE_SIZE, spine?.size ?: 0)
+                intent.putExtra(SearchActivity.BUNDLE_SEARCH_URI, searchUri)
+                intent.putExtra(SearchAdapter.DATA_BUNDLE, searchAdapterDataBundle)
+                intent.putExtra(SearchActivity.BUNDLE_SAVE_SEARCH_QUERY, searchQuery)
+                startActivityForResult(intent, RequestCode.SEARCH.value)
+                return true
 
-        } else if (itemId == R.id.itemConfig) {
-            Log.v(LOG_TAG, "-> onOptionsItemSelected -> " + item.title)
-            showConfigBottomSheetDialogFragment()
-            return true
-
-        } else if (itemId == R.id.itemTts) {
-            Log.v(LOG_TAG, "-> onOptionsItemSelected -> " + item.title)
-            showMediaController()
-            return true
+            }
+            R.id.itemTts -> {
+                Log.v(LOG_TAG, "-> onOptionsItemSelected -> " + item.title)
+                showMediaController()
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
         }
-
-        return super.onOptionsItemSelected(item)
     }
 
     fun startContentHighlightActivity() {
@@ -785,6 +815,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == RequestCode.SEARCH.value) {
             Log.v(LOG_TAG, "-> onActivityResult -> " + RequestCode.SEARCH)

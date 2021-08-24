@@ -1,30 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.folioreader.ui.activity.FolioActivity"
-    tools:menu="@menu/menu_main">
-
-    <com.folioreader.ui.view.DirectionalViewpager
-        android:id="@+id/folioPageViewPager"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:direction="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    tools:menu="@menu/menu_top">
 
     <com.folioreader.ui.view.FolioAppBarLayout
         android:id="@+id/appBarLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -36,4 +23,23 @@
 
     </com.folioreader.ui.view.FolioAppBarLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.folioreader.ui.view.DirectionalViewpager
+        android:id="@+id/folioPageViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="56dp"
+        app:direction="vertical"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottomAppBar"
+        style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:hideOnScroll="true"
+        app:layout_behavior="com.google.android.material.bottomappbar.BottomAppBar$Behavior"
+        app:menu="@menu/menu_bottom"
+        app:navigationIcon="@drawable/ic_drawer" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
