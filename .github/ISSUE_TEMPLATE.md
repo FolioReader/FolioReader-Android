@@ -9,3 +9,6 @@ Mobile / Tablet / Emulator Info -
 Crash / Error - 
 
 Steps to reproduce / Describe in detail - 
+
+what is the issue ?
+Caused by: org.gradle.api.plugins.UnknownPluginException: Plugin with id 'findbugs' not found.
