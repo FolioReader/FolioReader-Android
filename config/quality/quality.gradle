@@ -11,7 +11,6 @@
  */
 
 apply plugin: 'checkstyle'
-apply plugin: 'findbugs'
 apply plugin: 'pmd'
 
 dependencies {
@@ -32,35 +31,6 @@ task checkstyle(type: Checkstyle, group: 'Verification', description: 'Runs code
         xml.enabled = true
         xml {
             destination = file("$reportsDir/checkstyle/checkstyle.xml")
-        }
-    }
-
-    classpath = files()
-}
-
-task findbugs(type: FindBugs,
-        group: 'Verification',
-        description: 'Inspect java bytecode for bugs',
-        dependsOn: ['compileDebugSources', 'compileReleaseSources']) {
-
-    ignoreFailures = false
-    effort = "max"
-    reportLevel = "high"
-    excludeFilter = new File("$qualityConfigDir/findbugs/android-exclude-filter.xml")
-    classes = files("$project.rootDir/folioreader/build/intermediates/javac")
-
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-
-    reports {
-        xml.enabled = false
-        html.enabled = true
-        xml {
-            destination = file("$reportsDir/findbugs/findbugs.xml")
-        }
-        html {
-            destination = file("$reportsDir/findbugs/findbugs.html")
         }
     }
 
