@@ -19,13 +19,11 @@
             android:exported="false" />
 
         <activity
-            android:exported="true"
             android:name="com.folioreader.ui.activity.FolioActivity"
             android:label="@string/app_name"
             android:theme="@style/FolioActivityDayTheme" />
 
         <activity
-            android:exported="true"
             android:name="com.folioreader.ui.activity.ContentHighlightActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
