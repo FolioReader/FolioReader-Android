@@ -297,9 +297,18 @@ body {
     -webkit-hyphens: auto !important;
     hyphens: auto !important;
 }
-p, span, div {
+p.press_image {
+    margin: 0 1em 0 0;
+}
+
+p {
+    margin: 0 0.3em 0 0;
+}
+
+span, div {
     line-height: 1.5 !important;
 }
+
 @media only screen and (min-device-width: 600px) {
     div {
         font-size: 1rem;
