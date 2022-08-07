@@ -28,6 +28,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
+            android:exported="true"
             android:name="com.folioreader.ui.activity.SearchActivity"
             android:launchMode="singleTop">
             <intent-filter>

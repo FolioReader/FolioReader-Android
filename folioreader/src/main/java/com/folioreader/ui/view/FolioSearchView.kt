@@ -25,9 +25,9 @@ class FolioSearchView : SearchView {
 
     private lateinit var searchAutoComplete: SearchView.SearchAutoComplete
 
-    constructor(context: Context?) : super(context)
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     fun init(componentName: ComponentName, config: Config) {
         Log.v(LOG_TAG, "-> init")

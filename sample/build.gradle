@@ -20,12 +20,20 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
     dexOptions {
         javaMaxHeapSize "4G"
+    }
+    compileOptions {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 
     packagingOptions {
@@ -52,9 +60,9 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "androidx.appcompat:appcompat:$versions.appcompat"
     implementation "androidx.constraintlayout:constraintlayout:$versions.constraintLayout"
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation "androidx.test.ext:junit:1.1.1"
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation 'junit:junit:4.13.1'
+    androidTestImplementation "androidx.test.ext:junit:1.1.3"
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     implementation project(':folioreader')
     //implementation "com.folioreader:folioreader:$versions.folioreaderSdk"

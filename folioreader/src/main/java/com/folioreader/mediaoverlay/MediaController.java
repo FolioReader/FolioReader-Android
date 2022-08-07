@@ -6,13 +6,18 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.folioreader.Constants;
 import com.folioreader.model.event.MediaOverlayPlayPauseEvent;
 import com.folioreader.model.event.MediaOverlaySpeedEvent;
 import com.folioreader.model.media_overlay.OverlayItems;
 import com.folioreader.util.UiUtil;
+
 import org.readium.r2.shared.Clip;
 import org.readium.r2.shared.MediaOverlays;
 
@@ -54,7 +59,9 @@ public class MediaController {
     //*********************************//
     //              TTS                //
     //*********************************//
+    @Nullable
     private TextToSpeech mTextToSpeech;
+
     private boolean mIsSpeaking = false;
 
     public MediaController(Context context, MediaType mediaType, MediaControllerCallbacks callbacks) {
@@ -101,26 +108,31 @@ public class MediaController {
     }
 
     public void setTextToSpeech(final Context context) {
-        mTextToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status != TextToSpeech.ERROR) {
-                    mTextToSpeech.setLanguage(Locale.UK);
-                    mTextToSpeech.setSpeechRate(0.70f);
-                }
-
-                mTextToSpeech.setOnUtteranceCompletedListener(
-                        new TextToSpeech.OnUtteranceCompletedListener() {
+        mTextToSpeech = new TextToSpeech(context, status -> {
+            if (status != TextToSpeech.ERROR && mTextToSpeech!=null) {
+                mTextToSpeech.setLanguage(Locale.UK);
+                mTextToSpeech.setSpeechRate(0.70f);
+            }
+            if(mTextToSpeech!=null){
+                mTextToSpeech.setOnUtteranceProgressListener(
+                        new UtteranceProgressListener() {
                             @Override
-                            public void onUtteranceCompleted(String utteranceId) {
-                                ((AppCompatActivity) context).runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (mIsSpeaking) {
-                                            callbacks.highLightTTS();
-                                        }
+                            public void onStart(String utteranceId) {
+
+                            }
+
+                            @Override
+                            public void onDone(String utteranceId) {
+                                ((AppCompatActivity) context).runOnUiThread(() -> {
+                                    if (mIsSpeaking) {
+                                        callbacks.highLightTTS();
                                     }
                                 });
+                            }
+
+                            @Override
+                            public void onError(String utteranceId) {
+
                             }
                         });
             }

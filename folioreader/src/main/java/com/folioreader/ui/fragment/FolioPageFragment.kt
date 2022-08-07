@@ -375,9 +375,9 @@ class FolioPageFragment : Fragment(),
 
         mWebview!!.addJavascriptInterface(this, "Highlight")
         mWebview!!.addJavascriptInterface(this, "FolioPageFragment")
-        mWebview!!.addJavascriptInterface(webViewPager, "WebViewPager")
-        mWebview!!.addJavascriptInterface(loadingView, "LoadingView")
-        mWebview!!.addJavascriptInterface(mWebview, "FolioWebView")
+        mWebview!!.addJavascriptInterface(webViewPager!!, "WebViewPager")
+        mWebview!!.addJavascriptInterface(loadingView!!, "LoadingView")
+        mWebview!!.addJavascriptInterface(mWebview!!, "FolioWebView")
 
         mWebview!!.setScrollListener(object : FolioWebView.ScrollListener {
             override fun onScrollChange(percent: Int) {
@@ -428,7 +428,7 @@ class FolioPageFragment : Fragment(),
                     mWebview!!.loadUrl(callHighlightSearchLocator)
 
                 } else if (isCurrentFragment) {
-                    val cfi = lastReadLocator!!.locations.cfi
+                    val cfi = lastReadLocator?.locations?.cfi
                     mWebview!!.loadUrl(String.format(getString(R.string.callScrollToCfi), cfi))
 
                 } else {

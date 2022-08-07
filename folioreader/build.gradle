@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply from: '../config/quality/quality.gradle'
-apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
@@ -76,7 +75,6 @@ android {
     }
 }
 
-apply from: '../folioreader/bintray/installv1.gradle'
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
@@ -84,7 +82,7 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:$versions.constraintLayout"
     implementation "androidx.recyclerview:recyclerview:$versions.recyclerview"
     implementation "com.google.android.material:material:$versions.material"
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.1'
 
     implementation 'org.slf4j:slf4j-android:1.7.25'
     implementation 'com.daimajia.swipelayout:library:1.2.0@aar'
