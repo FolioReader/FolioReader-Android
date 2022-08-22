@@ -8,8 +8,8 @@ versions.projectVersionCode = 1
 versions.projectVersionName = "1.0"
 
 versions.androidMinSdk = 21
-versions.androidCompileSdk = 28
-versions.androidTargetSdk = 28
+versions.androidCompileSdk = 33
+versions.androidTargetSdk = 33
 
 versions.androidGradlePlugin = "3.5.3"
 versions.kotlin = "1.3.11"

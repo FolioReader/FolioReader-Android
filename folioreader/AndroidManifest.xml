@@ -21,14 +21,17 @@
         <activity
             android:name="com.folioreader.ui.activity.FolioActivity"
             android:label="@string/app_name"
+            android:exported="true"
             android:theme="@style/FolioActivityDayTheme" />
 
         <activity
             android:name="com.folioreader.ui.activity.ContentHighlightActivity"
+            android:exported="true"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
             android:name="com.folioreader.ui.activity.SearchActivity"
+            android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
