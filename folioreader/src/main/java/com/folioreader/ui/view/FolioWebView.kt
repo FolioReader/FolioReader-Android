@@ -272,11 +272,11 @@ class FolioWebView : WebView {
     fun initViewTextSelection() {
         Log.v(LOG_TAG, "-> initViewTextSelection")
 
-        val textSelectionMiddleDrawable = ContextCompat.getDrawable(
-            context,
-            R.drawable.abc_text_select_handle_middle_mtrl_dark
-        )
-        handleHeight = textSelectionMiddleDrawable?.intrinsicHeight ?: (24 * density).toInt()
+//        val textSelectionMiddleDrawable = ContextCompat.getDrawable(
+//            context,
+//            R.drawable.abc_text_select_handle_middle_mtrl_dark
+//        )
+//        handleHeight = textSelectionMiddleDrawable?.intrinsicHeight ?: (24 * density).toInt()
 
         val config = AppUtil.getSavedConfig(context)!!
         val ctw = if (config.isNightMode) {
@@ -362,7 +362,7 @@ class FolioWebView : WebView {
         bundle.putString(Constants.SELECTED_WORD, selectedText?.trim())
         dictionaryFragment.arguments = bundle
         dictionaryFragment.show(
-            parentFragment.fragmentManager!!,
+            parentFragment.parentFragmentManager,
             DictionaryFragment::class.java.name
         )
     }
