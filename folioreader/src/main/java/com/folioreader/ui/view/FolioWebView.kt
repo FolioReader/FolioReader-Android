@@ -361,10 +361,12 @@ class FolioWebView : WebView {
         val bundle = Bundle()
         bundle.putString(Constants.SELECTED_WORD, selectedText?.trim())
         dictionaryFragment.arguments = bundle
-        dictionaryFragment.show(
-            parentFragment.parentFragmentManager,
-            DictionaryFragment::class.java.name
-        )
+        parentFragment.fragmentManager?.let {
+            dictionaryFragment.show(
+                it,
+                DictionaryFragment::class.java.name
+            )
+        }
     }
 
     private fun onHighlightColorItemsClicked(style: HighlightStyle, isAlreadyCreated: Boolean) {
