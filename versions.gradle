@@ -23,6 +23,6 @@ versions.retrofit = "2.5.0"
 versions.jackson = "2.9.7"
 versions.gson = "2.8.5"
 
-versions.lifecycle = "2.1.0"
+versions.lifecycle = "2.2.0"
 
 ext.versions = versions
