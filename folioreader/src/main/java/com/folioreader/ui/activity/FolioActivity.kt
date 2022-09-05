@@ -366,8 +366,13 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         UiUtil.setColorIntToDrawable(config.themeColor, menu.findItem(R.id.itemConfig).icon)
         UiUtil.setColorIntToDrawable(config.themeColor, menu.findItem(R.id.itemTts).icon)
 
-        if (!config.isShowTts)
+        if (!config.isShowTts){
             menu.findItem(R.id.itemTts).isVisible = false
+        }
+
+        if (!config.isShowSearch) {
+            menu.findItem(R.id.itemSearch).isVisible = false
+        }
 
         return true
     }
