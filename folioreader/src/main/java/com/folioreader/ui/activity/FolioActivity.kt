@@ -21,7 +21,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -36,7 +35,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -103,7 +101,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private var mEpubRawId = 0
     private var mediaControllerFragment: MediaControllerFragment? = null
     private var direction: Config.Direction = Config.Direction.VERTICAL
-    private var portNumber: Int = Constants.DEFAULT_PORT_NUMBER
+    private var portNumber: Int = DEFAULT_PORT_NUMBER
     private var streamerUri: Uri? = null
 
     private var searchUri: Uri? = null
@@ -196,52 +194,6 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         SEARCH(101)
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        setIntent(intent)
-        Log.v(LOG_TAG, "-> onNewIntent")
-
-        val action = getIntent().action
-        if (action != null && action == FolioReader.ACTION_CLOSE_FOLIOREADER) {
-
-            if (topActivity == null || topActivity == false) {
-                // FolioActivity was already left, so no need to broadcast ReadLocator again.
-                // Finish activity without going through onPause() and onStop()
-                finish()
-
-                // To determine if app in background or foreground
-                var appInBackground = false
-                if (Build.VERSION.SDK_INT < 26) {
-                    if (ActivityManager.RunningAppProcessInfo.IMPORTANCE_BACKGROUND == taskImportance)
-                        appInBackground = true
-                } else {
-                    if (ActivityManager.RunningAppProcessInfo.IMPORTANCE_CACHED == taskImportance)
-                        appInBackground = true
-                }
-                if (appInBackground)
-                    moveTaskToBack(true)
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.v(LOG_TAG, "-> onResume")
-        topActivity = true
-
-        val action = intent.action
-        if (action != null && action == FolioReader.ACTION_CLOSE_FOLIOREADER) {
-            // FolioActivity is topActivity, so need to broadcast ReadLocator.
-            finish()
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.v(LOG_TAG, "-> onStop")
-        topActivity = false
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -279,26 +231,56 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         initActionBar()
         initMediaController()
 
-        setUpBookOrRequestPermission()
-    }
-
-    private fun setUpBookOrRequestPermission() {
-//        if (ContextCompat.checkSelfPermission(
-//                this@FolioActivity,
-//                Manifest.permission.WRITE_EXTERNAL_STORAGE
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//            ActivityCompat.requestPermissions(
-//                this@FolioActivity,
-//                getWriteExternalStoragePerms(),
-//                WRITE_EXTERNAL_STORAGE_REQUEST
-//            )
-//        } else {
-//
-//        }
-
         setupBook()
     }
+
+
+    override fun onResume() {
+        super.onResume()
+        Log.v(LOG_TAG, "-> onResume")
+        topActivity = true
+
+        val action = intent.action
+        if (action != null && action == FolioReader.ACTION_CLOSE_FOLIOREADER) {
+            // FolioActivity is topActivity, so need to broadcast ReadLocator.
+            finish()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.v(LOG_TAG, "-> onStop")
+        topActivity = false
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        Log.v(LOG_TAG, "-> onNewIntent")
+
+        val action = getIntent().action
+        if (action != null && action == FolioReader.ACTION_CLOSE_FOLIOREADER) {
+
+            if (topActivity == null || topActivity == false) {
+                // FolioActivity was already left, so no need to broadcast ReadLocator again.
+                // Finish activity without going through onPause() and onStop()
+                finish()
+
+                // To determine if app in background or foreground
+                var appInBackground = false
+                if (Build.VERSION.SDK_INT < 26) {
+                    if (ActivityManager.RunningAppProcessInfo.IMPORTANCE_BACKGROUND == taskImportance)
+                        appInBackground = true
+                } else {
+                    if (ActivityManager.RunningAppProcessInfo.IMPORTANCE_CACHED == taskImportance)
+                        appInBackground = true
+                }
+                if (appInBackground)
+                    moveTaskToBack(true)
+            }
+        }
+    }
+
 
     private fun getIntentExtrasAndAssignFields() {
         mBookId = intent.getStringExtra(FolioReader.EXTRA_BOOK_ID)
@@ -505,19 +487,18 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 val cbzParser = CbzParser()
                 cbzParser.parse(path!!, "")
             }
-            else -> {
-                null
-            }
+            else -> null
         }
 
-        portNumber =
-            intent.getIntExtra(FolioReader.EXTRA_PORT_NUMBER, Constants.DEFAULT_PORT_NUMBER)
+        portNumber = intent.getIntExtra(FolioReader.EXTRA_PORT_NUMBER, DEFAULT_PORT_NUMBER)
         portNumber = AppUtil.getAvailablePortNumber(portNumber)
 
         r2StreamerServer = Server(portNumber)
         r2StreamerServer!!.addEpub(
-            pubBox!!.publication, pubBox!!.container,
-            "/" + bookFileName!!, null
+            pubBox!!.publication,
+            pubBox!!.container,
+            "/" + bookFileName!!,
+            null
         )
 
         r2StreamerServer!!.start()
@@ -527,6 +508,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
     private fun onBookInitFailure() {
         //TODO -> Fail gracefully
+        finish()
     }
 
     private fun onBookInitSuccess() {
@@ -536,13 +518,13 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         title = publication.metadata.title
 
         if (mBookId == null) {
-            if (!publication.metadata.identifier.isEmpty()) {
-                mBookId = publication.metadata.identifier
+            mBookId = if (publication.metadata.identifier.isNotEmpty()) {
+                publication.metadata.identifier
             } else {
-                if (!publication.metadata.title.isEmpty()) {
-                    mBookId = publication.metadata.title.hashCode().toString()
+                if (publication.metadata.title.isNotEmpty()) {
+                    publication.metadata.title.hashCode().toString()
                 } else {
-                    mBookId = bookFileName!!.hashCode().toString()
+                    bookFileName!!.hashCode().toString()
                 }
             }
         }
@@ -627,12 +609,12 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 topDistraction += actionBar!!.height
         }
 
-        when (unit) {
-            DisplayUnit.PX -> return topDistraction
+        return when (unit) {
+            DisplayUnit.PX -> topDistraction
 
             DisplayUnit.DP -> {
                 topDistraction /= density.toInt()
-                return topDistraction
+                topDistraction
             }
 
             else -> throw IllegalArgumentException("-> Illegal argument -> unit = $unit")
@@ -652,12 +634,12 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         if (!distractionFreeMode)
             bottomDistraction = appBarLayout!!.navigationBarHeight
 
-        when (unit) {
-            DisplayUnit.PX -> return bottomDistraction
+        return when (unit) {
+            DisplayUnit.PX -> bottomDistraction
 
             DisplayUnit.DP -> {
                 bottomDistraction /= density.toInt()
-                return bottomDistraction
+                bottomDistraction
             }
 
             else -> throw IllegalArgumentException("-> Illegal argument -> unit = $unit")
@@ -829,7 +811,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 // In case if SearchActivity is recreated due to screen rotation then FolioActivity
                 // will also be recreated, so mFolioPageViewPager might be null.
                 if (mFolioPageViewPager == null) return
-                currentChapterIndex = getChapterIndex(Constants.HREF, searchLocator!!.href)
+                currentChapterIndex = getChapterIndex(HREF, searchLocator!!.href)
                 mFolioPageViewPager!!.currentItem = currentChapterIndex
                 val folioPageFragment = currentFragment ?: return
                 folioPageFragment.highlightSearchLocator(searchLocator!!)
@@ -949,7 +931,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         // will also be recreated, so searchLocator is checked here.
         if (searchLocator != null) {
 
-            currentChapterIndex = getChapterIndex(Constants.HREF, searchLocator!!.href)
+            currentChapterIndex = getChapterIndex(HREF, searchLocator!!.href)
             mFolioPageViewPager!!.currentItem = currentChapterIndex
             val folioPageFragment = currentFragment ?: return
             folioPageFragment.highlightSearchLocator(searchLocator!!)
@@ -980,7 +962,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         if (readLocator == null) {
             return 0
         } else if (!TextUtils.isEmpty(readLocator.href)) {
-            return getChapterIndex(Constants.HREF, readLocator.href)
+            return getChapterIndex(HREF, readLocator.href)
         }
 
         return 0
@@ -989,8 +971,9 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private fun getChapterIndex(caseString: String, value: String): Int {
         for (i in spine!!.indices) {
             when (caseString) {
-                Constants.HREF -> if (spine!![i].href == value)
+                HREF -> if (spine!![i].href == value) {
                     return i
+                }
             }
         }
         return 0
@@ -1026,28 +1009,17 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         val overrideConfig = intent.getBooleanExtra(Config.EXTRA_OVERRIDE_CONFIG, false)
         val savedConfig = AppUtil.getSavedConfig(this)
 
-        if (savedInstanceState != null) {
-            config = savedConfig
-
-        } else if (savedConfig == null) {
-            if (intentConfig == null) {
-                config = Config()
-            } else {
-                config = intentConfig
-            }
-
-        } else {
-            if (intentConfig != null && overrideConfig) {
-                config = intentConfig
-            } else {
-                config = savedConfig
-            }
+        config = when {
+            savedInstanceState != null -> savedConfig
+            savedConfig == null -> intentConfig ?: Config()
+            else -> if (intentConfig != null && overrideConfig) intentConfig else savedConfig
         }
 
         // Code would never enter this if, just added for any unexpected error
         // and to avoid lint warning
-        if (config == null)
+        if (config == null) {
             config = Config()
+        }
 
         AppUtil.saveConfig(this, config)
         direction = config.direction
@@ -1068,25 +1040,6 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             )
         )
     }
-
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int,
-//        permissions: Array<String>,
-//        grantResults: IntArray
-//    ) {
-//        when (requestCode) {
-//            Constants.WRITE_EXTERNAL_STORAGE_REQUEST -> if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                setupBook()
-//            } else {
-//                Toast.makeText(
-//                    this,
-//                    getString(R.string.cannot_access_epub_message),
-//                    Toast.LENGTH_LONG
-//                ).show()
-//                finish()
-//            }
-//        }
-//    }
 
     override fun getDirection(): Config.Direction {
         return direction
