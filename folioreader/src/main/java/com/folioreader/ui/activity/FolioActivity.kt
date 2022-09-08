@@ -15,7 +15,6 @@
  */
 package com.folioreader.ui.activity
 
-import android.Manifest
 import android.app.Activity
 import android.app.ActivityManager
 import android.content.BroadcastReceiver
@@ -29,6 +28,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.util.DisplayMetrics
 import android.util.Log
@@ -41,7 +41,6 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.folioreader.Config
@@ -99,6 +98,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
     private var mBookId: String? = null
     private var mEpubFilePath: String? = null
+    private var mIsInternalStorage: Boolean? = null
     private var mEpubSourceType: EpubSourceType? = null
     private var mEpubRawId = 0
     private var mediaControllerFragment: MediaControllerFragment? = null
@@ -122,6 +122,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         val LOG_TAG: String = FolioActivity::class.java.simpleName
 
         const val INTENT_EPUB_SOURCE_PATH = "com.folioreader.epub_asset_path"
+        const val INTENT_EPUB_SOURCE_STORAGE_TYPE = "intent.epub.source.storage.type"
         const val INTENT_EPUB_SOURCE_TYPE = "epub_source_type"
         const val EXTRA_READ_LOCATOR = "com.folioreader.extra.READ_LOCATOR"
         private const val BUNDLE_READ_LOCATOR_CONFIG_CHANGE = "BUNDLE_READ_LOCATOR_CONFIG_CHANGE"
@@ -139,7 +140,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             if (action != null && action == FolioReader.ACTION_CLOSE_FOLIOREADER) {
 
                 try {
-                    val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                    val activityManager =
+                        context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
                     val tasks = activityManager.runningAppProcesses
                     taskImportance = tasks[0].importance
                 } catch (e: Exception) {
@@ -147,7 +149,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 }
 
                 val closeIntent = Intent(applicationContext, FolioActivity::class.java)
-                closeIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                closeIntent.flags =
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 closeIntent.action = FolioReader.ACTION_CLOSE_FOLIOREADER
                 this@FolioActivity.startActivity(closeIntent)
             }
@@ -185,7 +188,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     enum class EpubSourceType {
         RAW,
         ASSETS,
-        SD_CARD
+        DEVICE_STORAGE
     }
 
     private enum class RequestCode private constructor(internal val value: Int) {
@@ -245,7 +248,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         // Need to add when vector drawables support library is used.
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 
-        handler = Handler()
+        handler = Handler(Looper.getMainLooper())
         val display = windowManager.defaultDisplay
         displayMetrics = resources.displayMetrics
         display.getRealMetrics(displayMetrics)
@@ -267,11 +270,40 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
         if (savedInstanceState != null) {
             searchAdapterDataBundle = savedInstanceState.getBundle(SearchAdapter.DATA_BUNDLE)
-            searchQuery = savedInstanceState.getCharSequence(SearchActivity.BUNDLE_SAVE_SEARCH_QUERY)
+            searchQuery =
+                savedInstanceState.getCharSequence(SearchActivity.BUNDLE_SAVE_SEARCH_QUERY)
         }
 
+        getIntentExtrasAndAssignFields()
+
+        initActionBar()
+        initMediaController()
+
+        setUpBookOrRequestPermission()
+    }
+
+    private fun setUpBookOrRequestPermission() {
+//        if (ContextCompat.checkSelfPermission(
+//                this@FolioActivity,
+//                Manifest.permission.WRITE_EXTERNAL_STORAGE
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            ActivityCompat.requestPermissions(
+//                this@FolioActivity,
+//                getWriteExternalStoragePerms(),
+//                WRITE_EXTERNAL_STORAGE_REQUEST
+//            )
+//        } else {
+//
+//        }
+
+        setupBook()
+    }
+
+    private fun getIntentExtrasAndAssignFields() {
         mBookId = intent.getStringExtra(FolioReader.EXTRA_BOOK_ID)
-        mEpubSourceType = intent.extras!!.getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE) as EpubSourceType
+        mEpubSourceType =
+            intent.extras!!.getSerializable(FolioActivity.INTENT_EPUB_SOURCE_TYPE) as EpubSourceType
         if (mEpubSourceType == EpubSourceType.RAW) {
             mEpubRawId = intent.extras!!.getInt(FolioActivity.INTENT_EPUB_SOURCE_PATH)
         } else {
@@ -279,22 +311,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH)
         }
 
-        initActionBar()
-        initMediaController()
-
-        if (ContextCompat.checkSelfPermission(
-                this@FolioActivity,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this@FolioActivity,
-                Constants.getWriteExternalStoragePerms(),
-                Constants.WRITE_EXTERNAL_STORAGE_REQUEST
-            )
-        } else {
-            setupBook()
-        }
+        mIsInternalStorage = intent.extras!!.getBoolean(INTENT_EPUB_SOURCE_STORAGE_TYPE, true)
     }
 
     private fun initActionBar() {
@@ -366,7 +383,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         UiUtil.setColorIntToDrawable(config.themeColor, menu.findItem(R.id.itemConfig).icon)
         UiUtil.setColorIntToDrawable(config.themeColor, menu.findItem(R.id.itemTts).icon)
 
-        if (!config.isShowTts){
+        if (!config.isShowTts) {
             menu.findItem(R.id.itemTts).isVisible = false
         }
 
@@ -464,8 +481,11 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
         bookFileName = FileUtil.getEpubFilename(this, mEpubSourceType!!, mEpubFilePath, mEpubRawId)
         val path = FileUtil.saveEpubFileAndLoadLazyBook(
-            this, mEpubSourceType, mEpubFilePath,
-            mEpubRawId, bookFileName
+            this,
+            mEpubSourceType,
+            mEpubFilePath,
+            mEpubRawId,
+            bookFileName
         )
         val extension: Publication.EXTENSION
         var extensionString: String? = null
@@ -490,7 +510,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             }
         }
 
-        portNumber = intent.getIntExtra(FolioReader.EXTRA_PORT_NUMBER, Constants.DEFAULT_PORT_NUMBER)
+        portNumber =
+            intent.getIntExtra(FolioReader.EXTRA_PORT_NUMBER, Constants.DEFAULT_PORT_NUMBER)
         portNumber = AppUtil.getAvailablePortNumber(portNumber)
 
         r2StreamerServer = Server(portNumber)
@@ -543,7 +564,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     override fun getStreamerUrl(): String {
 
         if (streamerUri == null) {
-            streamerUri = Uri.parse(String.format(STREAMER_URL_TEMPLATE, LOCALHOST, portNumber, bookFileName))
+            streamerUri =
+                Uri.parse(String.format(STREAMER_URL_TEMPLATE, LOCALHOST, portNumber, bookFileName))
         }
         return streamerUri.toString()
     }
@@ -580,7 +602,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         hideSystemUI()
         showSystemUI()
 
-        distractionFreeMode = savedInstanceState != null && savedInstanceState.getBoolean(BUNDLE_DISTRACTION_FREE_MODE)
+        distractionFreeMode =
+            savedInstanceState != null && savedInstanceState.getBoolean(BUNDLE_DISTRACTION_FREE_MODE)
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -866,8 +889,14 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
         mFolioPageViewPager = findViewById(R.id.folioPageViewPager)
         // Replacing with addOnPageChangeListener(), onPageSelected() is not invoked
-        mFolioPageViewPager!!.setOnPageChangeListener(object : DirectionalViewpager.OnPageChangeListener {
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+        mFolioPageViewPager!!.setOnPageChangeListener(object :
+            DirectionalViewpager.OnPageChangeListener {
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+            }
 
             override fun onPageSelected(position: Int) {
                 Log.v(LOG_TAG, "-> onPageSelected -> DirectionalViewpager -> position = $position")
@@ -890,14 +919,16 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                                 "position = " + position
                     )
 
-                    var folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position - 1) as FolioPageFragment?
+                    var folioPageFragment =
+                        mFolioPageFragmentAdapter!!.getItem(position - 1) as FolioPageFragment?
                     if (folioPageFragment != null) {
                         folioPageFragment.scrollToLast()
                         if (folioPageFragment.mWebview != null)
                             folioPageFragment.mWebview!!.dismissPopupWindow()
                     }
 
-                    folioPageFragment = mFolioPageFragmentAdapter!!.getItem(position + 1) as FolioPageFragment?
+                    folioPageFragment =
+                        mFolioPageFragmentAdapter!!.getItem(position + 1) as FolioPageFragment?
                     if (folioPageFragment != null) {
                         folioPageFragment.scrollToFirst()
                         if (folioPageFragment.mWebview != null)
@@ -1038,16 +1069,24 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         )
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            Constants.WRITE_EXTERNAL_STORAGE_REQUEST -> if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                setupBook()
-            } else {
-                Toast.makeText(this, getString(R.string.cannot_access_epub_message), Toast.LENGTH_LONG).show()
-                finish()
-            }
-        }
-    }
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<String>,
+//        grantResults: IntArray
+//    ) {
+//        when (requestCode) {
+//            Constants.WRITE_EXTERNAL_STORAGE_REQUEST -> if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                setupBook()
+//            } else {
+//                Toast.makeText(
+//                    this,
+//                    getString(R.string.cannot_access_epub_message),
+//                    Toast.LENGTH_LONG
+//                ).show()
+//                finish()
+//            }
+//        }
+//    }
 
     override fun getDirection(): Config.Direction {
         return direction
