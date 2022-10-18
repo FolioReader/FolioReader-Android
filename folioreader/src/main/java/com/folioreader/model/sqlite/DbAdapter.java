@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+import androidx.annotation.Nullable;
+
 public class DbAdapter {
     private static final String TAG = "DBAdapter";
 
@@ -80,7 +82,11 @@ public class DbAdapter {
         return mDatabase.update(HighLightTable.TABLE_NAME, highlightContentValues, HighLightTable.ID + " = " + id, null) > 0;
     }
 
+    @Nullable
     public static Cursor getHighlightsForPageId(String query, String pageId) {
+        if (mDatabase == null) {
+            return null;
+        }
         return mDatabase.rawQuery(query, null);
     }
 

@@ -11,8 +11,16 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.*
+import android.view.ActionMode
 import android.view.ActionMode.Callback
+import android.view.ContextThemeWrapper
+import android.view.GestureDetector
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.webkit.ConsoleMessage
 import android.webkit.JavascriptInterface
@@ -20,7 +28,6 @@ import android.webkit.WebView
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import com.folioreader.Config
 import com.folioreader.Constants
@@ -421,8 +428,9 @@ class FolioWebView : WebView {
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         //Log.v(LOG_TAG, "-> onTouchEvent -> " + AppUtil.actionToString(event.getAction()));
 
-        if (event == null)
+        if (event == null) {
             return false
+        }
 
         lastTouchAction = event.action
 
