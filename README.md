@@ -56,7 +56,7 @@ Add following dependency to your app module `build.gradle` file:
 ```groovy
 dependencies {
     ...
-    implementation "com.folioreader:folioreader:0.5.2"
+    implementation "com.github.cao7654321:FolioReader-Android:1.0.1"
     ...
 }
 ```

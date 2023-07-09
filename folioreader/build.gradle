@@ -78,6 +78,7 @@ android {
 
 apply from: '../folioreader/bintray/installv1.gradle'
 dependencies {
+    implementation 'com.github.cao7654321:FolioReader-Android:1.0.1'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     implementation "com.android.support.constraint:constraint-layout:$constraintLayoutVersion"
