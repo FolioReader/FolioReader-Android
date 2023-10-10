@@ -105,10 +105,10 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:$versions.retrofit"
 
     // R2 modules
-    api("com.github.codetoart:r2-shared-kotlin:$versions.r2SharedKotlin") {
+    implementation("com.github.codetoart:r2-shared-kotlin:$versions.r2SharedKotlin") {
         changing = true
     }
-    api("com.github.codetoart:r2-streamer-kotlin:$versions.r2StreamerKotlin") {
+    implementation("com.github.codetoart:r2-streamer-kotlin:$versions.r2StreamerKotlin") {
         exclude group: "org.slf4j", module: "slf4j-api"
         changing = true
     }

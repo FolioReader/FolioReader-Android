@@ -23,6 +23,7 @@ public class Config implements Parcelable {
     public static final String CONFIG_IS_NIGHT_MODE = "is_night_mode";
     public static final String CONFIG_THEME_COLOR_INT = "theme_color_int";
     public static final String CONFIG_IS_TTS = "is_tts";
+    public static final String CONFIG_IS_SEARCH = "is_search";
     public static final String CONFIG_ALLOWED_DIRECTION = "allowed_direction";
     public static final String CONFIG_DIRECTION = "direction";
     private static final AllowedDirection DEFAULT_ALLOWED_DIRECTION = AllowedDirection.ONLY_VERTICAL;
@@ -38,6 +39,7 @@ public class Config implements Parcelable {
     private boolean showTts = true;
     private AllowedDirection allowedDirection = DEFAULT_ALLOWED_DIRECTION;
     private Direction direction = DEFAULT_DIRECTION;
+    private boolean showSearch = true;
 
     /**
      * Reading modes available
@@ -77,6 +79,7 @@ public class Config implements Parcelable {
         dest.writeByte((byte) (nightMode ? 1 : 0));
         dest.writeInt(themeColor);
         dest.writeByte((byte) (showTts ? 1 : 0));
+        dest.writeByte((byte) (showSearch ? 1 : 0));
         dest.writeString(allowedDirection.toString());
         dest.writeString(direction.toString());
     }
@@ -87,6 +90,7 @@ public class Config implements Parcelable {
         nightMode = in.readByte() != 0;
         themeColor = in.readInt();
         showTts = in.readByte() != 0;
+        showSearch = in.readByte() != 0;
         allowedDirection = getAllowedDirectionFromString(LOG_TAG, in.readString());
         direction = getDirectionFromString(LOG_TAG, in.readString());
     }
@@ -100,6 +104,7 @@ public class Config implements Parcelable {
         nightMode = jsonObject.optBoolean(CONFIG_IS_NIGHT_MODE);
         themeColor = getValidColorInt(jsonObject.optInt(CONFIG_THEME_COLOR_INT));
         showTts = jsonObject.optBoolean(CONFIG_IS_TTS);
+        showSearch = jsonObject.optBoolean(CONFIG_IS_SEARCH);
         allowedDirection = getAllowedDirectionFromString(LOG_TAG,
                 jsonObject.optString(CONFIG_ALLOWED_DIRECTION));
         direction = getDirectionFromString(LOG_TAG, jsonObject.optString(CONFIG_DIRECTION));
@@ -205,6 +210,14 @@ public class Config implements Parcelable {
         return this;
     }
 
+    public boolean isShowSearch() {
+        return showSearch;
+    }
+
+    public void setShowSearch(boolean showSearch) {
+        this.showSearch = showSearch;
+    }
+
     public AllowedDirection getAllowedDirection() {
         return allowedDirection;
     }
@@ -288,10 +301,9 @@ public class Config implements Parcelable {
                 ", nightMode=" + nightMode +
                 ", themeColor=" + themeColor +
                 ", showTts=" + showTts +
+                ", showSearch=" + showSearch +
                 ", allowedDirection=" + allowedDirection +
                 ", direction=" + direction +
                 '}';
     }
 }
-
-

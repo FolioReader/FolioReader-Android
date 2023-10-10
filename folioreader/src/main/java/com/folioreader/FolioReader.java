@@ -6,8 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RawRes;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.locators.ReadLocator;
@@ -17,15 +21,17 @@ import com.folioreader.network.R2StreamerApi;
 import com.folioreader.ui.activity.FolioActivity;
 import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.ui.base.SaveReceivedHighlightTask;
+import com.folioreader.util.DefaultReadLocatorManager;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadLocatorListener;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by avez raj on 9/13/2017.
@@ -121,41 +127,62 @@ public class FolioReader {
         DbAdapter.initialize(context);
 
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
-        localBroadcastManager.registerReceiver(highlightReceiver,
-                new IntentFilter(HighlightImpl.BROADCAST_EVENT));
-        localBroadcastManager.registerReceiver(readLocatorReceiver,
-                new IntentFilter(ACTION_SAVE_READ_LOCATOR));
-        localBroadcastManager.registerReceiver(closedReceiver,
-                new IntentFilter(ACTION_FOLIOREADER_CLOSED));
+        localBroadcastManager.registerReceiver(
+                highlightReceiver,
+                new IntentFilter(HighlightImpl.BROADCAST_EVENT)
+        );
+        localBroadcastManager.registerReceiver(
+                readLocatorReceiver,
+                new IntentFilter(ACTION_SAVE_READ_LOCATOR)
+        );
+        localBroadcastManager.registerReceiver(
+                closedReceiver,
+                new IntentFilter(ACTION_FOLIOREADER_CLOSED)
+        );
     }
 
-    public FolioReader openBook(String assetOrSdcardPath) {
-        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
+    public FolioReader openBook(String deviceStoragePath, boolean isInternalStorage) {
+        Intent intent = getIntentFromUrl(deviceStoragePath, 0, isInternalStorage);
         context.startActivity(intent);
         return singleton;
     }
 
-    public FolioReader openBook(int rawId) {
-        Intent intent = getIntentFromUrl(null, rawId);
+    public FolioReader openBook(String assetPath) {
+        Intent intent = getIntentFromUrl(assetPath, 0, true);
         context.startActivity(intent);
         return singleton;
     }
 
-    public FolioReader openBook(String assetOrSdcardPath, String bookId) {
-        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
+    public FolioReader openBook(@RawRes int rawId) {
+        Intent intent = getIntentFromUrl(null, rawId, true);
+        context.startActivity(intent);
+        return singleton;
+    }
+
+    public FolioReader openBook(String assetPath, String bookId) {
+        Intent intent = getIntentFromUrl(assetPath, 0, true);
         intent.putExtra(EXTRA_BOOK_ID, bookId);
         context.startActivity(intent);
         return singleton;
     }
+
+
+    public FolioReader openBook(String deviceStoragePath, boolean isInternalStorage, String bookId) {
+        Intent intent = getIntentFromUrl(deviceStoragePath, 0, isInternalStorage);
+        intent.putExtra(EXTRA_BOOK_ID, bookId);
+        context.startActivity(intent);
+        return singleton;
+    }
+
 
     public FolioReader openBook(int rawId, String bookId) {
-        Intent intent = getIntentFromUrl(null, rawId);
+        Intent intent = getIntentFromUrl(null, rawId, true);
         intent.putExtra(EXTRA_BOOK_ID, bookId);
         context.startActivity(intent);
         return singleton;
     }
 
-    private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId) {
+    private Intent getIntentFromUrl(String path, int rawId, boolean isInternalStorage) {
 
         Intent intent = new Intent(context, FolioActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -166,17 +193,26 @@ public class FolioReader {
 
         if (rawId != 0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawId);
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE,
-                    FolioActivity.EpubSourceType.RAW);
-        } else if (assetOrSdcardPath.contains(Constants.ASSET)) {
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetOrSdcardPath);
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE,
-                    FolioActivity.EpubSourceType.ASSETS);
+            intent.putExtra(
+                    FolioActivity.INTENT_EPUB_SOURCE_TYPE,
+                    FolioActivity.EpubSourceType.RAW
+            );
+        } else if (path.contains(Constants.ASSET)) {
+            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, path);
+            intent.putExtra(
+                    FolioActivity.INTENT_EPUB_SOURCE_TYPE,
+                    FolioActivity.EpubSourceType.ASSETS
+            );
         } else {
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetOrSdcardPath);
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE,
-                    FolioActivity.EpubSourceType.SD_CARD);
+            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, path);
+            intent.putExtra(
+                    FolioActivity.INTENT_EPUB_SOURCE_TYPE,
+                    FolioActivity.EpubSourceType.DEVICE_STORAGE
+            );
         }
+
+        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_STORAGE_TYPE, isInternalStorage);
+
 
         return intent;
     }
@@ -215,7 +251,8 @@ public class FolioReader {
                 .baseUrl(streamerUrl)
                 .addConverterFactory(new QualifiedTypeConverterFactory(
                         JacksonConverterFactory.create(),
-                        GsonConverterFactory.create()))
+                        GsonConverterFactory.create()
+                ))
                 .client(client)
                 .build();
 
@@ -229,6 +266,14 @@ public class FolioReader {
 
     public FolioReader setReadLocatorListener(ReadLocatorListener readLocatorListener) {
         this.readLocatorListener = readLocatorListener;
+        return singleton;
+    }
+
+
+    public FolioReader defaultReadLocator(@NonNull final Context context) {
+        DefaultReadLocatorManager defaultReadLocatorManager = new DefaultReadLocatorManager(context);
+        setReadLocatorListener(defaultReadLocatorManager);
+        setReadLocator(defaultReadLocatorManager.getLastReadLocator());
         return singleton;
     }
 
