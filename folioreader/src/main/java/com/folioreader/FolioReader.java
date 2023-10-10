@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RawRes;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -20,6 +21,7 @@ import com.folioreader.network.R2StreamerApi;
 import com.folioreader.ui.activity.FolioActivity;
 import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.ui.base.SaveReceivedHighlightTask;
+import com.folioreader.util.DefaultReadLocatorManager;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadLocatorListener;
 
@@ -125,12 +127,18 @@ public class FolioReader {
         DbAdapter.initialize(context);
 
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context);
-        localBroadcastManager.registerReceiver(highlightReceiver,
-                new IntentFilter(HighlightImpl.BROADCAST_EVENT));
-        localBroadcastManager.registerReceiver(readLocatorReceiver,
-                new IntentFilter(ACTION_SAVE_READ_LOCATOR));
-        localBroadcastManager.registerReceiver(closedReceiver,
-                new IntentFilter(ACTION_FOLIOREADER_CLOSED));
+        localBroadcastManager.registerReceiver(
+                highlightReceiver,
+                new IntentFilter(HighlightImpl.BROADCAST_EVENT)
+        );
+        localBroadcastManager.registerReceiver(
+                readLocatorReceiver,
+                new IntentFilter(ACTION_SAVE_READ_LOCATOR)
+        );
+        localBroadcastManager.registerReceiver(
+                closedReceiver,
+                new IntentFilter(ACTION_FOLIOREADER_CLOSED)
+        );
     }
 
     public FolioReader openBook(String deviceStoragePath, boolean isInternalStorage) {
@@ -185,19 +193,25 @@ public class FolioReader {
 
         if (rawId != 0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawId);
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE,
-                    FolioActivity.EpubSourceType.RAW);
+            intent.putExtra(
+                    FolioActivity.INTENT_EPUB_SOURCE_TYPE,
+                    FolioActivity.EpubSourceType.RAW
+            );
         } else if (path.contains(Constants.ASSET)) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, path);
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE,
-                    FolioActivity.EpubSourceType.ASSETS);
+            intent.putExtra(
+                    FolioActivity.INTENT_EPUB_SOURCE_TYPE,
+                    FolioActivity.EpubSourceType.ASSETS
+            );
         } else {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, path);
-            intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE,
-                    FolioActivity.EpubSourceType.DEVICE_STORAGE);
+            intent.putExtra(
+                    FolioActivity.INTENT_EPUB_SOURCE_TYPE,
+                    FolioActivity.EpubSourceType.DEVICE_STORAGE
+            );
         }
 
-        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_STORAGE_TYPE,isInternalStorage);
+        intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_STORAGE_TYPE, isInternalStorage);
 
 
         return intent;
@@ -237,7 +251,8 @@ public class FolioReader {
                 .baseUrl(streamerUrl)
                 .addConverterFactory(new QualifiedTypeConverterFactory(
                         JacksonConverterFactory.create(),
-                        GsonConverterFactory.create()))
+                        GsonConverterFactory.create()
+                ))
                 .client(client)
                 .build();
 
@@ -251,6 +266,14 @@ public class FolioReader {
 
     public FolioReader setReadLocatorListener(ReadLocatorListener readLocatorListener) {
         this.readLocatorListener = readLocatorListener;
+        return singleton;
+    }
+
+
+    public FolioReader defaultReadLocator(@NonNull final Context context) {
+        DefaultReadLocatorManager defaultReadLocatorManager = new DefaultReadLocatorManager(context);
+        setReadLocatorListener(defaultReadLocatorManager);
+        setReadLocator(defaultReadLocatorManager.getLastReadLocator());
         return singleton;
     }
 

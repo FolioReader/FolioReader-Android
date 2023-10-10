@@ -30,6 +30,7 @@ public class Constants {
     public static final int WRITE_EXTERNAL_STORAGE_REQUEST = 102;
     public static final String CHAPTER_ID = "id";
     public static final String HREF = "href";
+    public static final String LAST_READ_LOCATOR = "com.folioreader.model.locators.last_read_locator";
 
     public static String[] getWriteExternalStoragePerms() {
         return new String[]{
