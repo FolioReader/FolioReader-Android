@@ -104,25 +104,27 @@ public class MediaController {
         mTextToSpeech = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                if (status != TextToSpeech.ERROR) {
-                    mTextToSpeech.setLanguage(Locale.UK);
-                    mTextToSpeech.setSpeechRate(0.70f);
-                }
+                if (mTextToSpeech != null) {
+                    if (status != TextToSpeech.ERROR) {
+                        mTextToSpeech.setLanguage(Locale.UK);
+                        mTextToSpeech.setSpeechRate(0.70f);
+                    }
 
-                mTextToSpeech.setOnUtteranceCompletedListener(
-                        new TextToSpeech.OnUtteranceCompletedListener() {
-                            @Override
-                            public void onUtteranceCompleted(String utteranceId) {
-                                ((AppCompatActivity) context).runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (mIsSpeaking) {
-                                            callbacks.highLightTTS();
+                    mTextToSpeech.setOnUtteranceCompletedListener(
+                            new TextToSpeech.OnUtteranceCompletedListener() {
+                                @Override
+                                public void onUtteranceCompleted(String utteranceId) {
+                                    ((AppCompatActivity) context).runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (mIsSpeaking) {
+                                                callbacks.highLightTTS();
+                                            }
                                         }
-                                    }
-                                });
-                            }
-                        });
+                                    });
+                                }
+                            });
+                }
             }
         });
     }

@@ -241,10 +241,20 @@ class FolioPageFragment : Fragment(),
             getLastReadLocator()
 
         if (isAdded) {
-            mWebview!!.dismissPopupWindow()
-            mWebview!!.initViewTextSelection()
-            loadingView!!.updateTheme()
-            loadingView!!.show()
+            mWebview?.dismissPopupWindow()
+            mWebview?.initViewTextSelection()
+            
+            // Initialize loadingView properly if it's null
+            if (loadingView == null) {
+                loadingView = mRootView?.findViewById(R.id.loadingView)
+            }
+            
+            // Only update theme and show if loadingView is not null
+            if (loadingView != null) {
+                loadingView!!.updateTheme()
+                loadingView!!.show()
+            }
+            
             mIsPageReloaded = true
             setHtml(true)
             updatePagesLeftTextBg()

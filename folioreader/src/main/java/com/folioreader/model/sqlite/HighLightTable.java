@@ -4,13 +4,20 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.folioreader.Constants;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class HighLightTable {
@@ -110,14 +117,20 @@ public class HighLightTable {
         return DbAdapter.deleteById(TABLE_NAME, ID, String.valueOf(highlightId));
     }
 
+    @NotNull
     public static List<String> getHighlightsForPageId(String pageId) {
         String query = "SELECT " + COL_RANGY + " FROM " + TABLE_NAME + " WHERE " + COL_PAGE_ID + " = \"" + pageId + "\"";
         Cursor c = DbAdapter.getHighlightsForPageId(query, pageId);
         List<String> rangyList = new ArrayList<>();
-        while (c.moveToNext()) {
-            rangyList.add(c.getString(c.getColumnIndex(COL_RANGY)));
+        if (c != null) {
+            while (c.moveToNext()) {
+                int index = c.getColumnIndex(COL_RANGY);
+                if (index >= 0) {
+                    rangyList.add(c.getString(index));
+                }
+            }
+            c.close();
         }
-        c.close();
         return rangyList;
     }
 
@@ -190,6 +203,3 @@ public class HighLightTable {
         }
     }
 }
-
-
-

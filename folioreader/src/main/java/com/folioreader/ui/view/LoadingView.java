@@ -57,17 +57,28 @@ public class LoadingView extends ConstraintLayout {
                 0, 0);
 
         maxVisibleDuration = typedArray.getInt(R.styleable.LoadingView_maxVisibleDuration, -1);
+        typedArray.recycle();
 
         handler = new Handler();
-        progressBar = findViewById(R.id.progressBar);
-
-        setClickable(true);
-        setFocusable(true);
-
-        updateTheme();
-
-        if (getVisibility() == VISIBLE)
-            show();
+        
+        // Ensure we're properly attached to window before finding views
+        // This ensures the view hierarchy is fully created
+        post(new Runnable() {
+            @Override
+            public void run() {
+                progressBar = findViewById(R.id.progressBar);
+                
+                setClickable(true);
+                setFocusable(true);
+                
+                if (progressBar != null) {
+                    updateTheme();
+                }
+                
+                if (getVisibility() == VISIBLE)
+                    show();
+            }
+        });
     }
 
     public void updateTheme() {
@@ -75,7 +86,11 @@ public class LoadingView extends ConstraintLayout {
         Config config = AppUtil.getSavedConfig(getContext());
         if (config == null)
             config = new Config();
-        UiUtil.setColorIntToDrawable(config.getThemeColor(), progressBar.getIndeterminateDrawable());
+        
+        if (progressBar != null && progressBar.getIndeterminateDrawable() != null) {
+            UiUtil.setColorIntToDrawable(config.getThemeColor(), progressBar.getIndeterminateDrawable());
+        }
+        
         if (config.isNightMode()) {
             setBackgroundColor(ContextCompat.getColor(getContext(), R.color.night_background_color));
         } else {

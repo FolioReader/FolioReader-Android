@@ -104,11 +104,15 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-jackson:$versions.retrofit"
     implementation "com.squareup.retrofit2:converter-gson:$versions.retrofit"
 
+
+    implementation("com.github.kittinunf.fuel:fuel:2.2.3")
+    implementation("com.github.kittinunf.fuel:fuel-android:2.2.3")
+
     // R2 modules
-    api("com.github.codetoart:r2-shared-kotlin:$versions.r2SharedKotlin") {
+    implementation("com.github.codetoart:r2-shared-kotlin:$versions.r2SharedKotlin") {
         changing = true
     }
-    api("com.github.codetoart:r2-streamer-kotlin:$versions.r2StreamerKotlin") {
+    implementation("com.github.codetoart:r2-streamer-kotlin:$versions.r2StreamerKotlin") {
         exclude group: "org.slf4j", module: "slf4j-api"
         changing = true
     }
@@ -119,4 +123,6 @@ dependencies {
     // Lifecycle
     implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
 }
+
+
 apply from: '../folioreader/bintray/bintrayv1.gradle'

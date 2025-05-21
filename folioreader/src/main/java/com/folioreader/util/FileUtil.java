@@ -3,13 +3,17 @@ package com.folioreader.util;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.folioreader.Constants;
 import com.folioreader.ui.activity.FolioActivity;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Created by Mahavir on 12/15/16.
@@ -19,26 +23,28 @@ public class FileUtil {
     private static final String TAG = FileUtil.class.getSimpleName();
     private static final String FOLIO_READER_ROOT = "folioreader";
 
-    public static String saveEpubFileAndLoadLazyBook(final Context context,
-                                                     FolioActivity.EpubSourceType epubSourceType,
-                                                     String epubFilePath,
-                                                     int epubRawId, String epubFileName) {
-        String filePath;
-        InputStream epubInputStream;
-        boolean isFolderAvailable;
+    public static String saveEpubFileAndLoadLazyBook(
+            final Context context,
+            FolioActivity.EpubSourceType epubSourceType,
+            String epubFilePath,
+            int epubRawId,
+            String epubFileName
+    ) {
         try {
-            isFolderAvailable = isFolderAvailable(epubFileName);
-            filePath = getFolioEpubFilePath(epubSourceType, epubFilePath, epubFileName);
 
+            boolean isFolderAvailable = isFolderAvailable(epubFileName, context);
+            String filePath = getFolioEpubFilePath(epubSourceType, epubFilePath, epubFileName, context);
+
+            InputStream epubInputStream;
             if (!isFolderAvailable) {
                 if (epubSourceType.equals(FolioActivity.EpubSourceType.RAW)) {
                     epubInputStream = context.getResources().openRawResource(epubRawId);
-                    saveTempEpubFile(filePath, epubFileName, epubInputStream);
+                    saveTempEpubFile(filePath, epubFileName, epubInputStream, context);
                 } else if (epubSourceType.equals(FolioActivity.EpubSourceType.ASSETS)) {
                     AssetManager assetManager = context.getAssets();
                     epubFilePath = epubFilePath.replaceAll(Constants.ASSET, "");
                     epubInputStream = assetManager.open(epubFilePath);
-                    saveTempEpubFile(filePath, epubFileName, epubInputStream);
+                    saveTempEpubFile(filePath, epubFileName, epubInputStream, context);
                 } else {
                     filePath = epubFilePath;
                 }
@@ -51,26 +57,36 @@ public class FileUtil {
         return null;
     }
 
-    public static String getFolioEpubFolderPath(String epubFileName) {
-        return Environment.getExternalStorageDirectory().getAbsolutePath()
-                + "/" + FOLIO_READER_ROOT + "/" + epubFileName;
+
+    private static boolean isFolderAvailable(String epubFileName, Context context) {
+        File file = new File(getFolioEpubFolderPath(epubFileName, context));
+        return file.exists() && file.isDirectory();
     }
 
-    public static String getFolioEpubFilePath(FolioActivity.EpubSourceType sourceType, String epubFilePath, String epubFileName) {
-        if (FolioActivity.EpubSourceType.SD_CARD.equals(sourceType)) {
+    public static String getFolioEpubFolderPath(String epubFileName, Context context) {
+        return context.getCacheDir().getAbsolutePath() + "/" + FOLIO_READER_ROOT + "/" + epubFileName;
+    }
+
+    public static String getFolioEpubFilePath(
+            FolioActivity.EpubSourceType sourceType,
+            String epubFilePath,
+            String epubFileName,
+            Context context
+    ) {
+        if (FolioActivity.EpubSourceType.DEVICE_STORAGE.equals(sourceType)) {
             return epubFilePath;
         } else {
-            return getFolioEpubFolderPath(epubFileName) + "/" + epubFileName + ".epub";
+            return getFolioEpubFolderPath(epubFileName, context) + "/" + epubFileName + ".epub";
         }
     }
 
-    private static boolean isFolderAvailable(String epubFileName) {
-        File file = new File(getFolioEpubFolderPath(epubFileName));
-        return file.isDirectory();
-    }
 
-    public static String getEpubFilename(Context context, FolioActivity.EpubSourceType epubSourceType,
-                                         String epubFilePath, int epubRawId) {
+    public static String getEpubFilename(
+            Context context,
+            FolioActivity.EpubSourceType epubSourceType,
+            String epubFilePath,
+            int epubRawId
+    ) {
         String epubFileName;
         if (epubSourceType.equals(FolioActivity.EpubSourceType.RAW)) {
             Resources res = context.getResources();
@@ -85,12 +101,13 @@ public class FileUtil {
         return epubFileName;
     }
 
-    public static Boolean saveTempEpubFile(String filePath, String fileName, InputStream inputStream) {
-        OutputStream outputStream = null;
-        File file = new File(filePath);
+    public static void saveTempEpubFile(String filePath, String fileName, InputStream inputStream, Context context) {
         try {
+            OutputStream outputStream;
+            File file = new File(filePath);
+
             if (!file.exists()) {
-                File folder = new File(getFolioEpubFolderPath(fileName));
+                File folder = new File(getFolioEpubFolderPath(fileName, context));
                 folder.mkdirs();
 
                 outputStream = new FileOutputStream(file);
@@ -100,15 +117,13 @@ public class FileUtil {
                 while ((read = inputStream.read(bytes)) != -1) {
                     outputStream.write(bytes, 0, read);
                 }
-            } else {
-                return true;
+
+                inputStream.close();
+                outputStream.close();
             }
-            inputStream.close();
-            outputStream.close();
         } catch (IOException e) {
             Log.e(TAG, e.getMessage());
         }
-        return false;
     }
 
     public static String getExtensionUppercase(String path) {

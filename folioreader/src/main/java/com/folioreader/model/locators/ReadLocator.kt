@@ -40,7 +40,7 @@ open class ReadLocator : Locator, Parcelable {
         parcel.readSerializable() as LocatorText?
     )
 
-    override fun writeToParcel(dest: Parcel?, flags: Int) {
+    override fun writeToParcel(dest: Parcel, flags: Int) {
         dest?.writeString(bookId)
         dest?.writeString(href)
         dest?.writeLong(created)
