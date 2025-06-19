@@ -116,6 +116,7 @@ dependencies {
     // Only ReflectionUtils in Spring framework is used
     implementation 'org.springframework:spring-core:4.3.19.RELEASE'
 
+    implementation("com.github.kittinunf.fuel:fuel:2.3.1")
     // Lifecycle
     implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
 }
